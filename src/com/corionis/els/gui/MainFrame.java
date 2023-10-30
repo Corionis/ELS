@@ -553,6 +553,8 @@ public class MainFrame extends JFrame
         menuItemCloseSubscriber = new JMenuItem();
         menuItemCloseHintKeys = new JMenuItem();
         menuItemCloseHintTracking = new JMenuItem();
+        menuItemGenerate = new JMenuItem();
+        menuItemSaveLayout = new JMenuItem();
         menuItemQuitTerminate = new JMenuItem();
         menuItemFileQuit = new JMenuItem();
         menuEdit = new JMenu();
@@ -591,8 +593,6 @@ public class MainFrame extends JFrame
         menuItemHintKeys = new JMenuItem();
         menuItemBlacklist = new JMenuItem();
         menuItemWhitelist = new JMenuItem();
-        menuItemGenerate = new JMenuItem();
-        menuItemSaveLayout = new JMenuItem();
         menuItemSettings = new JMenuItem();
         menuWindows = new JMenu();
         menuItemMaximize = new JMenuItem();
@@ -866,6 +866,19 @@ public class MainFrame extends JFrame
                 menuFile.add(menuItemClose);
                 menuFile.addSeparator();
 
+                //---- menuItemGenerate ----
+                menuItemGenerate.setText(context.cfg.gs("Navigator.menuItemGenerate.text"));
+                menuItemGenerate.setMnemonic(context.cfg.gs("Navigator.menuItemGenerate.mnemonic").charAt(0));
+                menuItemGenerate.setIcon(new ImageIcon(getClass().getResource("/generate.png")));
+                menuFile.add(menuItemGenerate);
+
+                //---- menuItemSaveLayout ----
+                menuItemSaveLayout.setText(context.cfg.gs("Navigator.menu.SaveLayout.text"));
+                menuItemSaveLayout.setMnemonic(context.cfg.gs("Navigator.menu.SaveLayout.mnemonic_3").charAt(0));
+                menuItemSaveLayout.setIcon(new ImageIcon(getClass().getResource("/save-layout.png")));
+                menuFile.add(menuItemSaveLayout);
+                menuFile.addSeparator();
+
                 //---- menuItemQuitTerminate ----
                 menuItemQuitTerminate.setText(context.cfg.gs("Navigator.menu.QuitTerminate.text"));
                 menuItemQuitTerminate.setMnemonic(context.cfg.gs("Navigator.menuItemQuitTerminate.mnemonic").charAt(0));
@@ -1120,19 +1133,6 @@ public class MainFrame extends JFrame
                 menuItemWhitelist.setMnemonic(context.cfg.gs("Navigator.menuItemWhitelist.mnemonic").charAt(0));
                 menuItemWhitelist.setIcon(new ImageIcon(getClass().getResource("/whitelist.png")));
                 menuSystem.add(menuItemWhitelist);
-                menuSystem.addSeparator();
-
-                //---- menuItemGenerate ----
-                menuItemGenerate.setText(context.cfg.gs("Navigator.menuItemGenerate.text"));
-                menuItemGenerate.setMnemonic(context.cfg.gs("Navigator.menuItemGenerate.mnemonic").charAt(0));
-                menuItemGenerate.setIcon(new ImageIcon(getClass().getResource("/generate.png")));
-                menuSystem.add(menuItemGenerate);
-
-                //---- menuItemSaveLayout ----
-                menuItemSaveLayout.setText(context.cfg.gs("Navigator.menu.SaveLayout.text"));
-                menuItemSaveLayout.setMnemonic(context.cfg.gs("Navigator.menu.SaveLayout.mnemonic_3").charAt(0));
-                menuItemSaveLayout.setIcon(new ImageIcon(getClass().getResource("/save-layout.png")));
-                menuSystem.add(menuItemSaveLayout);
                 menuSystem.addSeparator();
 
                 //---- menuItemSettings ----
@@ -2678,6 +2678,8 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemCloseSubscriber;
     public JMenuItem menuItemCloseHintKeys;
     public JMenuItem menuItemCloseHintTracking;
+    public JMenuItem menuItemGenerate;
+    public JMenuItem menuItemSaveLayout;
     public JMenuItem menuItemQuitTerminate;
     public JMenuItem menuItemFileQuit;
     public JMenu menuEdit;
@@ -2716,8 +2718,6 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemHintKeys;
     public JMenuItem menuItemBlacklist;
     public JMenuItem menuItemWhitelist;
-    public JMenuItem menuItemGenerate;
-    public JMenuItem menuItemSaveLayout;
     public JMenuItem menuItemSettings;
     public JMenu menuWindows;
     public JMenuItem menuItemMaximize;

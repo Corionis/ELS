@@ -1430,6 +1430,21 @@ new FormModel {
 						name: "separator2"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemGenerate"
+						"text": new FormMessage( null, "Navigator.menuItemGenerate.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemGenerate.mnemonic" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/generate.png" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemSaveLayout"
+						"text": new FormMessage( null, "Navigator.menu.SaveLayout.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.SaveLayout.mnemonic_3" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/save-layout.png" )
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator18"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemQuitTerminate"
 						"text": new FormMessage( null, "Navigator.menu.QuitTerminate.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemQuitTerminate.mnemonic" )
@@ -1692,21 +1707,6 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separatorEdit1"
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemGenerate"
-						"text": new FormMessage( null, "Navigator.menuItemGenerate.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemGenerate.mnemonic" )
-						"icon": new com.jformdesigner.model.SwingIcon( 0, "/generate.png" )
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemSaveLayout"
-						"text": new FormMessage( null, "Navigator.menu.SaveLayout.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.SaveLayout.mnemonic_3" )
-						"icon": new com.jformdesigner.model.SwingIcon( 0, "/save-layout.png" )
-					} )
-					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separator18"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSettings"

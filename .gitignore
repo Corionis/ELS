@@ -35,3 +35,4 @@ hs_err_pid*
 /build/*.tar.gz
 /build/*.zip
 /docs/_site/
+/docs/artifacts/.~lock.scenarios.odg#
