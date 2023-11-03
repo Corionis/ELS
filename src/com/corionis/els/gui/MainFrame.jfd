@@ -18,7 +18,7 @@ new FormModel {
 			"iconImage": new com.jformdesigner.model.SwingIcon( 0, "/els-logo-98px.png" )
 			"defaultCloseOperation": 0
 			"locationByPlatform": true
-			"title": "ELS Navigator"
+			"title": "Corionis ELS Navigator"
 			auxiliary() {
 				"JavaCodeGenerator.variableGetter": true
 			}

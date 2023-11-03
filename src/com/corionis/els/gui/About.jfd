@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.13" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.0.0.338" Java: "17.0.8" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -30,7 +30,7 @@ new FormModel {
 					"preferredSize": new java.awt.Dimension( 296, 246 )
 					add( new FormComponent( "javax.swing.JLabel" ) {
 						name: "labelTitle"
-						"text": "ELS - Entertainment Library Synchronizer"
+						"text": "Corionis ELS - Entertainment Library Synchronizer"
 						"horizontalTextPosition": 10
 						"horizontalAlignment": 4
 					}, new FormLayoutConstraints( class java.lang.String ) {

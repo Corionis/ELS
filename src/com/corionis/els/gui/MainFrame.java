@@ -789,7 +789,7 @@ public class MainFrame extends JFrame
         setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setLocationByPlatform(true);
-        setTitle("ELS Navigator");
+        setTitle("Corionis ELS Navigator");
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {

@@ -31,10 +31,10 @@ public class Configuration
     public static final String ELS_JAR = "ELS.jar";
     public static final String ELS_UPDATE = "__els-update__";
     public static final int JOB_PROCESS = 8;
-    public static final String NAVIGATOR_NAME = "ELS Navigator";
+    public static final String NAVIGATOR_NAME = "Corionis ELS Navigator";
     public static final int NOT_REMOTE = 0;
     public static final int NOT_SET = -1;
-    public static final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
+    public static final String PROGRAM_NAME = "Corionis ELS : Entertainment Library Synchronizer";
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
     public static final int PUBLISH_REMOTE = 1;

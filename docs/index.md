@@ -3,7 +3,7 @@ layout: default
 show_blog: false
 ---
 
-<center><span style="font-size: 28px; font-face: bold; font-weight: bold; margin-top: 10px; color: #925600;">ELS Version 4</span></center>
+<center><span style="font-size: 28px; font-face: bold; font-weight: bold; margin-top: 10px; color: #925600;">What Is ELS?</span></center>
 <hr/>
 <span class="construction">&nbsp;This site is under construction and incomplete&nbsp;</span>
 

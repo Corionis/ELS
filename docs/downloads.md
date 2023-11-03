@@ -29,23 +29,27 @@ Use the buttons at the top of this page <img style="vertical-align:middle" src="
 
 ## &bull; Installation
 
-### Linux & macOS
+### &nbsp;&nbsp;&nbsp; Linux & macOS
 
-Unpack the .tar.gz anywhere you have write permissions.
+ * Unpack the .tar.gz anywhere you have write permissions.<br/>
+   Run the ``` ELS-Navigator.sh ``` script in the root of that directory.
 
-Run the ``` ELS-Navigator.sh ``` script in the root of that directory.
+### &nbsp;&nbsp;&nbsp; Windows
 
-### Windows
+ * Using the Windows installer: The installation directory may be changed with the Options button.
+   A desktop shortcut is created. A standard uninstaller is included. Entertainment Library Synchronizer will
+   appear in the Start Menu, and in Control Panel, Programs & Features.
 
-Run the ELS Windows installer. The installation directory may be changed with the Options button.
-A desktop shortcut is created. A standard uninstaller is included. Entertainment Library Synchronizer will
-appear in the Start Menu, and in Control Panel, Programs & Features.
+ * Using the Windows .zip: Unpack the .zip anywhere you have write permission.
+   Run ``` ELS-Navigator.exe ``` script in the root of that directory.
+
 
 ## &bull; Updates
 
 ELS Navigator uses a matching auto-updater that it downloads from the GitHub project.
 
 Use Help, Check for Updates ... to see if a new build is available. If so a dialog
-is displayed with Yes, No, and Changelist that will display the list of the latest changes.
+is displayed with Yes, No, and Changelist that will display the list of the latest changes
+from GitHub.
 
 Help, Changelist shows the list of changes in the installed version.

@@ -274,6 +274,7 @@
 
     <!-- Configure the GitHub Pages _config.yml YAML file for deployment -->
     <target name="deploy-website">
+        <delete file="docs/_config.yml"/>
         <copy file="artifacts/stage/_config.yml" todir="docs"/>
         <echo file="docs/_config.yml" append="true">version: ${els.version.name}${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">build: ${STRINGNOW}${line.separator}</echo>

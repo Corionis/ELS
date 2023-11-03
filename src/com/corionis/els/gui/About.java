@@ -84,7 +84,7 @@ public class About extends JDialog
                 contentPanel.setLayout(new BorderLayout());
 
                 //---- labelTitle ----
-                labelTitle.setText("ELS - Entertainment Library Synchronizer");
+                labelTitle.setText("Corionis ELS - Entertainment Library Synchronizer");
                 labelTitle.setHorizontalTextPosition(SwingConstants.LEADING);
                 labelTitle.setHorizontalAlignment(SwingConstants.RIGHT);
                 contentPanel.add(labelTitle, BorderLayout.NORTH);

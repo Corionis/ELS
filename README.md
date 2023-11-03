@@ -1,6 +1,6 @@
 ![ELS logo](https://github.com/Corionis/ELS/blob/master/artifacts/images/els-logo-98px.png)
 
-# ELS : Entertainment Library Synchronizer
+# Corionis ELS : Entertainment Library Synchronizer
 
 Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built tool
 for preparing, managing and backing-up media for creators of all kinds

@@ -1,6 +1,6 @@
 ![ELS logo](https://github.com/Corionis/ELS/blob/master/artifacts/images/els-logo-98px.png)
 
-# ELS : Entertainment Library Synchronizer
+# Corionis ELS : Entertainment Library Synchronizer
 
 Entertainment Library Synchronizer (ELS) is a backup tool for home
 media systems. ELS views media spanning multiple hard drives the same
@@ -12,7 +12,7 @@ have to match on the back-up allowing a media library to grow "organically".
 ## Features
 
  * New ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
- * New ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
+ * New ELS Hint Status Server to coordinate remote hint status, new in 3.1.0.
  * New ELS Hints to coordinate manual changes, new in 3.0.0.
 
  * Supports movies, television shows with season subdirectories, 
