@@ -41,7 +41,7 @@ Use the buttons at the top of this page <img style="vertical-align:middle" src="
    appear in the Start Menu, and in Control Panel, Programs & Features.
 
  * Using the Windows .zip: Unpack the .zip anywhere you have write permission.
-   Run ``` ELS-Navigator.exe ``` script in the root of that directory.
+   Run ``` ELS-Navigator.exe ``` in the root of that directory.
 
 
 ## &bull; Updates
