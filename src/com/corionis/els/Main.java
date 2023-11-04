@@ -279,12 +279,12 @@ public class Main
                 //logger.trace("loaded locale: " + filePart);
                 localeAbbrev = filePart;
 
+            // use preferences for empty publisher/subscriber/hint server arguments for Navigator
+            checkEmptyArguments();
+
             // re-throw any configuration exception
             if (cfgException != null)
                 throw cfgException;
-
-            // use preferences for empty publisher/subscriber/hint server arguments for Navigator
-            checkEmptyArguments();
 
             //
             // an execution of this program can only be configured as one of these operations
@@ -689,10 +689,6 @@ public class Main
                 {
                     logger.error(Utils.getStackTrace(e));
                 }
-                else
-                {
-                    System.out.println(Utils.getStackTrace(e));
-                }
 
                 if (context.cfg.isNavigator())
                 {
@@ -1014,13 +1010,13 @@ public class Main
                 if (keys)
                     context.cfg.setHintKeysFile("");
 
+                if (msg.length() > 0)
+                    msg += "<br/>" + e.toString();
+                else
+                    msg = e.toString();
+
                 if (isStartupActive())
                 {
-                    if (msg.length() > 0)
-                        msg += "<br/>" + e.toString();
-                    else
-                        msg = e.toString();
-
                     int opt = JOptionPane.showConfirmDialog(getGuiLogAppender().getStartup(),
                             "<html><body>" + msg + "<br/><br/>Continue?</body></html>",
                             context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);

@@ -2133,7 +2133,10 @@ public class Configuration
                     break;
                 default:
                     if (!args[index].endsWith(".exe"))
+                    {
+                        context.fault = true;
                         throw new MungeException("Error: unknown option: " + args[index]);
+                    }
             }
         }
     }
