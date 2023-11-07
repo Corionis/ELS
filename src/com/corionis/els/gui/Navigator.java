@@ -1463,7 +1463,7 @@ public class Navigator
                         lastFindString = context.mainFrame.textAreaLog.getSelectedText();
 
                     Object obj = JOptionPane.showInputDialog(context.mainFrame,
-                            context.cfg.gs("Operations.find"),
+                            context.cfg.gs("Navigator.popupMenuItemFind.title"),
                             name, JOptionPane.QUESTION_MESSAGE,
                             null, null, lastFindString);
                     lastFindString = (String) obj;
