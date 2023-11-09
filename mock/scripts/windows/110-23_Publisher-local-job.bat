@@ -7,7 +7,7 @@ set name=%~n0
 
 cd ..\..
 
-java -jar bin/ELS.jar -C . -j "20 Renamer Tests" -F output/110-23_Publisher-local-job.log
+rt/bin/java -jar bin/ELS.jar -C . -j "20 Renamer Tests" -F output/110-23_Publisher-local-job.log
 
 cd /d "%base%"
 

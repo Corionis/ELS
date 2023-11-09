@@ -7,7 +7,7 @@ set name=%~n0
 
 cd ..\..
 
-java -jar bin/ELS.jar -C . -c debug -d debug -p libraries/publisher.json -F output/00-05_Duplicates.log --duplicates
+rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug -p libraries/publisher.json -F output/00-05_Duplicates.log --duplicates
 
 cd /d "%base%"
 

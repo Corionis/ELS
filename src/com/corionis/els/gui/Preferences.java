@@ -855,6 +855,11 @@ public class Preferences implements Serializable
         {
             if (isInitial) // not sure if this matters
             {
+                if (Utils.getOS().equalsIgnoreCase("mac"))
+                {
+                    System.setProperty("apple.laf.useScreenMenuBar", "true");
+                }
+
                 UIManager.put("Tree.showDefaultIcons", true);
                 UIManager.put("ScrollBar.showButtons", true); // show scrollbar up/down buttons
                 UIManager.put("Component.hideMnemonics", false); // show/hide mnemonic letters

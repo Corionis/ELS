@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar bin/ELS.jar -C . -k system/hint.keys -c debug -d debug --remote S --authorize sharkbait -p libraries/publisher.json -S libraries/subscriber-one.json -T -F output/050-21_Subscriber-One-listener.log
+rt/bin/java -jar bin/ELS.jar -C . -k system/hint.keys -c debug -d debug --remote S --authorize sharkbait -p libraries/publisher.json -S libraries/subscriber-one.json -T -F output/050-21_Subscriber-One-listener.log

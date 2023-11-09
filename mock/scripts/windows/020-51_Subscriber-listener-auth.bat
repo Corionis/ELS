@@ -7,7 +7,7 @@ set name=%~n0
 
 cd ..\..
 
-java -jar bin/ELS.jar -C . -c debug -d debug --auth-keys system/authorization.keys --remote S -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/020-51_Subscriber-listener-auth.log
+rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug --auth-keys system/authorization.keys --remote S -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/020-51_Subscriber-listener-auth.log
 
 cd /d "%base%"
 

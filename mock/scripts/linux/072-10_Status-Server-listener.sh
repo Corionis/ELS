@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar bin/ELS.jar -C . -c debug -d debug --hint-server libraries/hint-server.json -K system/hint.keys -F output/072-10_Status-Server-listener.log
+rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug --hint-server libraries/hint-server.json -K system/hint.keys -F output/072-10_Status-Server-listener.log

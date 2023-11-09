@@ -7,7 +7,7 @@ set name=%~n0
 
 cd ..\..
 
-java -jar bin/ELS.jar -C . -c debug -d debug -F output/080-01_Navigator.log %*
+rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug -F output/080-01_Navigator.log %*
 
 cd /d "%base%"
 

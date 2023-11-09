@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar bin/ELS.jar -C . -c debug -d debug -p libraries/publisher.json -F output/000-06_Duplicates-crosscheck.log --duplicates --cross-check
+rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug -p libraries/publisher.json -F output/000-06_Duplicates-crosscheck.log --duplicates --cross-check

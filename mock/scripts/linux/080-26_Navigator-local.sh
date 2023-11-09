@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar 'bin/ELS.jar' -C . --navigator -c trace -d trace -P libraries/publisher.json -s libraries/subscriber-one.json -F output/080-26_Navigator-local.log
+rt/bin/java -jar 'bin/ELS.jar' -C . --navigator -c trace -d trace -P libraries/publisher.json -s libraries/subscriber-one.json -F output/080-26_Navigator-local.log
 

@@ -17,5 +17,5 @@ fi
 
 #java -jar bin/ELS.jar -C . --navigator -c debug -d debug -k system/hint.keys -P libraries/publisher.json -s libraries/subscriber-one.json -F output/090-26_Navigator-hint-keys.log
 
-java -jar bin/ELS.jar -C . --navigator -c debug -d debug -k system/hint.keys -P libraries/publisher.json -F output/090-26_Navigator-hint-keys.log
+rt/bin/java -jar bin/ELS.jar -C . --navigator -c debug -d debug -k system/hint.keys -P libraries/publisher.json -F output/090-26_Navigator-hint-keys.log
 

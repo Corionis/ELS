@@ -129,6 +129,22 @@
         <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.tar.gz -C out/ELS/tar ELS"/>
     </target>
 
+    <!-- Build ELS macOS .dmg -->
+    <target name="els-macos" depends="els-jar">
+        <delete failonerror="false">
+            <fileset dir="build">
+                <include name="ELS-*.dmg"/>
+            </fileset>
+        </delete>
+        <mkdir dir="out/ELS/dmg/ELS"/>
+        <exec command="cp -rpf artifacts/stage/linux/ELS out/ELS/tar/" failonerror="true"/>
+        <copy file="mock/bin/update.info" tofile="out/ELS/tar/ELS/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.ico" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.png" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/ELS.jar" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
+        <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.tar.gz -C out/ELS/tar ELS"/>
+    </target>
+
     <!-- Build ELS Windows .zip -->
     <target name="els-windows" depends="els-jar">
         <delete failonerror="false">
