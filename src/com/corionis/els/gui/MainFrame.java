@@ -64,6 +64,9 @@ public class MainFrame extends JFrame
             setTitle(context.cfg.getNavigatorName());
             setBrowserTabs(-1);
 
+            if (Utils.getOS().equalsIgnoreCase("mac"))
+                getRootPane().putClientProperty( "apple.awt.fullscreenable", true );
+
             // re-create the right-side tables, for getToolTipText(), and re-setup
             tableCollectionOne = new JTable ()
             {

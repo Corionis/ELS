@@ -32,6 +32,7 @@ public class Configuration
     public static final String ELS_UPDATE = "__els-update__";
     public static final int JOB_PROCESS = 8;
     public static final String NAVIGATOR_NAME = "Corionis ELS Navigator";
+    public static final String NAVIGATOR_SHORTNAME = "ELS Navigator";
     public static final int NOT_REMOTE = 0;
     public static final int NOT_SET = -1;
     public static final String PROGRAM_NAME = "Corionis ELS : Entertainment Library Synchronizer";

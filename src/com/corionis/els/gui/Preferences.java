@@ -858,6 +858,8 @@ public class Preferences implements Serializable
                 if (Utils.getOS().equalsIgnoreCase("mac"))
                 {
                     System.setProperty("apple.laf.useScreenMenuBar", "true");
+                    System.setProperty( "apple.awt.application.name", context.cfg.NAVIGATOR_SHORTNAME);
+                    System.setProperty("apple.awt.application.appearance", "system");
                 }
 
                 UIManager.put("Tree.showDefaultIcons", true);
