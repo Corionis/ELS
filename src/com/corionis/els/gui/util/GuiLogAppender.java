@@ -3,6 +3,7 @@ package com.corionis.els.gui.util;
 import com.corionis.els.Configuration;
 import com.corionis.els.Context;
 
+import com.corionis.els.Utils;
 import com.corionis.els.gui.Startup;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
@@ -157,10 +158,22 @@ public class GuiLogAppender extends AbstractAppender
                             startup.setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
                             startup.setTitle(context.cfg.getNavigatorName());
                             startup.labelVersion.setText("Version " + Configuration.getBuildVersionName());
-                            if (context.preferences.getAppXpos() >= 0)
+
+                            if (context.preferences != null && Utils.isOnScreen(context.preferences.getAppXpos(), context.preferences.getAppYpos()))
                             {
                                 int x = context.preferences.getAppXpos() + (context.preferences.getAppWidth() / 2) - (startup.getWidth() / 2);
                                 int y = context.preferences.getAppYpos() + (context.preferences.getAppHeight() / 2) - (startup.getHeight() / 2);
+                                startup.setLocation(x, y);
+                            }
+                            else
+                            {
+                                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                                int x = screenSize.width / 2 - startup.getWidth() / 2;
+                                if (x < 0)
+                                    x = 1;
+                                int y = screenSize.height / 2 - startup.getHeight() / 2;
+                                if (y < 0)
+                                    y = 1;
                                 startup.setLocation(x, y);
                             }
                             startup.setVisible(true);

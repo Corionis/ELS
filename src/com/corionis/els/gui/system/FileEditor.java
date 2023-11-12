@@ -40,7 +40,7 @@ public class FileEditor extends JDialog
     private String helpTip;
     private HintKeys hintKeys = null;
     private ArrayList<String> ipAddresses = null;
-    private Logger logger = LogManager.getLogger("applog");
+    private Logger logger = LogManager.getLogger("FileEditorlog");
     private MainFrame mf;
     private EditorTypes type;
 
@@ -362,20 +362,15 @@ public class FileEditor extends JDialog
         labelSystemHelp.setIcon(replacement);
 
         // position, size & dividers
-        if (context.preferences.getFileEditorXpos() > 0)
+        if (context.preferences.getFileEditorXpos() != 0 && Utils.isOnScreen(context.preferences.getFileEditorXpos(), context.preferences.getFileEditorYpos()))
         {
+            this.setLocation(context.preferences.getFileEditorXpos(), context.preferences.getFileEditorYpos());
             Dimension dim = new Dimension(context.preferences.getFileEditorWidth(), context.preferences.getFileEditorHeight());
             this.setSize(dim);
-            this.setLocation(context.preferences.getFileEditorXpos(), context.preferences.getFileEditorYpos());
         }
         else
         {
-            Point parentPos = this.getParent().getLocation();
-            Dimension parentSize = this.getParent().getSize();
-            Dimension mySize = this.getSize();
-            Point myPos = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
-                    parentPos.y + (parentSize.height / 2 - mySize.height / 2));
-            this.setLocation(myPos);
+            this.setLocation(Utils.getRelativePosition(this));
         }
 
         // Escape key

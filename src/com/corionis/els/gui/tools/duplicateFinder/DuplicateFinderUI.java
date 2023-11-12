@@ -51,7 +51,8 @@ public class DuplicateFinderUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsDuplicateFinderXpos() > 0)
+        if (context.preferences.getToolsDuplicateFinderXpos() != 0 && Utils.isOnScreen(context.preferences.getToolsDuplicateFinderXpos(),
+                context.preferences.getToolsDuplicateFinderYpos()))
         {
             this.setLocation(context.preferences.getToolsDuplicateFinderXpos(), context.preferences.getToolsDuplicateFinderYpos());
             Dimension dim = new Dimension(context.preferences.getToolsDuplicateFinderWidth(), context.preferences.getToolsDuplicateFinderHeight());
@@ -59,12 +60,7 @@ public class DuplicateFinderUI extends JDialog
         }
         else
         {
-            Point parentPos = this.getParent().getLocation();
-            Dimension parentSize = this.getParent().getSize();
-            Dimension mySize = this.getSize();
-            Point myPos = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
-                    parentPos.y + (parentSize.height / 2 - mySize.height / 2));
-            this.setLocation(myPos);
+            this.setLocation(Utils.getRelativePosition(this));
         }
 
         // Escape key

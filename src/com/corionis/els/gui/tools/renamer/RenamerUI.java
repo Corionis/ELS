@@ -76,21 +76,18 @@ public class RenamerUI extends AbstractToolDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsRenamerXpos() > 0)
+        if (context.preferences.getToolsRenamerXpos() != 0 && Utils.isOnScreen(context.preferences.getToolsRenamerXpos(),
+                context.preferences.getToolsRenamerYpos()))
         {
             this.setLocation(context.preferences.getToolsRenamerXpos(), context.preferences.getToolsRenamerYpos());
             Dimension dim = new Dimension(context.preferences.getToolsRenamerWidth(), context.preferences.getToolsRenamerHeight());
             this.setSize(dim);
+
             this.splitPaneContent.setDividerLocation(context.preferences.getToolsRenamerDividerLocation());
         }
         else
         {
-            Point parentPos = this.getParent().getLocation();
-            Dimension parentSize = this.getParent().getSize();
-            Dimension mySize = this.getSize();
-            Point myPos = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
-                    parentPos.y + (parentSize.height / 2 - mySize.height / 2));
-            this.setLocation(myPos);
+            this.setLocation(Utils.getRelativePosition(this));
         }
 
         // Escape key

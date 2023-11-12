@@ -11,6 +11,7 @@ import com.corionis.els.gui.util.RotatedIcon;
 import com.corionis.els.gui.util.SmartScroller;
 import com.corionis.els.gui.util.TextIcon;
 import com.corionis.els.gui.util.VerticalLabel;
+import javafx.stage.Screen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,16 +35,16 @@ import java.awt.event.*;
  * <br/>
  * Uses free components from FormDev: <br/>
  *  - FlatLaf look 'n feel, https://www.formdev.com/flatlaf/ <br/>
- *  - Themes: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes
- *  - Download from: https://search.maven.org/artifact/com.formdev/flatlaf-intellij-themes
+ *  - Themes: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes <br/>
+ *  - Download from: https://search.maven.org/artifact/com.formdev/flatlaf-intellij-themes <br/>
  * <br/>
  * See also: <br/>
  *  - https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-extras <br/>
- *
- *  Menu icon color:  #3592C4
- *  Menu icon size:   14x14 px
- *  Accent color:     #2675BF  see Preferences
- *
+ * <br/>
+ *  Menu icon color:  #3592C4 <br/>
+ *  Menu icon size:   14x14 px <br/>
+ *  Accent color:     #2675BF  see Preferences <br/>
+ * <br/>
  *  Icon source:  https://www.iconsdb.com
  */
 public class MainFrame extends JFrame
@@ -324,6 +325,11 @@ public class MainFrame extends JFrame
         }
     }
 
+    private void cardShown(ComponentEvent e)
+    {
+        context.libraries.cardShown(e);
+    }
+
     private boolean changesCheckAll()
     {
         boolean changes = false;
@@ -456,6 +462,25 @@ public class MainFrame extends JFrame
         }
     }
 
+    private void thisWindowOpened(WindowEvent e)
+    {
+/*
+        if (Screen.getScreensForRectangle(context.preferences.getAppXpos(), context.preferences.getAppYpos(),
+                context.preferences.getAppWidth(), context.preferences.getAppHeight()).isEmpty())
+        {
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int x = screenSize.width / 2 - context.preferences.getAppWidth() / 2;
+            if (x < 0)
+                x = 1;
+            int y = screenSize.height / 2 - context.preferences.getAppHeight() / 2;
+            if (y < 0)
+                y = 1;
+            context.preferences.setAppXpos(x);
+            context.preferences.setAppYpos(y);
+        }
+*/
+    }
+
     private void thisWindowClosing(WindowEvent e)
     {
         if (verifyClose())
@@ -492,11 +517,6 @@ public class MainFrame extends JFrame
             context.fault = true;
         }
         return true;
-    }
-
-   private void cardShown(ComponentEvent e)
-   {
-        context.libraries.cardShown(e);
     }
 
     private void tabbedPaneMainStateChanged(ChangeEvent e)
@@ -797,6 +817,10 @@ public class MainFrame extends JFrame
             @Override
             public void windowClosing(WindowEvent e) {
                 thisWindowClosing(e);
+            }
+            @Override
+            public void windowOpened(WindowEvent e) {
+                thisWindowOpened(e);
             }
         });
         Container contentPane = getContentPane();

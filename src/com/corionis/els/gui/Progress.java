@@ -73,15 +73,13 @@ public class Progress extends JFrame
     {
         beingUsed = true;
 
-        if (context.preferences.getProgressXpos() > 0)
+        if (context.preferences.getProgressXpos() != 0 && Utils.isOnScreen(context.preferences.getProgressXpos(), context.preferences.getProgressYpos()))
         {
             setLocation(context.preferences.getProgressXpos(), context.preferences.getProgressYpos());
         }
         else
         {
-            int x = context.mainFrame.getX() + (context.mainFrame.getWidth() / 2) - (getWidth() / 2);
-            int y = context.mainFrame.getY() + (context.mainFrame.getHeight() / 2) - (getHeight() / 2);
-            setLocation(x, y);
+            this.setLocation(Utils.getRelativePosition(this));
         }
 
         if (context.preferences.getProgressWidth() > 0)

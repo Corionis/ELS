@@ -739,21 +739,18 @@ public class OperationsUI extends AbstractToolDialog
         labelOperationHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsOperationsXpos() > 0)
+        if (context.preferences.getToolsOperationsXpos() != 0 && Utils.isOnScreen(context.preferences.getToolsOperationsXpos(),
+                context.preferences.getToolsOperationsYpos()))
         {
             this.setLocation(context.preferences.getToolsOperationsXpos(), context.preferences.getToolsOperationsYpos());
             Dimension dim = new Dimension(context.preferences.getToolsOperationsWidth(), context.preferences.getToolsOperationsHeight());
-            splitPaneOperationContent.setDividerLocation(context.preferences.getToolOperationsDividerConfigLocation());
             this.setSize(dim);
+
+            splitPaneOperationContent.setDividerLocation(context.preferences.getToolOperationsDividerConfigLocation());
         }
         else
         {
-            Point parentPos = this.getParent().getLocation();
-            Dimension parentSize = this.getParent().getSize();
-            Dimension mySize = this.getSize();
-            Point myPos = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
-                    parentPos.y + (parentSize.height / 2 - mySize.height / 2));
-            this.setLocation(myPos);
+            this.setLocation(Utils.getRelativePosition(this));
         }
 
         // Escape key

@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
+import javafx.stage.Screen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,8 +28,8 @@ public class Preferences implements Serializable
     private String accentColor = DEFAULT_ACCENT_COLOR;
     private int appHeight = 640;
     private int appWidth = 1024;
-    private int appXpos = -1;
-    private int appYpos = -1;
+    private int appXpos = 0;
+    private int appYpos = 0;
     private boolean autoRefresh = true;
     private boolean binaryScale = true; // true = 1024, false = 1000
     private int browserBottomSize = 143;
@@ -48,12 +49,12 @@ public class Preferences implements Serializable
     private int collectionTwoSortDirection = 0;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
-    private int directoryPickerXpos = -1;
-    private int directoryPickerYpos = -1;
+    private int directoryPickerXpos = 0;
+    private int directoryPickerYpos = 0;
     private int fileEditorHeight = 365;
     private int fileEditorWidth = 425;
-    private int fileEditorXpos = -1;
-    private int fileEditorYpos = -1;
+    private int fileEditorXpos = 0;
+    private int fileEditorYpos = 0;
     private boolean generateLongOptions = false;
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
@@ -61,8 +62,8 @@ public class Preferences implements Serializable
     private int jobsOriginDividerLocation = 142;
     private int jobsTaskDividerLocation = 142;
     private int jobsWidth = 570;
-    private int jobsXpos = -1;
-    private int jobsYpos = -1;
+    private int jobsXpos = 0;
+    private int jobsYpos = 0;
     private boolean lastHintKeysInUse = false;
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
@@ -86,12 +87,12 @@ public class Preferences implements Serializable
     private int librariesMinimumSizeColumnWidth = 120;
     private String locale = "";
     // The Look 'n Feel, 0-6
-    private int lookAndFeel = 4; // default IntelliJ Dark, aka Darcula
+    private int lookAndFeel = -1; // default IntelliJ Dark, aka Darcula
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
     private int progressWidth = -1;
-    private int progressXpos = -1;
-    private int progressYpos = -1;
+    private int progressXpos = 0;
+    private int progressYpos = 0;
     private int schema = 1;
     private boolean showCcpConfirmation = true;
     private boolean showDeleteConfirmation = true;
@@ -116,50 +117,43 @@ public class Preferences implements Serializable
     private int toolOperationsDividerConfigLocation = 142;
     private int toolsDuplicateFinderHeight = 470;
     private int toolsDuplicateFinderWidth = 570;
-    private int toolsDuplicateFinderXpos = -1;
-    private int toolsDuplicateFinderYpos = -1;
+    private int toolsDuplicateFinderXpos = 0;
+    private int toolsDuplicateFinderYpos = 0;
     private int toolsEmptyDirectoryFinderHeight = 470;
     private int toolsEmptyDirectoryFinderWidth = 570;
-    private int toolsEmptyDirectoryFinderXpos = -1;
-    private int toolsEmptyDirectoryFinderYpos = -1;
+    private int toolsEmptyDirectoryFinderXpos = 0;
+    private int toolsEmptyDirectoryFinderYpos = 0;
     private int toolsJunkRemoverDividerLocation = 142;
     private int toolsJunkRemoverHeight = 470;
     private int toolsJunkRemoverWidth = 570;
-    private int toolsJunkRemoverXpos = -1;
-    private int toolsJunkRemoverYpos = -1;
+    private int toolsJunkRemoverXpos = 0;
+    private int toolsJunkRemoverYpos = 0;
     private int toolsOperationsHeight = 470;
     private int toolsOperationsWidth = 570;
-    private int toolsOperationsXpos = -1;
-    private int toolsOperationsYpos = -1;
+    private int toolsOperationsXpos = 0;
+    private int toolsOperationsYpos = 0;
     private int toolsRenamerDividerLocation = 142;
     private int toolsRenamerHeight = 470;
     private int toolsRenamerWidth = 570;
-    private int toolsRenamerXpos = -1;
-    private int toolsRenamerYpos = -1;
+    private int toolsRenamerXpos = 0;
+    private int toolsRenamerYpos = 0;
     private int toolsSleepDividerLocation = 142;
     private int toolsSleepHeight = 470;
     private int toolsSleepWidth = 570;
-    private int toolsSleepXpos = -1;
-    private int toolsSleepYpos = -1;
+    private int toolsSleepXpos = 0;
+    private int toolsSleepYpos = 0;
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
     //private transient LookAndFeel laf = null;
-    public Preferences()
-    {
-    }
 
     /**
      * Constructor
      */
-/*
-    public Preferences(Context context)
+    public Preferences()
     {
-        this.context = context;
-        if (this.context != null)
-            this.context.preferences = this;
     }
-*/
+
     public void extractColumnSizes(Context context, JTable table)
     {
         if (table == null || table.getName().equalsIgnoreCase("tableCollectionOne"))
@@ -212,10 +206,22 @@ public class Preferences implements Serializable
     public void fixApplication(Context context)
     {
         // set position and size
-        if (getAppXpos() > -1)
-            context.mainFrame.setLocation(getAppXpos(), getAppYpos());
-        if (getAppWidth() > -1)
-            context.mainFrame.setSize(getAppWidth(), getAppHeight());
+
+        if (Utils.isOffScreen(getAppXpos(), getAppYpos()))
+        {
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int x = screenSize.width / 2 - getAppWidth() / 2;
+            if (x < 0)
+                x = 1;
+            int y = screenSize.height / 2 - getAppHeight() / 2;
+            if (y < 0)
+                y = 1;
+            setAppXpos(x);
+            setAppYpos(y);
+        }
+
+        context.mainFrame.setLocation(getAppXpos(), getAppYpos());
+        context.mainFrame.setSize(getAppWidth(), getAppHeight());
 
         // dividers
         // the bottom divider is handler elsewhere
@@ -445,9 +451,12 @@ public class Preferences implements Serializable
         return fileEditorYpos;
     }
 
-    public String getFullPath()
+    public String getFullPath(String workingDirectory)
     {
-        String path = System.getProperty("user.dir") + System.getProperty("file.separator") + "local" +
+        if (workingDirectory == null || workingDirectory.length() == 0)
+            workingDirectory = System.getProperty("user.dir");
+
+        String path = workingDirectory + System.getProperty("file.separator") + "local" +
                 System.getProperty("file.separator") + "preferences.json";
         return path;
     }
@@ -874,6 +883,14 @@ public class Preferences implements Serializable
                 }
                 String accent = getAccentColor();
                 FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + accent));
+            }
+
+            if (getLookAndFeel() == -1)
+            {
+                if (Utils.getOS().equalsIgnoreCase("mac"))
+                    setLookAndFeel(6);
+                else
+                    setLookAndFeel(4);
             }
 
             switch (getLookAndFeel())
@@ -1688,20 +1705,21 @@ public class Preferences implements Serializable
             librariesDefaultMinimumScale = "GB";
 
         json = gson.toJson(this);
+        File f = null;
         try
         {
-            File f = new File(getFullPath());
+            f = new File(getFullPath(context.cfg.getWorkingDirectory()));
             if (f != null)
             {
                 f.getParentFile().mkdirs();
             }
-            PrintWriter outputStream = new PrintWriter(getFullPath());
+            PrintWriter outputStream = new PrintWriter(getFullPath(context.cfg.getWorkingDirectory()));
             outputStream.println(json);
             outputStream.close();
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Error writing: " + getFullPath() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Error writing: " + (f != null ? f.getAbsolutePath() : "preferences file,") + " trace: " + Utils.getStackTrace(fnf));
         }
 
         // restore long paths

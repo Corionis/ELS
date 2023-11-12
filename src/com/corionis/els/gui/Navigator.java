@@ -30,6 +30,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.jcraft.jsch.SftpATTRS;
+import javafx.stage.Screen;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.*;
 

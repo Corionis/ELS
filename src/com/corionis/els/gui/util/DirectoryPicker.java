@@ -1,6 +1,7 @@
 package com.corionis.els.gui.util;
 
 import com.corionis.els.Context;
+import com.corionis.els.Utils;
 
 import javax.swing.*;
 import javax.swing.text.PlainDocument;
@@ -176,10 +177,20 @@ public class DirectoryPicker
         dialog = pane.createDialog(context.mainFrame, displayName);
         dialog.setModal(false);
 
-        if (context.preferences != null && context.preferences.getDirectoryPickerXpos() >= 0)
+        if (context.preferences.getDirectoryPickerXpos() != 0 && Utils.isOnScreen(context.preferences.getDirectoryPickerXpos(), context.preferences.getDirectoryPickerYpos()))
         {
             dialog.setLocation(context.preferences.getDirectoryPickerXpos(), context.preferences.getDirectoryPickerYpos());
         }
+        else
+        {
+            Point parentPos = context.mainFrame.getLocation();
+            Dimension parentSize = context.mainFrame.getSize();
+            Dimension mySize = dialog.getSize();
+            Point myPos = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
+                    parentPos.y + (parentSize.height / 2 - mySize.height / 2));
+            dialog.setLocation(myPos);
+        }
+
         dialog.addWindowListener(new WindowListener()
         {
             @Override

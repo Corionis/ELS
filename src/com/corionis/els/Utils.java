@@ -655,6 +655,22 @@ public class Utils
     }
 
     /**
+     * Get a Point to position component centered on it's parent
+     *
+     * @param component
+     * @return Point
+     */
+    public static Point getRelativePosition(Component component)
+    {
+        Point parentPos = component.getParent().getLocation();
+        Dimension parentSize = component.getParent().getSize();
+        Dimension mySize = component.getSize();
+        Point center = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
+                parentPos.y + (parentSize.height / 2 - mySize.height / 2));
+        return center;
+    }
+
+    /**
      * Get the right path segment
      *
      * @param full Full path to parse
@@ -919,6 +935,40 @@ public class Utils
     }
 
     /**
+     * Detect whether the coordinates appear on any screen
+     *
+     * @param locX
+     * @param locY
+     * @return true if NOT within any screen (monitor), otherwise false
+     */
+    public static boolean isOffScreen(int locX, int locY)
+    {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] devices = ge.getScreenDevices();
+        for (int screenIndex = 0; screenIndex < devices.length; ++screenIndex)
+        {
+            Rectangle bounds = devices[screenIndex].getDefaultConfiguration().getBounds();
+            if (bounds.contains(locX, locY))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Detect whether the coordinates appear on any screen
+     *
+     * @param locX
+     * @param locY
+     * @return true if within any screen (monitor), otherwise false
+     */
+    public static boolean isOnScreen(int locX, int locY)
+    {
+        return !isOffScreen(locX, locY);
+    }
+
+    /**
      * Is the operating system Linux?
      *
      * @return false if Windows from getOS(), otherwise true
@@ -1132,7 +1182,7 @@ public class Utils
         try
         {
             Gson gson = new Gson();
-            String json = new String(Files.readAllBytes(Paths.get(context.preferences.getFullPath())));
+            String json = new String(Files.readAllBytes(Paths.get(context.preferences.getFullPath(context.cfg.getWorkingDirectory()))));
             Preferences prefs = gson.fromJson(json, context.preferences.getClass());
             if (prefs != null)
             {
