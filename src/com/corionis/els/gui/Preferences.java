@@ -8,7 +8,6 @@ import com.google.gson.GsonBuilder;
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
-import javafx.stage.Screen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

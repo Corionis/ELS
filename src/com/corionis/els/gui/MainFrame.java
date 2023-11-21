@@ -11,7 +11,6 @@ import com.corionis.els.gui.util.RotatedIcon;
 import com.corionis.els.gui.util.SmartScroller;
 import com.corionis.els.gui.util.TextIcon;
 import com.corionis.els.gui.util.VerticalLabel;
-import javafx.stage.Screen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
