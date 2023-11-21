@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ELS Build" default="All" basedir=".">
 
-    <!-- taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" / -->
-    <taskdef name="bundleapp"
-             classpath="appbundler-1.0ea.jar"
-             classname="com.oracle.appbundler.AppBundlerTask"/>
-
     <target name="init">
         <property file="els.properties"/>
         <echo message="ELS version ${els.version.name}" level="info"/>
@@ -171,7 +166,7 @@
         <!-- Copy out/ELS/zip/ELS to Windows, complete installer build on Windows-->
     </target>
 
-    <target name="ELS" depends="els-linux, els-windows" description="Build ELS"/>
+    <target name="ELS" depends="els-linux, els-windows, els-macos" description="Build ELS"/>
 
 
     <!-- ELS Updater ========================================== -->
@@ -278,6 +273,7 @@
     <target name="deploy">
         <delete failonerror="false">
             <fileset dir="deploy">
+                <include name="*.dmg"/>
                 <include name="*.info"/>
                 <include name="*.jar"/>
                 <include name="*.tar.gz"/>
@@ -286,6 +282,7 @@
         </delete>
         <copy file="build/changes.html" todir="deploy" preservelastmodified="true"/>
         <copy todir="deploy" preservelastmodified="true">
+            <fileset file="build/*.dmg"/>
             <fileset file="build/*.jar"/>
             <fileset file="build/*.tar.gz"/>
             <fileset file="build/*.zip"/>
