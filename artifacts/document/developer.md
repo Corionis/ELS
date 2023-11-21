@@ -7,8 +7,12 @@ ELS is developed using [JetBrains Intellij IDEA](https://www.jetbrains.com/idea)
 users can adapt the project easily.
 
 Built using:
+  - JetBrains IntelliJ IDE, https://www.jetbrains.com/idea/
   - JFormDesigner, https://www.formdev.com/jformdesigner/doc/
-  - Available for IntelliJ, Eclipse and Netbeans
+      - Available for IntelliJ, Eclipse and Netbeans
+  - Actual Installer, for the Windows installer, https://www.actualinstaller.com/
+  - appbundler, Ant task for the MacOS .app, https://github.com/TheInfiniteKind/appbundler
+  - DMG Canvas, for the MacOS DMG, https://www.araelium.com/dmgcanvas
 
 With open source components from FormDev:
   - FlatLaf look 'n feel, https://www.formdev.com/flatlaf/

@@ -28,11 +28,14 @@ hs_err_pid*
 /out
 /mock/License.txt
 /mock/Notice.txt
-/artifacts/stage/windows/rt/
 /artifacts/stage/linux/ELS/rt/
+/artifacts/stage/macos/ELS/rt/
+/artifacts/stage/windows/rt/
 /build/*.info
 /build/*.jar
 /build/*.tar.gz
 /build/*.zip
 /docs/_site/
 /docs/artifacts/.~lock.scenarios.odg#
+/build/ELS.app/
+/build/ELS.dmg

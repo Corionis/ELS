@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ELS Build" default="All" basedir=".">
 
+    <!-- taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" / -->
+    <taskdef name="bundleapp"
+             classpath="appbundler-1.0ea.jar"
+             classname="com.oracle.appbundler.AppBundlerTask"/>
+
     <target name="init">
         <property file="els.properties"/>
         <echo message="ELS version ${els.version.name}" level="info"/>
@@ -137,12 +142,12 @@
             </fileset>
         </delete>
         <mkdir dir="out/ELS/dmg/ELS"/>
-        <exec command="cp -rpf artifacts/stage/linux/ELS out/ELS/tar/" failonerror="true"/>
-        <copy file="mock/bin/update.info" tofile="out/ELS/tar/ELS/bin/update.info" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.ico" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.png" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
-        <copy file="build/ELS.jar" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
-        <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.tar.gz -C out/ELS/tar ELS"/>
+        <exec command="cp -rpf artifacts/stage/macos/ELS out/ELS/dmg/" failonerror="true"/>
+        <copy file="mock/bin/update.info" tofile="out/ELS/dmg/ELS/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.icns" todir="out/ELS/dmg/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/ELS.jar" todir="out/ELS/dmg/ELS/bin" preservelastmodified="true"/>
+        <echo file="out/ELS/dmg/ELS/build-stamp.properties" append="false">els.build.stamp=${STRINGNOW}</echo>
+        <!-- Copy out/ELS/dmg/ELS to MacOS, complete DMG build on MacOS -->
     </target>
 
     <!-- Build ELS Windows .zip -->
@@ -163,6 +168,7 @@
         <zip destfile="build/ELS-${els.version.name}-${NUMBERNOW}.zip">
             <zipfileset dir="out/ELS/zip" includes="**/*"/>
         </zip>
+        <!-- Copy out/ELS/zip/ELS to Windows, complete installer build on Windows-->
     </target>
 
     <target name="ELS" depends="els-linux, els-windows" description="Build ELS"/>
@@ -310,6 +316,8 @@
     <target name="Jars" depends="els-jar, updater-jar" description="Build Jars"/>
 
     <target name="Linux" depends="els-linux, updater-linux" description="Build all Linux deliverables"/>
+
+    <target name="MacOS" depends="els-macos" description="Build all MacOS deliverables"/>
 
     <target name="Windows" depends="els-windows, updater-windows" description="Build all Windows deliverables"/>
 
