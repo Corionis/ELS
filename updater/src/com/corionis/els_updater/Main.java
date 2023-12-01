@@ -1,5 +1,6 @@
 package com.corionis.els_updater;
 
+// See els.xml target "updater-compile" where these classes are copied during builds
 import com.corionis.els.Configuration;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.Preferences;
@@ -12,6 +13,7 @@ import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.LoggerContext;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
@@ -33,15 +35,16 @@ public class Main
 {
     public Configuration cfg = null;
     private String commandLine = "";
+    private String configPath = "";
     private boolean mainFault = false;
     private String infoFile = "";
     private String installedPath = "";
     public Logger logger = null; // log4j2 logger singleton
     private Main main;
+    private boolean mockMode = false; // local mock without downloading version.info, get from /bin/version.info
     private Preferences preferences = null;
     private String prefix;
     private Marker SHORT = MarkerManager.getMarker("SHORT");
-    private boolean testMode = false;
     private String updaterInfoFile = "";
     private ArrayList<String> version = new ArrayList<>();
     private String versionFile = "";
@@ -61,11 +64,51 @@ public class Main
         new Main(args);
     }
 
-    private String getPreferencesPath()
+    public boolean execExternalExe(Component comp, Configuration cfg, String[] parms)
     {
-        String path = installedPath + System.getProperty("file.separator") + "local" +
-                System.getProperty("file.separator") + "preferences.json";
-        return path;
+        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+        try
+        {
+            final java.lang.Process proc = Runtime.getRuntime().exec(parms);
+            Thread thread = new Thread()
+            {
+                public void run()
+                {
+                    String line;
+                    BufferedReader input = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+                    try
+                    {
+                        while ((line = input.readLine()) != null)
+                            logger.info(SIMPLE, line);
+                        input.close();
+                    }
+                    catch (IOException e)
+                    {
+                        logger.error(cfg.gs("Z.exception") + e.getMessage());
+                        JOptionPane.showMessageDialog(comp, cfg.gs("Z.exception") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            };
+
+            // run it
+            thread.start();
+            int result = proc.waitFor();
+            thread.join();
+            if (result != 0)
+            {
+                logger.error(cfg.gs("Z.process.failed") + result);
+                JOptionPane.showMessageDialog(comp, cfg.gs("Z.process.failed") + result, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            }
+            else
+                return true;
+        }
+        catch (Exception e)
+        {
+            logger.error(cfg.gs("Z.process.failed") + Utils.getStackTrace(e));
+            JOptionPane.showMessageDialog(comp, cfg.gs("Z.process.failed") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
     }
 
     private void init(String[] args)
@@ -76,10 +119,14 @@ public class Main
             {
                 Properties p = System.getProperties();
                 p.list(System.out);
-                return;
+                System.exit(1);
             }
 
-            String logFilename = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
+            Preferences p = new Preferences();
+            Configuration c = new Configuration(null);
+
+
+            String logFilename = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
                     "ELS_Updater" + System.getProperty("file.separator") + "ELS-Updater.log";
             File delLog = new File(logFilename);
             if (delLog.exists())
@@ -101,19 +148,6 @@ public class Main
             mainFault = true;
             System.out.print(Utils.getStackTrace(e));
         }
-    }
-
-    /**
-     * Is the current system Windows?
-     *
-     * @return false if not Windows
-     */
-    private boolean isWindows()
-    {
-        String os = System.getProperty("os.name");
-        if (os.toLowerCase().startsWith("windows"))
-            return true;
-        return false;
     }
 
     private void process()
@@ -142,7 +176,7 @@ public class Main
                             path = readPreferences();
                             if (path.length() > 0)
                             {
-                                preferences.initLookAndFeel(true);
+                                preferences.initLookAndFeel("ELS Updater",true);
                                 cfg.loadLocale(preferences.getLocale(), cfg);
                             }
                             else
@@ -153,6 +187,7 @@ public class Main
                         }
                         catch (Exception e)
                         {
+                            logger.error(Utils.getStackTrace(e));
                             // ignore any exception and use default LaF if necessary
                         }
 
@@ -197,19 +232,24 @@ public class Main
         }
     }
 
+    /**
+     * Read parameters for Updater
+     * @return
+     */
     private boolean readElsUpdaterInfo()
     {
         try
         {
             updaterInfoFile = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                    "ELS_Updater" + System.getProperty("file.separator") +
-                    "ELS_Updater.info";
+                    "ELS_Updater" + System.getProperty("file.separator") + "ELS_Updater.info";
             BufferedReader br = new BufferedReader(new FileReader(updaterInfoFile));
             installedPath = br.readLine();
+            configPath = br.readLine();
             commandLine = br.readLine();
             br.close();
 
             if (commandLine == null || commandLine.length() == 0 ||
+                    configPath == null || configPath.length() == 0 ||
                     installedPath == null || installedPath.length() == 0)
                 return false;
         }
@@ -221,6 +261,10 @@ public class Main
         return true;
     }
 
+    /**
+     * Read user Preferences from -C configuration directory
+     * @return
+     */
     private String readPreferences()
     {
         Path path = null;
@@ -228,7 +272,7 @@ public class Main
         {
             Gson gson = new Gson();
             preferences = new Preferences();
-            path = Paths.get(getPreferencesPath());
+            path = Paths.get(preferences.getFullPath(configPath));
             String json = new String(Files.readAllBytes(path));
             preferences = gson.fromJson(json, Preferences.class); // preferences.getClass());
         }
@@ -240,13 +284,17 @@ public class Main
         return path == null ? "" : path.toString();
     }
 
+    /**
+     * Read update.info with URL to version.info
+     * @return
+     */
     private boolean readUpdateInfo()
     {
         try
         {
             infoFile = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
                     "ELS_Updater" + System.getProperty("file.separator") +
-                    "bin" + System.getProperty("file.separator") +
+                    (Utils.isOsMac() ? "ELS_Updater/ELS_Updater.app/Contents/Java" : "bin") + System.getProperty("file.separator") +
                     "update.info";
             File updateInfo = new File(infoFile);
             if (updateInfo.exists())
@@ -257,7 +305,7 @@ public class Main
             else
             {
                 prefix = cfg.getUrlPrefix(); // use the hardcoded URL
-                logger.info(SHORT, java.text.MessageFormat.format(cfg.gs("Updater.update.info.not.found.0.using.coded.url.1"), infoFile, prefix));
+                logger.info(SHORT, java.text.MessageFormat.format(cfg.gs("Updater.update.info.not.found.using.coded.url"), infoFile, prefix));
             }
 
             logger.info(SHORT, cfg.gs("Updater.update.url") + prefix);
@@ -273,6 +321,10 @@ public class Main
         return true;
     }
 
+    /**
+     * Read version.info with build dates and update filenames
+     * @return
+     */
     public boolean readVersionInfo()
     {
         // download (or read in testMode) the latest version.info
@@ -280,7 +332,7 @@ public class Main
         BufferedReader bufferedReader = null;
         try
         {
-            if (!testMode)
+            if (!mockMode)
             {
                 versionPath = prefix + "/version.info";
                 URL url = new URL(versionPath);
@@ -288,9 +340,10 @@ public class Main
             }
             else // assume mock working directory
             {
-                versionPath = "bin/version.info";
+                versionPath = configPath + "/bin/version.info";
                 bufferedReader = new BufferedReader(new FileReader(versionPath));
             }
+
             String buf;
             while ((buf = bufferedReader.readLine()) != null)
             {

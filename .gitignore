@@ -40,3 +40,4 @@ hs_err_pid*
 /mock/test/
 /mock/tools/
 /out
+/build/build-stamp.properties

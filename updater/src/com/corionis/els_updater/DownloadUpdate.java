@@ -41,12 +41,12 @@ public class DownloadUpdate extends JFrame
     private String message;
     private Main main;
     private DownloadUpdate me;
+    private boolean mockMode = false; // local mock without downloading update
     private String outFile;
     private Preferences preferences;
     private String prefix;
     private boolean requestStop = false;
     private Marker SHORT = MarkerManager.getMarker("SHORT");
-    private boolean testMode = false; // local test mode without downloading update; files must be pre-staged
     private String updateFile;
     private URL url;
     private ArrayList<String> version = new ArrayList<>();
@@ -109,12 +109,14 @@ public class DownloadUpdate extends JFrame
                 {
                     if (download() && !requestStop)
                     {
-                        unpack();
+                        if (unpack() && !requestStop)
+                        {
+                            if (postprocess() && !requestStop)
+                            {
+                                logger.info(SHORT, main.cfg.gs("Updater.download.and.unpack.of.els.successful"));
+                            }
+                        }
                     }
-                }
-                if (postprocess() && !requestStop)
-                {
-                    logger.info(SHORT, main.cfg.gs("Updater.download.and.unpack.of.els.successful"));
                 }
             }
             catch (Exception e)
@@ -142,16 +144,22 @@ public class DownloadUpdate extends JFrame
             else
             {
                 // double-check the ELS.jar exists before Swing is stopped
-                String exe = installedPath + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + main.cfg.ELS_JAR;
+                String exe = installedPath + System.getProperty("file.separator") +
+                        (Utils.isOsMac() ? "Contents/Java" : "bin") + System.getProperty("file.separator") + main.cfg.ELS_JAR;
                 File els = new File(exe);
                 if (!els.exists())
                 {
+                    fault = true;
                     message = main.cfg.gs("Navigator.cannot.find.updater") + exe;
                     Object[] opts = {main.cfg.gs("Z.ok")};
                     JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
                             JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
                 }
             }
+
+            // polish-off the updates, delete or restore back-up directories
+            polish();
+
             main.stop(fault, requestStop);
         }
 
@@ -161,13 +169,13 @@ public class DownloadUpdate extends JFrame
             {
                 labelVersion.setText(version.get(Configuration.BUILD_VERSION_NAME));
 
-                String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".zip" : ".tar.gz");
+                String ext = Utils.isOsWindows() ? ".zip" : (Utils.isOsMac() ? ".dmg" : ".tar.gz");
                 updateFile = version.get(Configuration.BUILD_ELS_DISTRO) + ext;
                 outFile = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
                         "ELS_Updater" + System.getProperty("file.separator") + updateFile;
                 labelStatus.setText(main.cfg.gs("Z.update") + version.get(Configuration.BUILD_DATE));
 
-                if (!testMode)
+                if (!mockMode)
                 {
                     // download the ELS Updater
                     String downloadUrl = prefix + "/" + updateFile;
@@ -228,11 +236,11 @@ public class DownloadUpdate extends JFrame
                 }
                 else
                 {
-                    // in testMode verify ELS Updater exists in deploy directory
+                    // in mockMode copy ELS Updater from the build directory
                     File dl = new File(outFile);
                     if (!dl.exists())
                     {
-                        String copy = ".." + System.getProperty("file.separator") + "deploy" + System.getProperty("file.separator") + updateFile;
+                        String copy = ".." + System.getProperty("file.separator") + "build" + System.getProperty("file.separator") + updateFile;
                         File cp = new File (copy);
                         if (cp.exists())
                         {
@@ -263,60 +271,83 @@ public class DownloadUpdate extends JFrame
             return true;
         }
 
-        private boolean postprocess()
+        private boolean polish()
         {
-            // handle changes to the installed ELS after the upgrade
+            // if successful remove back-ups
             if (!fault && !requestStop)
             {
                 logger.info(SHORT, main.cfg.gs("Updater.removing.original.backups"));
-                String directory = installedPath + System.getProperty("file.separator") + "bin_back";
+                String directory = installedPath + System.getProperty("file.separator") +
+                        (Utils.isOsMac() ? "Contents/Java_back" : "bin_back");
                 if (removeDirectory(directory))
                 {
-                    directory = installedPath + System.getProperty("file.separator") + "rt_back";
+                    directory = installedPath + System.getProperty("file.separator") +
+                            (Utils.isOsMac() ? "Contents/Plugins" : "") + System.getProperty("file.separator") + "rt_back";
                     if (!removeDirectory(directory))
                         return false;
                 }
+                else
+                    return false;
             }
-            else
+            else // otherwise remove any failed directory and restore originals from back-ups
             {
                 logger.info(SHORT, (requestStop ? main.cfg.gs("Updater.removing.cancelled.directories") :
                         main.cfg.gs("Updater.removing.failed.directories")));
-                String directory = installedPath + System.getProperty("file.separator") + "bin";
+                String directory = installedPath + System.getProperty("file.separator") +
+                        (Utils.isOsMac() ? "Contents/Java" : "bin");
                 if (removeDirectory(directory))
                 {
-                    directory = installedPath + System.getProperty("file.separator") + "rt";
+                    directory = installedPath + System.getProperty("file.separator") +
+                            (Utils.isOsMac() ? "Contents/Plugins" : "") + System.getProperty("file.separator") + "rt";
                     if (removeDirectory(directory))
                     {
                         logger.info(SHORT, main.cfg.gs("Updater.renaming.backups.to.original"));
-                        String to = installedPath + System.getProperty("file.separator") + "bin";
+                        String to = installedPath + System.getProperty("file.separator") +
+                                (Utils.isOsMac() ? "Contents/Java" : "bin");
                         String from = to + "_back";
                         if (renameDirectory(from, to))
                         {
-                            to = installedPath + System.getProperty("file.separator") + "rt";
+                            to = installedPath + System.getProperty("file.separator") +
+                                    (Utils.isOsMac() ? "Contents/Plugins" : "") + System.getProperty("file.separator") + "rt";
                             from = to + "_back";
                             if (!renameDirectory(from, to))
                                 return false;
                         }
-
                     }
+                    else
+                        return false;
                 }
             }
+            return true;
+        }
+
+        private boolean postprocess()
+        {
+            // other things after updates
+
             return true;
         }
 
         private boolean preprocess()
         {
             // handle changes to the installed ELS before the upgrade
+
+            // rename directories for back-ups
             logger.info(SHORT, main.cfg.gs("Updater.renaming.original.for.backup"));
-            String from = installedPath + System.getProperty("file.separator") + "bin";
+            String from = installedPath + System.getProperty("file.separator") +
+                    (Utils.isOsMac() ? "Contents/Java" : "bin");
             String to = from + "_back";
             if (renameDirectory(from, to))
             {
-                from = installedPath + System.getProperty("file.separator") + "rt";
+                from = installedPath + System.getProperty("file.separator") +
+                    (Utils.isOsMac() ? "Contents/Plugins" : "") + System.getProperty("file.separator") + "rt";
                 to = from + "_back";
                 if (!renameDirectory(from, to))
                     return false;
             }
+            else
+                return false;
+
             return true;
         }
 
@@ -332,13 +363,7 @@ public class DownloadUpdate extends JFrame
             }
             catch (Exception e)
             {
-                fault = true;
-                logger.error(Utils.getStackTrace(e));
-                message = main.cfg.gs("Z.exception" + e.getMessage());
-                Object[] opts = {main.cfg.gs("Z.ok")};
-                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
-                return false;
+                // ignore any fault, it might not be there
             }
             return true;
         }
@@ -369,20 +394,63 @@ public class DownloadUpdate extends JFrame
 
         private boolean unpack()
         {
+            boolean success = false;
             setTitle(main.cfg.gs("Navigator.unpacking"));;
             buttonCancel.setEnabled(false);
 
             logger.info(SHORT, main.cfg.gs("Updater.unpacking") + outFile);
             if (updateFile.endsWith(".zip"))
-                unpackZip(outFile, installedPath);
+                success = unpackZip(outFile, installedPath);
             else
-                unpackTar(outFile, installedPath);
+                if (updateFile.endsWith(".dmg"))
+                    success = unpackDmg(outFile, installedPath);
+                else
+                    success = unpackTar(outFile, installedPath);
 
             buttonCancel.setEnabled(true);
-            return true;
+            return success;
         }
 
-        private void unpackTar(String from, String to)
+        private boolean unpackDmg(String from, String to)
+        {
+            boolean success = false;
+            String outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater";
+
+            try
+            {
+                String[] parms = new String[]{"/usr/bin/hdiutil", "attach", from, "-mountroot", outPath};
+                if (main.execExternalExe(me, main.cfg, parms))
+                {
+                    // copy Java/ directory files
+                    File fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Java");
+                    File toDir = new File(to + "/Contents/Java");
+                    FileUtils.copyDirectory(fromDir, toDir, true);
+
+                    // copy Plugins/rt/ directory files
+                    fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Plugins/rt");
+                    toDir = new File(to + "/Contents/Plugins/rt");
+                    FileUtils.copyDirectory(fromDir, toDir, true);
+
+                    Thread.sleep(2000);
+
+                    // detach ELS
+                    parms = new String[]{"/usr/bin/hdiutil", "detach", outPath + "/ELS - Entertainment Library Synchronizer", "-force", "-verbose"};
+                    success = main.execExternalExe(me, main.cfg, parms);
+                }
+            }
+            catch (Exception e)
+            {
+                fault = true;
+                logger.error(Utils.getStackTrace(e));
+                message = main.cfg.gs("Z.exception" + e.getMessage());
+                Object[] opts = {main.cfg.gs("Z.ok")};
+                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+            }
+            return success;
+        }
+
+        private boolean unpackTar(String from, String to)
         {
             // unpack well-defined archive .tar.gz to use same download as users
             try
@@ -445,6 +513,7 @@ public class DownloadUpdate extends JFrame
                     }
                 }
                 in.close();
+                return true;
             }
             catch (Exception e)
             {
@@ -455,9 +524,10 @@ public class DownloadUpdate extends JFrame
                 JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
             }
+            return false;
         }
 
-        private void unpackZip(String from, String to)
+        private boolean unpackZip(String from, String to)
         {
             // unpack well-defined archive .zip to use same download as users
             try
@@ -506,6 +576,7 @@ public class DownloadUpdate extends JFrame
                     }
                 }
                 in.close();
+                return true;
             }
             catch (Exception e)
             {
@@ -516,6 +587,7 @@ public class DownloadUpdate extends JFrame
                 JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
             }
+            return false;
         }
 
     }

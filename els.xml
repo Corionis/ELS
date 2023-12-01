@@ -28,6 +28,8 @@
             <format property="STRINGNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
             <format property="NUMBERNOW" pattern="yyMMddHHmm" locale="en,US"/>
         </tstamp>
+        <echo file="build/build-stamp.properties" append="false">els.build.stamp=${STRINGNOW}${line.separator}</echo>
+        <echo file="build/build-stamp.properties" append="true">els.build.number=${NUMBERNOW}${line.separator}</echo>
     </target>
 
     <target name="write-version">
@@ -141,8 +143,8 @@
         <copy file="mock/bin/update.info" tofile="out/ELS/dmg/ELS/bin/update.info" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.icns" todir="out/ELS/dmg/ELS/bin" preservelastmodified="true"/>
         <copy file="build/ELS.jar" todir="out/ELS/dmg/ELS/bin" preservelastmodified="true"/>
-        <echo file="out/ELS/dmg/ELS/build-stamp.properties" append="false">els.build.stamp=${STRINGNOW}</echo>
-        <!-- Copy out/ELS/dmg/ELS to MacOS, complete DMG build on MacOS -->
+        <copy file="build/build-stamp.properties" tofile="out/ELS/dmg/ELS/build-stamp.properties" />
+        <echo message="MANUAL STEP: Copy out/ELS/dmg/ELS to MacOS, complete DMG build on MacOS" />
     </target>
 
     <!-- Build ELS Windows .zip -->
@@ -163,10 +165,9 @@
         <zip destfile="build/ELS-${els.version.name}-${NUMBERNOW}.zip">
             <zipfileset dir="out/ELS/zip" includes="**/*"/>
         </zip>
-        <!-- Copy out/ELS/zip/ELS to Windows, complete installer build on Windows-->
+        <copy file="build/build-stamp.properties" tofile="out/ELS/zip/ELS/build-stamp.properties" />
+        <echo message="MANUAL STEP: Copy out/ELS/zip/ELS to Windows, complete installer build on Windows" />
     </target>
-
-    <target name="ELS" depends="els-linux, els-windows, els-macos" description="Build ELS"/>
 
 
     <!-- ELS Updater ========================================== -->
@@ -189,6 +190,9 @@
     <!-- Assemble all the pieces to build the Updater Jar -->
     <target name="updater-assemble" depends="updater-compile">
         <copy todir="out/updater/jar/com/corionis/els/locales" preservelastmodified="true">
+            <fileset dir="src/com/corionis/els/locales"/>
+        </copy>
+        <copy todir="out/updater/jar/com/corionis/els_updater/locales" preservelastmodified="true">
             <fileset dir="src/com/corionis/els/locales"/>
         </copy>
         <copy todir="out/updater/jar" preservelastmodified="true">
@@ -245,6 +249,23 @@
         <exec command="tar cvzf build/ELS_Updater-${els.version.name}-${NUMBERNOW}.tar.gz -C out/updater/tar ELS_Updater"/>
     </target>
 
+    <!-- Build Updater macOS .dmg -->
+    <target name="updater-macos" depends="els-jar">
+        <delete failonerror="false">
+            <fileset dir="build">
+                <include name="ELS_*.dmg"/>
+            </fileset>
+        </delete>
+        <mkdir dir="out/updater/dmg/ELS_Updater"/>
+        <exec command="cp -rpf artifacts/stage/macos/ELS out/updater/dmg/" failonerror="true"/>
+        <rename src="out/updater/dmg/ELS" dest="out/updater/dmg/ELS_Updater"/>
+        <copy file="mock/bin/update.info" tofile="out/updater/dmg/ELS_Updater/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.icns" todir="out/updater/dmg/ELS_Updater/bin" preservelastmodified="true"/>
+        <copy file="build/ELS_Updater.jar" todir="out/updater/dmg/ELS_Updater/bin" preservelastmodified="true"/>
+        <copy file="build/build-stamp.properties" tofile="out/updater/dmg/ELS_Updater/build-stamp.properties" />
+        <echo message="MANUAL STEP: Copy out/updater/dmg/ELS_Updater to MacOS, complete DMG build on MacOS" />
+    </target>
+
     <!-- Build Updater Windows .zip -->
     <target name="updater-windows" depends="updater-jar">
         <delete failonerror="false">
@@ -258,14 +279,12 @@
         </copy>
         <copy file="mock/bin/update.info" tofile="out/updater/zip/ELS_Updater/bin/update.info" preservelastmodified="true"/>
         <copy file="build/ELS_Updater.jar" todir="out/updater/zip/ELS_Updater/bin" preservelastmodified="true"/>
-        <delete file="out/updater/zip/ELS_Updater/ELS-Navigator.bat" failonerror="false"/>
+        <delete file="out/updater/zip/ELS_Updater/ELS-Navigator.exe" failonerror="false"/>
         <delete file="out/updater/zip/ELS_Updater/bin/Shortcut.exe" failonerror="false"/>
         <zip destfile="build/ELS_Updater-${els.version.name}-${NUMBERNOW}.zip">
             <zipfileset dir="out/updater/zip" includes="**/*"/>
         </zip>
     </target>
-
-    <target name="Updater" depends="updater-linux, updater-windows" description="Build Updater"/>
 
 
     <!-- Deployment ========================================== -->
@@ -294,27 +313,35 @@
     <!-- Configure the GitHub Pages _config.yml YAML file for deployment -->
     <target name="deploy-website">
         <delete file="docs/_config.yml"/>
+        <!-- copy the template and append this build's information -->
         <copy file="artifacts/stage/_config.yml" todir="docs"/>
         <echo file="docs/_config.yml" append="true">version: ${els.version.name}${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">build: ${STRINGNOW}${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">github:${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">  linux_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.tar.gz${line.separator}</echo>
-        <echo file="docs/_config.yml" append="true">  macos_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.tar.gz${line.separator}</echo>
+        <echo file="docs/_config.yml" append="true">  macos_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.dmg${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">  windows_exe_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.exe${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">  windows_zip_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.zip${line.separator}</echo>
     </target>
+
 
     <!-- Primary Targets ========================================== -->
 
     <target name="All" depends="ELS, Updater" description="Build all deliverables"/>
 
-    <target name="All-Deploy" depends="All, deploy, deploy-website" description="Build all deliverables and copy to deploy"/>
+    <target name="All-Deploy" depends="All, Deploy" description="Build all deliverables and copy to deploy"/>
+
+    <target name="Deploy" depends="deploy, deploy-website" description="Deploy ELS and web site" />
+
+    <target name="ELS" depends="els-linux, els-windows, els-macos" description="Build ELS"/>
 
     <target name="Jars" depends="els-jar, updater-jar" description="Build Jars"/>
 
     <target name="Linux" depends="els-linux, updater-linux" description="Build all Linux deliverables"/>
 
-    <target name="MacOS" depends="els-macos" description="Build all MacOS deliverables"/>
+    <target name="MacOS" depends="els-macos, updater-macos" description="Build all MacOS deliverables"/>
+
+    <target name="Updater" depends="updater-linux, updater-windows, updater-macos" description="Build Updater"/>
 
     <target name="Windows" depends="els-windows, updater-windows" description="Build all Windows deliverables"/>
 

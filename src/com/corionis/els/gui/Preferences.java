@@ -857,7 +857,7 @@ public class Preferences implements Serializable
         return toolsSleepYpos;
     }
 
-    public void initLookAndFeel(boolean isInitial) throws Exception
+    public void initLookAndFeel(String name, boolean isInitial) throws Exception
     {
         try
         {
@@ -866,7 +866,7 @@ public class Preferences implements Serializable
                 if (Utils.getOS().equalsIgnoreCase("mac"))
                 {
                     System.setProperty("apple.laf.useScreenMenuBar", "true");
-                    System.setProperty( "apple.awt.application.name", context.cfg.NAVIGATOR_SHORTNAME);
+                    System.setProperty( "apple.awt.application.name", name);
                     System.setProperty("apple.awt.application.appearance", "system");
                 }
 
@@ -925,7 +925,8 @@ public class Preferences implements Serializable
         }
         catch (Exception e)
         {
-            context.fault = true;
+            if (context != null)
+                context.fault = true;
             throw e;
         }
     }

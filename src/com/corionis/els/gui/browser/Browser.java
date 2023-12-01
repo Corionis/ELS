@@ -1851,8 +1851,12 @@ public class Browser
         else if (object instanceof JTable)
         {
             JTable sourceTable = (JTable) object;
-            JTree sourceTree = ((BrowserTableModel) sourceTable.getModel()).getNode().getMyTree();
-            refreshTree(sourceTree);
+            if ((BrowserTableModel) sourceTable.getModel() != null &&
+                    ((BrowserTableModel) sourceTable.getModel()).getNode() != null)
+            {
+                JTree sourceTree = ((BrowserTableModel) sourceTable.getModel()).getNode().getMyTree();
+                refreshTree(sourceTree);
+            }
         }
     }
 

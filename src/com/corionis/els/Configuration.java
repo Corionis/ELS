@@ -368,8 +368,8 @@ public class Configuration
      */
     public String generateCurrentCommandline()
     {
-        String java = context.cfg.getJavaExe();
-        String jar = context.cfg.getElsJar();
+        String exec = context.cfg.getExecutablePath();
+        String jar = (!Utils.isOsMac() && !Utils.isOsWindows() ? context.cfg.getElsJar() : "");
         String consoleLevel = context.cfg.getConsoleLevel();
         String debugLevel = context.cfg.getDebugLevel();
         boolean overwriteLog = context.cfg.isLogOverwrite();
@@ -433,7 +433,7 @@ public class Configuration
         opts = sb.toString().trim();
 
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = "\"" + java + "\" -jar \"" + jar + "\" " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
+        String cmd = "\"" + exec + "\"" + (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") + " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
     }
 
@@ -674,9 +674,11 @@ public class Configuration
      */
     public String getElsJar()
     {
-        return getInstalledPath() + System.getProperty("file.separator") +
+        String path = getElsJarPath() + System.getProperty("file.separator") + context.cfg.ELS_JAR;
+        //String path = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+        return path; /*getInstalledPath() + System.getProperty("file.separator") +
                 "bin" + System.getProperty("file.separator") +
-                context.cfg.ELS_JAR;
+                context.cfg.ELS_JAR;*/
     }
 
     /**
@@ -705,7 +707,7 @@ public class Configuration
                 if (jarPath.endsWith(dev))
                 {
                     jarPath = jarPath.substring(0, jarPath.length() - dev.length());
-                    jarPath += "deploy";
+                    jarPath += "build";
                 }
             }
         }
@@ -724,6 +726,28 @@ public class Configuration
     public ArrayList<String> getExcludedLibraryNames()
     {
         return selectedLibraryExcludes;
+    }
+
+    public String getExecutablePath()
+    {
+        String exePath = getInstalledPath() + System.getProperty("file.separator") +
+                (Utils.isOsMac() ? "Contents/MacOS/ELS-Navigator" :
+                        (Utils.isOsWindows() ? "ELS-Navigator.exe" : // else isOsLinux()
+                                "rt" + System.getProperty("file.separator") +
+                                        "bin" + System.getProperty("file.separator") +
+                                        "java"));
+        return exePath;
+    }
+
+    public String getExecutablePathForUpdater()
+    {
+        String exePath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
+                (Utils.isOsMac() ? "Contents/MacOS/ELS-Navigator" :
+                        (Utils.isOsWindows() ? "ELS-Navigator.exe" : // else isOsLinux()
+                                "rt" + System.getProperty("file.separator") +
+                                        "bin" + System.getProperty("file.separator") +
+                                        "java"));
+        return exePath;
     }
 
     /**
@@ -815,6 +839,13 @@ public class Configuration
                 {
                     path = path.substring(0, path.length() - 5);
                 }
+                if (Utils.isOsMac())
+                {
+                    if (path.endsWith("Contents/Java/"))
+                    {
+                        path = path.substring(0, path.length() - 15);
+                    }
+                }
                 if (path.endsWith(System.getProperty("file.separator")))
                 {
                     path = path.substring(0, path.length() - 1);
@@ -840,17 +871,6 @@ public class Configuration
     public String getIpWhitelist()
     {
         return iplist;
-    }
-
-    public String getJavaExe()
-    {
-        String je = getInstalledPath() + System.getProperty("file.separator") +
-                "rt" + System.getProperty("file.separator") +
-                "bin" + System.getProperty("file.separator") +
-                "java";
-        if (!Utils.isOsLinux())
-            je += ".exe";
-        return je;
     }
 
     /**
@@ -1155,7 +1175,7 @@ public class Configuration
     }
 
     /**
-     * Gets the defauylt URL prefix for updates if update.info file not found
+     * Gets the default URL prefix for updates if update.info file not found
      *
      * @return String Default URL prefix to deploy folder on GitHub
      */

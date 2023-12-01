@@ -38,11 +38,11 @@ public class DownloadUpdater extends JFrame
     private String message;
     private DownloadUpdater me;
     private Navigator navigator;
-    private String outFile;
+    private boolean mockMode = false; // instead of downloading, ELS Updater in build/ directory
     private String outPath;
     private String prefix;
     private boolean requestStop = false;
-    private boolean testMode = false;
+    private String updateArchive;
     private String updateFile;
     private URL url;
     private ArrayList<String> version = new ArrayList<>();
@@ -95,6 +95,8 @@ public class DownloadUpdater extends JFrame
             progressBar.setMinimum(0);
 
             installedPath = context.cfg.getInstalledPath();
+            outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater";
+
             if (download() && !requestStop)
             {
                 if (unpack() && !requestStop)
@@ -122,20 +124,20 @@ public class DownloadUpdater extends JFrame
             }
             else
             {
-                String exe;
-                File els;
-                exe = outPath + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "ELS_Updater.jar";
-                els = new File(exe);
+                String jar = outPath + System.getProperty("file.separator") +
+                        (Utils.isOsMac() ? "/ELS_Updater/ELS_Updater.app/Contents/Java" : "") +
+                        System.getProperty("file.separator") + "ELS_Updater.jar";
+                File els = new File(jar);
                 if (!els.exists())
                 {
-                    message = context.cfg.gs("Navigator.cannot.find.updater") + exe;
+                    message = context.cfg.gs("Navigator.cannot.find.updater") + jar;
                     Object[] opts = {context.cfg.gs("Z.ok")};
                     JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                             JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
                     return;
                 }
 
-                navigator.setUpdateAndRestart(exe);
+                navigator.setUpdaterProcess(jar);
                 navigator.stop();
             }
         }
@@ -146,12 +148,12 @@ public class DownloadUpdater extends JFrame
             {
                 labelVersion.setText(version.get(Configuration.BUILD_VERSION_NAME));
 
-                String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".zip" : ".tar.gz");
+                String ext = Utils.isOsWindows() ? ".zip" : (Utils.isOsMac() ? ".dmg" : ".tar.gz");
                 updateFile = version.get(Configuration.BUILD_UPDATER_DISTRO) + ext;
-                outFile = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + updateFile;
+                updateArchive = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + updateFile;
                 labelStatus.setText(context.cfg.gs("Z.update") + version.get(Configuration.BUILD_DATE));
 
-                if (!testMode)
+                if (!mockMode)
                 {
                     // download the ELS Updater
                     String downloadUrl = prefix + "/" + updateFile;
@@ -181,7 +183,7 @@ public class DownloadUpdater extends JFrame
                     {
                         try
                         {
-                            FileOutputStream out = new FileOutputStream(outFile);
+                            FileOutputStream out = new FileOutputStream(updateArchive);
                             out.write(data);
                             out.flush();
                             out.close();
@@ -190,7 +192,7 @@ public class DownloadUpdater extends JFrame
                         {
                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                             logger.error(Utils.getStackTrace(e));
-                            message = context.cfg.gs("Z.error.writing") + outFile;
+                            message = context.cfg.gs("Z.error.writing") + updateArchive;
                             Object[] opts = {context.cfg.gs("Z.ok")};
                             JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                                     JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
@@ -201,30 +203,29 @@ public class DownloadUpdater extends JFrame
                     if (requestStop)
                     {
                         // remove partial download
-                        File dl = new File(outFile);
+                        File dl = new File(updateArchive);
                         if (dl.exists())
                             dl.delete();
                         return false;
                     }
                 }
-                else
+                else // verify ELS Updater exists in build directory & copy to system temporary
                 {
-                    // in testMode verify ELS Updater exists in deploy directory
-                    File dl = new File(outFile);
+                    File dl = new File(updateArchive);
                     if (!dl.exists())
                     {
-                        String copy = ".." + System.getProperty("file.separator") + "deploy" + System.getProperty("file.separator") + updateFile;
+                        String copy = ".." + System.getProperty("file.separator") + "build" + System.getProperty("file.separator") + updateFile;
                         File cp = new File (copy);
                         if (cp.exists())
                         {
-                            Files.copy(Paths.get(copy), Paths.get(outFile));
+                            Files.copy(Paths.get(copy), Paths.get(updateArchive));
                         }
                         else
                         {
-                            message = java.text.MessageFormat.format(context.cfg.gs("Navigator.update.not.found"), outFile);
-                            Object[] opts = {context.cfg.gs("Z.ok")};
-                            JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
-                                    JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+//                            message = java.text.MessageFormat.format(context.cfg.gs("Navigator.update.not.found"), updateArchive);
+//                            Object[] opts = {context.cfg.gs("Z.ok")};
+//                            JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
+//                                    JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
                             return false;
                         }
                     }
@@ -234,7 +235,7 @@ public class DownloadUpdater extends JFrame
             {
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 logger.error(Utils.getStackTrace(e));
-                message = context.cfg.gs("Z.error.downloading") + outFile;
+                message = context.cfg.gs("Z.error.downloading") + updateArchive;
                 Object[] opts = {context.cfg.gs("Z.ok")};
                 JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
@@ -267,21 +268,33 @@ public class DownloadUpdater extends JFrame
 
         private boolean unpack()
         {
+            boolean success = false;
             setTitle(context.cfg.gs("Navigator.unpacking"));;
             buttonCancel.setEnabled(false);
 
-            outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater";
             removeDirectory(outPath);
-            if (Utils.isOsLinux())
-                unpackTar(outFile, outPath);
+            if (Utils.isOsWindows())
+                success = unpackZip(updateArchive, outPath); // Windows
             else
-                unpackZip(outFile, outPath);
+                if (Utils.isOsMac())
+                    success = unpackDmg(updateArchive, outPath); // Mac
+                else
+                    success = unpackTar(updateArchive, outPath); // Linux
 
             buttonCancel.setEnabled(true);
-            return true;
+            return success;
         }
 
-        private void unpackTar(String from, String to)
+        private boolean unpackDmg(String from, String to)
+        {
+            File toPath = new File(to);
+            toPath.getParentFile().mkdirs();
+            toPath.mkdir();
+            String[] parms = new String[] { "/usr/bin/hdiutil", "attach", from, "-mountroot", to };
+            return context.main.execExternalExe(me, context.cfg, parms);
+        }
+
+        private boolean unpackTar(String from, String to)
         {
             // unpack well-defined archive tar.gz to use same download as users
             try
@@ -341,14 +354,16 @@ public class DownloadUpdater extends JFrame
                     }
                 }
                 in.close();
+                return true;
             }
             catch (Exception e)
             {
                 logger.error(Utils.getStackTrace(e));
             }
+            return false;
         }
 
-        private void unpackZip(String from, String to)
+        private boolean unpackZip(String from, String to)
         {
             // unpack well-defined archive zip to use same download as users
             try
@@ -396,11 +411,13 @@ public class DownloadUpdater extends JFrame
                     }
                 }
                 in.close();
+                return true;
             }
             catch (Exception e)
             {
                 logger.error(Utils.getStackTrace(e));
             }
+            return false;
         }
 
         private boolean writeUpdaterInfo()
@@ -408,12 +425,12 @@ public class DownloadUpdater extends JFrame
             try
             {
                 String infoPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                        "ELS_Updater" + System.getProperty("file.separator") +
-                        "ELS_Updater.info";
+                        "ELS_Updater" + System.getProperty("file.separator") + "ELS_Updater.info";
                 String restartCommand = context.cfg.generateCurrentCommandline();
 
                 FileWriter writer = new FileWriter(infoPath, false);
                 writer.write(installedPath + System.getProperty("line.separator"));
+                writer.write(context.cfg.getWorkingDirectory() + System.getProperty("line.separator"));
                 writer.write(restartCommand + System.getProperty("line.separator"));
                 writer.close();
             }
@@ -421,7 +438,7 @@ public class DownloadUpdater extends JFrame
             {
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 logger.error(Utils.getStackTrace(e));
-                message = context.cfg.gs("Z.error.writing") + outFile;
+                message = context.cfg.gs("Z.error.writing") + updateArchive;
                 Object[] opts = {context.cfg.gs("Z.ok")};
                 JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);

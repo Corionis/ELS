@@ -15,6 +15,8 @@ import com.corionis.els.stty.hintServer.Datastore;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
@@ -22,13 +24,21 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 import static com.corionis.els.Configuration.*;
 
 /**
  * ELS main program
+ *
+ * <p>ELS uses an embedded JRE from the OpenJDK project.<br/>
+ * * https://openjdk.org/<br/>
+ * * https://github.com/AdoptOpenJDK<br/>
+ * * https://wiki.openjdk.org/display/jdk8u/Main<br/>
  */
 public class Main
 {
@@ -127,6 +137,53 @@ public class Main
                 }
             }
         }
+    }
+
+    public boolean execExternalExe(Component comp, Configuration cfg, String[] parms)
+    {
+        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+        try
+        {
+            final java.lang.Process proc = Runtime.getRuntime().exec(parms);
+            Thread thread = new Thread()
+            {
+                public void run()
+                {
+                    String line;
+                    BufferedReader input = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+                    try
+                    {
+                        while ((line = input.readLine()) != null)
+                            logger.info(SIMPLE, line);
+                        input.close();
+                    }
+                    catch (IOException e)
+                    {
+                        logger.error(cfg.gs("Z.exception") + e.getMessage());
+                        JOptionPane.showMessageDialog(comp, cfg.gs("Z.exception") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            };
+
+            // run it
+            thread.start();
+            int result = proc.waitFor();
+            thread.join();
+            if (result != 0)
+            {
+                logger.error(cfg.gs("Z.process.failed") + result);
+                JOptionPane.showMessageDialog(comp, cfg.gs("Z.process.failed") + result, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            }
+            else
+                return true;
+        }
+        catch (Exception e)
+        {
+            logger.error(cfg.gs("Z.process.failed") + Utils.getStackTrace(e));
+            JOptionPane.showMessageDialog(comp, cfg.gs("Z.process.failed") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
     }
 
     public GuiLogAppender getGuiLogAppender()
@@ -783,20 +840,30 @@ public class Main
         // is this a restarted Navigator instance after being updated?
         if (context.cfg.isNavigator() && (context.cfg.isUpdateSuccessful() || context.cfg.isUpdateFailed()))
         {
+            String outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater";
+
             try
             {
                 // give the GUI time to come up
-                Thread.sleep(4000);
+                Thread.sleep(5000);
+
+                // detach Updater
+                if (Utils.isOsMac())
+                {
+                    String[] parms = new String[]{"/usr/bin/hdiutil", "detach", outPath + "/ELS_Updater", "-force", "-verbose"};
+                    boolean success = execExternalExe(context.mainFrame, context.cfg, parms);
+                }
             }
             catch (Exception e)
             {
             }
-            String logFilename = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
-                    "ELS_Updater" + System.getProperty("file.separator") + "ELS-Updater.log";
+
+            String logFilename = outPath + System.getProperty("file.separator") + "ELS-Updater.log";
             String message = context.cfg.isUpdateSuccessful() ?
                     Configuration.PROGRAM_NAME + " " + context.cfg.gs("Navigator.updated") :
                     java.text.MessageFormat.format(context.cfg.gs("Navigator.update.failed"), logFilename);
             logger.info(message);
+
             Object[] opts = {context.cfg.gs("Z.ok")};
             JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update.status"),
                     JOptionPane.PLAIN_MESSAGE, context.cfg.isUpdateSuccessful() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE,

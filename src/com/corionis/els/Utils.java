@@ -15,6 +15,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.crypto.Cipher;
@@ -971,13 +973,37 @@ public class Utils
     /**
      * Is the operating system Linux?
      *
-     * @return false if Windows from getOS(), otherwise true
+     * @return false if Windows from getOS(), otherwise true (linux or mac)
      */
     public static boolean isOsLinux()
     {
         if (getOS().equalsIgnoreCase("Windows"))
             return false;
         return true;
+    }
+
+    /**
+     * Is the operating system MacOS
+     *
+     * @return true if mac from getOS(), otherwise false
+     */
+    public static boolean isOsMac()
+    {
+        if (getOS().equalsIgnoreCase("mac"))
+            return true;
+        return false;
+    }
+
+    /**
+     * Is the operating system Windows
+     *
+     * @return true if windows from getOS(), otherwise false
+     */
+    public static boolean isOsWindows()
+    {
+        if (getOS().equalsIgnoreCase("windows"))
+            return true;
+        return false;
     }
 
     /**

@@ -108,7 +108,12 @@ public class Generator
 
             if (!skip)
             {
-                if (Utils.isOsLinux())
+                if (Utils.isOsMac())
+                {
+
+
+                }
+                else if (Utils.isOsLinux())
                 {
                 /*
                     Format:
@@ -178,12 +183,12 @@ public class Generator
                            /f:"%USERPROFILE%\Desktop\Notepad.lnk" /a:c /t:^%WINDIR^%\Notepad.exe /h:846
                            /f:"%USERPROFILE%\Desktop\Notepad.lnk" /a:e /p:C:\Setup.log /r:3
                     */
-                    String target = context.cfg.getJavaExe();
+                    String target = context.cfg.getExecutablePath();
                     if (!checkboxTerminal.isSelected())
                         target = target.replace("java.exe", "javaw.exe");
 
                     // remove "java.exe" target /T to have only parameters /P
-                    commandLine = commandLine.substring(("\"" + context.cfg.getJavaExe() + "\" ").length());
+                    commandLine = commandLine.substring(("\"" + context.cfg.getExecutablePath() + "\" ").length());
                     // escape embedded quotes
                     commandLine = commandLine.replace("\"", "\\\"");
 
@@ -231,7 +236,7 @@ public class Generator
     private String generateJobCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
         boolean glo = context.preferences.isGenerateLongOptions();
-        String java = context.cfg.getJavaExe();
+        String java = context.cfg.getExecutablePath();
         String jar = context.cfg.getElsJar();
 
         String conf = getCfgOpt();
@@ -266,7 +271,7 @@ public class Generator
 
     private String generateOperationsCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
-        String java = context.cfg.getJavaExe();
+        String java = context.cfg.getExecutablePath();
         String jar = context.cfg.getElsJar();
         // tool has all the parameter data, use it's generate method
         String conf = getCfgOpt();

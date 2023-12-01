@@ -71,12 +71,13 @@ public class Navigator
     private int lastFindPosition = 0;
     private String lastFindString = "";
     private int lastFindTab = -1;
+    boolean mockMode = false; // instead of downloading version.info get from mock/bin/
     private ArrayList<ArrayList<Origin>> originsArray = null;
     private boolean quitRemoteHintStatusServer = false;
     private boolean quitRemoteSubscriber = false;
     private boolean remoteJobRunning = false;
-    private boolean updateAndRestart = false;
-    private String updaterExecutable = null;
+    private boolean updaterProcess = false;
+    private String updaterJar = null;
     private transient Logger logger = LogManager.getLogger("applog");
 
     public Navigator(Main main, Context context)
@@ -90,7 +91,6 @@ public class Navigator
      */
     public boolean checkForUpdates(boolean checkOnly)
     {
-        boolean testMode = false; // local test mode without downloading update; files must be pre-staged
         ArrayList<String> version = new ArrayList<>();
 
         try
@@ -102,7 +102,7 @@ public class Navigator
 
             // set location to find update.info for the URL prefix
             String updateInfoPath = context.cfg.getInstalledPath() + System.getProperty("file.separator") +
-                    "bin" + System.getProperty("file.separator") +
+                    (Utils.isOsMac() ? "Contents/Java" : "bin") + System.getProperty("file.separator") +
                     "update.info";
 
             // get update.info
@@ -116,28 +116,25 @@ public class Navigator
             else
             {
                 prefix = context.cfg.getUrlPrefix(); // use the hardcoded URL
-                logger.info("update.info not found: " + updateInfoPath + ", using coded URL: " + prefix);
+                logger.warn("update.info not found: " + updateInfoPath + ", using coded URL: " + prefix);
             }
 
-            // download (or read in testMode) the latest version.info
+            // download the latest version.info
             String versionPath = "";
             BufferedReader bufferedReader = null;
             try
             {
-                if (!testMode)
+                if (!mockMode)
                 {
                     versionPath = prefix + "/version.info";
                     url = new URL(versionPath);
                     bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
                 }
-                else // assume mock working directory
+                else // assume (mock) working directory
                 {
-                    versionPath = "bin/version.info";
-                    String filename;
-                    if (Utils.isRelativePath(versionPath))
-                        filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + versionPath;
-                    else
-                        filename = versionPath;
+                    versionPath = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") +
+                            "bin" + System.getProperty("file.separator") +
+                            "version.info";
                     bufferedReader = new BufferedReader(new FileReader(versionPath));
                 }
                 String buf;
@@ -151,7 +148,7 @@ public class Navigator
             {
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 message = java.text.MessageFormat.format(context.cfg.gs("Navigator.update.info.not.found"), versionPath);
-                logger.info(message);
+                logger.error(message);
                 Object[] opts = {context.cfg.gs("Z.ok")};
                 JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
@@ -210,7 +207,7 @@ public class Navigator
                             new DownloadUpdater(this, version, prefix);
                             break;
                         }
-                        else if (reply == JOptionPane.CANCEL_OPTION)
+                        else if (reply == JOptionPane.CANCEL_OPTION) // show Changelist
                         {
                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context,
@@ -398,7 +395,7 @@ public class Navigator
                 public void run()
                 {
                     String line;
-                    BufferedReader input = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+                    BufferedReader input = new BufferedReader(new InputStreamReader(proc.getErrorStream()));//getInputStream()));
 
                     try
                     {
@@ -423,6 +420,8 @@ public class Navigator
                 logger.error(context.cfg.gs("Z.process.failed") + result);
                 JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.process.failed") + result, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
+            else
+                return true;
         }
         catch (Exception e)
         {
@@ -2501,9 +2500,9 @@ public class Navigator
         });
     }
 
-    public boolean isUpdateAndRestart()
+    public boolean isUpdaterProcess()
     {
-        return updateAndRestart;
+        return updaterProcess;
     }
 
     public void loadBookmarksMenu()
@@ -3053,10 +3052,10 @@ public class Navigator
         }
     }
 
-    public void setUpdateAndRestart(String updaterExecutable)
+    public void setUpdaterProcess(String updaterJar)
     {
-        this.updaterExecutable = updaterExecutable;
-        this.updateAndRestart = true;
+        this.updaterJar = updaterJar;
+        this.updaterProcess = true;
     }
 
     public void stop()
@@ -3086,18 +3085,34 @@ public class Navigator
         // end the Navigator Swing thread
         if (!context.main.secondaryNavigator)
         {
-            if (isUpdateAndRestart())
+            if (isUpdaterProcess())
             {
                 try
                 {
-                    logger.info(context.cfg.gs("Navigator.starting.els.updater"));
-                    String commandLine = "\"" + Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                            "ELS_Updater" + System.getProperty("file.separator") +
-                            "rt" + System.getProperty("file.separator") +
-                            "bin" + System.getProperty("file.separator") +
-                            "java" + (Utils.isOsLinux() ? "" : ".exe") + "\"" +
-                            " -jar " + "\"" + updaterExecutable + "\"";
-                    String[] args = Utils.parseCommandLIne(commandLine);
+                    String[] args;
+                    String cmd = "";
+                    if (Utils.isOsMac())
+                    {
+                        String[] parms = { Utils.getSystemTempDirectory() +
+                                "/ELS_Updater/ELS_Updater/ELS_Updater.app/Contents/MacOS/ELS_Updater" };
+                        args = parms;
+                        cmd = parms[0];
+                    }
+                    else
+                    {
+                        String[] parms = { Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
+                                "ELS_Updater" + System.getProperty("file.separator") +
+                                "rt" + System.getProperty("file.separator") +
+                                "bin" + System.getProperty("file.separator") +
+                                "java" + (Utils.isOsWindows() ? ".exe" : ""),
+                            "-jar",
+                            updaterJar };
+                        args = parms;
+                        cmd = parms.toString();
+                    }
+
+                    logger.info(context.cfg.gs("Navigator.starting.els.updater") + cmd);
+
                     Process proc = Runtime.getRuntime().exec(args);
                 }
                 catch (Exception e)
@@ -3110,6 +3125,7 @@ public class Navigator
                     return;
                 }
             }
+
             System.exit(context.fault ? 1 : 0);
         }
         else

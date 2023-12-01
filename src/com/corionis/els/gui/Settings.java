@@ -32,6 +32,7 @@ public class Settings extends JDialog
     /*
         TODO
             + Change from group layout to gridbag
+            * Consider https://github.com/dheid/fontchooser for the Log tab
          General
             + Default dry run in dialogs
             + Console & Debug log level
@@ -209,7 +210,7 @@ public class Settings extends JDialog
         try
         {
             context.preferences.setLookAndFeel(index);
-            context.preferences.initLookAndFeel(false);
+            context.preferences.initLookAndFeel(context.cfg.NAVIGATOR_NAME, false);
 
             for (Frame frame : Frame.getFrames())
             {
