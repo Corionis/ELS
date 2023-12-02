@@ -98,7 +98,10 @@ public class Main
 
     public void checkEmptyArguments()
     {
-        if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0 && !context.cfg.isStatusServer())
+        if (context.cfg.getPublisherFilename().length() == 0 &&
+                context.cfg.getSubscriberFilename().length() == 0 &&
+                context.cfg.getOperation() != JOB_PROCESS &&
+                !context.cfg.isStatusServer())
             context.cfg.setDefaultNavigator(true);
 
         if (context.cfg.isNavigator() && context.preferences.isUseLastPublisherSubscriber() &&

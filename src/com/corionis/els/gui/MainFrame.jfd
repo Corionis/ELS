@@ -1707,7 +1707,7 @@ new FormModel {
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/whitelist.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separatorEdit1"
+						name: "separatorSettings"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSettings"

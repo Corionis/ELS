@@ -122,10 +122,6 @@ public class Main
                 System.exit(1);
             }
 
-            Preferences p = new Preferences();
-            Configuration c = new Configuration(null);
-
-
             String logFilename = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
                     "ELS_Updater" + System.getProperty("file.separator") + "ELS-Updater.log";
             File delLog = new File(logFilename);

@@ -30,15 +30,13 @@ import java.awt.event.*;
  * Designed with: <br/>
  *  - JFormDesigner: https://www.formdev.com/jformdesigner/doc/ <br/>
  *  - GitHub project: https://github.com/JFormDesigner/FlatLaf <br/>
- *  - Download from: https://search.maven.org/artifact/com.formdev/flatlaf <br/>
  * <br/>
  * Uses free components from FormDev: <br/>
- *  - FlatLaf look 'n feel, https://www.formdev.com/flatlaf/ <br/>
- *  - Themes: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes
- *  - Download from: https://search.maven.org/artifact/com.formdev/flatlaf-intellij-themes
+ *  - FlatLaf, https://www.formdev.com/flatlaf/ <br/>
+ *  - FlatLaf Themes: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes <br/>
+ *  - FlatLaf Extras: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-extras <br/>
  * <br/>
  * See also: <br/>
- *  - https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-extras <br/>
  *
  *  Menu icon color:  #3592C4
  *  Menu icon size:   14x14 px

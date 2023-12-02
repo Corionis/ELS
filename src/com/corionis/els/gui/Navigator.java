@@ -26,6 +26,8 @@ import com.corionis.els.gui.system.FileEditor;
 import com.corionis.els.gui.update.DownloadUpdater;
 import com.corionis.els.gui.util.GuiLogAppender;
 
+import com.formdev.flatlaf.extras.FlatDesktop;
+import com.formdev.flatlaf.util.SystemInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -533,6 +535,11 @@ public class Navigator
         context.mainFrame = new MainFrame(context);
         if (!context.fault)
         {
+            if (Utils.isOsMac() && SystemInfo.isMacFullWindowContentSupported)
+            {
+                context.mainFrame.getRootPane().putClientProperty("apple.awt.fullscreenable", true);
+            }
+
             // setup the Main Menu and primary tabs
             initializeMainMenu();
             context.browser = new Browser(context);
@@ -2225,11 +2232,9 @@ public class Navigator
         context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
         // --- Settings
-        context.mainFrame.menuItemSettings.addActionListener(new AbstractAction()
+        if (Utils.isOsMac())
         {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
+            FlatDesktop.setPreferencesHandler( () -> {
                 if (dialogSettings == null || !dialogSettings.isShowing())
                 {
                     dialogSettings = new Settings(context.mainFrame, context);
@@ -2240,8 +2245,36 @@ public class Navigator
                     dialogSettings.toFront();
                     dialogSettings.requestFocus();
                 }
+            });
+
+            for (Component comp : context.mainFrame.menuSystem.getComponents())
+            {
+                if (comp instanceof  JSeparator && ((JSeparator)comp).getName().equalsIgnoreCase("separatorSettings")) {
+                    ((JSeparator)comp).setVisible(false);
+                }
             }
-        });
+            context.mainFrame.menuItemSettings.setVisible(false);
+        }
+        else
+        {
+            context.mainFrame.menuItemSettings.addActionListener(new AbstractAction()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    if (dialogSettings == null || !dialogSettings.isShowing())
+                    {
+                        dialogSettings = new Settings(context.mainFrame, context);
+                        dialogSettings.setVisible(true);
+                    }
+                    else
+                    {
+                        dialogSettings.toFront();
+                        dialogSettings.requestFocus();
+                    }
+                }
+            });
+        }
 
         // -- Window Menu
         // --------------------------------------------------------
@@ -2454,15 +2487,27 @@ public class Navigator
         });
 
         // --- About
-        context.mainFrame.menuItemAbout.addActionListener(new AbstractAction()
+        if (Utils.isOsMac())
         {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
+            FlatDesktop.setAboutHandler( () -> {
                 About about = new About(context.mainFrame, context);
                 about.setVisible(true);
-            }
-        });
+            });
+            context.mainFrame.menuItemAbout.setVisible(false);
+        }
+        else
+        {
+            context.mainFrame.menuItemAbout.addActionListener(new AbstractAction()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    About about = new About(context.mainFrame, context);
+                    about.setVisible(true);
+                }
+            });
+        }
+
 
         // -- popup menu browser log tab
         // --------------------------------------------------------

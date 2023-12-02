@@ -31,8 +31,7 @@ public class Configuration
     public static final String ELS_JAR = "ELS.jar";
     public static final String ELS_UPDATE = "__els-update__";
     public static final int JOB_PROCESS = 8;
-    public static final String NAVIGATOR_NAME = "Corionis ELS Navigator";
-    public static final String NAVIGATOR_SHORTNAME = "ELS Navigator";
+    public static final String NAVIGATOR_NAME = "ELS Navigator";
     public static final int NOT_REMOTE = 0;
     public static final int NOT_SET = -1;
     public static final String PROGRAM_NAME = "Corionis ELS : Entertainment Library Synchronizer";
@@ -433,7 +432,10 @@ public class Configuration
         opts = sb.toString().trim();
 
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = "\"" + exec + "\"" + (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") + " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
+        String cmd = (Utils.isOsMac() ? "open -a " : "");
+        cmd += "\"" + exec + "\"" +
+                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : (Utils.isOsMac() ? " --args" : "")) +
+                " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
     }
 
@@ -675,10 +677,7 @@ public class Configuration
     public String getElsJar()
     {
         String path = getElsJarPath() + System.getProperty("file.separator") + context.cfg.ELS_JAR;
-        //String path = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-        return path; /*getInstalledPath() + System.getProperty("file.separator") +
-                "bin" + System.getProperty("file.separator") +
-                context.cfg.ELS_JAR;*/
+        return path;
     }
 
     /**

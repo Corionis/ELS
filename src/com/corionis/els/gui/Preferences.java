@@ -3,6 +3,7 @@ package com.corionis.els.gui;
 import com.formdev.flatlaf.*;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
+import com.formdev.flatlaf.util.SystemInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.corionis.els.Context;
@@ -866,10 +867,9 @@ public class Preferences implements Serializable
                 if (Utils.getOS().equalsIgnoreCase("mac"))
                 {
                     System.setProperty("apple.laf.useScreenMenuBar", "true");
-                    System.setProperty( "apple.awt.application.name", name);
+                    System.setProperty("apple.awt.application.name", name);
                     System.setProperty("apple.awt.application.appearance", "system");
                 }
-
                 UIManager.put("Tree.showDefaultIcons", true);
                 UIManager.put("ScrollBar.showButtons", true); // show scrollbar up/down buttons
                 UIManager.put("Component.hideMnemonics", false); // show/hide mnemonic letters

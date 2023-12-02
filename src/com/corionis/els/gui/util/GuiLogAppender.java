@@ -25,7 +25,7 @@ public class GuiLogAppender extends AbstractAppender
 {
     private static ArrayList<String> preBuffer = null;
     private Context context = null;
-    private Startup startup = null;
+    private static Startup startup = null;
 
     public GuiLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions)
     {

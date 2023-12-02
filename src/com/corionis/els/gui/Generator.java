@@ -86,7 +86,7 @@ public class Generator
         {
             name = fieldName.getText();
             String shortcut = System.getProperty("user.home") + System.getProperty("file.separator") + "Desktop" +
-                    System.getProperty("file.separator") + name + (Utils.isOsLinux() ? ".desktop" : ".lnk");
+                    System.getProperty("file.separator") + name + (Utils.isOsWindows() ? ".lnk" : (Utils.isOsMac() ? "" : ".desktop"));
             File shortFile = new File(shortcut);
             boolean skip = false;
 
@@ -110,7 +110,19 @@ public class Generator
             {
                 if (Utils.isOsMac())
                 {
-
+                    try
+                    {
+                        PrintWriter outputStream = new PrintWriter(shortcut);
+                        outputStream.println(commandLine);
+                        outputStream.close();
+                        // make executable
+                        shortFile.setExecutable(true);
+                    }
+                    catch (Exception e)
+                    {
+                        // error
+                        System.out.println(Utils.getStackTrace(e));
+                    }
 
                 }
                 else if (Utils.isOsLinux())
@@ -236,12 +248,17 @@ public class Generator
     private String generateJobCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
         boolean glo = context.preferences.isGenerateLongOptions();
-        String java = context.cfg.getExecutablePath();
-        String jar = context.cfg.getElsJar();
+        String exec = context.cfg.getExecutablePath();
+        String jar = (!Utils.isOsMac() && !Utils.isOsWindows() ? context.cfg.getElsJar() : "");
 
         String conf = getCfgOpt();
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = "\"" + java + "\" -jar \"" + jar + "\" " + conf + "-j \"" + tool.getConfigName() + "\"";
+
+        String cmd = (Utils.isOsMac() ? "open -a " : "");
+        cmd += "\"" + exec + "\"" +
+                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : (Utils.isOsMac() ? " --args " : ""));
+
+        cmd += conf + " -j \"" + tool.getConfigName() + "\"";
 
         // --- hint keys
         if (context.preferences.isLastHintKeysInUse() && context.preferences.getLastHintKeysOpenFile().length() > 0)
@@ -271,14 +288,17 @@ public class Generator
 
     private String generateOperationsCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
-        String java = context.cfg.getExecutablePath();
-        String jar = context.cfg.getElsJar();
+        String exec = context.cfg.getExecutablePath();
+        String jar = (!Utils.isOsMac() && !Utils.isOsWindows() ? context.cfg.getElsJar() : "");
         // tool has all the parameter data, use it's generate method
         String conf = getCfgOpt();
         // use context.preferences because the subscriber filename can change if requested from a remote listener
         String opts = ((OperationsTool) tool).generateCommandLine(context.preferences.getLastPublisherOpenFile(), context.preferences.getLastSubscriberOpenFile());
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = "\"" + java + "\" -jar \"" + jar + "\" " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
+        String cmd = (Utils.isOsMac() ? "open -a " : "");
+        cmd += "\"" + exec + "\"" +
+                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : (Utils.isOsMac() ? " --args" : "")) +
+                " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
     }
 
