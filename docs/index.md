@@ -5,8 +5,6 @@ show_blog: false
 
 <center><span style="font-size: 28px; font-face: bold; font-weight: bold; margin-top: 10px; color: #925600;">What Is ELS?</span></center>
 <hr/>
-<span class="construction">&nbsp;This site is under construction and incomplete&nbsp;</span>
-
 Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built library- and title-oriented tool for managing and backing-up data
 for creators of all kinds with expandable storage spanning multiple devices.
 
