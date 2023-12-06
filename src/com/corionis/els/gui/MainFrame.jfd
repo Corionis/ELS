@@ -1443,7 +1443,7 @@ new FormModel {
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/save-layout.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separator18"
+						name: "separatorQuit"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemQuitTerminate"
@@ -1457,7 +1457,6 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menu.Quit.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Quit.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/quit.png" )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuItemFileQuitActionPerformed", true ) )
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {

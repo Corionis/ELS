@@ -69,7 +69,7 @@ public class Repositories
         File libDir = new File(getDirectoryPath());
         if (libDir.exists() && libDir.isDirectory())
         {
-            File[] files = FileSystemView.getFileSystemView().getFiles(libDir, false);
+            File[] files = FileSystemView.getFileSystemView().getFiles(libDir, true);
             for (File entry : files)
             {
                 if (!entry.isDirectory())

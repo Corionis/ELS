@@ -151,7 +151,7 @@ public class GuiLogAppender extends AbstractAppender
                 {
                     try
                     {
-                        context.preferences.initLookAndFeel(context.cfg.NAVIGATOR_NAME, true);
+                        context.preferences.initLookAndFeel(context.cfg.APPLICATION_NAME, true);
                         startup = new Startup();
                         if (startup != null)
                         {

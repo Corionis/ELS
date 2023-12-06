@@ -202,43 +202,6 @@ public class Main
         return appender;
     }
 
-    /**
-     * Get the path as relative to the current working path if possible.
-     * <br/>
-     * If the path starts with the current working path it is shortened
-     * to be relative to the current working path. Otherwise the path
-     * is returned.
-     *
-     * @param path        Path to check for relativity to the current working path
-     * @param osSeparator true = use local OS separator, otherwise Linux /
-     * @return String Path possibly shortened to be relative
-     */
-    public String getWorkingDirectoryRelative(String path, boolean osSeparator)
-    {
-        if (path != null && path.length() > 0 && path.startsWith(context.cfg.getWorkingDirectory()))
-        {
-            if (path.length() >= context.cfg.getWorkingDirectory().length() + 1)
-                path = path.substring(context.cfg.getWorkingDirectory().length() + 1);
-            else
-                path = "";
-        }
-        // normalize path separator
-        if (path != null)
-        {
-            path = Utils.pipe(path);
-            if (osSeparator)
-            {
-                if (Utils.getOS().toLowerCase().equals("windows"))
-                    path = Utils.unpipe(path, "\\\\");
-                else
-                    path = Utils.unpipe(path, "/");
-            }
-            else
-                path = Utils.unpipe(path, "/");
-        }
-        return path;
-    }
-
     public boolean isStartupActive()
     {
         if (appender != null && appender.isStartupActive())
@@ -250,7 +213,7 @@ public class Main
     {
         if (path != null && path.length() > 0)
         {
-            path = getWorkingDirectoryRelative(path, false);
+            path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), path);
             path = Utils.pipe(path);
             path = Utils.unpipe(path, "/");
         }
@@ -267,16 +230,22 @@ public class Main
      */
     public void process(String[] args)
     {
-        ThreadGroup sessionThreads = null;
         Process process;
+        ThreadGroup sessionThreads = null;
 
         context.cfg = new Configuration(context);
 
         try
         {
             MungeException cfgException = null;
+
             try
             {
+                if (secondaryInvocation)
+                {
+                    context.cfg.setWorkingDirectory(previousContext.cfg.getWorkingDirectory());
+                    //context.cfg.configureWorkingDirectory();
+                }
                 context.cfg.parseCommandLine(args);
             }
             catch (MungeException e)
@@ -287,20 +256,31 @@ public class Main
             // setup the working directory & logger - once
             if (!secondaryInvocation)
             {
-                context.cfg.configure(); // configure working directory & log path
+                // must be set before any AWT classes are loaded
+                if (System.getProperty("os.name").toLowerCase().startsWith("mac"))
+                {
+                    System.setProperty("apple.laf.useScreenMenuBar", "true");
+                    System.setProperty("apple.awt.application.name", APPLICATION_NAME);
+                    System.setProperty("apple.awt.application.appearance", "system");
+                }
+
+                context.cfg.configureWorkingDirectory();
+                context.cfg.configureLogger();
                 if (context.cfg.isLogOverwrite()) // optionally delete any existing log
                 {
                     File delLog = new File(context.cfg.getLogFileFullPath());
                     if (delLog.exists())
                         delLog.delete();
                 }
+
                 System.setProperty("logFilename", context.cfg.getLogFileFullPath());
                 System.setProperty("consoleLevel", context.cfg.getConsoleLevel());
                 System.setProperty("debugLevel", context.cfg.getDebugLevel());
                 System.setProperty("pattern", context.cfg.getPattern());
+
                 LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false); //context.navigator == null ? true : false);
-                //LoggerContext loggerContext = (LoggerContext) LogManager.getContext(context.navigator == null ? true : false);
                 loggerContext.reconfigure();
+
                 appender = getGuiLogAppender();
                 appender.setContext(context);
                 loggerContext.updateLoggers();
@@ -313,7 +293,6 @@ public class Main
                 context.cfg.setLogFilePath(previousContext.cfg.getLogFilePath());
                 context.cfg.setLogFileFullPath(previousContext.cfg.getLogFileFullPath());
                 context.cfg.setLogOverwrite(previousContext.cfg.isLogOverwrite());
-                context.cfg.setWorkingDirectory(previousContext.cfg.getWorkingDirectory());
             }
 
             // get the named logger
@@ -345,6 +324,12 @@ public class Main
             // re-throw any configuration exception
             if (cfgException != null)
                 throw cfgException;
+
+            // if running a Navigator in a secondary invocation initialize the LaF
+            if (secondaryInvocation && (context.cfg.isNavigator() || context.cfg.isDefaultNavigator()))
+            {
+                context.preferences.initLookAndFeel(context.cfg.APPLICATION_NAME, true);
+            }
 
             //
             // an execution of this program can only be configured as one of these operations

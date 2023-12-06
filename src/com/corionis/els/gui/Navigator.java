@@ -32,6 +32,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.jcraft.jsch.SftpATTRS;
+import jdk.nashorn.internal.scripts.JD;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.*;
 
@@ -1355,7 +1356,45 @@ public class Navigator
         });
 
         // --- Quit
-        // Handled in MainFrame.menuItemFileQuitActionPerformed()
+
+        if (Utils.isOsMac())
+        {
+            FlatDesktop.setQuitHandler( response -> {
+                boolean canQuit = context.mainFrame.verifyClose();
+                if (canQuit)
+                    context.navigator.stop();
+                else
+                    response.cancelQuit();
+            });
+            context.mainFrame.menuItemFileQuit.setVisible(false);
+
+            if (!context.cfg.isRemoteOperation())
+            {
+                for (Component comp : context.mainFrame.menuFile.getComponents())
+                {
+                    if (comp instanceof JSeparator && ((JSeparator) comp).getName().equalsIgnoreCase("separatorQuit"))
+                    {
+                        ((JSeparator) comp).setVisible(false);
+                    }
+                }
+            }
+        }
+        else
+        {
+            context.mainFrame.menuItemFileQuit.addActionListener(new AbstractAction()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    if (context.mainFrame.verifyClose())
+                        context.navigator.stop();
+                }
+            });
+        }
+
+
+
+
 
         // -- Edit Menu
         // --------------------------------------------------------
@@ -2204,7 +2243,10 @@ public class Navigator
             {
                 Generator generator = new Generator(context);
                 String configName = Configuration.NAVIGATOR_NAME;
-                generator.showDialog(context.mainFrame, null, configName);
+                JDialog dialog = new JDialog(context.mainFrame);
+                //dialog.setAlwaysOnTop(true);
+                dialog.setLocation(context.mainFrame.getX() + 42, context.mainFrame.getY() + 42);
+                generator.showDialog(dialog, null, configName);
             }
         };
         context.mainFrame.menuItemGenerate.addActionListener(generateAction);
@@ -2617,7 +2659,7 @@ public class Navigator
         File jobsDir = new File(tmpJob.getDirectoryPath());
         if (jobsDir.exists())
         {
-            File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
+            File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, true);
             if (files.length > 0)
             {
                 class objInstanceCreator implements InstanceCreator
@@ -2651,7 +2693,7 @@ public class Navigator
                         }
                         catch (Exception e)
                         {
-                            String msg = context.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
+                            String msg = context.cfg.gs("Z.exception") + entry.getName() + ", " + Utils.getStackTrace(e);
                             logger.error(msg);
                             JOptionPane.showMessageDialog(context.mainFrame, msg,
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);

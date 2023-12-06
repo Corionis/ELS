@@ -862,7 +862,7 @@ public class Preferences implements Serializable
     {
         try
         {
-            if (isInitial) // not sure if this matters
+            //if (isInitial) // not sure if this matters
             {
                 if (Utils.getOS().equalsIgnoreCase("mac"))
                 {
@@ -1682,21 +1682,28 @@ public class Preferences implements Serializable
 
         // shorten paths relative to the working directory if possible
         String savedHintKeysOpenFile = getLastHintKeysOpenFile();
-        setLastHintKeysOpenFile(context.main.getWorkingDirectoryRelative(getLastHintKeysOpenFile(), false));
+        setLastHintKeysOpenFile(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), getLastHintKeysOpenFile()));
+
         String savedHintKeysOpenPath = getLastHintKeysOpenPath();
-        setLastHintKeysOpenPath(context.main.getWorkingDirectoryRelative(getLastHintKeysOpenPath(), false));
+        setLastHintKeysOpenPath(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), getLastHintKeysOpenPath()));
+
         String savedHintTrackingOpenFile = getLastHintTrackingOpenFile();
-        setLastHintTrackingOpenFile(context.main.getWorkingDirectoryRelative(getLastHintTrackingOpenFile(), false));
+        setLastHintTrackingOpenFile(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), getLastHintTrackingOpenFile()));
+
         String savedHintTrackingOpenPath = getLastHintTrackingOpenPath();
-        setLastHintTrackingOpenPath(context.main.getWorkingDirectoryRelative(getLastHintTrackingOpenPath(), false));
+        setLastHintTrackingOpenPath(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), getLastHintTrackingOpenPath()));
+
         String savedPublisherOpenFile = getLastPublisherOpenFile();
-        setLastPublisherOpenFile(context.main.getWorkingDirectoryRelative(getLastPublisherOpenFile(), false));
+        setLastPublisherOpenFile(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), getLastPublisherOpenFile()));
+
         String savedPublisherOpenPath = getLastPublisherOpenPath();
-        setLastPublisherOpenPath(context.main.getWorkingDirectoryRelative(getLastPublisherOpenPath(), false));
+        setLastPublisherOpenPath(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), getLastPublisherOpenPath()));
+
         String savedSubscriberOpenFile = getLastSubscriberOpenFile();
-        setLastSubscriberOpenFile(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenFile(), false));
+        setLastSubscriberOpenFile(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), getLastSubscriberOpenFile()));
+
         String savedSubscriberOpenPath = getLastSubscriberOpenPath();
-        setLastSubscriberOpenPath(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenPath(), false));
+        setLastSubscriberOpenPath(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), getLastSubscriberOpenPath()));
 
         // additions
         if (librariesDefaultMinimum == null)

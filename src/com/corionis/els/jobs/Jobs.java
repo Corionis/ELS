@@ -59,7 +59,7 @@ public class Jobs
             GsonBuilder builder = new GsonBuilder();
             builder.registerTypeAdapter(Job.class, new objInstanceCreator());
 
-            File[] files = FileSystemView.getFileSystemView().getFiles(jobDir, false);
+            File[] files = FileSystemView.getFileSystemView().getFiles(jobDir, true);
             for (File entry : files)
             {
                 if (!entry.isDirectory())

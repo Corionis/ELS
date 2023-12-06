@@ -414,6 +414,8 @@ public class DownloadUpdate extends JFrame
         private boolean unpackDmg(String from, String to)
         {
             boolean success = false;
+            progressBar.setMaximum(4);
+            progressBar.setValue(0);
             String outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater";
 
             try
@@ -421,21 +423,26 @@ public class DownloadUpdate extends JFrame
                 String[] parms = new String[]{"/usr/bin/hdiutil", "attach", from, "-mountroot", outPath};
                 if (main.execExternalExe(me, main.cfg, parms))
                 {
+                    progressBar.setValue(1);
+
                     // copy Java/ directory files
                     File fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Java");
                     File toDir = new File(to + "/Contents/Java");
                     FileUtils.copyDirectory(fromDir, toDir, true);
+                    progressBar.setValue(2);
 
                     // copy Plugins/rt/ directory files
                     fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Plugins/rt");
                     toDir = new File(to + "/Contents/Plugins/rt");
                     FileUtils.copyDirectory(fromDir, toDir, true);
+                    progressBar.setValue(3);
 
                     Thread.sleep(2000);
 
                     // detach ELS
                     parms = new String[]{"/usr/bin/hdiutil", "detach", outPath + "/ELS - Entertainment Library Synchronizer", "-force", "-verbose"};
                     success = main.execExternalExe(me, main.cfg, parms);
+                    progressBar.setValue(4);
                 }
             }
             catch (Exception e)

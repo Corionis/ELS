@@ -20,6 +20,7 @@ import java.util.*;
  */
 public class Configuration
 {
+    public static final String APPLICATION_NAME = "ELS"; // for apple.awt.application.name
     public static final int BUILD_CHANGES_URL = 5;
     public static final int BUILD_DATE = 2;
     public static final int BUILD_ELS_DISTRO = 3;
@@ -105,11 +106,13 @@ public class Configuration
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
     private String workingDirectory = "";
+
     public static enum Operations
     {
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
         SubscriberTerminal, StatusServer, StatusServerQuit, SubscriberListenerQuit
     }
+
     /**
      * Constructor
      */
@@ -149,32 +152,40 @@ public class Configuration
     }
 
     /**
-     * Configure the working directory & logging configuration
+     * Configure the working directory
      * <br/>
-     * Sets the current working directory, logFullPath and logPath based on configuration.
-     * This is executed BEFORE the logger is configured, so the Utils class cannot be used.
+     * Sets the current working directory based on configuration.
      */
-    public void configure() throws Exception
+    public void configureWorkingDirectory() throws Exception
     {
         // set default working directory if not set with -C | --cfg
         if (this.workingDirectory == null || this.workingDirectory.length() == 0)
-            this.workingDirectory = getDefaultWorkingDirectory();
+            setWorkingDirectory(getDefaultWorkingDirectory());
 
         // if "current directory" as a "." then get from system
         if (this.workingDirectory.equals("."))
-            this.workingDirectory = System.getProperty("user.dir");
+            setWorkingDirectory(System.getProperty("user.dir"));
 
         // check & create working directory
-        File wd = new File(this.workingDirectory);
+        File wd = new File(getWorkingDirectory());
         if (!wd.exists())
             wd.mkdirs();
         else if (!wd.isDirectory())
             throw new MungeException("Configuration directory \"" + wd.getAbsolutePath() + "\" is not a directory");
 
         // change to working directory
-        this.workingDirectory = wd.getAbsolutePath();
-        System.setProperty("user.dir", this.workingDirectory);
+        setWorkingDirectory(wd.getAbsolutePath());
+        System.setProperty("user.dir", getWorkingDirectory());
+    }
 
+    /**
+     * Configure the logging configuration
+     * <br/>
+     * Sets the logFullPath and logPath based on configuration.
+     * This is executed BEFORE the logger is configured, so the Utils class cannot be used.
+     */
+    public void configureLogger() throws Exception
+    {
         // setup the absolute path for the log file before configuring logging
         if (getLogFileName() != null && getLogFileName().length() > 0)
         {
@@ -355,7 +366,6 @@ public class Configuration
         indicator(logger, SHORT, "  cfg: -x Cross-check = ", crossCheck);
         indicator(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
         indicator(logger, SHORT, "  cfg: -z Decimal scale = ", getLongScale() == 1024 ? -1 : 1);
-        logger.debug("Working directory: " + getWorkingDirectory());
     }
 
     /**
@@ -375,7 +385,7 @@ public class Configuration
         String log = context.cfg.getLogFileName();
 
         String conf = "-C \"" + context.cfg.getWorkingDirectory() + "\" ";
-        String opts; // = ((OperationsTool) tool).generateCommandLine(context.cfg.getPublisherFilename(), context.cfg.getSubscriberFilename());
+        String opts;
 
         Configuration cc = context.cfg;
         Preferences pr = context.preferences;
@@ -1771,7 +1781,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         // see configure()
-                        this.workingDirectory = args[index + 1].trim();
+                        setWorkingDirectory(args[index + 1].trim());
                         verifyFileExistence(getWorkingDirectory());
                         ++index;
                     }
@@ -2712,7 +2722,10 @@ public class Configuration
             isRelative = false;
 
         if (isRelative)
-            filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + file;
+        {
+            String prefix = (context.cfg.getWorkingDirectory().length() > 0 ? context.cfg.getWorkingDirectory() + System.getProperty("file.separator") : "");
+            filename = prefix + file;
+        }
         else
             filename = file;
 

@@ -210,7 +210,7 @@ public class Settings extends JDialog
         try
         {
             context.preferences.setLookAndFeel(index);
-            context.preferences.initLookAndFeel(context.cfg.NAVIGATOR_NAME, false);
+            context.preferences.initLookAndFeel(context.cfg.APPLICATION_NAME, false);
 
             for (Frame frame : Frame.getFrames())
             {

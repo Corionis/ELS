@@ -236,7 +236,7 @@ public class ConfigModel extends DefaultTableModel
             builder.registerTypeAdapter(Job.class, new objInstanceCreator());
 
             ArrayList<Job> jobsArray = new ArrayList<>();
-            File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
+            File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, true);
             for (File entry : files)
             {
                 if (!entry.isDirectory())

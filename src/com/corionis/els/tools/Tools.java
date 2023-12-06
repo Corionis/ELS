@@ -61,7 +61,7 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 OperationParser operationParser = new OperationParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
+                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
                 for (File entry : files)
                 {
                     if (!entry.isDirectory())
@@ -92,7 +92,7 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 JunkRemoverParser junkRemoverParser = new JunkRemoverParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
+                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
                 for (File entry : files)
                 {
                     if (!entry.isDirectory())
@@ -123,7 +123,7 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 RenamerParser renamerParser = new RenamerParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
+                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
                 for (File entry : files)
                 {
                     if (!entry.isDirectory())
@@ -154,7 +154,7 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 SleepParser sleepParser = new SleepParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
+                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
                 for (File entry : files)
                 {
                     if (!entry.isDirectory())
@@ -312,7 +312,7 @@ public class Tools
     {
         if (toolDir.exists() && toolDir.isDirectory())
         {
-            File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
+            File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
             for (File entry : files)
             {
                 if (!entry.isDirectory())

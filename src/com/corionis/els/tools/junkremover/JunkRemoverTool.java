@@ -428,7 +428,7 @@ public class JunkRemoverTool extends AbstractTool
                 File file = new File(path);
                 if (file.isDirectory())
                 {
-                    files = FileSystemView.getFileSystemView().getFiles(file.getAbsoluteFile(), false);
+                    files = FileSystemView.getFileSystemView().getFiles(file.getAbsoluteFile(), true);
                 }
                 else
                 {

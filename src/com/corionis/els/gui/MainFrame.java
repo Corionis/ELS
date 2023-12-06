@@ -59,7 +59,7 @@ public class MainFrame extends JFrame
         {
 //            context.preferences.initLookAndFeel();
             initComponents();
-            setTitle(context.cfg.getNavigatorName());
+            setTitle(context.cfg.NAVIGATOR_NAME);
             setBrowserTabs(-1);
 
             // re-create the right-side tables, for getToolTipText(), and re-setup
@@ -389,12 +389,6 @@ public class MainFrame extends JFrame
             context.navigator.dialogSleep.requestFocus();
             context.navigator.dialogSleep.saveButton.requestFocus();
         }
-    }
-
-    private void menuItemFileQuitActionPerformed(ActionEvent e)
-    {
-        if (verifyClose())
-            context.navigator.stop();
     }
 
     public void setBrowserTabs(int tabPlacementIndex)
@@ -896,7 +890,6 @@ public class MainFrame extends JFrame
                 menuItemFileQuit.setText(context.cfg.gs("Navigator.menu.Quit.text"));
                 menuItemFileQuit.setMnemonic(context.cfg.gs("Navigator.menu.Quit.mnemonic").charAt(0));
                 menuItemFileQuit.setIcon(new ImageIcon(getClass().getResource("/quit.png")));
-                menuItemFileQuit.addActionListener(e -> menuItemFileQuitActionPerformed(e));
                 menuFile.add(menuItemFileQuit);
             }
             menuBarMain.add(menuFile);

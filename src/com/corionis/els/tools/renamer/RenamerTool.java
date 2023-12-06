@@ -557,7 +557,7 @@ public class RenamerTool extends AbstractTool
                         }
                     }
                     isFirst = false;
-                    files = FileSystemView.getFileSystemView().getFiles(loc.getAbsoluteFile(), false);
+                    files = FileSystemView.getFileSystemView().getFiles(loc.getAbsoluteFile(), true);
                 }
                 else
                 {

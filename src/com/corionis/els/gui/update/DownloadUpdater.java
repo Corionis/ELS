@@ -287,10 +287,13 @@ public class DownloadUpdater extends JFrame
 
         private boolean unpackDmg(String from, String to)
         {
+            progressBar.setMaximum(1);
+            progressBar.setValue(0);
             File toPath = new File(to);
             toPath.getParentFile().mkdirs();
             toPath.mkdir();
             String[] parms = new String[] { "/usr/bin/hdiutil", "attach", from, "-mountroot", to };
+            progressBar.setValue(1);
             return context.main.execExternalExe(me, context.cfg, parms);
         }
 

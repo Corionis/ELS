@@ -177,7 +177,7 @@ public class Job extends AbstractTool
             builder.registerTypeAdapter(Job.class, new objInstanceCreator());
 
             String json;
-            File[] files = FileSystemView.getFileSystemView().getFiles(jobDir, false);
+            File[] files = FileSystemView.getFileSystemView().getFiles(jobDir, true);
             for (File entry : files)
             {
                 if (!entry.isDirectory())

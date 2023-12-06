@@ -6,6 +6,7 @@ import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.operations.OperationsTool;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
+import jdk.nashorn.internal.scripts.JD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,6 +17,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.regex.Pattern;
 
 @SuppressWarnings(value = "unchecked")
 public class Generator
@@ -33,7 +35,7 @@ public class Generator
         this.context = context;
     }
 
-    private void createDesktopShortcut(Component owner, String name, String commandLine)
+    private void createDesktopShortcut(JDialog owner, String name, String commandLine)
     {
         JPanel panelName = new JPanel();
         panelName.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -80,8 +82,11 @@ public class Generator
             panelWarning.add(labelWarning);
         }
 
+        final JDialog dialog = new JDialog(owner);
+        dialog.setAlwaysOnTop(true);
+        dialog.setLocationRelativeTo(owner);
         Object[] params = {panelName, panelComment, panelTerminal, panelWarning};
-        int resp = JOptionPane.showConfirmDialog(owner, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
+        int resp = JOptionPane.showConfirmDialog(dialog, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
         if (resp == JOptionPane.OK_OPTION)
         {
             name = fieldName.getText();
@@ -112,6 +117,13 @@ public class Generator
                 {
                     try
                     {
+                        if (checkboxTerminal.isSelected())
+                        {
+                            commandLine = commandLine.substring(8); // remove "open -a "
+                            Pattern patt = Pattern.compile("--args ");  // remove "--args "
+                            commandLine = commandLine.replaceAll(patt.toString(), "");
+                        }
+
                         PrintWriter outputStream = new PrintWriter(shortcut);
                         outputStream.println(commandLine);
                         outputStream.close();
@@ -123,7 +135,6 @@ public class Generator
                         // error
                         System.out.println(Utils.getStackTrace(e));
                     }
-
                 }
                 else if (Utils.isOsLinux())
                 {
@@ -343,7 +354,7 @@ public class Generator
         return "unknown";
     }
 
-    public boolean showDialog(Component owner, AbstractTool tool, String configName)
+    public boolean showDialog(JDialog owner, AbstractTool tool, String configName)
     {
         boolean completed = false;
         String messasge = "<html><body>" + context.cfg.gs("Generator.generated") + " <b>" + configName +
@@ -569,7 +580,7 @@ public class Generator
         });
         panelActions.add(copyButton);
         //
-        //if (!(owner == context.mainFrame && Utils.getOS().toLowerCase().equals("windows")))
+        //if (!(owner == context.mainFrame && Utils.getOS().toLowerCase().equals("windows")))       // disable?
         {
             shortcutButton.setText(context.cfg.gs("Generator.shortcut"));
             shortcutButton.setMnemonic(context.cfg.gs("Generator.shortcut.mnemonic").charAt(0));
