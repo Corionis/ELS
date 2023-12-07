@@ -19,16 +19,21 @@ the web site is updated.
 
 ## Full Build Steps
 
- 1. On Linux in ELS run: ```ant -f els.xml All```
+ 1. On Linux in ELS run: ```ant -f els.xml All``` or ```ant -f els.xml All-Deploy```
 
  2. On MacOS:
-    1. Copy from Linux ```ELS/out/ELS/dmg/ELS``` to ```ELS-MacOS-Imager/```
+    1. Delete any previous ```ELS-MacOS-Imager/ELS/``` and ```ELS-MacOS-Imager/ELS-Updater/``` directories.
+    2. Copy from Linux ```ELS/out/ELS/dmg/ELS``` to ```ELS-MacOS-Imager/```
     2. Copy from Linux ```ELS/out/updater/dmg/ELS_Updater``` to ```ELS-MacOS-Imager/```
     3. Change to ELS=MacOS-Imager/
     4. Run: ```./build-els-image.sh```
     5. Copy to Linux ```ELS=MacOS-Imager/build/ELS-[build-stamp].dmg``` to ```ELS/build/```
     6. Copy to Linux ```ELS=MacOS-Imager/build/ELS_Updater-[build-stamp].dmg``` to ```ELS/build/```
  
- 3. On Windows ... 
-
- 4. On Linux ...
+ 3. On Windows:
+    1. Delete any previous ```ELS-Windows-Installer\ELS\``` directory.
+    2. Copy from Linux ```ELS/out/ELS/zip/ELS``` to ```ELS-Windows-Installer```
+    3. Change to ELS-Windows-Installer\
+    4. Run: ```build-els-installer.bat```
+    5. Copy to Linux ```ELS-Windows-Installer\els-installer.exe``` to ```ELS/build/```
+    6. Rename ```ELS/build/els-install.exe``` with the current ELS-date-stamped filename.

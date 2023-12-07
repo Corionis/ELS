@@ -125,7 +125,7 @@ public class DownloadUpdater extends JFrame
             else
             {
                 String jar = outPath + System.getProperty("file.separator") +
-                        (Utils.isOsMac() ? "/ELS_Updater/ELS_Updater.app/Contents/Java" : "") +
+                        (Utils.isOsMac() ? "/ELS_Updater/ELS_Updater.app/Contents/Java" : "bin") +
                         System.getProperty("file.separator") + "ELS_Updater.jar";
                 File els = new File(jar);
                 if (!els.exists())
