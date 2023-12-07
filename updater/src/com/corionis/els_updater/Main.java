@@ -21,6 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * ELS Updater
@@ -243,6 +245,17 @@ public class Main
             configPath = br.readLine();
             commandLine = br.readLine();
             br.close();
+
+            if (commandLine == null || commandLine.length() == 0) // upgrade from a 2-line file
+            {
+                commandLine = configPath;
+                Pattern p = Pattern.compile(" -C \\\"([^\\\"]*)\\\"");
+                Matcher m = p.matcher(commandLine);
+                if (m.find())
+                {
+                    configPath = m.group(1);
+                }
+            }
 
             if (commandLine == null || commandLine.length() == 0 ||
                     configPath == null || configPath.length() == 0 ||
