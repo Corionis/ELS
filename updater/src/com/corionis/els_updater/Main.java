@@ -69,6 +69,14 @@ public class Main
     public boolean execExternalExe(Component comp, Configuration cfg, String[] parms)
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+
+        String cl = "";
+        for (int i = 0; i < parms.length; ++i)
+        {
+            cl = cl + parms[i] + " ";
+        }
+        final String cmdline = cl;
+
         try
         {
             final java.lang.Process proc = Runtime.getRuntime().exec(parms);
@@ -87,7 +95,7 @@ public class Main
                     }
                     catch (IOException e)
                     {
-                        logger.error(cfg.gs("Z.exception") + e.getMessage());
+                        logger.error(cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e));
                         JOptionPane.showMessageDialog(comp, cfg.gs("Z.exception") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -99,16 +107,18 @@ public class Main
             thread.join();
             if (result != 0)
             {
-                logger.error(cfg.gs("Z.process.failed") + result);
-                JOptionPane.showMessageDialog(comp, cfg.gs("Z.process.failed") + result, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                String message = cfg.gs("Z.process.failed") + result + ", : " + cmdline;
+                logger.error(message);
+                JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
             else
                 return true;
         }
         catch (Exception e)
         {
-            logger.error(cfg.gs("Z.process.failed") + Utils.getStackTrace(e));
-            JOptionPane.showMessageDialog(comp, cfg.gs("Z.process.failed") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            String message = cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e);
+            logger.error(message);
+            JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
         return false;
     }
@@ -124,14 +134,14 @@ public class Main
                 System.exit(1);
             }
 
-            String logFilename = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
+            String logFilename = System.getProperty("java.io.tmpdir") +
                     "ELS_Updater" + System.getProperty("file.separator") + "ELS-Updater.log";
             File delLog = new File(logFilename);
             if (delLog.exists())
                 delLog.delete();
             System.setProperty("logFilename", logFilename);
-            System.setProperty("consoleLevel", "Debug");
-            System.setProperty("debugLevel", "Debug");
+            System.setProperty("consoleLevel", "DEBUG");
+            System.setProperty("debugLevel", "DEBUG");
             System.setProperty("pattern", "\"%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m [%t]:%C.%M:%L%n\"");
             LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
             loggerContext.reconfigure();
@@ -163,7 +173,7 @@ public class Main
 
                     if (!readElsUpdaterInfo())
                     {
-                        message = cfg.gs("Updater.missing.or.malformed.updater.info.parameters.cannot.continue") + updaterInfoFile;
+                        message = "Missing or malformed ELS_Updater.info file, cannot continue:\n\r" + updaterInfoFile;
                         fault = true;
                     }
                     else
@@ -196,23 +206,24 @@ public class Main
 
                     if (!fault && !readUpdateInfo())
                     {
-                        message = cfg.gs("Updater.missing.or.malformed.update.info.cannot.continue") + infoFile;
+                        message = "Missing or malformed update.info file, cannot continue:\n\r" + infoFile;
                         fault = true;
                     }
 
                     if (!fault && !readVersionInfo())
                     {
-                        message = cfg.gs("Updater.missing.or.malformed.version.info.file.cannot.continue") + versionFile;
+                        message = "Missing or malformed version.info file, cannot continue:\n\r" + versionFile;
                         fault = true;
                     }
 
                     if (fault)
                     {
                         logger.fatal(message);
-                        Object[] opts = {cfg.gs("Z.ok")};
-                        JOptionPane.showOptionDialog(null, message, cfg.gs("Updater.title"),
+                        Object[] opts = {"Ok"};
+                        JOptionPane.showOptionDialog(null, message, "ELS Updater",
                                 JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
-                        System.exit(1);
+
+                        System.exit(1); // <<<<<<<-------------- Exit
                     }
 
                     DownloadUpdate downloadUpdate = new DownloadUpdate(main, preferences, installedPath, version, prefix);
@@ -382,6 +393,7 @@ public class Main
                 status = "";
             else
                 status = fault ? " --update-failed" : " --update-successful";
+            logger.info(cfg.gs(("Updater.restarting.els")) + commandLine);
             String[] args = Utils.parseCommandLIne(commandLine + status);
             Process proc = Runtime.getRuntime().exec(args, null, new File(installedPath));
             Thread.sleep(5000);

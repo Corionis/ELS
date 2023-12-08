@@ -151,6 +151,7 @@
     <target name="els-windows" depends="els-jar">
         <delete failonerror="false">
             <fileset dir="build">
+                <include name="ELS-*.exe"/>
                 <include name="ELS-*.zip"/>
             </fileset>
         </delete>

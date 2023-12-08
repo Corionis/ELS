@@ -109,21 +109,32 @@ public class DownloadUpdate extends JFrame
                 {
                     if (download() && !requestStop)
                     {
+                        // give the download a chance to flush buffers and close the file
+                        Thread.sleep(1500);
+
                         if (unpack() && !requestStop)
                         {
                             if (postprocess() && !requestStop)
                             {
                                 logger.info(SHORT, main.cfg.gs("Updater.download.and.unpack.of.els.successful"));
                             }
+                            else
+                                fault = true;
                         }
+                        else
+                            fault = true;
                     }
+                    else
+                        fault = true;
                 }
+                else
+                    fault = true;
             }
             catch (Exception e)
             {
                 fault = true;
                 logger.error(Utils.getStackTrace(e));
-                message = main.cfg.gs("Z.exception" + e.getMessage());
+                message = main.cfg.gs("Z.exception" + Utils.getStackTrace(e));
                 Object[] opts = {main.cfg.gs("Z.ok")};
                 JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
@@ -143,17 +154,20 @@ public class DownloadUpdate extends JFrame
             }
             else
             {
-                // double-check the ELS.jar exists before Swing is stopped
-                String exe = installedPath + System.getProperty("file.separator") +
-                        (Utils.isOsMac() ? "Contents/Java" : "bin") + System.getProperty("file.separator") + main.cfg.ELS_JAR;
-                File els = new File(exe);
-                if (!els.exists())
+                if (!fault)
                 {
-                    fault = true;
-                    message = main.cfg.gs("Navigator.cannot.find.updater") + exe;
-                    Object[] opts = {main.cfg.gs("Z.ok")};
-                    JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                    // double-check the ELS.jar exists before Swing is stopped
+                    String exe = installedPath + System.getProperty("file.separator") +
+                            (Utils.isOsMac() ? "Contents/Java" : "bin") + System.getProperty("file.separator") + main.cfg.ELS_JAR;
+                    File els = new File(exe);
+                    if (!els.exists())
+                    {
+                        fault = true;
+                        message = main.cfg.gs("Navigator.cannot.find.executable") + exe;
+                        Object[] opts = {main.cfg.gs("Z.ok")};
+                        JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                                JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                    }
                 }
             }
 
@@ -217,7 +231,7 @@ public class DownloadUpdate extends JFrame
                             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                             fault = true;
                             logger.error(Utils.getStackTrace(e));
-                            message = main.cfg.gs("Z.error.writing") + outFile;
+                            message = main.cfg.gs("Z.error.writing") + outFile + ", " + e.getMessage();
                             Object[] opts = {main.cfg.gs("Z.ok")};
                             JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
                                     JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
@@ -262,7 +276,7 @@ public class DownloadUpdate extends JFrame
                 setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 fault = true;
                 logger.error(Utils.getStackTrace(e));
-                message = main.cfg.gs("Z.error.downloading") + outFile;
+                message = main.cfg.gs("Z.error.downloading") + outFile + ", " + e.getMessage();
                 Object[] opts = {main.cfg.gs("Z.ok")};
                 JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
@@ -420,18 +434,21 @@ public class DownloadUpdate extends JFrame
 
             try
             {
+                logger.info(main.cfg.gs("Updater.mounting.update") + from);
                 String[] parms = new String[]{"/usr/bin/hdiutil", "attach", from, "-mountroot", outPath};
                 if (main.execExternalExe(me, main.cfg, parms))
                 {
                     progressBar.setValue(1);
 
                     // copy Java/ directory files
+                    logger.info(main.cfg.gs("Copy ELS.app/Contents/Java"));
                     File fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Java");
                     File toDir = new File(to + "/Contents/Java");
                     FileUtils.copyDirectory(fromDir, toDir, true);
                     progressBar.setValue(2);
 
                     // copy Plugins/rt/ directory files
+                    logger.info(main.cfg.gs("Copy ELS.app/Contents/Plugins/rt"));
                     fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Plugins/rt");
                     toDir = new File(to + "/Contents/Plugins/rt");
                     FileUtils.copyDirectory(fromDir, toDir, true);
@@ -440,6 +457,7 @@ public class DownloadUpdate extends JFrame
                     Thread.sleep(2000);
 
                     // detach ELS
+                    logger.info(main.cfg.gs("Updater.unmounting") + from);
                     parms = new String[]{"/usr/bin/hdiutil", "detach", outPath + "/ELS - Entertainment Library Synchronizer", "-force", "-verbose"};
                     success = main.execExternalExe(me, main.cfg, parms);
                     progressBar.setValue(4);
@@ -449,7 +467,7 @@ public class DownloadUpdate extends JFrame
             {
                 fault = true;
                 logger.error(Utils.getStackTrace(e));
-                message = main.cfg.gs("Z.exception" + e.getMessage());
+                message = main.cfg.gs("Z.exception" + Utils.getStackTrace(e));
                 Object[] opts = {main.cfg.gs("Z.ok")};
                 JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
@@ -526,7 +544,7 @@ public class DownloadUpdate extends JFrame
             {
                 fault = true;
                 logger.error(Utils.getStackTrace(e));
-                message = main.cfg.gs("Z.exception" + e.getMessage());
+                message = main.cfg.gs("Z.exception" + Utils.getStackTrace(e));
                 Object[] opts = {main.cfg.gs("Z.ok")};
                 JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
@@ -589,7 +607,7 @@ public class DownloadUpdate extends JFrame
             {
                 fault = true;
                 logger.error(Utils.getStackTrace(e));
-                message = main.cfg.gs("Z.exception" + e.getMessage());
+                message = main.cfg.gs("Z.exception" + Utils.getStackTrace(e));
                 Object[] opts = {main.cfg.gs("Z.ok")};
                 JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
                         JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);

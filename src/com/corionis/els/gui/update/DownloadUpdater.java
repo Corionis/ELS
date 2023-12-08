@@ -130,7 +130,7 @@ public class DownloadUpdater extends JFrame
                 File els = new File(jar);
                 if (!els.exists())
                 {
-                    message = context.cfg.gs("Navigator.cannot.find.updater") + jar;
+                    message = context.cfg.gs("Navigator.cannot.find.executable") + jar;
                     Object[] opts = {context.cfg.gs("Z.ok")};
                     JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                             JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
