@@ -143,6 +143,7 @@ public class Main
         }
     }
 
+/*
     public boolean execExternalExe(Component comp, Configuration cfg, String[] parms)
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
@@ -186,6 +187,85 @@ public class Main
         {
             logger.error(cfg.gs("Z.process.failed") + Utils.getStackTrace(e));
             JOptionPane.showMessageDialog(comp, cfg.gs("Z.process.failed") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+*/
+
+    public boolean execExternalExe(Component comp, Configuration cfg, String[] parms)
+    {
+        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+
+        String cl = "";
+        for (int i = 0; i < parms.length; ++i)
+        {
+            cl = cl + parms[i] + " ";
+        }
+        final String cmdline = cl;
+
+        final int MAX_TRIES = 3;
+        int tries = 0;
+        while (tries < MAX_TRIES)
+        {
+            try
+            {
+                final java.lang.Process proc = Runtime.getRuntime().exec(parms);
+                Thread thread = new Thread()
+                {
+                    public void run()
+                    {
+                        String line;
+                        BufferedReader input = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+                        try
+                        {
+                            while ((line = input.readLine()) != null)
+                                logger.info(SIMPLE, line);
+                            input.close();
+                        }
+                        catch (IOException e)
+                        {
+                            logger.error(cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e));
+                            JOptionPane.showMessageDialog(comp, cfg.gs("Z.exception") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                };
+
+                // run it
+                thread.start();
+                int result = proc.waitFor();
+                thread.join();
+                if (result != 0)
+                {
+                    String message = cfg.gs("Z.process.failed") + result + ", : " + cmdline;
+                    logger.error(message);
+                    JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+                else
+                    return true;
+            }
+            catch (Exception e)
+            {
+                ++tries;
+                if (tries >= MAX_TRIES)
+                {
+                    String message = cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e);
+                    logger.error(message);
+                    JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+                else
+                {
+                    logger.warn(cfg.gs("Z.process.failed") + parms[0] + ", #" + tries);
+                    // give the OS a little more time
+                    try
+                    {
+                        Thread.sleep(1500);
+                    }
+                    catch (Exception e1)
+                    {
+                    }
+                }
+            }
         }
         return false;
     }

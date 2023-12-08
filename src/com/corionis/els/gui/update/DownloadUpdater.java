@@ -33,6 +33,7 @@ import java.awt.event.WindowEvent;
 public class DownloadUpdater extends JFrame
 {
     private Context context;
+    private boolean fault = false;
     private String installedPath;
     private transient Logger logger = LogManager.getLogger("applog");
     private String message;
@@ -99,6 +100,9 @@ public class DownloadUpdater extends JFrame
 
             if (download() && !requestStop)
             {
+                // give the download a chance to flush buffers and close the file
+                Thread.sleep(2500);
+
                 if (unpack() && !requestStop)
                 {
                     if (writeUpdaterInfo() && !requestStop)
@@ -106,8 +110,14 @@ public class DownloadUpdater extends JFrame
                         logger.info(context.cfg.gs("Navigator.download.and.unpack.of.els.updater.successful"));
                         context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.download.and.unpack.of.els.updater.successful"));
                     }
+                    else
+                        fault = true;
                 }
+                else
+                    fault = true;
             }
+            else
+                fault = true;
             return null;
         }
 
@@ -124,21 +134,24 @@ public class DownloadUpdater extends JFrame
             }
             else
             {
-                String jar = outPath + System.getProperty("file.separator") +
-                        (Utils.isOsMac() ? "/ELS_Updater/ELS_Updater.app/Contents/Java" : "bin") +
-                        System.getProperty("file.separator") + "ELS_Updater.jar";
-                File els = new File(jar);
-                if (!els.exists())
+                if (!fault)
                 {
-                    message = context.cfg.gs("Navigator.cannot.find.executable") + jar;
-                    Object[] opts = {context.cfg.gs("Z.ok")};
-                    JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
-                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
-                    return;
-                }
+                    String jar = outPath + System.getProperty("file.separator") +
+                            (Utils.isOsMac() ? "/ELS_Updater/ELS_Updater.app/Contents/Java" : "bin") +
+                            System.getProperty("file.separator") + "ELS_Updater.jar";
+                    File els = new File(jar);
+                    if (!els.exists())
+                    {
+                        message = context.cfg.gs("Navigator.cannot.find.executable") + jar;
+                        Object[] opts = {context.cfg.gs("Z.ok")};
+                        JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
+                                JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                        return;
+                    }
 
-                navigator.setUpdaterProcess(jar);
-                navigator.stop();
+//                    navigator.setUpdaterProcess(jar);
+//                    navigator.stop();
+                }
             }
         }
 
@@ -294,7 +307,10 @@ public class DownloadUpdater extends JFrame
             toPath.mkdir();
             String[] parms = new String[] { "/usr/bin/hdiutil", "attach", from, "-mountroot", to };
             progressBar.setValue(1);
-            return context.main.execExternalExe(me, context.cfg, parms);
+            boolean success = context.main.execExternalExe(me, context.cfg, parms);
+            if (!success)
+                fault = true;
+            return success;
         }
 
         private boolean unpackTar(String from, String to)

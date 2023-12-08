@@ -1367,17 +1367,6 @@ public class Navigator
                     response.cancelQuit();
             });
             context.mainFrame.menuItemFileQuit.setVisible(false);
-
-            if (!context.cfg.isRemoteOperation())
-            {
-                for (Component comp : context.mainFrame.menuFile.getComponents())
-                {
-                    if (comp instanceof JSeparator && ((JSeparator) comp).getName().equalsIgnoreCase("separatorQuit"))
-                    {
-                        ((JSeparator) comp).setVisible(false);
-                    }
-                }
-            }
         }
         else
         {
@@ -1390,6 +1379,18 @@ public class Navigator
                         context.navigator.stop();
                 }
             });
+
+            // hide separator if not a remote operation
+            if (!context.cfg.isRemoteOperation())
+            {
+                for (Component comp : context.mainFrame.menuFile.getComponents())
+                {
+                    if (comp instanceof JSeparator && ((JSeparator) comp).getName().equalsIgnoreCase("separatorQuit"))
+                    {
+                        ((JSeparator) comp).setVisible(false);
+                    }
+                }
+            }
         }
 
 

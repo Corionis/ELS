@@ -24,6 +24,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.corionis.els.Configuration.APPLICATION_NAME;
+
 /**
  * ELS Updater
  *
@@ -77,48 +79,69 @@ public class Main
         }
         final String cmdline = cl;
 
-        try
+        final int MAX_TRIES = 3;
+        int tries = 0;
+        while (tries < MAX_TRIES)
         {
-            final java.lang.Process proc = Runtime.getRuntime().exec(parms);
-            Thread thread = new Thread()
+            try
             {
-                public void run()
+                final java.lang.Process proc = Runtime.getRuntime().exec(parms);
+                Thread thread = new Thread()
                 {
-                    String line;
-                    BufferedReader input = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+                    public void run()
+                    {
+                        String line;
+                        BufferedReader input = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
+                        try
+                        {
+                            while ((line = input.readLine()) != null)
+                                logger.info(SIMPLE, line);
+                            input.close();
+                        }
+                        catch (IOException e)
+                        {
+                            logger.error(cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e));
+                            JOptionPane.showMessageDialog(comp, cfg.gs("Z.exception") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                };
+
+                // run it
+                thread.start();
+                int result = proc.waitFor();
+                thread.join();
+                if (result != 0)
+                {
+                    String message = cfg.gs("Z.process.failed") + result + ", : " + cmdline;
+                    logger.error(message);
+                    JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+                else
+                    return true;
+            }
+            catch (Exception e)
+            {
+                ++tries;
+                if (tries >= MAX_TRIES)
+                {
+                    String message = cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e);
+                    logger.error(message);
+                    JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+                else
+                {
+                    logger.warn(cfg.gs("Z.process.failed") + parms[0] + ", #" + tries);
+                    // give the OS a little more time
                     try
                     {
-                        while ((line = input.readLine()) != null)
-                            logger.info(SIMPLE, line);
-                        input.close();
+                        Thread.sleep(1500);
                     }
-                    catch (IOException e)
+                    catch (Exception e1)
                     {
-                        logger.error(cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e));
-                        JOptionPane.showMessageDialog(comp, cfg.gs("Z.exception") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     }
                 }
-            };
-
-            // run it
-            thread.start();
-            int result = proc.waitFor();
-            thread.join();
-            if (result != 0)
-            {
-                String message = cfg.gs("Z.process.failed") + result + ", : " + cmdline;
-                logger.error(message);
-                JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
-            else
-                return true;
-        }
-        catch (Exception e)
-        {
-            String message = cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e);
-            logger.error(message);
-            JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
         return false;
     }
@@ -132,6 +155,14 @@ public class Main
                 Properties p = System.getProperties();
                 p.list(System.out);
                 System.exit(1);
+            }
+
+            // must be set before any AWT classes are loaded
+            if (System.getProperty("os.name").toLowerCase().startsWith("mac"))
+            {
+                System.setProperty("apple.laf.useScreenMenuBar", "true");
+                System.setProperty("apple.awt.application.name", APPLICATION_NAME);
+                System.setProperty("apple.awt.application.appearance", "system");
             }
 
             String logFilename = System.getProperty("java.io.tmpdir") +
@@ -393,10 +424,10 @@ public class Main
                 status = "";
             else
                 status = fault ? " --update-failed" : " --update-successful";
-            logger.info(cfg.gs(("Updater.restarting.els")) + commandLine);
             String[] args = Utils.parseCommandLIne(commandLine + status);
+            logger.info(cfg.gs(("Updater.restarting.els")) + commandLine);
             Process proc = Runtime.getRuntime().exec(args, null, new File(installedPath));
-            Thread.sleep(5000);
+            Thread.sleep(1000);
         }
         catch (Exception e)
         {

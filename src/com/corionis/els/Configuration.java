@@ -225,7 +225,10 @@ public class Configuration
             setLogFileFullPath(prefix + lfn);
         }
         else
+        {
+            setLogFileName("ELS-Navigator.log");
             setLogFileFullPath(this.workingDirectory + System.getProperty("file.separator") + "output/ELS-Navigator.log");
+        }
     }
 
     /**
@@ -382,7 +385,7 @@ public class Configuration
         String consoleLevel = context.cfg.getConsoleLevel();
         String debugLevel = context.cfg.getDebugLevel();
         boolean overwriteLog = context.cfg.isLogOverwrite();
-        String log = context.cfg.getLogFileName();
+        String log = context.cfg.getLogFileFullPath();
 
         String conf = "-C \"" + context.cfg.getWorkingDirectory() + "\" ";
         String opts;

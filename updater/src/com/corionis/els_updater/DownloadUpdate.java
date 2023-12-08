@@ -110,7 +110,7 @@ public class DownloadUpdate extends JFrame
                     if (download() && !requestStop)
                     {
                         // give the download a chance to flush buffers and close the file
-                        Thread.sleep(1500);
+                        Thread.sleep(2500);
 
                         if (unpack() && !requestStop)
                         {
@@ -229,7 +229,6 @@ public class DownloadUpdate extends JFrame
                         catch (Exception e)
                         {
                             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                            fault = true;
                             logger.error(Utils.getStackTrace(e));
                             message = main.cfg.gs("Z.error.writing") + outFile + ", " + e.getMessage();
                             Object[] opts = {main.cfg.gs("Z.ok")};
@@ -274,7 +273,6 @@ public class DownloadUpdate extends JFrame
             catch (Exception e)
             {
                 setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                fault = true;
                 logger.error(Utils.getStackTrace(e));
                 message = main.cfg.gs("Z.error.downloading") + outFile + ", " + e.getMessage();
                 Object[] opts = {main.cfg.gs("Z.ok")};
@@ -441,14 +439,14 @@ public class DownloadUpdate extends JFrame
                     progressBar.setValue(1);
 
                     // copy Java/ directory files
-                    logger.info(main.cfg.gs("Copy ELS.app/Contents/Java"));
+                    logger.info(main.cfg.gs("Updater.copy") + "ELS.app/Contents/Java");
                     File fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Java");
                     File toDir = new File(to + "/Contents/Java");
                     FileUtils.copyDirectory(fromDir, toDir, true);
                     progressBar.setValue(2);
 
                     // copy Plugins/rt/ directory files
-                    logger.info(main.cfg.gs("Copy ELS.app/Contents/Plugins/rt"));
+                    logger.info(main.cfg.gs("Updater.copy") + "ELS.app/Contents/Plugins/rt");
                     fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Plugins/rt");
                     toDir = new File(to + "/Contents/Plugins/rt");
                     FileUtils.copyDirectory(fromDir, toDir, true);
