@@ -149,8 +149,8 @@ public class DownloadUpdater extends JFrame
                         return;
                     }
 
-//                    navigator.setUpdaterProcess(jar);
-//                    navigator.stop();
+                    navigator.setUpdaterProcess(jar);
+                    navigator.stop();
                 }
             }
         }
