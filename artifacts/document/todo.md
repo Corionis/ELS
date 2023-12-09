@@ -3,7 +3,6 @@
 
 ## Current Short-List
 
- 1. Fix Libraries Add for Locations and Sources 
 
 ## To Do
  1. Re-write embedded help pages in Markdown then convert to HTML so the same files can
@@ -63,7 +62,6 @@ be changed so publisher receives Hints from Subscriber before the munge operatio
 
 ## New Web Site
 
- * Point Documentation links from a new GitHub Pages site to the wiki
  * Edit the wiki in the project:
    * https://docs.github.com/en/communities/documenting-your-project-with-wikis/adding-or-editing-wiki-pages
 
