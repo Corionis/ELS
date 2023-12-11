@@ -32,7 +32,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.jcraft.jsch.SftpATTRS;
-import jdk.nashorn.internal.scripts.JD;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.*;
 
@@ -105,6 +104,27 @@ public class Navigator
 
             // set location to find update.info for the URL prefix
             String updateInfoPath = context.cfg.getInstalledPath() + System.getProperty("file.separator") +
+                    (Utils.isOsMac() ? "Contents/Java" : "bin");
+
+            // check if it's installed
+            if (Utils.isOsMac())
+            {
+                File installed = new File(updateInfoPath);
+                if (!installed.canWrite())
+                {
+                    Object[] opts = {context.cfg.gs("Z.ok")};
+                    message = ("Updater.application.path.not.writable");
+                    logger.info(message);
+                    if (!checkOnly)
+                    {
+                        JOptionPane.showOptionDialog(context.mainFrame, "", context.cfg.gs("Navigator.update"),
+                                JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                    }
+                    return false;
+                }
+            }
+
+            updateInfoPath = context.cfg.getInstalledPath() + System.getProperty("file.separator") +
                     (Utils.isOsMac() ? "Contents/Java" : "bin") + System.getProperty("file.separator") +
                     "update.info";
 

@@ -13,7 +13,6 @@ import com.corionis.els.stty.ClientStty;
 import com.corionis.els.stty.ServeStty;
 import com.corionis.els.stty.hintServer.Datastore;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -143,55 +142,6 @@ public class Main
         }
     }
 
-/*
-    public boolean execExternalExe(Component comp, Configuration cfg, String[] parms)
-    {
-        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
-        try
-        {
-            final java.lang.Process proc = Runtime.getRuntime().exec(parms);
-            Thread thread = new Thread()
-            {
-                public void run()
-                {
-                    String line;
-                    BufferedReader input = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-
-                    try
-                    {
-                        while ((line = input.readLine()) != null)
-                            logger.info(SIMPLE, line);
-                        input.close();
-                    }
-                    catch (IOException e)
-                    {
-                        logger.error(cfg.gs("Z.exception") + e.getMessage());
-                        JOptionPane.showMessageDialog(comp, cfg.gs("Z.exception") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            };
-
-            // run it
-            thread.start();
-            int result = proc.waitFor();
-            thread.join();
-            if (result != 0)
-            {
-                logger.error(cfg.gs("Z.process.failed") + result);
-                JOptionPane.showMessageDialog(comp, cfg.gs("Z.process.failed") + result, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-            }
-            else
-                return true;
-        }
-        catch (Exception e)
-        {
-            logger.error(cfg.gs("Z.process.failed") + Utils.getStackTrace(e));
-            JOptionPane.showMessageDialog(comp, cfg.gs("Z.process.failed") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-        }
-        return false;
-    }
-*/
-
     public boolean execExternalExe(Component comp, Configuration cfg, String[] parms)
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
@@ -237,6 +187,7 @@ public class Main
                 thread.join();
                 if (result != 0)
                 {
+                    ++tries;
                     String message = cfg.gs("Z.process.failed") + result + ", : " + cmdline;
                     logger.error(message);
                     JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -247,24 +198,22 @@ public class Main
             catch (Exception e)
             {
                 ++tries;
-                if (tries >= MAX_TRIES)
+                logger.warn(cfg.gs("Z.process.failed") + parms[0] + ", #" + tries);
+                // give the OS a little more time
+                try
                 {
-                    String message = cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e);
-                    logger.error(message);
-                    JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    Thread.sleep(1500);
                 }
-                else
+                catch (Exception e1)
                 {
-                    logger.warn(cfg.gs("Z.process.failed") + parms[0] + ", #" + tries);
-                    // give the OS a little more time
-                    try
-                    {
-                        Thread.sleep(1500);
-                    }
-                    catch (Exception e1)
-                    {
-                    }
                 }
+            }
+
+            if (tries >= MAX_TRIES)
+            {
+                String message = cfg.gs("Z.process.failed") + cmdline;
+                logger.error(message);
+                JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
         }
         return false;

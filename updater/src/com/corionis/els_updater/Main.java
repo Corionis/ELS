@@ -113,6 +113,7 @@ public class Main
                 thread.join();
                 if (result != 0)
                 {
+                    ++tries;
                     String message = cfg.gs("Z.process.failed") + result + ", : " + cmdline;
                     logger.error(message);
                     JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -123,24 +124,22 @@ public class Main
             catch (Exception e)
             {
                 ++tries;
-                if (tries >= MAX_TRIES)
+                logger.warn(cfg.gs("Z.process.failed") + parms[0] + ", #" + tries);
+                // give the OS a little more time
+                try
                 {
-                    String message = cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e);
-                    logger.error(message);
-                    JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    Thread.sleep(1500);
                 }
-                else
+                catch (Exception e1)
                 {
-                    logger.warn(cfg.gs("Z.process.failed") + parms[0] + ", #" + tries);
-                    // give the OS a little more time
-                    try
-                    {
-                        Thread.sleep(1500);
-                    }
-                    catch (Exception e1)
-                    {
-                    }
                 }
+            }
+
+            if (tries >= MAX_TRIES)
+            {
+                String message = cfg.gs("Z.process.failed") + cmdline;
+                logger.error(message);
+                JOptionPane.showMessageDialog(comp, message, cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
         }
         return false;
