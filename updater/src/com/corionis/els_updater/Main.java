@@ -157,6 +157,8 @@ public class Main
                 System.exit(1);
             }
 
+            System.setProperty("jdk.lang.Process.launchMechanism", "POSIX_SPAWN");
+
             // must be set before any AWT classes are loaded
             if (System.getProperty("os.name").toLowerCase().startsWith("mac"))
             {
