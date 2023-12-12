@@ -6,7 +6,6 @@ import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.operations.OperationsTool;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
-import jdk.nashorn.internal.scripts.JD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

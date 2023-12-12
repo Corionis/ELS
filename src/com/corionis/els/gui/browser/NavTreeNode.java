@@ -760,9 +760,15 @@ public class NavTreeNode extends DefaultMutableTreeNode
     {
         if (children != null)
         {
-            Collections.sort(children, sortTreeAlphabetically);
+            children.sort(sortTreeAlphabetically);
+            //Collections.sort(children, sortTreeAlphabetically);
+
             if (context.preferences.isSortFoldersBeforeFiles())
-                Collections.sort(children, sortFoldersBeforeFiles);
+            {
+                children.sort(sortFoldersBeforeFiles);
+                //Collections.sort(children, sortFoldersBeforeFiles);
+            }
+
             for (Object child : children)
             {
                 NavTreeNode node = (NavTreeNode) child;
@@ -774,34 +780,34 @@ public class NavTreeNode extends DefaultMutableTreeNode
 
     // ==========================================
 
-    class SortTreeAlphabetically implements Comparator<NavTreeNode>
+    class SortTreeAlphabetically implements Comparator<Object>
     {
-        public int compare(NavTreeNode a, NavTreeNode b)
+        public int compare(Object a, Object b)
         {
             if (context.preferences.isSortReverse())
             {
                 if (context.preferences.isSortCaseInsensitive())
                 {
-                    return b.getUserObject().name.compareToIgnoreCase(a.getUserObject().name);
+                    return ((NavTreeNode)b).getUserObject().name.compareToIgnoreCase(((NavTreeNode)a).getUserObject().name);
                 }
-                return b.getUserObject().name.compareTo(a.getUserObject().name);
+                return ((NavTreeNode)b).getUserObject().name.compareTo(((NavTreeNode)a).getUserObject().name);
             }
             else
             {
                 if (context.preferences.isSortCaseInsensitive())
                 {
-                    return a.getUserObject().name.compareToIgnoreCase(b.getUserObject().name);
+                    return ((NavTreeNode)a).getUserObject().name.compareToIgnoreCase(((NavTreeNode)b).getUserObject().name);
                 }
-                return a.getUserObject().name.compareTo(b.getUserObject().name);
+                return ((NavTreeNode)a).getUserObject().name.compareTo(((NavTreeNode)b).getUserObject().name);
             }
         }
     }
 
-    class SortFoldersBeforeFiles implements Comparator<NavTreeNode>
+    class SortFoldersBeforeFiles implements Comparator<Object>
     {
-        public int compare(NavTreeNode a, NavTreeNode b)
+        public int compare(Object a, Object b)
         {
-            return (a.getUserObject().isDir && !b.getUserObject().isDir) ? -1 : 0;
+            return (((NavTreeNode)a).getUserObject().isDir && !((NavTreeNode)b).getUserObject().isDir) ? -1 : 0;
         }
     }
 
