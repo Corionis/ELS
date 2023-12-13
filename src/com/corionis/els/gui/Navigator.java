@@ -112,13 +112,14 @@ public class Navigator
                 File installed = new File(updateInfoPath);
                 if (!installed.canWrite())
                 {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     Object[] opts = {context.cfg.gs("Z.ok")};
-                    message = ("Updater.application.path.not.writable");
+                    message = context.cfg.gs("Updater.application.path.not.writable");
                     logger.info(message);
                     if (!checkOnly)
                     {
-                        JOptionPane.showOptionDialog(context.mainFrame, "", context.cfg.gs("Navigator.update"),
-                                JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                        JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
+                                JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE, null, opts, opts[0]);
                     }
                     return false;
                 }

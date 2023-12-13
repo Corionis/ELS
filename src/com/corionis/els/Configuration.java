@@ -228,6 +228,7 @@ public class Configuration
         {
             setLogFileName("ELS-Navigator.log");
             setLogFileFullPath(this.workingDirectory + System.getProperty("file.separator") + "output/ELS-Navigator.log");
+            setLogOverwrite(true);
         }
     }
 

@@ -679,6 +679,11 @@ public class Repository
             Gson gson = new Gson();
             if (printLog)
                 logger.info("Reading Library file " + filename);
+            if (Utils.isRelativePath(filename))
+            {
+logger.info("### Current working directory: " + System.getProperty("user.dir"));
+                filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + filename;
+            }
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
