@@ -681,7 +681,6 @@ public class Repository
                 logger.info("Reading Library file " + filename);
             if (Utils.isRelativePath(filename))
             {
-logger.info("### Current working directory: " + System.getProperty("user.dir"));
                 filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + filename;
             }
             setJsonFilename(filename);

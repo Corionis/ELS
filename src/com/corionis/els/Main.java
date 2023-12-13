@@ -198,11 +198,11 @@ public class Main
             catch (Exception e)
             {
                 ++tries;
-                logger.warn(cfg.gs("Z.process.failed") + parms[0] + ", #" + tries);
+                logger.warn(cfg.gs("Z.exception") + parms[0] + ", #" + tries + ", " + e.getMessage());
                 // give the OS a little more time
                 try
                 {
-                    Thread.sleep(1500);
+                    Thread.sleep(2000);
                 }
                 catch (Exception e1)
                 {
@@ -860,7 +860,8 @@ public class Main
         // is this a restarted Navigator instance after being updated?
         if (context.cfg.isNavigator() && (context.cfg.isUpdateSuccessful() || context.cfg.isUpdateFailed()))
         {
-            String outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater";
+            String outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater" +
+                    System.getProperty("file.separator") + "ELS_Updater";
 
             try
             {
@@ -873,7 +874,7 @@ public class Main
                     File up = new File(outPath);
                     if (up.exists() && up.isDirectory())
                     {
-                        String[] parms = new String[]{"/usr/bin/hdiutil", "detach", outPath + "/ELS_Updater", "-force", "-verbose"};
+                        String[] parms = new String[]{"/usr/bin/hdiutil", "detach", outPath, "-force", "-verbose"};
                         boolean success = execExternalExe(context.mainFrame, context.cfg, parms);
                     }
                 }

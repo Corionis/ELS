@@ -101,7 +101,7 @@ public class DownloadUpdater extends JFrame
             if (download() && !requestStop)
             {
                 // give the download a chance to flush buffers and close the file
-                Thread.sleep(2500);
+                Thread.sleep(10000);
 
                 if (unpack() && !requestStop)
                 {
@@ -163,10 +163,13 @@ public class DownloadUpdater extends JFrame
 
                 String ext = Utils.isOsWindows() ? ".zip" : (Utils.isOsMac() ? ".dmg" : ".tar.gz");
                 updateFile = version.get(Configuration.BUILD_UPDATER_DISTRO) + ext;
+
+                //updateFile = "ELS_Updater-4.0.0-development-2312131000.dmg";
+
                 updateArchive = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + updateFile;
                 labelStatus.setText(context.cfg.gs("Z.update") + version.get(Configuration.BUILD_DATE));
 
-                if (!mockMode)
+                if (!mockMode) // && 0 == 1)
                 {
                     // download the ELS Updater
                     String downloadUrl = prefix + "/" + updateFile;
@@ -227,6 +230,7 @@ public class DownloadUpdater extends JFrame
                     File dl = new File(updateArchive);
                     if (!dl.exists())
                     {
+                        //String copy = "/Users/trh/Work/corionis/ELS" + System.getProperty("file.separator") + "build" + System.getProperty("file.separator") + updateFile;
                         String copy = ".." + System.getProperty("file.separator") + "build" + System.getProperty("file.separator") + updateFile;
                         File cp = new File (copy);
                         if (cp.exists())

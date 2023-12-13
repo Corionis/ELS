@@ -101,7 +101,7 @@ public class Main
                         }
                         catch (IOException e)
                         {
-                            logger.error(cfg.gs("Z.process.failed") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e));
+                            logger.error(cfg.gs("Z.exception") + cmdline + System.getProperty("line.separator") + Utils.getStackTrace(e));
                             JOptionPane.showMessageDialog(comp, cfg.gs("Z.exception") + Utils.getStackTrace(e), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
                     }
@@ -124,11 +124,11 @@ public class Main
             catch (Exception e)
             {
                 ++tries;
-                logger.warn(cfg.gs("Z.process.failed") + parms[0] + ", #" + tries);
+                logger.warn(cfg.gs("Z.exception") + parms[0] + ", #" + tries + ", " + e.getMessage());
                 // give the OS a little more time
                 try
                 {
-                    Thread.sleep(1500);
+                    Thread.sleep(2000);
                 }
                 catch (Exception e1)
                 {
@@ -425,7 +425,8 @@ public class Main
                 status = "";
             else
                 status = fault ? " --update-failed" : " --update-successful";
-            String[] args = Utils.parseCommandLIne(commandLine + status);
+            commandLine = commandLine + status;
+            String[] args = Utils.parseCommandLIne(commandLine);
             logger.info(cfg.gs(("Updater.restarting.els")) + commandLine);
             Process proc = Runtime.getRuntime().exec(args, null, new File(installedPath));
             Thread.sleep(1000);
