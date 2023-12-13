@@ -446,7 +446,7 @@ public class Configuration
         opts = sb.toString().trim();
 
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = (Utils.isOsMac() ? "open -a " : "");
+        String cmd = (Utils.isOsMac() ? "/usr/bin/open -a " : "");
         cmd += "\"" + exec + "\"" +
                 (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : (Utils.isOsMac() ? " --args" : "")) +
                 " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
