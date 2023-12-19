@@ -166,7 +166,7 @@ public class Main
                 System.setProperty("apple.awt.application.appearance", "system");
             }
 
-            String logFilename = System.getProperty("java.io.tmpdir") +
+            String logFilename = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
                     "ELS_Updater" + System.getProperty("file.separator") + "ELS-Updater.log";
             File delLog = new File(logFilename);
             if (delLog.exists())

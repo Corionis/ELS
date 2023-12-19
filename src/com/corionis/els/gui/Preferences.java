@@ -873,8 +873,8 @@ public class Preferences implements Serializable
                     System.setProperty("apple.awt.application.appearance", "system");
                 }
                 UIManager.put("Tree.showDefaultIcons", true);
-                UIManager.put("ScrollBar.showButtons", context.preferences.isShowArrows()); // show scrollbar up/down buttons
-                UIManager.put("Component.hideMnemonics", !context.preferences.isShowMnemonics()); // show/hide mnemonic letters
+                UIManager.put("ScrollBar.showButtons", isShowArrows()); // show scrollbar up/down buttons
+                UIManager.put("Component.hideMnemonics", !isShowMnemonics()); // show/hide mnemonic letters
                 UIManager.put("TabbedPane.showTabSeparators", true); // separators between tabs
 
                 // set accent color for current LaF

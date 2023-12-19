@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.0.0.338" Java: "17.0.8" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.0.0.338" Java: "17.0.9" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -22,8 +22,9 @@ new FormModel {
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
-				"preferredSize": new java.awt.Dimension( 320, 210 )
-				"minimumSize": new java.awt.Dimension( 320, 210 )
+				"preferredSize": new java.awt.Dimension( 360, 210 )
+				"minimumSize": new java.awt.Dimension( 360, 210 )
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "dialogPaneMouseClicked", true ) )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 					name: "contentPanel"
 					"minimumSize": new java.awt.Dimension( 296, 246 )
@@ -67,7 +68,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "labelBuild"
-							"text": "Built 10 March 2022, 17:45:00 MST"
+							"text": "Built 19 December 2023, 17:45:00 MST"
 							"horizontalAlignment": 11
 							"verticalAlignment": 3
 						} )

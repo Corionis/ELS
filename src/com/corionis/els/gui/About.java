@@ -38,6 +38,11 @@ public class About extends JDialog
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
+    private void dialogPaneMouseClicked(MouseEvent e)
+    {
+        setVisible(false);
+    }
+
     private void thisWindowClosed(WindowEvent e)
     {
         parent.requestFocus();
@@ -67,14 +72,20 @@ public class About extends JDialog
                 thisWindowClosed(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========
         {
             dialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
-            dialogPane.setPreferredSize(new Dimension(320, 210));
-            dialogPane.setMinimumSize(new Dimension(320, 210));
+            dialogPane.setPreferredSize(new Dimension(360, 210));
+            dialogPane.setMinimumSize(new Dimension(360, 210));
+            dialogPane.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    dialogPaneMouseClicked(e);
+                }
+            });
             dialogPane.setLayout(new BorderLayout());
 
             //======== contentPanel ========
@@ -112,7 +123,7 @@ public class About extends JDialog
                     panelVersion.add(labelBy);
 
                     //---- labelBuild ----
-                    labelBuild.setText("Built 10 March 2022, 17:45:00 MST");
+                    labelBuild.setText("Built 19 December 2023, 17:45:00 MST");
                     labelBuild.setHorizontalAlignment(SwingConstants.TRAILING);
                     labelBuild.setVerticalAlignment(SwingConstants.BOTTOM);
                     panelVersion.add(labelBuild);
