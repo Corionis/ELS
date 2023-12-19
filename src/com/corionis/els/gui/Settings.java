@@ -29,23 +29,6 @@ public class Settings extends JDialog
     private int laf;
     private Settings thisDialog;
 
-    /*
-        TODO
-            + Change from group layout to gridbag
-            * Consider https://github.com/dheid/fontchooser for the Log tab
-         General
-            + Default dry run in dialogs
-            + Console & Debug log level
-            + Add beep option:    Toolkit.getDefaultToolkit().beep();
-            + Use last publisher and subscriber if none specified (Preferences.useLastPublisherSubscriber)
-         Appearance
-            + Add "Default" button to Accent Color
-            + Show mnemonics
-            + Show scrollbar up/down buttons
-         OperationsUI
-            + Some default values
-     */
-
     public Settings(Window owner, Context context)
     {
         super(owner);
@@ -186,22 +169,33 @@ public class Settings extends JDialog
             textFieldAccentColor.setText(Utils.formatHex(color.getRed(), 2) +
                     Utils.formatHex(color.getGreen(), 2) +
                     Utils.formatHex(color.getBlue(), 2));
-            try
-            {
-                // set accent color for current LaF
-                FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + textFieldAccentColor.getText()));
-                Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
-                FlatLaf.setup(lafClass.newInstance());
-                FlatLaf.updateUI();
-            }
-            catch (Exception ex)
-            {
-                logger.error(Utils.getStackTrace(ex));
-                JOptionPane.showMessageDialog(context.mainFrame,
-                        context.cfg.gs("Z.exception") + ex.getMessage(),
-                        context.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
+            setAccentColor();
+        }
+    }
 
-            }
+    private void defaultAccentColor(ActionEvent e)
+    {
+        textFieldAccentColor.setText(context.preferences.DEFAULT_ACCENT_COLOR);
+        setAccentColor();
+    }
+
+    private void updateLookAndFeel(ActionEvent ae)
+    {
+        try
+        {
+            UIManager.put("ScrollBar.showButtons", showArrowsCheckBox.isSelected()); // show scrollbar up/down buttons
+            UIManager.put("Component.hideMnemonics", !showMnemonicsCheckBox.isSelected()); // show/hide mnemonic letters
+            Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
+            FlatLaf.setup(lafClass.newInstance());
+            FlatLaf.updateUI();
+        }
+        catch (Exception ex)
+        {
+            logger.error(Utils.getStackTrace(ex));
+            JOptionPane.showMessageDialog(context.mainFrame,
+                    context.cfg.gs("Z.exception") + ex.getMessage(),
+                    context.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
+
         }
     }
 
@@ -227,6 +221,26 @@ public class Settings extends JDialog
         }
     }
 
+    private void setAccentColor()
+    {
+        try
+        {
+            // set accent color for current LaF
+            FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + textFieldAccentColor.getText()));
+            Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
+            FlatLaf.setup(lafClass.newInstance());
+            FlatLaf.updateUI();
+        }
+        catch (Exception ex)
+        {
+            logger.error(Utils.getStackTrace(ex));
+            JOptionPane.showMessageDialog(context.mainFrame,
+                    context.cfg.gs("Z.exception") + ex.getMessage(),
+                    context.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
+
+        }
+    }
+
     private void setDialog()
     {
         // general
@@ -235,6 +249,8 @@ public class Settings extends JDialog
         showCcpConfirmationCheckBox.setSelected(context.preferences.isShowCcpConfirmation());
         showDndConfirmationCheckBox.setSelected(context.preferences.isShowDnDConfirmation());
         showTouchConfirmationCheckBox.setSelected(context.preferences.isShowTouchConfirmation());
+        defaultDryrunCheckBox.setSelected(context.preferences.isDefaultDryrun());
+        defaultLogOverwriteCheckBox.setSelected(context.preferences.isDefaultLogOverwrite());
 
         // appearance
         lookFeelComboBox.setAutoscrolls(true);
@@ -259,13 +275,15 @@ public class Settings extends JDialog
                 break;
             }
         }
-        scaleCheckBox.setSelected(context.preferences.isBinaryScale());
         dateFormatTextField.setText(context.preferences.getDateFormat());
         if (context.preferences.getAccentColor() == null || context.preferences.getAccentColor().length() < 1)
         {
             context.preferences.setAccentColor(context.preferences.DEFAULT_ACCENT_COLOR);
         }
         textFieldAccentColor.setText(context.preferences.getAccentColor());
+        scaleCheckBox.setSelected(context.preferences.isBinaryScale());
+        showArrowsCheckBox.setSelected(context.preferences.isShowArrows());
+        showMnemonicsCheckBox.setSelected(context.preferences.isShowMnemonics());
 
         // browser
         autoRefreshCheckBox.setSelected(context.preferences.isAutoRefresh());
@@ -281,6 +299,7 @@ public class Settings extends JDialog
         tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.left"));
         tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.right"));
         tabPlacementComboBox.setSelectedIndex(context.preferences.getTabPlacementIndex());
+        uselastPubSubCheckBox.setSelected(context.preferences.isUseLastPublisherSubscriber());
 
         // operationsUI
 
@@ -310,12 +329,12 @@ public class Settings extends JDialog
         context.preferences.setShowCcpConfirmation(showCcpConfirmationCheckBox.isSelected());
         context.preferences.setShowDnDConfirmation(showDndConfirmationCheckBox.isSelected());
         context.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
+        context.preferences.setDefaultDryrun(defaultDryrunCheckBox.isSelected());
+        context.preferences.setDefaultLogOverwrite(defaultLogOverwriteCheckBox.isSelected());
 
         // appearance
         context.preferences.setLookAndFeel(lookFeelComboBox.getSelectedIndex());
         context.preferences.setLocale((String) localeComboBox.getSelectedItem());
-        context.preferences.setBinaryScale(scaleCheckBox.isSelected());
-        context.cfg.setLongScale(context.preferences.isBinaryScale());
         context.preferences.setDateFormat(dateFormatTextField.getText());
         if (textFieldAccentColor.getText().length() == 0) // use default if empty
         {
@@ -333,6 +352,10 @@ public class Settings extends JDialog
         }
         else
             context.preferences.setAccentColor(textFieldAccentColor.getText());
+        context.cfg.setLongScale(context.preferences.isBinaryScale());
+        context.preferences.setBinaryScale(scaleCheckBox.isSelected());
+        context.preferences.setShowArrows(showArrowsCheckBox.isSelected());
+        context.preferences.setShowMnemonics(showMnemonicsCheckBox.isSelected());
 
         // browser
         context.preferences.setAutoRefresh(autoRefreshCheckBox.isSelected());
@@ -342,6 +365,7 @@ public class Settings extends JDialog
         context.preferences.setSortFoldersBeforeFiles(sortFoldersBeforeFilesCheckBox.isSelected());
         context.preferences.setSortReverse(sortReverseCheckBox.isSelected());
         context.preferences.setTabPlacement(tabPlacementComboBox.getSelectedIndex());
+        context.preferences.setUseLastPublisherSubscriber(uselastPubSubCheckBox.isSelected());
 
         context.mainFrame.labelStatusMiddle.setText("");
         return true;
@@ -386,19 +410,28 @@ public class Settings extends JDialog
         showDndConfirmationCheckBox = new JCheckBox();
         showTouchConfirmationLabel = new JLabel();
         showTouchConfirmationCheckBox = new JCheckBox();
+        showDefaultDryrunLabel = new JLabel();
+        defaultDryrunCheckBox = new JCheckBox();
+        showDefaultLogOverwriteLabel = new JLabel();
+        defaultLogOverwriteCheckBox = new JCheckBox();
         apperancePanel = new JPanel();
         lookFeelLabel = new JLabel();
         lookFeelComboBox = new JComboBox<>();
         localeLabel = new JLabel();
         localeComboBox = new JComboBox<>();
-        scaleLabel = new JLabel();
-        scaleCheckBox = new JCheckBox();
         dateFormatLabel = new JLabel();
+        dateInfoButton = new JButton();
         dateFormatTextField = new JTextField();
         accentColorButtonLabel = new JLabel();
-        dateInfoButton = new JButton();
+        defaultAccentButton = new JButton();
         textFieldAccentColor = new JTextField();
         buttonChooseColor = new JButton();
+        scaleLabel = new JLabel();
+        scaleCheckBox = new JCheckBox();
+        showArrowseLabel = new JLabel();
+        showArrowsCheckBox = new JCheckBox();
+        showMnemonicsLabel = new JLabel();
+        showMnemonicsCheckBox = new JCheckBox();
         browserPanel = new JPanel();
         autoRefreshLabel = new JLabel();
         autoRefreshCheckBox = new JCheckBox();
@@ -414,8 +447,8 @@ public class Settings extends JDialog
         sortReverseCheckBox = new JCheckBox();
         tabPlacementlabel = new JLabel();
         tabPlacementComboBox = new JComboBox<>();
-        operationsPanel = new JPanel();
-        librariesPanel = new JPanel();
+        useLastPubSubLabel = new JLabel();
+        uselastPubSubCheckBox = new JCheckBox();
         buttonBar = new JPanel();
         okButton = new JButton();
         cancelButton = new JButton();
@@ -435,7 +468,7 @@ public class Settings extends JDialog
                 thisWindowClosing(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== settingsDialogPane ========
@@ -455,85 +488,91 @@ public class Settings extends JDialog
 
                     //======== generalPanel ========
                     {
+                        generalPanel.setLayout(new GridBagLayout());
+                        ((GridBagLayout)generalPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
+                        ((GridBagLayout)generalPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)generalPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)generalPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- preserveFileTimestampsLabel ----
                         preserveFileTimestampsLabel.setText(context.cfg.gs("Settings.preserveFileTimestampsLabel.text"));
+                        generalPanel.add(preserveFileTimestampsLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(8, 8, 20, 45), 0, 0));
+                        generalPanel.add(preserveFileTimestampsCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(8, 0, 20, 0), 0, 0));
 
                         //---- showDeleteConfirmationLabel ----
                         showDeleteConfirmationLabel.setText(context.cfg.gs("Settings.showDeleteConfirmationLabel.text"));
+                        generalPanel.add(showDeleteConfirmationLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        generalPanel.add(showDeleteConfirmationCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- showCcpConfirmationLabel ----
                         showCcpConfirmationLabel.setText(context.cfg.gs("Settings.showCcpConfirmationLabel.text"));
+                        generalPanel.add(showCcpConfirmationLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        generalPanel.add(showCcpConfirmationCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- showDndConfirmationLabel ----
                         showDndConfirmationLabel.setText(context.cfg.gs("Settings.showDndConfirmationLabel.text"));
+                        generalPanel.add(showDndConfirmationLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        generalPanel.add(showDndConfirmationCheckBox, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- showTouchConfirmationLabel ----
                         showTouchConfirmationLabel.setText(context.cfg.gs("Settings.showTouchConfirmationLabel.text"));
+                        generalPanel.add(showTouchConfirmationLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        generalPanel.add(showTouchConfirmationCheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
-                        GroupLayout generalPanelLayout = new GroupLayout(generalPanel);
-                        generalPanel.setLayout(generalPanelLayout);
-                        generalPanelLayout.setHorizontalGroup(
-                            generalPanelLayout.createParallelGroup()
-                                .addGroup(generalPanelLayout.createSequentialGroup()
-                                    .addContainerGap()
-                                    .addGroup(generalPanelLayout.createParallelGroup()
-                                        .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(preserveFileTimestampsLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(12, 12, 12)
-                                            .addComponent(preserveFileTimestampsCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(showDeleteConfirmationLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(12, 12, 12)
-                                            .addComponent(showDeleteConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(showCcpConfirmationLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(12, 12, 12)
-                                            .addComponent(showCcpConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(showDndConfirmationLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(12, 12, 12)
-                                            .addComponent(showDndConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(12, 12, 12)
-                                            .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
-                                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        );
-                        generalPanelLayout.setVerticalGroup(
-                            generalPanelLayout.createParallelGroup()
-                                .addGroup(generalPanelLayout.createSequentialGroup()
-                                    .addGap(0, 0, 0)
-                                    .addGroup(generalPanelLayout.createParallelGroup()
-                                        .addComponent(preserveFileTimestampsLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(preserveFileTimestampsCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addGap(0, 0, 0)
-                                    .addGroup(generalPanelLayout.createParallelGroup()
-                                        .addComponent(showDeleteConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(showDeleteConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addGap(0, 0, 0)
-                                    .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(showCcpConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(showCcpConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addGap(0, 0, 0)
-                                    .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(showDndConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(showDndConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addGap(0, 0, 0)
-                                    .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(187, Short.MAX_VALUE))
-                        );
+                        //---- showDefaultDryrunLabel ----
+                        showDefaultDryrunLabel.setText(context.cfg.gs("Settings.default.dry.runLabel.text"));
+                        generalPanel.add(showDefaultDryrunLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        generalPanel.add(defaultDryrunCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
+                        //---- showDefaultLogOverwriteLabel ----
+                        showDefaultLogOverwriteLabel.setText(context.cfg.gs("Settings.showDefaultLogOverwriteLabel.text"));
+                        generalPanel.add(showDefaultLogOverwriteLabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 0, 5), 0, 0));
+                        generalPanel.add(defaultLogOverwriteCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 0, 0), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
                     settingsTabbedPane.setMnemonicAt(0, context.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
 
                     //======== apperancePanel ========
                     {
+                        apperancePanel.setLayout(new GridBagLayout());
+                        ((GridBagLayout)apperancePanel.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0};
+                        ((GridBagLayout)apperancePanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)apperancePanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)apperancePanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- lookFeelLabel ----
                         lookFeelLabel.setText(context.cfg.gs("Settings.lookFeelLabel.text"));
+                        apperancePanel.add(lookFeelLabel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 14, 5), 0, 0));
 
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -546,131 +585,178 @@ public class Settings extends JDialog
                             "macOS dark"
                         }));
                         lookFeelComboBox.setName("lafCombo");
+                        apperancePanel.add(lookFeelComboBox, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 14, 0), 0, 0));
 
                         //---- localeLabel ----
                         localeLabel.setText(context.cfg.gs("Settings.localeLabel.text"));
+                        apperancePanel.add(localeLabel, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 14, 5), 0, 0));
 
                         //---- localeComboBox ----
                         localeComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
                             "en_US"
                         }));
                         localeComboBox.setName("localeCombo");
-
-                        //---- scaleLabel ----
-                        scaleLabel.setText(context.cfg.gs("Settings.scaleLabel.text"));
-
-                        //---- scaleCheckBox ----
-                        scaleCheckBox.setToolTipText(context.cfg.gs("Settings.scaleCheckBox.toolTipText"));
+                        apperancePanel.add(localeComboBox, new GridBagConstraints(2, 1, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 14, 0), 0, 0));
 
                         //---- dateFormatLabel ----
                         dateFormatLabel.setText(context.cfg.gs("Settings.dateFormatLabel.text"));
-
-                        //---- dateFormatTextField ----
-                        dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
-
-                        //---- accentColorButtonLabel ----
-                        accentColorButtonLabel.setText(context.cfg.gs("Settings.accentColorLabel.text"));
+                        apperancePanel.add(dateFormatLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 14, 35), 0, 0));
 
                         //---- dateInfoButton ----
                         dateInfoButton.setText(context.cfg.gs("Settings.button.dateInfo.text"));
                         dateInfoButton.setToolTipText(context.cfg.gs("Settings.button.dateInfo.text.tooltip"));
+                        apperancePanel.add(dateInfoButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 14, 5), 0, 0));
+
+                        //---- dateFormatTextField ----
+                        dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
+                        apperancePanel.add(dateFormatTextField, new GridBagConstraints(2, 2, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 14, 0), 0, 0));
+
+                        //---- accentColorButtonLabel ----
+                        accentColorButtonLabel.setText(context.cfg.gs("Settings.accentColorLabel.text"));
+                        apperancePanel.add(accentColorButtonLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 14, 33), 0, 0));
+
+                        //---- defaultAccentButton ----
+                        defaultAccentButton.setText(context.cfg.gs("Settings.defaultAccentButton.text"));
+                        defaultAccentButton.setToolTipText(context.cfg.gs("Settings.defaultAccentButton.toolTipText"));
+                        defaultAccentButton.addActionListener(e -> defaultAccentColor(e));
+                        apperancePanel.add(defaultAccentButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 14, 5), 0, 0));
 
                         //---- textFieldAccentColor ----
                         textFieldAccentColor.setToolTipText(context.cfg.gs("Settings.textField.HintButtonColor.toolTipText"));
+                        apperancePanel.add(textFieldAccentColor, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 14, 5), 0, 0));
 
                         //---- buttonChooseColor ----
                         buttonChooseColor.setText(context.cfg.gs("Settings.button.ChooseColor.text"));
                         buttonChooseColor.setToolTipText(context.cfg.gs("Settings.button.ChooseColor.toolTipText"));
                         buttonChooseColor.addActionListener(e -> chooseColor(e));
+                        apperancePanel.add(buttonChooseColor, new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 14, 0), 0, 0));
 
-                        GroupLayout apperancePanelLayout = new GroupLayout(apperancePanel);
-                        apperancePanel.setLayout(apperancePanelLayout);
-                        apperancePanelLayout.setHorizontalGroup(
-                            apperancePanelLayout.createParallelGroup()
-                                .addGroup(apperancePanelLayout.createSequentialGroup()
-                                    .addContainerGap()
-                                    .addGroup(apperancePanelLayout.createParallelGroup()
-                                        .addGroup(apperancePanelLayout.createSequentialGroup()
-                                            .addGroup(apperancePanelLayout.createParallelGroup()
-                                                .addComponent(lookFeelLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(localeLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(scaleLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                                .addGroup(apperancePanelLayout.createSequentialGroup()
-                                                    .addComponent(dateFormatLabel, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)
-                                                    .addGap(12, 12, 12)
-                                                    .addComponent(dateInfoButton)))
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                            .addGroup(apperancePanelLayout.createParallelGroup()
-                                                .addComponent(lookFeelComboBox, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(localeComboBox, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(scaleCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)))
-                                        .addGroup(apperancePanelLayout.createSequentialGroup()
-                                            .addComponent(accentColorButtonLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(textFieldAccentColor, GroupLayout.PREFERRED_SIZE, 104, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(8, 8, 8)
-                                            .addComponent(buttonChooseColor)))
-                                    .addContainerGap(17, Short.MAX_VALUE))
-                        );
-                        apperancePanelLayout.setVerticalGroup(
-                            apperancePanelLayout.createParallelGroup()
-                                .addGroup(apperancePanelLayout.createSequentialGroup()
-                                    .addGap(0, 0, 0)
-                                    .addGroup(apperancePanelLayout.createParallelGroup()
-                                        .addGroup(apperancePanelLayout.createSequentialGroup()
-                                            .addComponent(lookFeelLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(localeLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(scaleLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(dateFormatLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(apperancePanelLayout.createSequentialGroup()
-                                            .addComponent(lookFeelComboBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(localeComboBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(scaleCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(apperancePanelLayout.createSequentialGroup()
-                                            .addGap(111, 111, 111)
-                                            .addGroup(apperancePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                                .addComponent(dateInfoButton)
-                                                .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))))
-                                    .addGap(0, 0, 0)
-                                    .addGroup(apperancePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(accentColorButtonLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(buttonChooseColor)
-                                        .addComponent(textFieldAccentColor, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap())
-                        );
+                        //---- scaleLabel ----
+                        scaleLabel.setText(context.cfg.gs("Settings.scaleLabel.text"));
+                        apperancePanel.add(scaleLabel, new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 14, 5), 0, 0));
+
+                        //---- scaleCheckBox ----
+                        scaleCheckBox.setToolTipText(context.cfg.gs("Settings.scaleCheckBox.toolTipText"));
+                        apperancePanel.add(scaleCheckBox, new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 14, 0), 0, 0));
+
+                        //---- showArrowseLabel ----
+                        showArrowseLabel.setText(context.cfg.gs("Settings.showArrowseLabel.text"));
+                        apperancePanel.add(showArrowseLabel, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 14, 5), 0, 0));
+
+                        //---- showArrowsCheckBox ----
+                        showArrowsCheckBox.addActionListener(e -> updateLookAndFeel(e));
+                        apperancePanel.add(showArrowsCheckBox, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 14, 5), 0, 0));
+
+                        //---- showMnemonicsLabel ----
+                        showMnemonicsLabel.setText(context.cfg.gs("Settings.showMnemonicsLabel.text"));
+                        apperancePanel.add(showMnemonicsLabel, new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 0, 5), 0, 0));
+
+                        //---- showMnemonicsCheckBox ----
+                        showMnemonicsCheckBox.addActionListener(e -> updateLookAndFeel(e));
+                        apperancePanel.add(showMnemonicsCheckBox, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 0, 5), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.appearance.tab.title"), apperancePanel);
                     settingsTabbedPane.setMnemonicAt(1, context.cfg.gs("Settings.appearancePanel.tab.mnemonic").charAt(0));
 
                     //======== browserPanel ========
                     {
+                        browserPanel.setLayout(new GridBagLayout());
+                        ((GridBagLayout)browserPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
+                        ((GridBagLayout)browserPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)browserPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)browserPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- autoRefreshLabel ----
                         autoRefreshLabel.setText("Auto-refresh:");
+                        browserPanel.add(autoRefreshLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(8, 8, 20, 5), 0, 0));
+                        browserPanel.add(autoRefreshCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(8, 0, 20, 0), 0, 0));
 
                         //---- hideFilesInTreeLabel ----
                         hideFilesInTreeLabel.setText(context.cfg.gs("Settings.hideFilesInTreeLabel.text"));
+                        browserPanel.add(hideFilesInTreeLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        browserPanel.add(hideFilesInTreeCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- hideHiddenFilesLabel ----
                         hideHiddenFilesLabel.setText(context.cfg.gs("Settings.hideHiddenFilesLabel.text"));
+                        browserPanel.add(hideHiddenFilesLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        browserPanel.add(hideHiddenFilesCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- sortCaseSensitiveLabel ----
                         sortCaseSensitiveLabel.setText(context.cfg.gs("Settings.sortCaseSensitiveLabel.text"));
+                        browserPanel.add(sortCaseSensitiveLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        browserPanel.add(sortCaseSensitiveCheckBox, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- sortFoldersBeforeFilesLabel ----
                         sortFoldersBeforeFilesLabel.setText(context.cfg.gs("Settings.sortFoldersBeforeFilesLabel.text"));
+                        browserPanel.add(sortFoldersBeforeFilesLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 49), 0, 0));
+                        browserPanel.add(sortFoldersBeforeFilesCheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- sortReverseLabel ----
                         sortReverseLabel.setText(context.cfg.gs("Settings.sortReverseLabel.text"));
+                        browserPanel.add(sortReverseLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        browserPanel.add(sortReverseCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- tabPlacementlabel ----
                         tabPlacementlabel.setText(context.cfg.gs("Settings.tabPlacementLabel.text"));
+                        browserPanel.add(tabPlacementlabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- tabPlacementComboBox ----
                         tabPlacementComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -681,83 +767,24 @@ public class Settings extends JDialog
                         }));
                         tabPlacementComboBox.setPreferredSize(new Dimension(100, 30));
                         tabPlacementComboBox.setName("tabPlacementCombo");
+                        browserPanel.add(tabPlacementComboBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
 
-                        GroupLayout browserPanelLayout = new GroupLayout(browserPanel);
-                        browserPanel.setLayout(browserPanelLayout);
-                        browserPanelLayout.setHorizontalGroup(
-                            browserPanelLayout.createParallelGroup()
-                                .addGroup(browserPanelLayout.createSequentialGroup()
-                                    .addContainerGap()
-                                    .addGroup(browserPanelLayout.createParallelGroup()
-                                        .addComponent(autoRefreshLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(hideFilesInTreeLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortCaseSensitiveLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortFoldersBeforeFilesLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(tabPlacementlabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE))
-                                    .addGap(12, 12, 12)
-                                    .addGroup(browserPanelLayout.createParallelGroup()
-                                        .addComponent(autoRefreshCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(hideFilesInTreeCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(hideHiddenFilesCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortCaseSensitiveCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortFoldersBeforeFilesCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortReverseCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(tabPlacementComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        );
-                        browserPanelLayout.setVerticalGroup(
-                            browserPanelLayout.createParallelGroup()
-                                .addGroup(browserPanelLayout.createSequentialGroup()
-                                    .addGroup(browserPanelLayout.createParallelGroup()
-                                        .addGroup(browserPanelLayout.createSequentialGroup()
-                                            .addComponent(autoRefreshLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(hideFilesInTreeLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(sortCaseSensitiveLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(sortFoldersBeforeFilesLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(browserPanelLayout.createSequentialGroup()
-                                            .addComponent(autoRefreshCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(hideFilesInTreeCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(hideHiddenFilesCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(sortCaseSensitiveCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(sortFoldersBeforeFilesCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(sortReverseCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)))
-                                    .addGap(0, 0, 0)
-                                    .addGroup(browserPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(tabPlacementlabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(tabPlacementComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap())
-                        );
+                        //---- useLastPubSubLabel ----
+                        useLastPubSubLabel.setText(context.cfg.gs("Settings.useLastPubSubLabel.text"));
+                        browserPanel.add(useLastPubSubLabel, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 0, 19), 0, 0));
+
+                        //---- uselastPubSubCheckBox ----
+                        uselastPubSubCheckBox.setToolTipText(context.cfg.gs("Settings.uselastPubSubCheckBox.toolTipText"));
+                        browserPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 0, 0), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
                     settingsTabbedPane.setMnemonicAt(2, context.cfg.gs("Settings.browserPanel.tab.mnemonic").charAt(0));
-
-                    //======== operationsPanel ========
-                    {
-                        operationsPanel.setLayout(new GridLayout(1, 2, 2, 2));
-                    }
-                    settingsTabbedPane.addTab(context.cfg.gs("Settings.operationsPanel.tab.title"), operationsPanel);
-                    settingsTabbedPane.setMnemonicAt(3, context.cfg.gs("Settings.operationsPanel.tab.mnemonic").charAt(0));
-
-                    //======== librariesPanel ========
-                    {
-                        librariesPanel.setLayout(new GridLayout(1, 2, 2, 2));
-                    }
-                    settingsTabbedPane.addTab(context.cfg.gs("Settings.librariesPanel.tab.title"), librariesPanel);
-                    settingsTabbedPane.setMnemonicAt(4, context.cfg.gs("Settings.librariesPanel.tab.mnemonic").charAt(0));
                 }
                 settingsContentPanel.add(settingsTabbedPane);
             }
@@ -813,19 +840,28 @@ public class Settings extends JDialog
     private JCheckBox showDndConfirmationCheckBox;
     private JLabel showTouchConfirmationLabel;
     private JCheckBox showTouchConfirmationCheckBox;
+    private JLabel showDefaultDryrunLabel;
+    private JCheckBox defaultDryrunCheckBox;
+    private JLabel showDefaultLogOverwriteLabel;
+    private JCheckBox defaultLogOverwriteCheckBox;
     private JPanel apperancePanel;
     private JLabel lookFeelLabel;
     private JComboBox<String> lookFeelComboBox;
     private JLabel localeLabel;
     private JComboBox<String> localeComboBox;
-    private JLabel scaleLabel;
-    private JCheckBox scaleCheckBox;
     private JLabel dateFormatLabel;
+    private JButton dateInfoButton;
     private JTextField dateFormatTextField;
     private JLabel accentColorButtonLabel;
-    private JButton dateInfoButton;
+    private JButton defaultAccentButton;
     private JTextField textFieldAccentColor;
     private JButton buttonChooseColor;
+    private JLabel scaleLabel;
+    private JCheckBox scaleCheckBox;
+    private JLabel showArrowseLabel;
+    private JCheckBox showArrowsCheckBox;
+    private JLabel showMnemonicsLabel;
+    private JCheckBox showMnemonicsCheckBox;
     private JPanel browserPanel;
     private JLabel autoRefreshLabel;
     private JCheckBox autoRefreshCheckBox;
@@ -841,8 +877,8 @@ public class Settings extends JDialog
     private JCheckBox sortReverseCheckBox;
     private JLabel tabPlacementlabel;
     private JComboBox<String> tabPlacementComboBox;
-    private JPanel operationsPanel;
-    private JPanel librariesPanel;
+    private JLabel useLastPubSubLabel;
+    private JCheckBox uselastPubSubCheckBox;
     private JPanel buttonBar;
     private JButton okButton;
     private JButton cancelButton;

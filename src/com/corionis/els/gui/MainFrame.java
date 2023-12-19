@@ -526,10 +526,6 @@ public class MainFrame extends JFrame
         }
     }
 
-    private void thisWindowOpened(WindowEvent e) {
-        // TODO add your code here
-    }
-
   // ================================================================================================================
 
     // <editor-fold desc="Generated code (Fold)">
@@ -791,12 +787,8 @@ public class MainFrame extends JFrame
             public void windowClosing(WindowEvent e) {
                 thisWindowClosing(e);
             }
-            @Override
-            public void windowOpened(WindowEvent e) {
-                thisWindowOpened(e);
-            }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== menuBarMain ========

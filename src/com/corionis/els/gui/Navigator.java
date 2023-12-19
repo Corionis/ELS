@@ -2762,7 +2762,7 @@ public class Navigator
             String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
             JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
             checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
-            checkbox.setSelected(true);
+            checkbox.setSelected(context.preferences.isDefaultDryrun());
             Object[] params = {message, checkbox};
 
             // confirm run of job

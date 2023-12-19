@@ -476,7 +476,7 @@ public class Generator
                 context.cfg.gs("Generator.combobox.log.overwrite.0.log"),
                 context.cfg.gs("Generator.combobox.log.overwrite.1.logOverwrite")
         }));
-        comboboxLogOverwrite.setSelectedIndex(1);
+        comboboxLogOverwrite.setSelectedIndex(context.preferences.isDefaultLogOverwrite() ? 1 : 0);
         comboboxLogOverwrite.setToolTipText(context.cfg.gs("Generator.combobox.log.overwrite.tooltip"));
         comboboxLogOverwrite.addActionListener(new ActionListener()
         {

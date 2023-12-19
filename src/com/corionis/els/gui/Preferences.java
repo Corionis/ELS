@@ -3,7 +3,6 @@ package com.corionis.els.gui;
 import com.formdev.flatlaf.*;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
-import com.formdev.flatlaf.util.SystemInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.corionis.els.Context;
@@ -49,6 +48,8 @@ public class Preferences implements Serializable
     private int collectionTwoSortDirection = 0;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
+    private boolean defaultDryrun = true;
+    private boolean defaultLogOverwrite = true;
     private int directoryPickerXpos = 0;
     private int directoryPickerYpos = 0;
     private int fileEditorHeight = 365;
@@ -94,9 +95,11 @@ public class Preferences implements Serializable
     private int progressXpos = 0;
     private int progressYpos = 0;
     private int schema = 1;
+    private boolean showArrows = true;
     private boolean showCcpConfirmation = true;
     private boolean showDeleteConfirmation = true;
     private boolean showDnDConfirmation = true;
+    private boolean showMnemonics = true;
     private boolean showTouchConfirmation = true;
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
@@ -145,8 +148,6 @@ public class Preferences implements Serializable
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
-    //private transient LookAndFeel laf = null;
-
     /**
      * Constructor
      */
@@ -330,6 +331,7 @@ public class Preferences implements Serializable
     {
         return appWidth;
     }
+    //private transient LookAndFeel laf = null;
 
     public int getAppXpos()
     {
@@ -871,8 +873,8 @@ public class Preferences implements Serializable
                     System.setProperty("apple.awt.application.appearance", "system");
                 }
                 UIManager.put("Tree.showDefaultIcons", true);
-                UIManager.put("ScrollBar.showButtons", true); // show scrollbar up/down buttons
-                UIManager.put("Component.hideMnemonics", false); // show/hide mnemonic letters
+                UIManager.put("ScrollBar.showButtons", context.preferences.isShowArrows()); // show scrollbar up/down buttons
+                UIManager.put("Component.hideMnemonics", !context.preferences.isShowMnemonics()); // show/hide mnemonic letters
                 UIManager.put("TabbedPane.showTabSeparators", true); // separators between tabs
 
                 // set accent color for current LaF
@@ -941,6 +943,16 @@ public class Preferences implements Serializable
         return binaryScale;
     }
 
+    public boolean isDefaultDryrun()
+    {
+        return defaultDryrun;
+    }
+
+    public boolean isDefaultLogOverwrite()
+    {
+        return defaultLogOverwrite;
+    }
+
     public boolean isGenerateLongOptions()
     {
         return generateLongOptions;
@@ -996,6 +1008,11 @@ public class Preferences implements Serializable
         return preserveFileTimes;
     }
 
+    public boolean isShowArrows()
+    {
+        return showArrows;
+    }
+
     public boolean isShowCcpConfirmation()
     {
         return showCcpConfirmation;
@@ -1009,6 +1026,11 @@ public class Preferences implements Serializable
     public boolean isShowDnDConfirmation()
     {
         return showDnDConfirmation;
+    }
+
+    public boolean isShowMnemonics()
+    {
+        return showMnemonics;
     }
 
     public boolean isShowTouchConfirmation()
@@ -1156,6 +1178,16 @@ public class Preferences implements Serializable
     public void setDateFormat(String dateFormat)
     {
         this.dateFormat = dateFormat;
+    }
+
+    public void setDefaultDryrun(boolean defaultDryrun)
+    {
+        this.defaultDryrun = defaultDryrun;
+    }
+
+    public void setDefaultLogOverwrite(boolean defaultLogOverwrite)
+    {
+        this.defaultLogOverwrite = defaultLogOverwrite;
     }
 
     public void setDirectoryPickerXpos(int directoryPickerXpos)
@@ -1378,6 +1410,11 @@ public class Preferences implements Serializable
         this.schema = schema;
     }
 
+    public void setShowArrows(boolean showArrows)
+    {
+        this.showArrows = showArrows;
+    }
+
     public void setShowCcpConfirmation(boolean showCcpConfirmation)
     {
         this.showCcpConfirmation = showCcpConfirmation;
@@ -1391,6 +1428,11 @@ public class Preferences implements Serializable
     public void setShowDnDConfirmation(boolean showDnDConfirmation)
     {
         this.showDnDConfirmation = showDnDConfirmation;
+    }
+
+    public void setShowMnemonics(boolean showMnemonics)
+    {
+        this.showMnemonics = showMnemonics;
     }
 
     public void setShowTouchConfirmation(boolean showTouchConfirmation)
@@ -1629,11 +1671,6 @@ public class Preferences implements Serializable
     }
 
     public void setUseLastPublisherSubscriber(boolean useLastPublisherSubscriber)
-    {
-        this.useLastPublisherSubscriber = useLastPublisherSubscriber;
-    }
-
-    public void setuseLastPublisherSubscriber(boolean useLastPublisherSubscriber)
     {
         this.useLastPublisherSubscriber = useLastPublisherSubscriber;
     }

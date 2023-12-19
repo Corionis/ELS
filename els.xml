@@ -303,7 +303,7 @@
             </fileset>
         </delete>
         <copy file="build/changes.html" todir="deploy" preservelastmodified="true"/>
-        <copy todir="deploy" preservelastmodified="true">
+        <copy todir="deploy" preservelastmodified="true" failonerror="false">
             <fileset file="build/*.dmg"/>
             <fileset file="build/*.exe"/>
             <fileset file="build/*.jar"/>
@@ -337,7 +337,8 @@
 
     <target name="Deploy" depends="deploy, deploy-website" description="Deploy ELS and web site" />
 
-    <target name="ELS" depends="els-linux, els-windows, els-macos" description="Build ELS"/>
+    <target name="ELS" depends="els-linux, els-windows" description="Build ELS"/>
+    <!-- target name="ELS" depends="els-linux, els-windows, els-macos" description="Build ELS"/ -->
 
     <target name="Jars" depends="els-jar, updater-jar" description="Build Jars"/>
 
@@ -345,7 +346,8 @@
 
     <target name="MacOS" depends="els-macos, updater-macos" description="Build all MacOS deliverables"/>
 
-    <target name="Updater" depends="updater-linux, updater-windows, updater-macos" description="Build Updater"/>
+    <target name="Updater" depends="updater-linux, updater-windows" description="Build Updater"/>
+    <!-- target name="Updater" depends="updater-linux, updater-windows, updater-macos" description="Build Updater"/ -->
 
     <target name="Windows" depends="els-windows, updater-windows" description="Build all Windows deliverables"/>
 

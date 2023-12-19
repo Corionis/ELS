@@ -554,7 +554,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                     String message = java.text.MessageFormat.format(context.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
                     JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
                     checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
-                    checkbox.setSelected(true);
+                    checkbox.setSelected(context.preferences.isDefaultDryrun());
                     Object[] params = {message, checkbox};
 
                     // confirm run of tool
