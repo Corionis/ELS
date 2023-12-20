@@ -49,7 +49,6 @@ public class Preferences implements Serializable
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
     private boolean defaultDryrun = true;
-    private boolean defaultLogOverwrite = true;
     private int directoryPickerXpos = 0;
     private int directoryPickerYpos = 0;
     private int fileEditorHeight = 365;
@@ -948,11 +947,6 @@ public class Preferences implements Serializable
         return defaultDryrun;
     }
 
-    public boolean isDefaultLogOverwrite()
-    {
-        return defaultLogOverwrite;
-    }
-
     public boolean isGenerateLongOptions()
     {
         return generateLongOptions;
@@ -1183,11 +1177,6 @@ public class Preferences implements Serializable
     public void setDefaultDryrun(boolean defaultDryrun)
     {
         this.defaultDryrun = defaultDryrun;
-    }
-
-    public void setDefaultLogOverwrite(boolean defaultLogOverwrite)
-    {
-        this.defaultLogOverwrite = defaultLogOverwrite;
     }
 
     public void setDirectoryPickerXpos(int directoryPickerXpos)

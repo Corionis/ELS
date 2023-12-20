@@ -211,11 +211,7 @@ public class Configuration
                 {
                     separator = "/";
                 }
-                else if (lfn.contains(":"))
-                {
-                    separator = ":";
-                }
-                int i = lfn.lastIndexOf(separator);
+                int i = (separator.length() > 0 ? lfn.lastIndexOf(separator) : -1);
                 if (i >= 0)
                 {
                     relative = lfn.substring(0, i + 1);
@@ -228,7 +224,6 @@ public class Configuration
         {
             setLogFileName("ELS-Navigator.log");
             setLogFileFullPath(this.workingDirectory + System.getProperty("file.separator") + "output/ELS-Navigator.log");
-            setLogOverwrite(context.preferences.isDefaultLogOverwrite());
         }
     }
 

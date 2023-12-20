@@ -250,7 +250,6 @@ public class Settings extends JDialog
         showDndConfirmationCheckBox.setSelected(context.preferences.isShowDnDConfirmation());
         showTouchConfirmationCheckBox.setSelected(context.preferences.isShowTouchConfirmation());
         defaultDryrunCheckBox.setSelected(context.preferences.isDefaultDryrun());
-        defaultLogOverwriteCheckBox.setSelected(context.preferences.isDefaultLogOverwrite());
 
         // appearance
         lookFeelComboBox.setAutoscrolls(true);
@@ -330,7 +329,6 @@ public class Settings extends JDialog
         context.preferences.setShowDnDConfirmation(showDndConfirmationCheckBox.isSelected());
         context.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
         context.preferences.setDefaultDryrun(defaultDryrunCheckBox.isSelected());
-        context.preferences.setDefaultLogOverwrite(defaultLogOverwriteCheckBox.isSelected());
 
         // appearance
         context.preferences.setLookAndFeel(lookFeelComboBox.getSelectedIndex());
@@ -412,8 +410,6 @@ public class Settings extends JDialog
         showTouchConfirmationCheckBox = new JCheckBox();
         showDefaultDryrunLabel = new JLabel();
         defaultDryrunCheckBox = new JCheckBox();
-        showDefaultLogOverwriteLabel = new JLabel();
-        defaultLogOverwriteCheckBox = new JCheckBox();
         apperancePanel = new JPanel();
         lookFeelLabel = new JLabel();
         lookFeelComboBox = new JComboBox<>();
@@ -547,15 +543,6 @@ public class Settings extends JDialog
                         generalPanel.add(defaultDryrunCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
-
-                        //---- showDefaultLogOverwriteLabel ----
-                        showDefaultLogOverwriteLabel.setText(context.cfg.gs("Settings.showDefaultLogOverwriteLabel.text"));
-                        generalPanel.add(showDefaultLogOverwriteLabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 0, 5), 0, 0));
-                        generalPanel.add(defaultLogOverwriteCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 0, 0), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
                     settingsTabbedPane.setMnemonicAt(0, context.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
@@ -842,8 +829,6 @@ public class Settings extends JDialog
     private JCheckBox showTouchConfirmationCheckBox;
     private JLabel showDefaultDryrunLabel;
     private JCheckBox defaultDryrunCheckBox;
-    private JLabel showDefaultLogOverwriteLabel;
-    private JCheckBox defaultLogOverwriteCheckBox;
     private JPanel apperancePanel;
     private JLabel lookFeelLabel;
     private JComboBox<String> lookFeelComboBox;

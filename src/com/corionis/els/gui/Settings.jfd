@@ -117,20 +117,6 @@ new FormModel {
 								"gridx": 1
 								"gridy": 5
 							} )
-							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "showDefaultLogOverwriteLabel"
-								"text": new FormMessage( null, "Settings.showDefaultLogOverwriteLabel.text" )
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 6
-								"insets": #Insets0
-								"hAlign": 5
-							} )
-							add( new FormComponent( "javax.swing.JCheckBox" ) {
-								name: "defaultLogOverwriteCheckBox"
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridx": 1
-								"gridy": 6
-							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.generalPanel.tab.title" )
 							"mnemonic": new FormMessage( null, "Settings.generalPanel.tab.mnemonic" )

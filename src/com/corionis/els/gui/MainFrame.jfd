@@ -1763,6 +1763,21 @@ new FormModel {
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/controls.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemGettingStarted"
+						"text": new FormMessage( null, "Navigator.menuItemGettingStarted.text" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/getting-started.png" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemGettingStarted.mnemonic_2" )
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator18"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemWebSite"
+						"text": new FormMessage( null, "Navigator.menuItemWebSite.text" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/website.png" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemWebSite.mnemonic" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemDiscussions"
 						"text": new FormMessage( null, "Navigator.menuItemDiscussions.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemDiscussions.mnemonic" )
@@ -1773,12 +1788,6 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menu.Documentation.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Documentation.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/external-link.png" )
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemGettingStarted"
-						"text": new FormMessage( null, "Navigator.menuItemGettingStarted.text" )
-						"icon": new com.jformdesigner.model.SwingIcon( 0, "/getting-started.png" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemGettingStarted.mnemonic_2" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemGitHubProject"

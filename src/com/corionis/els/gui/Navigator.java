@@ -2419,6 +2419,39 @@ public class Navigator
             }
         });
 
+        // --- Getting Started
+        context.mainFrame.menuItemGettingStarted.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html");
+                if (!dialog.fault)
+                {
+                    dialog.setTitle(context.cfg.gs("Navigator.getting.started"));
+                    dialog.setVisible(true);
+                }
+            }
+        });
+
+        // --- Web Site
+        context.mainFrame.menuItemWebSite.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    URI uri = new URI("https://corionis.github.io/ELS/");
+                    Desktop.getDesktop().browse(uri);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.launching.browser"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
         // --- Discussions
         context.mainFrame.menuItemDiscussions.addActionListener(new AbstractAction()
         {
@@ -2451,21 +2484,6 @@ public class Navigator
                 catch (Exception e)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.launching.browser"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        // --- Getting Started
-        context.mainFrame.menuItemGettingStarted.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html");
-                if (!dialog.fault)
-                {
-                    dialog.setTitle(context.cfg.gs("Navigator.getting.started"));
-                    dialog.setVisible(true);
                 }
             }
         });
