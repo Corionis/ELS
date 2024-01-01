@@ -66,6 +66,7 @@ that may be used in a variety of ways.
 
 ### &bull; Security
  * Blacklist and whitelist to avoid hack attempts against listener Operations.
+ * All remote communication is encrypted from the initial "handshake".
 
 ### &bull; Hints
 

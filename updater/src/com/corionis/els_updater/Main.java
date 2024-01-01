@@ -345,8 +345,7 @@ public class Main
         try
         {
             infoFile = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                    "ELS_Updater" + System.getProperty("file.separator") +
-                    (Utils.isOsMac() ? "ELS_Updater/ELS_Updater.app/Contents/Java" : "bin") + System.getProperty("file.separator") +
+                    "ELS_Updater" + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") +
                     "update.info";
             File updateInfo = new File(infoFile);
             if (updateInfo.exists())

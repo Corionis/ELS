@@ -103,8 +103,7 @@ public class Navigator
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
             // set location to find update.info for the URL prefix
-            String updateInfoPath = context.cfg.getInstalledPath() + System.getProperty("file.separator") +
-                    (Utils.isOsMac() ? "Contents/Java" : "bin");
+            String updateInfoPath = context.cfg.getInstalledPath() + System.getProperty("file.separator") + "bin";
 
             // check if it's installed
             if (Utils.isOsMac())
@@ -126,8 +125,7 @@ public class Navigator
             }
 
             updateInfoPath = context.cfg.getInstalledPath() + System.getProperty("file.separator") +
-                    (Utils.isOsMac() ? "Contents/Java" : "bin") + System.getProperty("file.separator") +
-                    "update.info";
+                    "bin" + System.getProperty("file.separator") + "update.info";
 
             // get update.info
             // putting the ELS deploy URL prefix in a file allows it to be changed manually if necessary
@@ -218,17 +216,36 @@ public class Navigator
                     while (true)
                     {
                         // a new version is available
-                        message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.new.version"),
+                        String prompt = context.cfg.gs("Navigator.install.update.version");
+                        String mprompt = context.cfg.gs("Navigator.install.new.version");
+                        message = java.text.MessageFormat.format(Utils.isOsMac() ? mprompt : prompt,
                                 Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
                         Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
+                        Object[] mopts = {context.cfg.gs("Z.goto.website"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
                         int reply = JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
-                                JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, opts, opts[0]);
+                                JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null,
+                                Utils.isOsMac() ? mopts : opts, Utils.isOsMac() ? mopts[0] : opts[0]);
 
                         // proceed?
                         if (reply == JOptionPane.YES_OPTION)
                         {
-                            // execute the download and unpack procedure then execute the Updater
-                            new DownloadUpdater(this, version, prefix);
+                            if (!Utils.isOsMac())
+                            {
+                                // execute the download and unpack procedure then execute the Updater
+                                new DownloadUpdater(this, version, prefix);
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    URI uri = new URI("https://corionis.github.io/ELS/");
+                                    Desktop.getDesktop().browse(uri);
+                                }
+                                catch (Exception e)
+                                {
+                                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.launching.browser"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
                             break;
                         }
                         else if (reply == JOptionPane.CANCEL_OPTION) // show Changelist
@@ -3218,25 +3235,15 @@ public class Navigator
                 {
                     String[] args;
                     String cmd = "";
-                    if (Utils.isOsMac())
-                    {
-                        String[] parms = { Utils.getSystemTempDirectory() +
-                                "/ELS_Updater/ELS_Updater/ELS_Updater.app/Contents/MacOS/ELS_Updater" };
-                        args = parms;
-                        cmd = parms[0];
-                    }
-                    else
-                    {
-                        String[] parms = { Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                                "ELS_Updater" + System.getProperty("file.separator") +
-                                "rt" + System.getProperty("file.separator") +
-                                "bin" + System.getProperty("file.separator") +
-                                "java" + (Utils.isOsWindows() ? ".exe" : ""),
-                            "-jar",
-                            updaterJar };
-                        args = parms;
-                        cmd = parms.toString();
-                    }
+                    String[] parms = { Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
+                            "ELS_Updater" + System.getProperty("file.separator") +
+                            "rt" + System.getProperty("file.separator") +
+                            "bin" + System.getProperty("file.separator") +
+                            "java" + (Utils.isOsWindows() ? ".exe" : ""),
+                        "-jar",
+                        updaterJar };
+                    args = parms;
+                    cmd = parms.toString();
 
                     logger.info(context.cfg.gs("Navigator.starting.els.updater") + cmd);
 

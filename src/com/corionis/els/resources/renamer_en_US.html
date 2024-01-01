@@ -126,7 +126,7 @@ Named configurations may be executed:
         <th align="left">Matches</th>
     </tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;<br/><br/></td></tr>
     <tr align="left"><th colspan="2">Characters</th></tr>
 
     <tr><td valign="top" headers="construct characters"><i>x</i></td>
@@ -167,7 +167,7 @@ Named configurations may be executed:
     <tr><td valign="top" headers="construct characters"><tt>\c</tt><i>x</i></td>
         <td headers="matches">The control character corresponding to <i>x</i></td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;<br/></td></tr>
     <tr align="left"><th colspan="2">Character classes</th></tr>
     <tr><td valign="top" headers="construct classes"><code>[abc]</code></td>
         <td headers="matches"><code>a</code>, <code>b</code>, or <code>c</code> (simple class)</td></tr>
@@ -187,8 +187,8 @@ Named configurations may be executed:
     <tr><td valign="top" headers="construct classes"><code>[a-z&amp;&amp;[^m-p]]</code></td>
         <td headers="matches"><code>a</code> through <code>z</code>,
             and not <code>m</code> through <code>p</code>: <code>[a-lq-z]</code>(subtraction)</td></tr>
-    <tr><th>&nbsp;</th></tr>
 
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Predefined character classes</th></tr>
     <tr><td valign="top" headers="construct predef"><tt>.</tt></td>
         <td headers="matches">Any character (may or may not match line terminators)</td></tr>
@@ -214,8 +214,8 @@ Named configurations may be executed:
         <td headers="matches">A word character: <tt>[a-zA-Z_0-9]</tt></td></tr>
     <tr><td valign="top" headers="construct predef"><tt>\W</tt></td>
         <td headers="matches">A non-word character: <tt>[^\w]</tt></td></tr>
-    <tr><th>&nbsp;</th></tr>
 
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2"><b>POSIX character classes (US-ASCII only)</b></th></tr>
     <tr><td valign="top" headers="construct posix"><code>\p{Lower}</code></td>
         <td headers="matches">A lower-case alphabetic character: <code>[a-z]</code></td></tr>
@@ -246,7 +246,7 @@ Named configurations may be executed:
     <tr><td valign="top" headers="construct posix"><code>\p{Space}</code></td>
         <td headers="matches">A whitespace character: <code>[ \t\n\x0B\f\r]</code></td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">java.lang.Character classes (simple java character type)</th></tr>
     <tr><td valign="top"><tt>\p{javaLowerCase}</tt></td>
         <td>Equivalent to java.lang.Character.isLowerCase()</td></tr>
@@ -257,7 +257,7 @@ Named configurations may be executed:
     <tr><td valign="top"><tt>\p{javaMirrored}</tt></td>
         <td>Equivalent to java.lang.Character.isMirrored()</td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Classes for Unicode scripts, blocks, categories and binary properties</th></tr>
     <tr><td valign="top" headers="construct unicode"><code>\p{IsLatin}</code></td>
         <td headers="matches">A Latin&nbsp;script character (script)</td></tr>
@@ -274,7 +274,7 @@ Named configurations may be executed:
     <tr><td valign="top" headers="construct unicode"><code>[\p{L}&amp;&amp;[^\p{Lu}]]</code></td>
         <td headers="matches">Any letter except an uppercase letter (subtraction)</td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Boundary matchers</th></tr>
 
     <tr><td valign="top" headers="construct bounds"><tt>^</tt></td>
@@ -295,14 +295,14 @@ Named configurations may be executed:
     <tr><td valign="top" headers="construct bounds"><tt>\z</tt></td>
         <td headers="matches">The end of the input</td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Linebreak matcher</th></tr>
     <tr><td valign="top" headers="construct lineending"><tt>\R</tt></td>
         <td headers="matches">Any Unicode linebreak sequence, is equivalent to
             <tt>&#92;u000D&#92;u000A|[&#92;u000A&#92;u000B&#92;u000C&#92;u000D&#92;u0085&#92;u2028&#92;u2029]
             </tt></td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Greedy quantifiers</th></tr>
 
     <tr><td valign="top" headers="construct greedy"><i>X</i><tt>?</tt></td>
@@ -318,7 +318,7 @@ Named configurations may be executed:
     <tr><td valign="top" headers="construct greedy"><i>X</i><tt>{</tt><i>n</i><tt>,</tt><i>m</i><tt>}</tt></td>
         <td headers="matches"><i>X</i>, at least <i>n</i> but not more than <i>m</i> times</td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Reluctant quantifiers</th></tr>
 
     <tr><td valign="top" headers="construct reluc"><i>X</i><tt>??</tt></td>
@@ -334,7 +334,7 @@ Named configurations may be executed:
     <tr><td valign="top" headers="construct reluc"><i>X</i><tt>{</tt><i>n</i><tt>,</tt><i>m</i><tt>}?</tt></td>
         <td headers="matches"><i>X</i>, at least <i>n</i> but not more than <i>m</i> times</td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Possessive quantifiers</th></tr>
 
     <tr><td valign="top" headers="construct poss"><i>X</i><tt>?+</tt></td>
@@ -350,7 +350,7 @@ Named configurations may be executed:
     <tr><td valign="top" headers="construct poss"><i>X</i><tt>{</tt><i>n</i><tt>,</tt><i>m</i><tt>}+</tt></td>
         <td headers="matches"><i>X</i>, at least <i>n</i> but not more than <i>m</i> times</td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Logical operators</th></tr>
 
     <tr><td valign="top" headers="construct logical"><i>XY</i></td>
@@ -360,7 +360,7 @@ Named configurations may be executed:
     <tr><td valign="top" headers="construct logical"><tt>(</tt><i>X</i><tt>)</tt></td>
         <td headers="matches">X, as a capturing group</td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Back references</th></tr>
 
     <tr><td valign="bottom" headers="construct backref"><tt>\</tt><i>n</i></td>
@@ -371,7 +371,7 @@ Named configurations may be executed:
         <td valign="bottom" headers="matches">Whatever the
             named-capturing group "name" matched</td></tr>
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Quotation</th></tr>
 
     <tr><td valign="top" headers="construct quot"><tt>\</tt></td>
@@ -382,7 +382,7 @@ Named configurations may be executed:
         <td headers="matches">Nothing, but ends quoting started by <tt>\Q</tt></td></tr>
     <!-- Metachars: !$()*+.<>?[\]^{|} -->
 
-    <tr><th>&nbsp;</th></tr>
+    <tr><td>&nbsp;</td></tr>
     <tr align="left"><th colspan="2">Special constructs (named-capturing and non-capturing)</th></tr>
 
     <tr><td valign="top" headers="construct special"><tt>(?&lt;name&gt;</tt><i>X</i><tt>)</tt></td>
@@ -411,7 +411,7 @@ Named configurations may be executed:
         <td headers="matches"><i>X</i>, as an independent, non-capturing group</td></tr>
 </table>
 
-<hr>
+<br/>
 
 <h3>Backslashes, escapes, and quoting</h3>
 
@@ -649,6 +649,9 @@ Named configurations may be executed:
     of <i>Unicode Regular Expression
 </i>, when <code>UNICODE_CHARACTER_CLASS</code> flag is specified.
 
+<br/>
+<br/>
+
 <table border="0" cellpadding="1" cellspacing="0"
        summary="predefined and posix character classes in Unicode mode">
     <tr align="left">
@@ -696,8 +699,7 @@ Named configurations may be executed:
 </table>
 </div>
 
-<div></div>
-<div></div>
+<br/>
 
 </body>
 </html>

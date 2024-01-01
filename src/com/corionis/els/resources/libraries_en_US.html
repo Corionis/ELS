@@ -11,7 +11,6 @@
     }
 
     table {
-      border-bottom: 1px solid;
       margin: 0 4px 4px;
       padding: 4px;
       width: 100%;
@@ -34,29 +33,89 @@
 <body>
 <h2>Libraries</h2>
 <p>Libraries define parameters and options for ELS library JSON files.</p>
-<br/>
-<b>Requires flushing out all the details.</b>
 
-<h3>Key Points</h3>
+<h3>General Tab</h3>
+The General tab defines the key, communications parameters and other basic options. Different combinations of options are
+used depending on the role of the repository with the -p|-P or -s|-S options.
 
-<ol>
-  <li>Different types of repositories, e.g. Publisher, Subscriber and Hint Server, use different combinations of parameters.<br/><br/></li>
-  <li>A Hint Server only uses one Location, one Library with one Source for it's datastore.<br/><br/></li>
-  <li>General tab, Host is the hostname:port or IP address:port used by outside ELS systems to connect to this ELS instance.<br/><br/></li>
-  <li>General tab, Listen is the hostname:port or IP address:port listener operations use to listen for incoming connections. If not defined
-    Host is used. This setting is used with NAT or port forwarding to route incoming traffic to an inside system.<br/><br/></li>
-  <li>General tab, Terminal allowed provides interactive access to an ELS instance when running in a listener mode. It is primarily used for
-    diagnostic purposes to test the STTY command channcel. The -a|--authorize [password] option is required to enable interactive access
-    for the listener.<br/><br/></li>
-  <li>Locations tab defines devices or partial paths used to check for available free storage space. Fully-qualified partial paths to their
-    length should match the beginning of the full paths used in Library sources. Relative partial paths to their length should be contained
-    within the full paths used in Library sources. If a target for a backup, copy or move operation does not have a matching Location the
-    default minimum free space is 1 GB. A Target -t|-T file is still supported but is being phased-out in favor of Locations. There is no
-    Navigator dialog for editing targets JSON files however they may still be defined on the command-line. Defined Targets minimum free
-    space overrides Locations.<br/><br/></li>
-  <li>Bibliography tab, Sources is the list of one or more storage devices or paths that comprise a library. The order of the sources
-    defines the order searched for available free space, depending on the run-time setting of "Back-fill".</li>
-</ol>
+<h4>Key</h4>
+
+<h4>Host</h4>
+Host is the hostname:port or IPv4 address:port used by outside ELS systems to connect to this ELS instance.
+
+<h4>Listen</h4>
+Listen is the hostname:port or IP address:port listener operations use to listen for incoming connections. If not defined
+Host is used. This setting is used with NAT or port forwarding to route incoming traffic to an inside system.
+
+<h4>Time-out
+
+<h4>Flavor</h4>
+
+<h4>Case-sensitive</h4>
+
+<h4>Temorary files dated</h4>
+
+<h4>Temporary files location</h4>
+
+<h4>Terminal</h4>
+Terminal allowed provides interactive access to an ELS instance when running in a listener mode. It is primarily used for
+diagnostic purposes to test the STTY command channcel. The -a|--authorize [password] option is required to enable interactive access
+for the listener.
+
+<h4>Ignore patterns</h4>
+
+<hr/>
+<h3>Locations Tab</h3>
+
+Locations tab defines devices or partial paths used to check for available free storage space.
+
+<p>Fully-qualified partial paths to their
+length should match the beginning of the full paths used in Library sources. Relative partial paths to their length should be contained
+within the full paths used in Library sources.</p>
+
+  <h4><i>Examples:</i></h4>
+  <table>
+    <tr>
+      <th >Locations:</th> <th>Bibliography Sources:</th>
+    </tr>
+    <tr>
+      <td>D:\Media<br/>E:\Media</td>
+      <td>D:\Media\Movies<br/>E:\Media\Movies<br/>
+        E:\Media\TV Shows</td>
+    </tr>
+    <tr>
+      <td>resources/media</td>
+      <td>/mnt/drive01/resources/media<br/>/mnt/drive02/resources/media</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+
+<p>If a target for a backup, copy or move operation does not have a matching Location the
+default minimum free space is 1 GB.</p>
+
+<p>A Target -t|-T file is still supported but is being phased-out in favor of Locations. There is no
+Navigator dialog for editing targets JSON files however they may still be defined on the command-line. Defined minimum free
+space from Targets override Locations.</p>
+
+<p>A Hint Server only uses one Location, one Library with one Source for it's datastore.</p>
+
+<hr/>
+
+<h3>Bibliography Tab</h3>
+Bibliography tab, Sources is the list of one or more storage devices or paths that comprise a library. The order of the sources
+defines the order searched for available free space, depending on the run-time setting of "Back-fill".
+
 
 <br/>
 <br/>

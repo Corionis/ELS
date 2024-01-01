@@ -6,8 +6,7 @@ show_blog: false
 
 ## &bull; Supported Platforms
 
-Entertainment Library Synchronizer (ELS) runs on Linux and Windows, and should work on macOS,
-although it has not been tested there yet. 
+Entertainment Library Synchronizer (ELS) runs on Linux, macOS and Windows. 
 
 ## &bull; Disclaimer
 
@@ -29,27 +28,51 @@ Use the buttons at the top of this page <img style="vertical-align:middle" src="
 
 ## &bull; Installation
 
-### &nbsp;&nbsp;&nbsp; Linux & macOS
+ * Using the ELS jar requires a Java 11+ JRE.
+ * Using remote connections may require adjustments to network settings, firewalls, etc.
+   which is beyond the scope of this document.
+
+The following downloads contain an embedded JRE for that platform.
+
+### &nbsp;&nbsp;&nbsp; Linux tar
 
  * Unpack the .tar.gz anywhere you have write permissions.<br/>
-   Run the ``` ELS-Navigator.sh ``` script in the root of that directory.
+   Run ``` ELS-Navigator.sh ``` script in the root of that directory.
 
-### &nbsp;&nbsp;&nbsp; Windows
+### &nbsp;&nbsp;&nbsp; macOS tar
 
- * Using the Windows installer: The installation directory may be changed with the Options button.
+ * Unpack the .tar.gz anywhere you have write permissions.<br/>
+   Run ``` ELS-Navigator.sh ``` script in the root of that directory.
+
+### &nbsp;&nbsp;&nbsp; Windows installer
+
+ * The installation directory may be changed with the Options button.<br/>
    A desktop shortcut is created. A standard uninstaller is included. Entertainment Library Synchronizer will
    appear in the Start Menu, and in Control Panel, Programs & Features.
 
- * Using the Windows .zip: Unpack the .zip anywhere you have write permission.
+### &nbsp;&nbsp;&nbsp; Windows zip
+
+ * Unpack the .zip anywhere you have write permission.<br/>
    Run ``` ELS-Navigator.exe ``` in the root of that directory.
 
 
 ## &bull; Updates
 
-ELS Navigator uses a matching auto-updater that it downloads from the GitHub project.
+Use Help, Check for Updates ... to see if a new build is available.
 
-Use Help, Check for Updates ... to see if a new build is available. If so a dialog
-is displayed with Yes, No, and Changelist that will display the list of the latest changes
-from GitHub.
+### &nbsp;&nbsp;&nbsp; Linux and Windows
 
-Help, Changelist shows the list of changes in the installed version.
+ * A dialog is displayed with Yes, No, and Changelist that will display the list of the latest changes.
+   A matching auto-updater is downloaded and run from the GitHub project.
+
+### &nbsp;&nbsp;&nbsp; macOS
+
+ * A dialog is displayed with Changelist, No, and ELS website. Due to constraints there is no
+   auto-updater for macOS. Mac users may download the latest ELS Jar or update ELS entirely 
+   using the .tar.gz.
+
+## &bull; Configuration
+
+ * By default ELS data files are store in your home directory in the **.els** subdirectory.
+   * That may be changed with the -C \| \--config option.
+ * If ELS is installed in a separate directory that folder may be replaced with a matching update.

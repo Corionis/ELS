@@ -132,7 +132,7 @@
     </target>
 
     <!-- Build ELS macOS .dmg -->
-    <target name="els-macos" depends="els-jar">
+    <target name="els-macos-dmg" depends="els-jar">
         <delete failonerror="false">
             <fileset dir="build">
                 <include name="ELS-*.dmg"/>
@@ -145,6 +145,22 @@
         <copy file="build/ELS.jar" todir="out/ELS/dmg/ELS/bin" preservelastmodified="true"/>
         <copy file="build/build-stamp.properties" tofile="out/ELS/dmg/ELS/build-stamp.properties" />
         <echo message="MANUAL STEP: Copy out/ELS/dmg/ELS to MacOS, complete DMG build on MacOS" />
+    </target>
+
+    <!-- Build ELS macOS .mac.tar.gz -->
+    <target name="els-macos-tar" depends="els-jar">
+        <delete failonerror="false">
+            <fileset dir="build">
+                <include name="ELS-*.mac.tar.gz"/>
+            </fileset>
+        </delete>
+        <mkdir dir="out/ELS/mac.tar/ELS"/>
+        <exec command="cp -rpf artifacts/stage/macos/ELS out/ELS/mac.tar/" failonerror="true"/>
+        <copy file="mock/bin/update.info" tofile="out/ELS/mac.tar/ELS/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.icns" todir="out/ELS/mac.tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/ELS.jar" todir="out/ELS/mac.tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/build-stamp.properties" tofile="out/ELS/mac.tar/ELS/build-stamp.properties" />
+        <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.mac.tar.gz -C out/ELS/mac.tar ELS"/>
     </target>
 
     <!-- Build ELS Windows .zip -->
@@ -322,8 +338,9 @@
         <echo file="docs/_config.yml" append="true">version: ${els.version.name}${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">build: ${STRINGNOW}${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">github:${line.separator}</echo>
+        <echo file="docs/_config.yml" append="true">  jar_url: ${els.deploy.url}/ELS.jar${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">  linux_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.tar.gz${line.separator}</echo>
-        <echo file="docs/_config.yml" append="true">  macos_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.dmg${line.separator}</echo>
+        <echo file="docs/_config.yml" append="true">  macos_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.mac.tar.gz${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">  windows_exe_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.exe${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">  windows_zip_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.zip${line.separator}</echo>
     </target>
@@ -337,14 +354,14 @@
 
     <target name="Deploy" depends="deploy, deploy-website" description="Deploy ELS and web site" />
 
-    <target name="ELS" depends="els-linux, els-windows" description="Build ELS"/>
-    <!-- target name="ELS" depends="els-linux, els-windows, els-macos" description="Build ELS"/ -->
+    <target name="ELS" depends="els-linux, els-windows, els-macos-tar" description="Build ELS"/>
 
     <target name="Jars" depends="els-jar, updater-jar" description="Build Jars"/>
 
     <target name="Linux" depends="els-linux, updater-linux" description="Build all Linux deliverables"/>
 
-    <target name="MacOS" depends="els-macos, updater-macos" description="Build all MacOS deliverables"/>
+    <target name="MacOS" depends="els-macos-tar" description="Build all MacOS deliverables"/>
+    <!-- target name="MacOS" depends="els-macos-dmg, updater-macos" description="Build all MacOS deliverables"/ -->
 
     <target name="Updater" depends="updater-linux, updater-windows" description="Build Updater"/>
     <!-- target name="Updater" depends="updater-linux, updater-windows, updater-macos" description="Build Updater"/ -->

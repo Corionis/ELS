@@ -116,13 +116,6 @@ public class Generator
                 {
                     try
                     {
-                        if (checkboxTerminal.isSelected())
-                        {
-                            commandLine = commandLine.substring(8); // remove "open -a "
-                            Pattern patt = Pattern.compile("--args ");  // remove "--args "
-                            commandLine = commandLine.replaceAll(patt.toString(), "");
-                        }
-
                         PrintWriter outputStream = new PrintWriter(shortcut);
                         outputStream.println(commandLine);
                         outputStream.close();
@@ -259,14 +252,13 @@ public class Generator
     {
         boolean glo = context.preferences.isGenerateLongOptions();
         String exec = context.cfg.getExecutablePath();
-        String jar = (!Utils.isOsMac() && !Utils.isOsWindows() ? context.cfg.getElsJar() : "");
+        String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
 
         String conf = getCfgOpt();
         String overOpt = overwriteLog ? "-F" : "-f";
 
-        String cmd = (Utils.isOsMac() ? "open -a " : "");
-        cmd += "\"" + exec + "\"" +
-                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : (Utils.isOsMac() ? " --args " : ""));
+        String cmd = "\"" + exec + "\"" +
+                (jar.length() > 0 ? " -jar " + "\"" + jar + "\" " : "");
 
         cmd += conf + " -j \"" + tool.getConfigName() + "\"";
 
@@ -299,15 +291,14 @@ public class Generator
     private String generateOperationsCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
         String exec = context.cfg.getExecutablePath();
-        String jar = (!Utils.isOsMac() && !Utils.isOsWindows() ? context.cfg.getElsJar() : "");
+        String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
         // tool has all the parameter data, use it's generate method
         String conf = getCfgOpt();
         // use context.preferences because the subscriber filename can change if requested from a remote listener
         String opts = ((OperationsTool) tool).generateCommandLine(context.preferences.getLastPublisherOpenFile(), context.preferences.getLastSubscriberOpenFile());
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = (Utils.isOsMac() ? "open -a " : "");
-        cmd += "\"" + exec + "\"" +
-                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : (Utils.isOsMac() ? " --args" : "")) +
+        String cmd = "\"" + exec + "\"" +
+                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
                 " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
     }

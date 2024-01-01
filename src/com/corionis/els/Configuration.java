@@ -377,7 +377,7 @@ public class Configuration
     public String generateCurrentCommandline()
     {
         String exec = context.cfg.getExecutablePath();
-        String jar = (!Utils.isOsMac() && !Utils.isOsWindows() ? context.cfg.getElsJar() : "");
+        String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
         String consoleLevel = context.cfg.getConsoleLevel();
         String debugLevel = context.cfg.getDebugLevel();
         boolean overwriteLog = context.cfg.isLogOverwrite();
@@ -441,9 +441,8 @@ public class Configuration
         opts = sb.toString().trim();
 
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = (Utils.isOsMac() ? "/usr/bin/open -a " : "");
-        cmd += "\"" + exec + "\"" +
-                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : (Utils.isOsMac() ? " --args" : "")) +
+        String cmd = "\"" + exec + "\"" +
+                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
                 " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
     }
@@ -739,22 +738,9 @@ public class Configuration
     public String getExecutablePath()
     {
         String exePath = getInstalledPath() + System.getProperty("file.separator") +
-                (Utils.isOsMac() ? "Contents/MacOS/ELS-Navigator" :
-                        (Utils.isOsWindows() ? "ELS-Navigator.exe" : // else isOsLinux()
-                                "rt" + System.getProperty("file.separator") +
-                                        "bin" + System.getProperty("file.separator") +
-                                        "java"));
-        return exePath;
-    }
-
-    public String getExecutablePathForUpdater()
-    {
-        String exePath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                (Utils.isOsMac() ? "Contents/MacOS/ELS-Navigator" :
-                        (Utils.isOsWindows() ? "ELS-Navigator.exe" : // else isOsLinux()
-                                "rt" + System.getProperty("file.separator") +
-                                        "bin" + System.getProperty("file.separator") +
-                                        "java"));
+                    (Utils.isOsWindows() ? "ELS-Navigator.exe" :
+                            (Utils.isOsMac() ? "rt/Contents/Home/bin/java" :
+                            "rt/bin/java"));
         return exePath;
     }
 
@@ -846,13 +832,6 @@ public class Configuration
                 if (path.endsWith("bin" + System.getProperty("file.separator")))
                 {
                     path = path.substring(0, path.length() - 5);
-                }
-                if (Utils.isOsMac())
-                {
-                    if (path.endsWith("Contents/Java/"))
-                    {
-                        path = path.substring(0, path.length() - 15);
-                    }
                 }
                 if (path.endsWith(System.getProperty("file.separator")))
                 {

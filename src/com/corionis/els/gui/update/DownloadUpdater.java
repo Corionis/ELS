@@ -136,8 +136,7 @@ public class DownloadUpdater extends JFrame
             {
                 if (!fault)
                 {
-                    String jar = outPath + System.getProperty("file.separator") +
-                            (Utils.isOsMac() ? "/ELS_Updater/ELS_Updater.app/Contents/Java" : "bin") +
+                    String jar = outPath + System.getProperty("file.separator") + "bin" +
                             System.getProperty("file.separator") + "ELS_Updater.jar";
                     File els = new File(jar);
                     if (!els.exists())
@@ -161,7 +160,7 @@ public class DownloadUpdater extends JFrame
             {
                 labelVersion.setText(version.get(Configuration.BUILD_VERSION_NAME));
 
-                String ext = Utils.isOsWindows() ? ".zip" : (Utils.isOsMac() ? ".dmg" : ".tar.gz");
+                String ext = Utils.isOsWindows() ? ".zip" : ".tar.gz";
                 updateFile = version.get(Configuration.BUILD_UPDATER_DISTRO) + ext;
 
                 //updateFile = "ELS_Updater-4.0.0-development-2312131000.dmg";
@@ -293,31 +292,13 @@ public class DownloadUpdater extends JFrame
             if (Utils.isOsWindows())
                 success = unpackZip(updateArchive, outPath); // Windows
             else
-                if (Utils.isOsMac())
-                    success = unpackDmg(updateArchive, outPath); // Mac
-                else
                     success = unpackTar(updateArchive, outPath); // Linux
 
             buttonCancel.setEnabled(true);
             return success;
         }
 
-        private boolean unpackDmg(String from, String to)
-        {
-            progressBar.setMaximum(1);
-            progressBar.setValue(0);
-            File toPath = new File(to);
-            toPath.getParentFile().mkdirs();
-            toPath.mkdir();
-            String[] parms = new String[] { "/usr/bin/hdiutil", "attach", from, "-mountroot", to };
-            progressBar.setValue(1);
-            boolean success = context.main.execExternalExe(me, context.cfg, parms);
-            if (!success)
-                fault = true;
-            return success;
-        }
-
-        private boolean unpackTar(String from, String to)
+         private boolean unpackTar(String from, String to)
         {
             // unpack well-defined archive tar.gz to use same download as users
             try

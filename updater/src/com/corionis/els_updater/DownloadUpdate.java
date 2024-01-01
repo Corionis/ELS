@@ -157,8 +157,7 @@ public class DownloadUpdate extends JFrame
                 if (!fault)
                 {
                     // double-check the ELS.jar exists before Swing is stopped
-                    String exe = installedPath + System.getProperty("file.separator") +
-                            (Utils.isOsMac() ? "Contents/Java" : "bin") + System.getProperty("file.separator") + main.cfg.ELS_JAR;
+                    String exe = installedPath + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + main.cfg.ELS_JAR;
                     File els = new File(exe);
                     if (!els.exists())
                     {
@@ -183,10 +182,8 @@ public class DownloadUpdate extends JFrame
             {
                 labelVersion.setText(version.get(Configuration.BUILD_VERSION_NAME));
 
-                String ext = Utils.isOsWindows() ? ".zip" : (Utils.isOsMac() ? ".dmg" : ".tar.gz");
+                String ext = Utils.isOsWindows() ? ".zip" : ".tar.gz";
                 updateFile = version.get(Configuration.BUILD_ELS_DISTRO) + ext;
-
-                //updateFile = "ELS-4.0.0-development-2312131000.dmg";
 
                 outFile = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
                         "ELS_Updater" + System.getProperty("file.separator") + updateFile;
@@ -294,12 +291,10 @@ public class DownloadUpdate extends JFrame
             if (!fault && !requestStop)
             {
                 logger.info(SHORT, main.cfg.gs("Updater.removing.original.backups"));
-                String directory = installedPath + System.getProperty("file.separator") +
-                        (Utils.isOsMac() ? "Contents/Java_back" : "bin_back");
+                String directory = installedPath + System.getProperty("file.separator") + "bin_back";
                 if (removeDirectory(directory))
                 {
-                    directory = installedPath + System.getProperty("file.separator") +
-                            (Utils.isOsMac() ? "Contents/Plugins" : "") + System.getProperty("file.separator") + "rt_back";
+                    directory = installedPath + System.getProperty("file.separator") + "rt_back";
                     if (!removeDirectory(directory))
                         return false;
                 }
@@ -310,22 +305,18 @@ public class DownloadUpdate extends JFrame
             {
                 logger.info(SHORT, (requestStop ? main.cfg.gs("Updater.removing.cancelled.directories") :
                         main.cfg.gs("Updater.removing.failed.directories")));
-                String directory = installedPath + System.getProperty("file.separator") +
-                        (Utils.isOsMac() ? "Contents/Java" : "bin");
+                String directory = installedPath + System.getProperty("file.separator") + "bin";
                 if (removeDirectory(directory))
                 {
-                    directory = installedPath + System.getProperty("file.separator") +
-                            (Utils.isOsMac() ? "Contents/Plugins" : "") + System.getProperty("file.separator") + "rt";
+                    directory = installedPath + System.getProperty("file.separator") + "rt";
                     if (removeDirectory(directory))
                     {
                         logger.info(SHORT, main.cfg.gs("Updater.renaming.backups.to.original"));
-                        String to = installedPath + System.getProperty("file.separator") +
-                                (Utils.isOsMac() ? "Contents/Java" : "bin");
+                        String to = installedPath + System.getProperty("file.separator") + "bin";
                         String from = to + "_back";
                         if (renameDirectory(from, to))
                         {
-                            to = installedPath + System.getProperty("file.separator") +
-                                    (Utils.isOsMac() ? "Contents/Plugins" : "") + System.getProperty("file.separator") + "rt";
+                            to = installedPath + System.getProperty("file.separator") + "rt";
                             from = to + "_back";
                             if (!renameDirectory(from, to))
                                 return false;
@@ -351,13 +342,11 @@ public class DownloadUpdate extends JFrame
 
             // rename directories for back-ups
             logger.info(SHORT, main.cfg.gs("Updater.renaming.original.for.backup"));
-            String from = installedPath + System.getProperty("file.separator") +
-                    (Utils.isOsMac() ? "Contents/Java" : "bin");
+            String from = installedPath + System.getProperty("file.separator") + "bin";
             String to = from + "_back";
             if (renameDirectory(from, to))
             {
-                from = installedPath + System.getProperty("file.separator") +
-                    (Utils.isOsMac() ? "Contents/Plugins" : "") + System.getProperty("file.separator") + "rt";
+                from = installedPath + System.getProperty("file.separator") + "rt";
                 to = from + "_back";
                 if (!renameDirectory(from, to))
                     return false;
