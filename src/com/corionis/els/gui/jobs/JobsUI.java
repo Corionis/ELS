@@ -295,11 +295,12 @@ public class JobsUI extends AbstractToolDialog
             this.currentJob = job;
             loadTasks(-1);
 
-            if (configModel.getRowCount() == 0)
+            if (!buttonAddOrigin.isEnabled())
             {
                 buttonCopy.setEnabled(true);
                 buttonDelete.setEnabled(true);
                 buttonRun.setEnabled(true);
+                buttonGenerate.setEnabled(true);
                 buttonTaskUp.setEnabled(true);
                 buttonTaskDown.setEnabled(true);
                 buttonAddTask.setEnabled(true);
@@ -1221,6 +1222,7 @@ public class JobsUI extends AbstractToolDialog
             buttonCopy.setEnabled(false);
             buttonDelete.setEnabled(false);
             buttonRun.setEnabled(false);
+            buttonGenerate.setEnabled(false);
             buttonTaskUp.setEnabled(false);
             buttonTaskDown.setEnabled(false);
             buttonAddTask.setEnabled(false);

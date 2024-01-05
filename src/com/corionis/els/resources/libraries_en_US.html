@@ -10,6 +10,12 @@
       margin-right: 4px;
     }
 
+    p {
+      margin-left: 10px;
+      margin-top: -8px;
+      margin-right: 4px;
+    }
+
     table {
       margin: 0 4px 4px;
       padding: 4px;
@@ -28,46 +34,69 @@
     ul {
       margin-left: 22px;
     }
+
+    #opts {
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
 <h2>Libraries</h2>
-<p>Libraries define parameters and options for ELS library JSON files.</p>
+<p>Libraries define parameters and options for an ELS library JSON file.</p>
 
 <h3>General Tab</h3>
-The General tab defines the key, communications parameters and other basic options. Different combinations of options are
-used depending on the role of the repository with the -p|-P or -s|-S options.
+<p>The General tab defines the key, communications parameters and other basic options. Different combinations of options are
+  used depending on the role of the repository with the -p|-P or -s|-S options.</p>
 
-<h4>Key</h4>
+<ul>
+  <li id="opts">Key<br/>
+    A version 4 UUID. Every publisher and subscriber must be a unique key. This key is also used for
+    Authorization Keys and Hint Keys. Use the "..." button to generate a new key.</li>
 
-<h4>Host</h4>
-Host is the hostname:port or IPv4 address:port used by outside ELS systems to connect to this ELS instance.
+  <li id="opts">Host<br/>
+    Host is the hostname:port or IPv4 address:port used by outside ELS systems to connect to this ELS instance.</li>
 
-<h4>Listen</h4>
-Listen is the hostname:port or IP address:port listener operations use to listen for incoming connections. If not defined
-Host is used. This setting is used with NAT or port forwarding to route incoming traffic to an inside system.
+  <li id="opts">Listen<br/>
+    Listen is the hostname:port or IP address:port listener operations use to listen for incoming connections. If not defined
+    Host is used. This setting is used with NAT or port forwarding to route incoming traffic to an inside system on a LAN.</li>
 
-<h4>Time-out
+  <li id="opts">Time-out<br/>
+    The number of minutes before a listen operation times-out and throws an error. A "heartbeat" is used during long
+    back-up operations to avoid false time-outs.</li>
 
-<h4>Flavor</h4>
+  <li id="opts">Flavor<br/>
+    The type of operating system where this library is located. Valid values: linux, mac or windows (only).</li>
 
-<h4>Case-sensitive</h4>
+  <li id="opts">Case-sensitive<br/>
+    Whether to handle directory and filenames as case-sensitive.</li>
 
-<h4>Temorary files dated</h4>
+  <li id="opts">Temporary files dated<br/>
+    Whether to add the current date and time to the end of temporary filenames. With dates files will accumulate.
+    Without dates the same file will be overwritten on each use.</li>
 
-<h4>Temporary files location</h4>
+  <li id="opts">Temporary files location<br/>
+    The directory path where temporary files are to be written.</li>
 
-<h4>Terminal</h4>
-Terminal allowed provides interactive access to an ELS instance when running in a listener mode. It is primarily used for
-diagnostic purposes to test the STTY command channcel. The -a|--authorize [password] option is required to enable interactive access
-for the listener.
+  <li id="opts">Terminal Allowed<br/>
+    Terminal allowed provides interactive access to an ELS instance when running in a listener mode. It is primarily used for
+    diagnostic purposes to test the STTY command channel. The -a|--authorize [password] option is required to enable interactive
+    access for the listener.</li>
 
-<h4>Ignore patterns</h4>
+  <li id="opts">Ignore patterns<br/>
+    A list of filenames to be ignored during back-up operations. Java regular expressions are supported. See Tools, Renamer help
+    for details on regular expressions.
+    <br/><br/>
+    Examples: (?i)desktop\.ini, Thumbs\.db</li>
+
+</ul>
 
 <hr/>
+
 <h3>Locations Tab</h3>
 
-Locations tab defines devices or partial paths used to check for available free storage space.
+<p>Locations tab defines devices or partial paths used to check for available free storage space.</p>
+
+<p>&nbsp;</p>
 
 <p>Fully-qualified partial paths to their
 length should match the beginning of the full paths used in Library sources. Relative partial paths to their length should be contained
@@ -87,37 +116,32 @@ within the full paths used in Library sources.</p>
       <td>resources/media</td>
       <td>/mnt/drive01/resources/media<br/>/mnt/drive02/resources/media</td>
     </tr>
-    <tr>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-    </tr>
   </table>
 
 <p>If a target for a backup, copy or move operation does not have a matching Location the
 default minimum free space is 1 GB.</p>
 
+<p>&nbsp;</p>
+
 <p>A Target -t|-T file is still supported but is being phased-out in favor of Locations. There is no
 Navigator dialog for editing targets JSON files however they may still be defined on the command-line. Defined minimum free
 space from Targets override Locations.</p>
 
+<p>&nbsp;</p>
+
 <p>A Hint Server only uses one Location, one Library with one Source for it's datastore.</p>
+<br/>
 
 <hr/>
 
 <h3>Bibliography Tab</h3>
-Bibliography tab, Sources is the list of one or more storage devices or paths that comprise a library. The order of the sources
-defines the order searched for available free space, depending on the run-time setting of "Back-fill".
+<p>Bibliography tab defines libraries with one or more Source storage devices or paths.</p>
 
+<<p>&nbsp;</p>
 
-<br/>
+<p>The order of the sources defines the order searched for available free space, depending on the
+run-time setting of "Back-fill".</p>
+
 <br/>
 <br/>
 

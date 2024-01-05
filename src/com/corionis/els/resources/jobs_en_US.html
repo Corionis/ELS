@@ -10,6 +10,12 @@
       margin-right: 4px;
     }
 
+    p {
+      margin-left: 10px;
+      margin-top: -8px;
+      margin-right: 4px;
+    }
+
     table {
       border-bottom: 1px solid;
       margin: 0 4px 4px;
@@ -33,15 +39,16 @@
 </head>
 <body>
 <h2>Jobs</h2>
-Jobs execute defined Tasks in the sequence specified. A Task is a defined Tool with
-starting Origin(s) as arguments to the Tool.
+<p>Jobs execute defined Tasks in the sequence specified. A Task is a defined Tool with
+starting Origin(s) as arguments to the Tool.</p>
 
 <h3>Tasks</h3>
-The Add button for Tasks displays a list of Tools that have been created previously.
-The list of Tools is updated each time the button is clicked.
+<p>The Add button for Tasks displays a list of Tools that have been created previously.
+The list of Tools is updated each time the button is clicked.</p>
 
 <h3>Task Origins</h3>
-Select the publisher and/or subscriber accordingly by clicking the "..." button.
+<p>Select the publisher and/or subscriber accordingly by clicking the "..." button.</p>
+
 <ul>
   <li>"From: [name]" is only shown if a previous task's Origins are available.</li>
   <li>"Any publisher" will use any loaded publisher</li>
@@ -50,24 +57,28 @@ Select the publisher and/or subscriber accordingly by clicking the "..." button.
   <li>"Local subscriber" allows section of a local subscriber from the list of libraries</li>
   <li>"Remote subscriber" allows section of a remote subscriber from the list of libraries</li>
 </ul>
-The Add button uses <i><b>whatever</b> is currently selected in the Browser</i>. That means
-combinations can be assembled that do not necessarily make sense or will execute correctly.
-<p>
-  Some tasks, such as the Renamer, can use the Origins of a previous task. When previous Origins
-  are available a "From: [name]" selection is added as the first entry in the combobox. That entry
-  is the most recent task capable of providing Origins prior to the current task. A series of these
-  tasks may be defined to perform complex operations.
-</p>
+
+<p>The Add button uses <i><b>whatever</b> is currently selected in the Browser</i>. That means
+combinations can be assembled that do not necessarily make sense or will execute correctly.</p>
+
+<p>&nbsp;</p>
+
+<p>Some tasks, such as the Renamer, can use the Origins of a previous task. When previous Origins
+are available a "From: [name]" selection is added as the first entry in the combobox. That entry
+is the most recent task capable of providing Origins prior to the current task. A series of these
+tasks may be defined to perform complex operations.</p>
 
 <h3>Generate</h3>
-The Generate button creates a <i>basic</i> command line to execute the currently-selected
+<p>The Generate button creates a <i>basic</i> command line to execute the currently-selected
 job. Edit and copy (Ctrl-C) as desired, or select the Shortcut button to create a
-desktop shortcut.<br/>
-<br/>
+desktop shortcut.</p>
+
+<p>&nbsp;</p>
+
 <i><b>Note:</b></i><br/>
-Depending on your choices additional parameters may be required for the
+<p>Depending on your choices additional parameters may be required for the
 command line to run correctly. In particular, if "<b>Any publisher</b>" or "<b>Any subscriber</b>" has
-been selected for the job then -p and/or -s parameters <i>will</i> needed.
+been selected for the job then -p and/or -s parameters <i>will</i> needed.</p>
 
 <br/>
 <br/>

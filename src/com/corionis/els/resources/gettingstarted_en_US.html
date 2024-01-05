@@ -10,6 +10,12 @@
                 margin-right: 4px;
             }
 
+            p {
+                margin-left: 10px;
+                margin-top: -8px;
+                margin-right: 4px;
+            }
+
             table {
                 border-bottom: 1px solid;
                 margin: 0 4px 4px;
@@ -36,43 +42,55 @@
 
 <p>ELS uses a publisher/subscriber paradigm to present a collection of logical libraries from a
 local publisher to a subscriber, or back-up. The subscriber may be local, with all storage devices
-attached, or remotely using another ELS instance operating as a Subscriber Listener.</p>
+attached, or remote using another ELS instance operating as a Subscriber Listener.</p>
+
+<p>&nbsp;</p>
 
 <p>Each logical library may span multiple storage devices. This is the same approach used by
-modern media streaming systems such as Plex but is also useful for anyone producing large
-volumes of content, videos, music, data, etc. Each storage Location may specify a "Minimum
+modern media streaming systems, such as Plex, but is also useful for anyone producing large
+volumes of content, videos, music, images, ata, etc. Each storage Location may specify a "Minimum
 Free Space". A library is defined as a Bibliography of storage Locations used by the library.</p>
 
+<p>&nbsp;</p>
+
 <p>ELS may be run in a variety of modes. The visible mode is this ELS Navigator. However, several
-other command line modes are available to automate ELS operations. ELS started as a command line-only
+other command line modes are available to automate ELS operations. ELS started as a command line
 back-up tool. The addition of the Navigator desktop application in Version 4 added significant
 functionality.</p>
 
-<h3>Start-up Steps - Synopsis</h3>
-
+<h3>Start-up Steps</h3>
 <ol>
     <li>Define a publisher on the Libraries tab.</li>
     <li>Use File, Open Publisher to open the new publisher.</li>
-    <li>Define one or more subscribers on the Libraries tab.</li>
+    <li>Define one or more subscribers (back-ups) on the Libraries tab.</li>
     <li>Use File, Open Subscriber to open the new subscriber.</li>
-    <li>Create a Navigator Operation using the Tools, Operations menu option.</li>
-    <ul>
-        <li>Use the Generate button to create a Desktop Shortcut to start the ELS Navigator with the open publisher and subscriber.</li>
-    </ul>
-    <li></li>
 </ol>
 
-<h4>For Local Subscribers</h4>
+<h3>Browser</h3>
+<p>The Browser presents a publisher and subscriber in a drag 'n drop interface. Selections made in
+the Browser are used by the Tools and Jobs. Selections may be changed while working with Tools and Jobs,
+e.g. using the Duplicate Finder select the Publisher and click "Run ...", then select the Subscriber and
+click "Run ..." again.</p>
 
-<ol>
-</ol>
+<p>&nbsp;</p>
 
-<h4>For Remote Subscribers</h4>
+<p>The Publisher and Subscriber tabs present the logical library structure. The System tabs present that
+computer's entire directory tree.</p>
 
-<ol>
-</ol>
+<h3>Tools</h3>
+<p>Various Tools are provided to make building and maintaining libraries easier. The Duplicate Finder
+and Empty Directory Finder are used manually. The other Tools may be run by themselves or combined
+into Jobs.</p>
 
-<h3></h3>
+<h3>Jobs</h3>
+<p>Jobs are combinations of one or more Tools. Jobs are composed of Tasks which are a Tool with selections
+for the publisher and subscriber.</p>
+
+<h3>System</h3>
+<p>The System menu contains advanced features for security and Hint processing.</p>
+
+<br/>
+<br/>
 
 </body>
 </html>

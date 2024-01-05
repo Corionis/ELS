@@ -10,6 +10,12 @@
       margin-right: 4px;
     }
 
+    p {
+      margin-left: 10px;
+      margin-top: -8px;
+      margin-right: 4px;
+    }
+
     table {
       border-bottom: 1px solid;
       margin: 0 4px 4px;
@@ -29,6 +35,10 @@
     ul {
       margin-left: 22px;
     }
+
+    #opts {
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -44,100 +54,138 @@ Named configurations may be executed:
   <li>With a command line copy or shortcut using the Generate button</li>
 </ul>
 
-The publisher and subscriber for execution come from, respectively:
+<p>The publisher and subscriber for execution come from, respectively:</p>
 <ul>
-  <li>The currently loaded libraries in the ELS Navigator Browser</li>
-  <li>From the defined Task Origins in a Job</li>
-  <li>As parameters in the command line -p|-P and -s|-S</li>
+  <li>The currently loaded libraries in the ELS Navigator Browser.</li>
+  <li>From the defined Task Origins in a Job.</li>
+  <li>As parameters in the command line -p|-P and -s|-S.</li>
 </ul>
 </p>
 
-<h3>Modes</h3>
-ELS may be executed in one of the following modes and as a task in a Job. (* = Advanced)
+<h3>Operational Modes</h3>
+<p>ELS may be executed in one of the following modes and as a task in a Job. (* = Advanced).</p>
 <ul>
-  <li>Local publish : Back-up with all storage connected to the local system</li>
-  <li>Remote publish : Back-up using two systems over a LAN or Internet</li>
-  <li>Subscriber listener : The subscribe-side for remote publish</li>
-  <li>Hint status server : Coordinate manual changes between multiple remote back-up systems, optional</li>
-  <li>Publisher terminal* : Manual terminal for a remote publisher listener</li>
-  <li>Publisher listener* : The publisher-side for a publisher terminal</li>
-  <li>Subscriber terminal* : Manual termina for a remote subscriber listener</li>
-  <li>Hint server force quit : Force a remote Hint Status Server to quit</li>
-  <li>Subscriber force quit : Force a remote subscriber listener to quit</li>
+  <li>Local publish : Back-up with all storage connected to the local system.</li>
+  <li>Remote publish : Back-up using two systems over a LAN or Internet.</li>
+  <li>Subscriber listener : The subscribe-side for remote publish.</li>
+  <li>Hint status server : Track manual changes between remote back-up systems.</li>
+  <li>Publisher terminal* : Manual terminal for a remote publisher listener.</li>
+  <li>Publisher listener* : The publisher-side for a publisher terminal.</li>
+  <li>Subscriber terminal* : Manual termina for a remote subscriber listener.</li>
+  <li>Hint server force quit : Force a remote Hint Status Server to quit.</li>
+  <li>Subscriber force quit : Force a remote subscriber listener to quit.</li>
 </ul>
 
 <h3>Generate Button</h3>
 <p>The Generate button creates a command line for executing the currently-selected
-  operation. Edit and copy (Ctrl-C) as desired.</p>
+operation. Edit and copy (Ctrl-C) as desired, or select the Shortcut button to create a
+desktop shortcut.</p>
 
 <h3>Options</h3>
-Listed alphabetically. The single-letter and long variations are listed.
+<p>Listed alphabetically. The single-letter and long variations are shown. Which options
+appear depends on the selected mode.</p>
 
-<h4>Navigator</h4>
-Notes:
- 1. When using Navigator with a remote Subscriber only the General tab connection
-    information for the Subscriber is required. Navigator automatically requests
-    the current Subscriber Library at connection time.
+<ul>
+  <li id="opts">Authorize password<br/>
+    -a | --authorize [password] : Used with listeners to define the password a user would type interactively to gain
+    access to higher-level commands when using a terminal mode.</li>
 
-<h4>Authorize password</h4>
-Used with listeners to define the password a user would type interactively to gain
-access to higher-level commands. <dfn>Options:</dfn> -a | --authorize [password]
+  <li id="opts">Auth keys<br/>
+    -A | --auth-keys [file] : Used to authenticate both workstations and publishers instead of requiring a specific
+    system defined by -p|-P and -s|S.</li>
 
-<h4>Auth keys</h4>
+  <li id="opts">Blacklist<br/>
+    -B | --blacklist [file] : List of one-line IP addresses to filter and block incoming connections. The blacklist
+    supports # style comments and blank lines. Each IP address is an IPv4 dotted address, e.g. 127.0.0.1, on separate lines.</li>
 
-<h4>Blacklist</h4>
+  <li id="opts">Decimal scale<br/>
+    -z | --decimal-scale : Format numeric (B, KB, MB, GB, TB) values with a 1000 decimal scale instead of a 1024 binary scale.</li>
 
-<h4>Decimal scale</h4>
+  <li id="opts">Dry-run<br/>
+    -D | --dry-run : Do everything except the actual action.</li>
 
-<h4>Duplicates & Cross-check</h4>
+  <li id="opts">Duplicates<br/>
+    -u | --duplicates : Report publisher duplicate items during back-up operations.</li>
 
-<h4>Empty directories</h4>
+  <li id="opts">Cross-check<br/>
+    -x | --cross-check : If -u is enabled cross-check all libraries for an item instead of just within that item's library.</li>
 
-<h4>Exclude</h4>
+  <li id="opts">Empty directories<br/>
+    -E | --empty-directories : Report empty directories. Otherwise only a total number is reported in the statistics.</li>
 
-<h4>Hint keys</h4>
+  <li id="opts">Exclude<br/>
+    -L | --exclude [library] : List of libraries to be excluded from processing. May be repeated.</li>
 
-<h4>Hint keys only</h4>
+  <li id="opts">Export text<br/>
+    -e | --export-text [output file] : Export publisher collection as text to file.</li>
 
-<h4>Hints</h4>
+  <li id="opts">Export items<br/>
+    -i | --export-items [output file] : Export publisher collection as JSON to file.</li>
 
-<h4>Hint server</h4>
+  <li id="opts">Hint keys & Hint keys only<br/>
+    -k | --keys [key file] : Process Hints between publisher and subscriber.<br/>
+    -K | --keys-only [keys file] : Process Hints on the publisher only then end.</li>
 
-<h4>Ignored</h4>
+  <li id="opts">Hints & Hint Server<br/>
+    -h | --hints [JSON file] : Enable local Hint Tracking. The JSON defines the location of the hint datastore.<br/>
+    -H | ----hint-server [JSON file] : Run ELS in Hint Server mode for remote Hint Tracking.</li>
 
-<h4>Include/Exclude</h4>
+  <li id="opts">Ignored<br/>
+    -N | --ignored [output file] : Report ignored files as specified in the JSON file.</li>
 
-<h4>Keep going</h4>
+  <li id="opts">Include<br/>
+    -l | --library [library] : List of libraries to be included during processing. May be repeated.</li>
 
-<h4>No back-fill</h4>
+  <li id="opts">Keep going<br/>
+    -g | --listener-keep-going : For a Publisher the "keep going" option skips sending the quit command to
+    the subscriber when the backup operation is complete. For a subscriber it skips ending with a fault on an
+    unexpected disconnect (EOL) and ignores quit commands. To stop a subscriber in this mode use the
+    -G | --listener-quit option.</li>
 
-<h4>Overwrite</h4>
+  <li id="opts">Mismatches<br/>
+    -m | --mismatches [output file] : Report mismatches which is a list of differences during back-up operations.</li>
 
-<h4>Preserve dates</h4>
+  <li id="opts">Navigator<br/>
+    -n | --navigator : Run the ELS Navigator desktop application.</li>
 
-<h4>Quit Status Server</h4>
+  <li id="opts">No back-fill<br/>
+    -b | --no-back-fill : Disables attempting to "back fill" original media sources with new files, e.g. a new TV episode.</li>
 
-<h4>Targets</h4>
-<p>Specifying a targets file that describes libraries, their sources,
-  and the minimum free space for the library - is optional. It was the original
-  way to define where new content would go and will continue to be supported.</p>
+  <li id="opts">Overwrite<br/>
+    -o | --overwrite : Overwrite any existing files, do not resume a partial remote file transfer.</li>
 
-<p>If targets are not specified ELS looks for "locations" defined in the library
-  file. Locations describe minimum free space per storage location.</p>
+  <li id="opts">Preserve dates<br/>
+    -y | --preserve-dates : Retain original file dates.</li>
 
-<p>If those are not found the list of sources for the library in the library file
-  is used with a default minimum free space of 10GB. In all cases the order of
-  the definitions controls the order for searching where to place new content
-  for that library.</p>
+  <li id="opts">Quit Status Server<br/>
+    -G | --listener-quit that only sends the quit command to a remote subscriber, then exits.</li>
 
-<h4>Validate</h4>
+  <li id="opts">Targets<br/>
+    -t | --targets [file] : Specifying a targets file that describes libraries, their sources,
+    and the minimum free space for the library - is optional. It was the original
+    way to define where new content would go and will continue to be supported.
+    <br/><br/>
+    If targets are not specified ELS looks for "locations" defined in the library JSON
+    file. Locations describe minimum free space per storage location.
+    <br/><br/>
+    If those are not found the list of sources for the library in the library file
+    is used with a default minimum free space of 10GB. In all cases the order of
+    the definitions controls the order for searching where to place new content
+    for that library.</li>
 
-<h4>Whitelist</h4>
+  <li id="opts">Validate<br/>
+    -v | --validate : Validate a publisher library or collection file.</li>
 
+  <li id="opts">What's New & What's New all<br/>
+    -w | --whatsnew [output file] : What's New output text file as a summary.<br/>
+    -W | --whatsnew-all [output file] : What's New output text file with all new items.</li>
 
+  <li id="opts">Whitelist<br/>
+    -I | --ip-whitelist [file] : List of one-line IP addresses to filter and allow incoming connections. The whitelist
+    supports # style comments and blank lines. Each IP address is an IPv4 dotted address, e.g. 127.0.0.1, on separate lines.</li>
 
-<br/>
-<br/>
+</ul>
+
 <br/>
 
 </body>
