@@ -538,7 +538,8 @@ public class Process
                 }
                 else
                 {
-                    logger.warn("Something missing? Make sure publisher, subscriber and targets are specified for backup operation");
+                    if (!context.cfg.isDuplicateCheck() && !context.cfg.isEmptyDirectoryCheck())
+                        logger.warn("Something missing? Make sure publisher and subscriber are specified for backup operation");
                 }
             }
 

@@ -135,7 +135,7 @@ two collections match during the backup operation. If not an exception is thrown
 made with Hints, and optionally Hint Tracking, enabled are automatically marked as Done.
 
  * ``reset`` : Reset the test/ directory
- * ``090-23_Navigator-local`` : Navigator to create Hints
+ * ``080-26_Navigator-local`` : Navigator to create Hints
  * ``040-01_Hints-publisher`` : Run Hints on publisher, once, if not Done by Navigator
  * ``reset`` : Reset the test/ directory
  * ``040-22_Publisher-dryrun`` : Run once, results & copies _will be wrong_ because hints not processed
@@ -148,7 +148,7 @@ Remote Hints for networked back-ups are sent from publisher to a remote subscrib
 then executed on the subscriber.
 
  * ``reset`` : Reset the test/ directory
- * Edit test/system/hint/keys and move all name/key pairs except MediaPublisher and SubscribeOne
+ * Edit test/system/hint.keys and remove all name/key pairs except MediaPublisher and SubscribeOne
  * BE SURE to keep the deleted lines to put back after this test
  * ``082-23_Navigator-local`` : Perform the Manual Tests below to create some Hints with no tracking
  * ``050-21_Subscriber-One-listener`` : Separate terminal 1
@@ -233,7 +233,8 @@ processing status of each Hint on each back-up using a separate ELS process the 
 subscriber communicate with.
 
  * ``reset`` : Reset the test/ directory
- * ``090-23_Navigator-local`` : Perform the Manual Tests below to create some Hints
+ * ``090-23_Navigator-local`` : Perform the Manual Tests below to create some Hints, OR
+ * ``100-26_Navigator-remote-hints`` : and skip 070-01_Hints-publisher next
  * ``070-01_Hints-publisher`` : Run once, if not done in Navigator
  * ``070-10_Status-Server-listener`` : Separate terminal 1
  * ``070-22_Publisher-One-dryrun`` ; Separate terminal 2

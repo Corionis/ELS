@@ -64,18 +64,14 @@ public class Preferences implements Serializable
     private int jobsWidth = 570;
     private int jobsXpos = 0;
     private int jobsYpos = 0;
-    private boolean lastHintKeysInUse = false;
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
-    private boolean lastHintTrackingInUse = false;
     private boolean lastHintTrackingIsRemote = false;
     private String lastHintTrackingOpenFile = "";
     private String lastHintTrackingOpenPath = "";
-    private boolean lastPublisherInUse = false;
     private boolean lastPublisherIsWorkstation = false;
     private String lastPublisherOpenFile = "";
     private String lastPublisherOpenPath = "";
-    private boolean lastSubscriberInUse = false;
     private boolean lastSubscriberIsRemote = false;
     private String lastSubscriberOpenFile = "";
     private String lastSubscriberOpenPath = "";
@@ -962,34 +958,14 @@ public class Preferences implements Serializable
         return hideHiddenFiles;
     }
 
-    public boolean isLastHintKeysInUse()
-    {
-        return lastHintKeysInUse;
-    }
-
-    public boolean isLastHintTrackingInUse()
-    {
-        return lastHintTrackingInUse;
-    }
-
     public boolean isLastHintTrackingIsRemote()
     {
         return lastHintTrackingIsRemote;
     }
 
-    public boolean isLastPublisherInUse()
-    {
-        return lastPublisherInUse;
-    }
-
     public boolean isLastPublisherIsWorkstation()
     {
         return lastPublisherIsWorkstation;
-    }
-
-    public boolean isLastSubscriberInUse()
-    {
-        return lastSubscriberInUse;
     }
 
     public boolean isLastSubscriberIsRemote()
@@ -1254,11 +1230,6 @@ public class Preferences implements Serializable
         this.jobsYpos = jobsYpos;
     }
 
-    public void setLastHintKeysInUse(boolean lastHintKeysInUse)
-    {
-        this.lastHintKeysInUse = lastHintKeysInUse;
-    }
-
     public void setLastHintKeysOpenFile(String lastHintKeysOpenFile)
     {
         this.lastHintKeysOpenFile = lastHintKeysOpenFile;
@@ -1267,11 +1238,6 @@ public class Preferences implements Serializable
     public void setLastHintKeysOpenPath(String lastHintKeysOpenPath)
     {
         this.lastHintKeysOpenPath = lastHintKeysOpenPath;
-    }
-
-    public void setLastHintTrackingInUse(boolean lastHintTrackingInUse)
-    {
-        this.lastHintTrackingInUse = lastHintTrackingInUse;
     }
 
     public void setLastHintTrackingIsRemote(boolean lastHintTrackingIsRemote)
@@ -1289,11 +1255,6 @@ public class Preferences implements Serializable
         this.lastHintTrackingOpenPath = lastHintTrackingOpenPath;
     }
 
-    public void setLastPublisherInUse(boolean lastPublisherInUse)
-    {
-        this.lastPublisherInUse = lastPublisherInUse;
-    }
-
     public void setLastPublisherIsWorkstation(boolean lastPublisherIsWorkstation)
     {
         this.lastPublisherIsWorkstation = lastPublisherIsWorkstation;
@@ -1307,11 +1268,6 @@ public class Preferences implements Serializable
     public void setLastPublisherOpenPath(String lastPublisherOpenPath)
     {
         this.lastPublisherOpenPath = lastPublisherOpenPath;
-    }
-
-    public void setLastSubscriberInUse(boolean lastSubscriberInUse)
-    {
-        this.lastSubscriberInUse = lastSubscriberInUse;
     }
 
     public void setLastSubscriberIsRemote(boolean lastSubscriberIsRemote)

@@ -7,7 +7,7 @@ set name=%~n0
 
 cd ..\..
 
-rt/bin/java -jar bin/ELS.jar -C . -k system/hint.keys -c debug -d debug --remote S --authorize sharkbait -p libraries/publisher.json -S libraries/subscriber-two.json -T -F output/050-31_Subscriber-Two-listener.log
+rt\bin\java -jar bin\ELS.jar -C . -k system/hint.keys -c debug -d debug --remote S --authorize sharkbait -p libraries/publisher.json -S libraries/subscriber-two.json -T -F output/050-31_Subscriber-Two-listener.log
 
 cd /d "%base%"
 

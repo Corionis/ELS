@@ -110,10 +110,10 @@ public class Main
         {
             if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
             {
-                if (context.preferences.isLastPublisherInUse())
+                if (context.preferences.getLastPublisherOpenPath().length() > 0)
                     context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
 
-                if (context.preferences.isLastSubscriberInUse())
+                if (context.preferences.getLastSubscriberOpenFile().length() > 0)
                 {
                     context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
                     if (context.preferences.isLastSubscriberIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
@@ -123,13 +123,13 @@ public class Main
                 }
 
                 // hint keys
-                if (context.preferences.isLastHintKeysInUse() && context.cfg.getHintKeysFile().length() == 0 &&
+                if (context.cfg.getHintKeysFile().length() == 0 &&
                         context.preferences.getLastHintKeysOpenFile().length() > 0)
                 {
                     context.cfg.setHintKeysFile(context.preferences.getLastHintKeysOpenFile());
 
                     // hint tracking, must have hint keys
-                    if (context.preferences.isLastHintTrackingInUse() && context.cfg.getHintHandlerFilename().length() == 0 &&
+                    if (context.cfg.getHintHandlerFilename().length() == 0 &&
                             context.preferences.getLastHintTrackingOpenFile().length() > 0)
                     {
                         // hint daemon or tracker?
@@ -999,85 +999,59 @@ public class Main
                 msg = "Exception while reading Hint Keys: ";
                 context.hintKeys.read(context.cfg.getHintKeysFile());
                 context.hints = new Hints(context, context.hintKeys);
-                if (context.cfg.isNavigator())
-                    context.preferences.setLastHintKeysInUse(true);
-
-                if (context.cfg.isUsingHintTracking())
-                {
-                    keys = false;
-                    context.statusRepo = new Repository(context, Repository.HINT_SERVER);
-
-                    // Remote Hint Status Server
-                    if (context.cfg.getHintsDaemonFilename().length() > 0 && repo != null)
-                    {
-                        // exceptions handle by read()
-                        catchExceptions = false;
-                        if (context.cfg.isNavigator())
-                            context.preferences.setLastHintTrackingInUse(false);
-
-                        if (context.statusRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true))
-                        {
-                            catchExceptions = true;
-
-                            // start the serveStty client connection the Hint Status Server
-                            context.statusStty = new ClientStty(context, false, true);
-                            if (!context.statusStty.connect(repo, context.statusRepo))
-                            {
-                                msg = "";
-                                throw new MungeException("Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description + " failed to connect");
-                            }
-
-                            String response = context.statusStty.receive("", 5000); // check the initial prompt
-                            if (!response.startsWith("CMD"))
-                            {
-                                msg = "";
-                                throw new MungeException("Bad initial response from Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
-                            }
-
-                            if (context.cfg.isNavigator())
-                                context.preferences.setLastHintTrackingInUse(true);
-                        }
-                        else
-                        {
-                            catchExceptions = true;
-                            context.cfg.setHintsDaemonFilename("");
-                        }
-                    }
-                    else // Local Hint Tracker
-                    {
-                        // exceptions handle by read()
-                        catchExceptions = false;
-                        if (context.statusRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
-                        {
-                            // Setup the Hint Tracker datastore, single instance
-                            context.datastore = new Datastore(context);
-                            context.datastore.initialize();
-
-                            if (context.cfg.isNavigator())
-                                context.preferences.setLastHintTrackingInUse(true);
-                        }
-                        else
-                        {
-                            catchExceptions = true;
-                            context.cfg.setHintTrackerFilename("");
-                            if (context.cfg.isNavigator())
-                                context.preferences.setLastHintTrackingInUse(false);
-                        }
-                    }
-                }
-                else
-                {
-                    if (context.cfg.isNavigator())
-                        context.preferences.setLastHintTrackingInUse(false);
-                }
             }
-            else
+
+            if (context.cfg.isUsingHintTracking())
             {
-                // no Hint Keys, Daemon or Tracker
-                if (context.cfg.isNavigator())
+                keys = false;
+                context.statusRepo = new Repository(context, Repository.HINT_SERVER);
+
+                // Remote Hint Status Server
+                if (context.cfg.getHintsDaemonFilename().length() > 0 && repo != null)
                 {
-                    context.preferences.setLastHintKeysInUse(false);
-                    context.preferences.setLastHintTrackingInUse(false);
+                    // exceptions handle by read()
+                    catchExceptions = false;
+
+                    if (context.statusRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true))
+                    {
+                        catchExceptions = true;
+
+                        // start the serveStty client connection the Hint Status Server
+                        context.statusStty = new ClientStty(context, false, true);
+                        if (!context.statusStty.connect(repo, context.statusRepo))
+                        {
+                            msg = "";
+                            throw new MungeException("Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description + " failed to connect");
+                        }
+
+                        String response = context.statusStty.receive("", 5000); // check the initial prompt
+                        if (!response.startsWith("CMD"))
+                        {
+                            msg = "";
+                            throw new MungeException("Bad initial response from Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
+                        }
+                    }
+                    else
+                    {
+                        catchExceptions = true;
+                        context.cfg.setHintsDaemonFilename("");
+                    }
+                }
+                else // Local Hint Tracker
+                {
+                    // exceptions handle by read()
+                    catchExceptions = false;
+                    if (context.statusRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
+                    {
+                        // Setup the Hint Tracker datastore, single instance
+                        context.datastore = new Datastore(context);
+                        context.datastore.initialize();
+                    }
+                    else
+                    {
+                        catchExceptions = true;
+                        context.cfg.setHintTrackerFilename("");
+                    }
                 }
             }
         }

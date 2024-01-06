@@ -399,15 +399,15 @@ public class Configuration
             sb.append(" " + (glo ? "--dry-run" : "-D"));
 
         // --- hint keys
-        if (!cc.isHintSkipMainProcess() && pr.isLastHintKeysInUse() && pr.getLastHintKeysOpenFile().length() > 0)
+        if (!cc.isHintSkipMainProcess() && pr.getLastHintKeysOpenFile().length() > 0)
             sb.append(" " + (glo ? "--keys" : "-k") + " \"" +
             Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
-        if (cc.isHintSkipMainProcess() && pr.isLastHintKeysInUse() && pr.getLastHintKeysOpenFile().length() > 0)
+        if (cc.isHintSkipMainProcess() && pr.getLastHintKeysOpenFile().length() > 0)
             sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" +
             Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
 
         // --- hints & hint server
-        if (pr.isLastHintTrackingInUse() && pr.getLastHintTrackingOpenFile().length() > 0)
+        if (pr.getLastHintTrackingOpenFile().length() > 0)
         {
             String hf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintTrackingOpenFile());
             if (pr.isLastHintTrackingIsRemote())
@@ -421,10 +421,10 @@ public class Configuration
             sb.append(" " + (glo ? "--remote" : "-r") + " P");
 
         // --- libraries
-        if (pr.isLastPublisherInUse() && pr.getLastPublisherOpenFile().length() > 0)
+        if (pr.getLastPublisherOpenFile().length() > 0)
             sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" +
             Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastPublisherOpenFile()) + "\"");
-        if (pr.isLastSubscriberInUse() && pr.getLastSubscriberOpenFile().length() > 0)
+        if (pr.getLastSubscriberOpenFile().length() > 0)
             sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
             Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");
 

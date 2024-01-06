@@ -7,7 +7,7 @@ set name=%~n0
 
 cd ..\..
 
-rt/bin/java -jar bin/ELS.jar -C . -K system/hint.keys -c debug -d debug -p libraries/publisher.json -T -F output/040-01_Hints-publisher.log
+rt\bin\java -jar bin\ELS.jar -C . -K system/hint.keys -c debug -d debug -p libraries/publisher.json -T -F output/040-01_Hints-publisher.log
 
 cd /d "%base%"
 

@@ -7,7 +7,7 @@ set name=%~n0
 
 cd ..\..
 
-rt/bin/java -jar bin/ELS.jar -C . --hint-server libraries/hint-server.json -k system/hint.keys -c debug -d debug --remote P -p libraries/publisher.json -s libraries/subscriber-one.json -T -m output/072-22_Publisher-One-dryrun_mismatches.txt -W output/072-22_Publisher-One-dryrun_whatsnew.txt -F output/072-22_Publisher-One-dryrun.log --dry-run
+rt\bin\java -jar bin\ELS.jar -C . --hint-server libraries/hint-server.json -k system/hint.keys -c debug -d debug --remote P -p libraries/publisher.json -s libraries/subscriber-one.json -T -m output/072-22_Publisher-One-dryrun_mismatches.txt -W output/072-22_Publisher-One-dryrun_whatsnew.txt -F output/072-22_Publisher-One-dryrun.log --dry-run
 
 cd /d "%base%"
 

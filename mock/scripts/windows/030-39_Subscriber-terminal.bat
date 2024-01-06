@@ -7,7 +7,7 @@ set name=%~n0
 
 cd ..\..
 
-rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug --remote T -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/030-39_Subscriber-terminal.log
+rt\bin\java -jar bin\ELS.jar -C . -c debug -d debug --remote T -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/030-39_Subscriber-terminal.log
 
 cd /d "%base%"
 

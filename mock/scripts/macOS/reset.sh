@@ -17,5 +17,8 @@ fi
 ./reset-config.sh $1
 ./reset-test.sh $1
 
-echo ""
+if [ -e ../../../build/ELS.jar ]; then
+	cp ../../../build/ELS.jar ../../bin
+fi
 
+echo ""

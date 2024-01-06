@@ -18,6 +18,8 @@ goto Cancel
 cmd /c .\reset-config.bat %1
 cd /d "%base%"
 cmd /c .\reset-test.bat %1
+
+if exist ..\..\..\build\ELS.jar copy ..\..\..\build\ELS.jar ..\..\bin
 goto JXT
 
 :Cancel
@@ -26,4 +28,3 @@ echo Cancelled
 :JXT
 echo/
 cd /d "%base%"
-

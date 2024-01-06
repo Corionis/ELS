@@ -370,7 +370,6 @@ public class Navigator
         context.subscriberRepo = null;
         context.cfg.setSubscriberCollectionFilename("");
         context.cfg.setSubscriberLibrariesFileName("");
-        context.preferences.setLastSubscriberInUse(false);
         context.cfg.setRemoteType("-");
         setQuitTerminateVisibility();
     }
@@ -743,7 +742,6 @@ public class Navigator
 
                         try
                         {
-                            context.preferences.setLastPublisherInUse(true);
                             context.preferences.setLastPublisherOpenFile(file.getAbsolutePath());
                             context.preferences.setLastPublisherOpenPath(last.getAbsolutePath());
                             context.preferences.setLastPublisherIsWorkstation(isWorkstation);
@@ -872,7 +870,6 @@ public class Navigator
                             disconnectSubscriber();
                         }
 
-                        context.preferences.setLastSubscriberInUse(true);
                         context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
                         context.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
                         context.preferences.setLastSubscriberIsRemote(cbIsRemote.isSelected());
@@ -1033,7 +1030,6 @@ public class Navigator
 
                         try
                         {
-                            context.preferences.setLastHintKeysInUse(true);
                             context.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
                             context.preferences.setLastHintKeysOpenPath(last.getAbsolutePath());
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
@@ -1166,7 +1162,6 @@ public class Navigator
 
                         try
                         {
-                            context.preferences.setLastHintTrackingInUse(true);
                             context.preferences.setLastHintTrackingOpenFile(file.getAbsolutePath());
                             context.preferences.setLastHintTrackingOpenPath(last.getAbsolutePath());
                             context.preferences.setLastHintTrackingIsRemote(cbIsRemote.isSelected());
@@ -1275,7 +1270,6 @@ public class Navigator
                     context.publisherRepo = null;
                     context.cfg.setPublisherCollectionFilename("");
                     context.cfg.setPublisherLibrariesFileName("");
-                    context.preferences.setLastPublisherInUse(false);
                     setQuitTerminateVisibility();
                 }
             }
@@ -1323,11 +1317,9 @@ public class Navigator
                     context.hints = null;
                     context.hintKeys = null;
                     context.cfg.setHintKeysFile("");
-                    context.preferences.setLastHintKeysInUse(false);
                     context.statusRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
-                    context.preferences.setLastHintTrackingInUse(false);
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
                 }
             }
@@ -1351,7 +1343,6 @@ public class Navigator
                     context.statusRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
-                    context.preferences.setLastHintTrackingInUse(false);
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
                     setQuitTerminateVisibility();
                 }

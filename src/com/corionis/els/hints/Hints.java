@@ -890,7 +890,7 @@ public class Hints
             name = parts[0];
         else if (parts.length == 2)
             name = parts[1];
-        return name;
+        return name.trim();
     }
 
     /**
@@ -909,7 +909,7 @@ public class Hints
             throw new MungeException("Malformed library|file term on line " + lineNo + ": " + line);
         if (parts.length == 2)
             lib = parts[0];
-        return lib;
+        return lib.trim();
     }
 
     /**
@@ -1472,7 +1472,7 @@ public class Hints
                 String[] parts = parseCommand(line, lineNo, 3);
 
                 String fromName = "";
-                if (parts != null && parts.length > 2)
+                if (parts != null && parts.length > 1)
                 {
                     fromName = parseFilename(parts[1], lineNo);
                     String fromLib = parseLibrary(parts[1], lineNo);
@@ -1482,7 +1482,7 @@ public class Hints
 
                 String toLib = "";
                 String toName = "";
-                if (parts.length > 3)
+                if (parts.length > 2)
                 {
                     toLib = parseLibrary(parts[2], lineNo);
                     toName = parseFilename(parts[2], lineNo);

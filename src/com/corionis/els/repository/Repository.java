@@ -696,7 +696,7 @@ public class Repository
         }
         catch (IOException ioe)
         {
-            String msg = "Exception while reading " + type + " library:<br/>" + ioe.toString();
+            String msg = "Exception while reading " + type + " library: " + ioe.toString();
             if (context.main.isStartupActive())
             {
                 logger.error(msg);

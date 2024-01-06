@@ -263,7 +263,7 @@ public class Generator
         cmd += conf + " -j \"" + tool.getConfigName() + "\"";
 
         // --- hint keys
-        if (context.preferences.isLastHintKeysInUse() && context.preferences.getLastHintKeysOpenFile().length() > 0)
+        if (context.preferences.getLastHintKeysOpenFile().length() > 0)
         {
             if (context.cfg.isHintSkipMainProcess())
                 cmd += " " + (glo ? "--keys-only" : "-K");
@@ -273,7 +273,7 @@ public class Generator
         }
 
         // --- hints & hint server
-        if (context.preferences.isLastHintTrackingInUse() && context.preferences.getLastHintTrackingOpenFile().length() > 0)
+        if (context.preferences.getLastHintTrackingOpenFile().length() > 0)
         {
             String hf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.preferences.getLastHintTrackingOpenFile());
             if (context.preferences.isLastHintTrackingIsRemote())
