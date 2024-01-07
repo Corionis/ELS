@@ -21,7 +21,6 @@ hs_err_pid*
 /deploy/ELS-nav.jar
 /deploy/Thumbs.db
 /docs/_site/
-/docs/artifacts/.~lock.scenarios.odg#
 /mock/*.json
 /mock/ELS-Navigator*
 /mock/License.txt
@@ -36,6 +35,7 @@ hs_err_pid*
 /mock/rt/
 /mock/scripts/linux/9*
 /mock/scripts/windows/9*
+/mock/scripts/macOS/9*
 /mock/system/
 /mock/test/
 /mock/tools/
