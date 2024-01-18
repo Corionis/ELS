@@ -44,12 +44,11 @@
 	<span class="topimage"><a href="index"><img class="topimage" src="assets/images/els-logo-72px.png" alt="" border="0"></a></span>
     <span class="topname">{{ page.title | default: site.title | default: site.github.repository_name }}</span>
     <p class="topdescription">&nbsp;&nbsp;&nbsp;&nbsp;{{ page.description | default: site.description | default: site.github.project_tagline }}</p>
-    <p class="who"><b><a style="color: #d38100; font-weight: bold" href="{{ site.github.repository_url }}" class="button fork" target="_blank">ELS Project <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></a></b></p>
-    <p class="version"><b>ELS Version:</b> {{ site.version }}&nbsp;&nbsp;&nbsp;&nbsp;<b>Build:</b> {{ site.build }}</p>
+    <p class="who"><b><a style="color: #d38100; font-weight: bold" href="{{ site.github.repository_url }}" class="button fork" target="_blank">ELS Project <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></a></b>
+    <span class="version"><b>ELS Version:</b> {{ site.version }}&nbsp;&nbsp;&nbsp;&nbsp;<b>Build:</b> {{ site.build }}</span></p>
 </header>
 
 <div id="banner">
-    <a href="https://ko-fi.com/elsnavigator" class="button fork" target="_blank">Donate</a>
     {% if site.show_downloads %}
     <div class="downloads">
         <span>Downloads</span>
@@ -61,6 +60,8 @@
             <li><a href="{{ site.github.macos_url }}" class="button">macOS tar</a></li>
             <li><a href="{{ site.github.windows_exe_url }}" class="button">Windows installer</a></li>
             <li><a href="{{ site.github.windows_zip_url }}" class="button">Windows zip</a></li>
+            <li>&nbsp;</li>
+            <li><a href="https://ko-fi.com/elsnavigator" class="donate" target="_blank">Donate</a></li>
         </ul>
     </div>
     <span id="logo"></span>

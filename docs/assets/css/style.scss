@@ -97,9 +97,6 @@ ul {
 .who {
   font-size: 12px;
   text-align: left;
-  position: fixed;
-  left: 50%;
-  margin-left: -620px;
 }
 
 .version {
@@ -143,15 +140,28 @@ ul {
   background: linear-gradient(#90d35d, #255e00);
 }
 
-#banner .fork {
-  color: #eeeeee;
-  position: fixed;
-  left: 50%;
-  margin-left: -600px;
+#banner .donate {
+  border: 1px solid #dba500;
+  box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.4), 0px 1px 1px rgba(0, 0, 0, 0.1);
+  margin-left: 5px;
   padding: 10px 12px;
   margin-top: 6px;
   line-height: 14px;
   font-size: 14px;
+  font-weight: bold;
+  display: inline-block;
+  text-align: center;
+  border-radius: 12px;
+  color: #eeeeee;
+  border-color: #aaaaaa;
+  background-color: #2c80b7;
+  background: linear-gradient(#7ec0ee, #0b5586);
+}
+
+#banner .donate:hover {
+  color: #eeeeee;
+  background-color: #95989A;
+  background: linear-gradient(#90d35d, #255e00);
 }
 
 nav {
