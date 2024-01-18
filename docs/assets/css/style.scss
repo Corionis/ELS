@@ -96,7 +96,6 @@ ul {
 
 .who {
   font-size: 12px;
-  text-align: left;
 }
 
 .version {
@@ -104,7 +103,7 @@ ul {
   text-align: right;
   position: fixed;
   left: 50%;
-  margin-left: -86px;
+  margin-left: -126px;
 }
 
 #banner {
@@ -131,7 +130,7 @@ ul {
   color: #eeeeee;
   border-color: #aaaaaa;
   background-color: #55585A;
-  background: linear-gradient(#55585A, #45484A);
+  background: linear-gradient(#868383, #45484A);
 }
 
 #banner .button:hover {

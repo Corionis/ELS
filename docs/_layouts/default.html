@@ -44,8 +44,15 @@
 	<span class="topimage"><a href="index"><img class="topimage" src="assets/images/els-logo-72px.png" alt="" border="0"></a></span>
     <span class="topname">{{ page.title | default: site.title | default: site.github.repository_name }}</span>
     <p class="topdescription">&nbsp;&nbsp;&nbsp;&nbsp;{{ page.description | default: site.description | default: site.github.project_tagline }}</p>
-    <p class="who"><b><a style="color: #d38100; font-weight: bold" href="{{ site.github.repository_url }}" class="button fork" target="_blank">ELS Project <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></a></b>
-    <span class="version"><b>ELS Version:</b> {{ site.version }}&nbsp;&nbsp;&nbsp;&nbsp;<b>Build:</b> {{ site.build }}</span></p>
+    <p>
+        <span class="version">
+            <b>ELS Version:</b> {{ site.version }}&nbsp;&nbsp;&nbsp;&nbsp;<b>Build:</b> {{ site.build }}
+        <span class="who">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <b><a style="color: #d38100; font-weight: bold" href="{{ site.github.repository_url }}" target="_blank">ELS Project <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></a></b>
+        </span>
+        </span>
+    </p>
 </header>
 
 <div id="banner">
