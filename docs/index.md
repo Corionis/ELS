@@ -34,7 +34,8 @@ ELS is a tool with both graphical and command line interfaces and a wide variety
 
  * See [<b>Features</b>](features.md) for more information.
 
-ELS Version 4 is in development, see <a href="{{ site.milestones4_url }}" target="_blank"><b>Version 4.0 Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a>.<br/>
-ELS long-term planning, see <a href="{{ site.milestones_url }}" target="_blank"><b>Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a>.
+The <a href="{{ site.github.repository_url }}" target="_blank"><b>ELS Project <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a>.<br/>
+ELS long-term planning, see <a href="{{ site.milestones_url }}" target="_blank"><b>Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a>.<br/>
+ELS Version 4 is in development, see <a href="{{ site.milestones4_url }}" target="_blank"><b>Version 4.0 Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a>.
 
 _ELS is Open Source and free._
