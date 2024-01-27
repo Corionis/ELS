@@ -206,10 +206,9 @@ public class HintsUI extends JDialog
     {
         if (changesMade)
         {
-            context.datastore.hints = model.hints;
             try
             {
-                context.datastore.write();
+                context.hints.save(model.hints);
             }
             catch (Exception e1)
             {

@@ -471,6 +471,29 @@ public class Hints
         }
     }
 
+    public String save(ArrayList<Hint> hints) throws Exception
+    {
+        String response = "true";
+        if (context.cfg.isHintTrackingEnabled())
+        {
+            if (context.cfg.isRemoteStatusServer())
+            {
+                Type listType = new TypeToken<ArrayList<Hint>>()
+                {
+                }.getType();
+                String json = gsonBuilder.toJson(hints, listType);
+                String line = "\"save\" " + json;
+                response = context.statusStty.roundTrip(line + "\n", null, 10000);
+            }
+            else
+            {
+                context.datastore.hints = hints;
+                context.datastore.write();
+            }
+        }
+        return response;
+    }
+
     public void writeHint(String action, boolean isWorkstation, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
     {
         // if a workstation and source is publisher then it is local or a basic add and there is no hint

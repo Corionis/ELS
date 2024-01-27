@@ -6,6 +6,7 @@ import com.corionis.els.repository.Repository;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -309,6 +311,30 @@ public class Daemon extends AbstractDaemon
                             {
                                 valid = true;
                                 response = json;
+                            }
+                        }
+                        if (!valid)
+                            response = "false";
+                        continue;
+                    }
+
+                    // -------------- save all --------------------------------
+                    if (theCommand.equalsIgnoreCase("save"))
+                    {
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
+                        {
+                            if (line.length() > 7)
+                            {
+                                String json = line.substring(7);
+                                Type listType = new TypeToken<ArrayList<Hint>>()
+                                {
+                                }.getType();
+                                context.datastore.hints = gsonParser.fromJson(json, listType);
+                                context.datastore.write();
+                                valid = true;
+                                response = "true";
+                                logger.info("All Hints saved");
                             }
                         }
                         if (!valid)
