@@ -1188,8 +1188,8 @@ public class Navigator
                                 context.mainFrame.buttonHintTracking.doClick();
                             }
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-                            context.mainFrame.menuItemHints.setEnabled(false);
-                            context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
+//                            context.mainFrame.menuItemHints.setEnabled(false);
+//                            context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
                         }
                         catch (Exception e)
                         {
@@ -1331,8 +1331,8 @@ public class Navigator
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.browser.toggleHints(true);
                             setQuitTerminateVisibility();
-                            context.mainFrame.menuItemHints.setEnabled(true);
-                            context.mainFrame.menuItemHints.setToolTipText("");
+//                            context.mainFrame.menuItemHints.setEnabled(true);
+//                            context.mainFrame.menuItemHints.setToolTipText("");
                         }
                         catch (Exception e)
                         {
@@ -1472,8 +1472,8 @@ public class Navigator
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
-                    context.mainFrame.menuItemHints.setEnabled(false);
-                    context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs((("Navigator.open.hint.keys.and.hint.tracking.to.see.hints"))));
+//                    context.mainFrame.menuItemHints.setEnabled(false);
+//                    context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs((("Navigator.open.hint.keys.and.hint.tracking.to.see.hints"))));
                 }
             }
         });
@@ -1498,8 +1498,8 @@ public class Navigator
                     context.cfg.setHintsDaemonFilename("");
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
                     setQuitTerminateVisibility();
-                    context.mainFrame.menuItemHints.setEnabled(false);
-                    context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
+//                    context.mainFrame.menuItemHints.setEnabled(false);
+//                    context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
                 }
             }
         });
@@ -2430,14 +2430,14 @@ public class Navigator
                 dialogHints.setVisible(true);
             }
         });
-        if (!context.cfg.isHintTrackingEnabled())
-        {
-            context.mainFrame.menuItemHints.setEnabled(false);
-            if (context.cfg.getHintKeysFile().length() > 0)
-                context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
-            else
-                context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs((("Navigator.open.hint.keys.and.hint.tracking.to.see.hints"))));
-        }
+//        if (!context.cfg.isHintTrackingEnabled())
+//        {
+//            context.mainFrame.menuItemHints.setEnabled(false);
+//            if (context.cfg.getHintKeysFile().length() > 0)
+//                context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
+//            else
+//                context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs((("Navigator.open.hint.keys.and.hint.tracking.to.see.hints"))));
+//        }
 
         // --- Authorization Keys
         context.mainFrame.menuItemAuthKeys.addActionListener(new AbstractAction()

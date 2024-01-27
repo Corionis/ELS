@@ -80,43 +80,53 @@ public class HintsUI extends JDialog
         int count = 0;
         String publisherDisplayName = "";
         String subscriberDisplayName = "";
-        try
+        if (context.cfg.isHintTrackingEnabled())
         {
-            hints = context.hints.getAll();
-            model = new HintsTableModel(context, repositories, hints);
-            tableHints.setModel(model);
-
-            tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
-
-            DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
-            cellRenderer.setHorizontalAlignment(JLabel.CENTER);
-            tableHints.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
-
-            if (model != null && model.hints != null && model.hints.size() > 0)
-                count = model.hints.size();
-
-            if (context.publisherRepo != null)
+            try
             {
-                hintPublisherName = context.hintKeys.findKey(context.publisherRepo.getLibraryData().libraries.key).system;
-                publisherDisplayName = context.publisherRepo.getLibraryData().libraries.description;
-                pendingPublisherHints = context.hints.getFor(hintPublisherName);
-                if (pendingPublisherHints != null)
-                    pendingPublisher = pendingPublisherHints.size();
+                hints = context.hints.getAll();
+                model = new HintsTableModel(context, repositories, hints);
+                tableHints.setModel(model);
+
+                tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
+
+                DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
+                cellRenderer.setHorizontalAlignment(JLabel.CENTER);
+                tableHints.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
+
+                if (model != null && model.hints != null && model.hints.size() > 0)
+                    count = model.hints.size();
+
+                if (context.publisherRepo != null)
+                {
+                    hintPublisherName = context.hintKeys.findKey(context.publisherRepo.getLibraryData().libraries.key).system;
+                    publisherDisplayName = context.publisherRepo.getLibraryData().libraries.description;
+                    pendingPublisherHints = context.hints.getFor(hintPublisherName);
+                    if (pendingPublisherHints != null)
+                        pendingPublisher = pendingPublisherHints.size();
+                }
+                if (context.subscriberRepo != null)
+                {
+                    hintSubscriberName = context.hintKeys.findKey(context.subscriberRepo.getLibraryData().libraries.key).system;
+                    subscriberDisplayName = context.subscriberRepo.getLibraryData().libraries.description;
+                    pendingSubscriberHints = context.hints.getFor(hintSubscriberName);
+                    if (pendingSubscriberHints != null)
+                        pendingSubscriber = pendingSubscriberHints.size();
+                }
+
+                setWidths();
+
+                String msg = java.text.MessageFormat.format(context.cfg.gs("HintsUI.hints.for"),
+                        count, context.hintKeys.size(), pendingPublisher, publisherDisplayName, pendingSubscriber, subscriberDisplayName);
+
+                labelStatus.setText(msg);
             }
-            if (context.subscriberRepo != null)
+            catch (Exception e)
             {
-                hintSubscriberName = context.hintKeys.findKey(context.subscriberRepo.getLibraryData().libraries.key).system;
-                subscriberDisplayName = context.subscriberRepo.getLibraryData().libraries.description;
-                pendingSubscriberHints = context.hints.getFor(hintSubscriberName);
-                if (pendingSubscriberHints != null)
-                    pendingSubscriber = pendingSubscriberHints.size();
+                String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+                logger.error(msg);
+                JOptionPane.showMessageDialog(this, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
             }
-        }
-        catch (Exception e)
-        {
-            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-            logger.error(msg);
-            JOptionPane.showMessageDialog(this, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
         }
 
         if (model != null && model.hints != null)
@@ -129,12 +139,7 @@ public class HintsUI extends JDialog
         }
 
         setButtons();
-        setWidths();
 
-        String msg = java.text.MessageFormat.format(context.cfg.gs("HintsUI.hints.for"),
-                    count, context.hintKeys.size(), pendingPublisher, publisherDisplayName, pendingSubscriber, subscriberDisplayName);
-
-        labelStatus.setText(msg);
         context.mainFrame.labelStatusMiddle.setText("");
     }
 
@@ -476,15 +481,18 @@ public class HintsUI extends JDialog
         context.preferences.setHintsXpos(location.x);
         context.preferences.setHintsYpos(location.y);
 
-        context.preferences.setHintsSystemWidth(tableHints.getColumnModel().getColumn(1).getWidth());
-        context.preferences.setHintsByWidth(tableHints.getColumnModel().getColumn(2).getWidth());
-        context.preferences.setHintsDateWidth(tableHints.getColumnModel().getColumn(3).getWidth());
-        context.preferences.setHintsActionWidth(tableHints.getColumnModel().getColumn(4).getWidth());
-        context.preferences.setHintsFromLibWidth(tableHints.getColumnModel().getColumn(5).getWidth());
-        context.preferences.setHintsFromItemWidth(tableHints.getColumnModel().getColumn(6).getWidth());
-        context.preferences.setHintsToLibWidth(tableHints.getColumnModel().getColumn(7).getWidth());
-        context.preferences.setHintsToItemWidth(tableHints.getColumnModel().getColumn(8).getWidth());
-        context.preferences.setHintsStatusWidth(tableHints.getColumnModel().getColumn(9).getWidth());
+        if (context.cfg.isHintTrackingEnabled())
+        {
+            context.preferences.setHintsSystemWidth(tableHints.getColumnModel().getColumn(1).getWidth());
+            context.preferences.setHintsByWidth(tableHints.getColumnModel().getColumn(2).getWidth());
+            context.preferences.setHintsDateWidth(tableHints.getColumnModel().getColumn(3).getWidth());
+            context.preferences.setHintsActionWidth(tableHints.getColumnModel().getColumn(4).getWidth());
+            context.preferences.setHintsFromLibWidth(tableHints.getColumnModel().getColumn(5).getWidth());
+            context.preferences.setHintsFromItemWidth(tableHints.getColumnModel().getColumn(6).getWidth());
+            context.preferences.setHintsToLibWidth(tableHints.getColumnModel().getColumn(7).getWidth());
+            context.preferences.setHintsToItemWidth(tableHints.getColumnModel().getColumn(8).getWidth());
+            context.preferences.setHintsStatusWidth(tableHints.getColumnModel().getColumn(9).getWidth());
+        }
     }
 
     public int setButtons()
