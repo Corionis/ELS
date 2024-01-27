@@ -5,6 +5,8 @@ import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
 import com.corionis.els.gui.util.TooltipsTable;
 import com.corionis.els.hints.Hint;
+import com.corionis.els.hints.HintKey;
+import com.corionis.els.hints.HintStatus;
 import com.corionis.els.repository.Repositories;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -163,12 +165,12 @@ public class HintsUI extends JDialog
             if (count > 0)
             {
                 labelStatus.setText(count + context.cfg.gs("HintsUI.hints.selected"));
-                int r = JOptionPane.showConfirmDialog(context.mainFrame,
+                int r = JOptionPane.showConfirmDialog(this,
                         java.text.MessageFormat.format(context.cfg.gs("HintsUI.are.you.sure.you.want.to.delete"), count),
                         context.cfg.gs("HintsUI.this.title"), JOptionPane.YES_NO_OPTION);
                 if (r == JOptionPane.YES_OPTION)
                 {
-                    for (int i = 0; i < model.hints.size(); ++i)
+                    for (int i = model.hints.size() - 1; i >= 0; --i)
                     {
                         if (model.hints.get(i).selected)
                         {
@@ -177,6 +179,7 @@ public class HintsUI extends JDialog
                         }
                     }
                     model.fireTableDataChanged();
+                    checkNotificationDisplay();
                 }
             }
         }
@@ -201,6 +204,20 @@ public class HintsUI extends JDialog
 
     private void actionOkClicked(ActionEvent e)
     {
+        if (changesMade)
+        {
+            context.datastore.hints = model.hints;
+            try
+            {
+                context.datastore.write();
+            }
+            catch (Exception e1)
+            {
+                String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e1);
+                logger.error(msg);
+                JOptionPane.showMessageDialog(this, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
+            }
+        }
         savePreferences();
         context.navigator.enableDisableSystemMenus(null, true);
         setVisible(false);
@@ -342,6 +359,62 @@ public class HintsUI extends JDialog
         }
     }
 
+    private void checkNotificationDisplay()
+    {
+        int count = 0;
+        if (context.cfg.isHintTrackingEnabled() && context.hints != null)
+        {
+            try
+            {
+                HintKey hk = context.hints.findHintKey(context.publisherRepo);
+                if (hk != null)
+                    count = getHintCount(hk.system);
+
+                if (count > 0)
+                {
+                    String text = "" + count + " " + context.cfg.gs("Navigator.hints.available");
+                    logger.info(text);
+                    context.mainFrame.labelAlertHintsMenu.setToolTipText(text);
+                    context.mainFrame.labelAlertHintsToolbar.setToolTipText(text);
+                    context.mainFrame.labelAlertHintsMenu.setVisible(true);
+                    context.mainFrame.labelAlertHintsToolbar.setVisible(true);
+                }
+                else
+                {
+                    context.mainFrame.labelAlertHintsMenu.setVisible(false);
+                    context.mainFrame.labelAlertHintsToolbar.setVisible(false);
+                }
+            }
+            catch (Exception e)
+            {
+                context.fault = true;
+                logger.error(Utils.getStackTrace(e));
+            }
+        }
+        else
+        {
+            context.mainFrame.labelAlertHintsMenu.setVisible(false);
+            context.mainFrame.labelAlertHintsToolbar.setVisible(false);
+        }
+    }
+
+    private int getHintCount(String system)
+    {
+        int count = 0;
+        if (model.hints != null && model.hints.size() > 0)
+        {
+            for (int i = 0; i < model.hints.size(); ++i)
+            {
+                HintStatus hs = model.hints.get(i).findStatus(system);
+                if (hs != null && !hs.status.toLowerCase().equals("done"))
+                    ++count;
+                else if (hs == null)
+                    ++count;
+            }
+        }
+        return count;
+    }
+
     private Repositories getRepositories()
     {
         Repositories repositories = null;
@@ -385,6 +458,7 @@ public class HintsUI extends JDialog
         {
             model.hints = context.hints.getAll();
             model.fireTableDataChanged();
+            context.navigator.checkForHints(true);
         }
         catch (Exception e)
         {
