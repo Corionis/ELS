@@ -44,7 +44,7 @@ public class FileEditor extends JDialog
     private MainFrame mf;
     private EditorTypes type;
 
-    public static enum EditorTypes {Authentication, HintKeys, BlackList, WhiteList};
+    public static enum EditorTypes {Authentication, Hints, HintKeys, BlackList, WhiteList};
 
     private FileEditor()
     {
@@ -68,7 +68,7 @@ public class FileEditor extends JDialog
         {
             case Authentication:
             case HintKeys:
-                if (hintKeys.get().size() == 0 || hintKeys.get().get(hintKeys.get().size() - 1).name != null)
+                if (hintKeys.get().size() == 0 || hintKeys.get().get(hintKeys.get().size() - 1).system != null)
                 {
                     HintKey hintKey = new HintKey();
                     hintKeys.get().add(hintKey);
@@ -110,7 +110,7 @@ public class FileEditor extends JDialog
         {
             setVisible(false);
         }
-        setMenuItems();
+        context.navigator.enableDisableSystemMenus(null, true);
     }
 
     private void actionHelpClicked(MouseEvent e)
@@ -188,7 +188,7 @@ public class FileEditor extends JDialog
         if (saveContent())
         {
             savePreferences();
-            setMenuItems();
+            context.navigator.enableDisableSystemMenus(null, true);
             setVisible(false);
         }
     }
@@ -284,9 +284,9 @@ public class FileEditor extends JDialog
                         {
                             hk.uuid = cs.key;
 
-                            if (hk.name == null || hk.name.length() == 0)
+                            if (hk.system == null || hk.system.length() == 0)
                             {
-                                hk.name = Utils.compactString(cs.description);
+                                hk.system = Utils.compactString(cs.description);
                             }
 
                             dataTableModel.setDataHasChanged();
@@ -390,40 +390,26 @@ public class FileEditor extends JDialog
                 displayName = context.cfg.gs(("FileEditor.authentication.keys"));
                 description = context.cfg.gs(("FileEditor.collection.keys.allowed.to.connect"));
                 buttonUuidList.setVisible(true);
-                mf.menuItemAuthKeys.setEnabled(true);
-                mf.menuItemHintKeys.setEnabled(false);
-                mf.menuItemBlacklist.setEnabled(false);
-                mf.menuItemWhitelist.setEnabled(false);
                 break;
             case HintKeys:
                 displayName = context.cfg.gs(("FileEditor.hint.keys"));
                 description = context.cfg.gs(("FileEditor.collection.keys.involved.in.processing.hints"));
                 buttonUuidList.setVisible(true);
-                mf.menuItemAuthKeys.setEnabled(false);
-                mf.menuItemHintKeys.setEnabled(true);
-                mf.menuItemBlacklist.setEnabled(false);
-                mf.menuItemWhitelist.setEnabled(false);
                 break;
             case BlackList:
                 displayName = context.cfg.gs(("FileEditor.blacklist"));
                 description = context.cfg.gs(("FileEditor.ip.addresses.that.may.not.connect"));
                 buttonUuidList.setVisible(false);
-                mf.menuItemAuthKeys.setEnabled(false);
-                mf.menuItemHintKeys.setEnabled(false);
-                mf.menuItemBlacklist.setEnabled(true);
-                mf.menuItemWhitelist.setEnabled(false);
                 break;
             case WhiteList:
                 displayName = context.cfg.gs(("FileEditor.whitelist"));
                 description = context.cfg.gs(("FileEditor.ip.addresses.allowed.to.connect"));
                 buttonUuidList.setVisible(false);
-                mf.menuItemAuthKeys.setEnabled(false);
-                mf.menuItemHintKeys.setEnabled(false);
-                mf.menuItemBlacklist.setEnabled(false);
-                mf.menuItemWhitelist.setEnabled(true);
                 break;
         }
+
         helpTip = displayName + context.cfg.gs(" Help");
+        context.navigator.enableDisableSystemMenus(type, false);
 
         setTitle(displayName);
         labelDescription.setText(description);
@@ -600,14 +586,6 @@ public class FileEditor extends JDialog
         context.preferences.setFileEditorYpos(location.y);
     }
 
-    private void setMenuItems()
-    {
-        mf.menuItemAuthKeys.setEnabled(true);
-        mf.menuItemHintKeys.setEnabled(true);
-        mf.menuItemBlacklist.setEnabled(true);
-        mf.menuItemWhitelist.setEnabled(true);
-    }
-
     private void writeIpAddresses(String header) throws Exception
     {
         if (ipAddresses != null)
@@ -629,6 +607,7 @@ public class FileEditor extends JDialog
 
     private void windowClosing(WindowEvent e)
     {
+        context.navigator.enableDisableSystemMenus(null, true);
         cancelButton.doClick();
     }
 

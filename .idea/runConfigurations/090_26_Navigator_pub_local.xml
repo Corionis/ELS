@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="090-26_Navigator-pub-local" type="Application" factoryName="Application" folderName="090-00 Navigator - Local Hint Tracker - Local Backup">
+    <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
+    <module name="ELS" />
+    <option name="PROGRAM_PARAMETERS" value="-C . --navigator -c debug -d debug --hints libraries/hint-server.json -k system/hint.keys -P libraries/publisher.json -s libraries/subscriber-one.json -F output/090-26_Navigator-pub-local.log" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
+    <method v="2">
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/els.xml" target="stamp" />
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

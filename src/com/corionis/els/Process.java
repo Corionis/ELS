@@ -1,6 +1,5 @@
 package com.corionis.els;
 
-import com.corionis.els.hints.Hints;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import org.apache.logging.log4j.LogManager;
@@ -138,23 +137,9 @@ public class Process
     }
 
     /**
-     * Process ELS Hints for the local system
-     */
-    private void hintsLocal() throws Exception
-    {
-        // scan the collection if library file specified
-        if (context.cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
-        {
-            context.publisherRepo.scan();
-            justScannedPublisher = true;
-        }
-        context.hints.hintsLocal();
-    }
-
-    /**
      * Munge two collections
      * <p>
-     * This is the full munge process.
+     * This is the full back-up process.
      *
      * @throws MungeException the els exception
      */
@@ -479,6 +464,7 @@ public class Process
         Marker SHORT = MarkerManager.getMarker("SHORT");
         boolean lined = false;
         boolean localHints = false;
+        String result = "";
 
         try
         {
@@ -489,20 +475,15 @@ public class Process
                 isInitialized = true;
             }
 
-            if (context.cfg.getHintKeysFile().length() > 0)
-            {
-                context.hints = new Hints(context, context.hintKeys);
-            }
-
-            // process ELS Hints locally, no subscriber, publisher's targets
+            // process ELS Hints locally, targets and no subscriber
             if (context.hints != null && context.cfg.isTargetsEnabled() && !context.cfg.isRemoteOperation() &&
                     (context.cfg.getPublisherLibrariesFileName().length() > 0 ||
                             context.cfg.getPublisherCollectionFilename().length() > 0) &&
                     (context.cfg.getSubscriberLibrariesFileName().length() == 0 &&
                             context.cfg.getSubscriberCollectionFilename().length() == 0))
             {
-                localHints = true; // skip munge, the targets are wrong for that
-                hintsLocal();
+                localHints = true; // skip munge
+                result = context.hints.hintsMunge(true);
             }
 
             // process -e export text, publisher only
@@ -524,34 +505,28 @@ public class Process
             }
 
             // process ELS Hints to subscriber
-            if (context.hints != null && context.cfg.isTargetsEnabled() && context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
-            {
-                context.hints.hintsMunge();
-            }
-
-            // if all the pieces are specified perform a full munge of the collections
-            if (!context.fault && !localHints && !context.cfg.isHintSkipMainProcess())
-            {
-                if (context.cfg.isTargetsEnabled() && context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
-                {
-                    munge();
-                }
-                else
-                {
-                    if (!context.cfg.isDuplicateCheck() && !context.cfg.isEmptyDirectoryCheck())
-                        logger.warn("Something missing? Make sure publisher and subscriber are specified for backup operation");
-                }
-            }
-
-            // clean-up ELS Hints on subscriber
-            if (!context.fault && context.hints != null && !localHints && !context.cfg.isDryRun() && context.cfg.isTargetsEnabled() &&
+            if (context.cfg.isHintTrackingEnabled() && context.cfg.isTargetsEnabled() &&
                     context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
             {
-                logger.info(SHORT, "-------------------------------------------");
-                lined = true;
-                context.hints.hintsSubscriberCleanup();
+                result = context.hints.hintsMunge(false);
             }
 
+            if (!result.toLowerCase().equals("fault"))
+            {
+                // if all the pieces are specified perform a full munge of the collections
+                if (!context.fault && !localHints && !context.cfg.isHintSkipMainProcess())
+                {
+                    if (context.cfg.isTargetsEnabled() && context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
+                    {
+                        munge();
+                    }
+                    else
+                    {
+                        if (!context.cfg.isDuplicateCheck() && !context.cfg.isEmptyDirectoryCheck())
+                            logger.warn("Something missing? Make sure publisher and subscriber are specified for backup operation");
+                    }
+                }
+            }
         }
         catch (Exception ex)
         {

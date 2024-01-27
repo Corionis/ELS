@@ -1351,7 +1351,7 @@ public class RenamerUI extends AbstractToolDialog
                 windowHidden(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========
@@ -2197,6 +2197,7 @@ public class RenamerUI extends AbstractToolDialog
                             tableChanges.setFillsViewportHeight(true);
                             tableChanges.setFocusable(false);
                             tableChanges.setToolTipText(context.cfg.gs("Renamer.tableChanges.toolTipText"));
+                            tableChanges.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                             scrollPaneExamples.setViewportView(tableChanges);
                         }
                         panelOptions.add(scrollPaneExamples, BorderLayout.CENTER);

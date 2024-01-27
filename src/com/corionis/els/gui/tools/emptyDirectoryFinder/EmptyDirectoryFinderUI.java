@@ -3,6 +3,7 @@ package com.corionis.els.gui.tools.emptyDirectoryFinder;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
+import com.corionis.els.gui.util.*;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
@@ -215,7 +216,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         if (name.toLowerCase().contains("system"))
         {
             Object[] opts = { context.cfg.gs("Z.ok") };
-            JOptionPane.showOptionDialog(this, context.cfg.gs("EmptyDirectoryFinder.please.select.a.collection.for.run"),
+            JOptionPane.showOptionDialog(this, context.cfg.gs("Z.select.collection.for.run"),
                     this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                     null, opts, opts[0]);
             return;
@@ -453,7 +454,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         scrollPaneEmpties = new JScrollPane();
-        tableEmpties = new JTable();
+        tableEmpties = new TooltipsTable();
         panelOptionsButtons = new JPanel();
         buttonAll = new JButton();
         buttonNone = new JButton();
@@ -473,7 +474,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                 EmptyDirectoryFinderUI.this.windowClosing(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========
@@ -549,6 +550,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                     //---- tableEmpties ----
                     tableEmpties.setFillsViewportHeight(true);
                     tableEmpties.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    tableEmpties.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                     scrollPaneEmpties.setViewportView(tableEmpties);
                 }
                 contentPanel.add(scrollPaneEmpties, BorderLayout.CENTER);
@@ -626,7 +628,7 @@ public class EmptyDirectoryFinderUI extends JDialog
     private JPanel panelHelp;
     private JLabel labelHelp;
     private JScrollPane scrollPaneEmpties;
-    private JTable tableEmpties;
+    private TooltipsTable tableEmpties;
     private JPanel panelOptionsButtons;
     private JButton buttonAll;
     private JButton buttonNone;

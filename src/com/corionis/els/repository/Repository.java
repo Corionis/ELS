@@ -371,14 +371,14 @@ public class Repository
     }
 
     /**
-     * Has specific item true/false.
+     * Has specific item
      * <p>
      * String match is expected to have been converted to pipe character file separators using Utils.pipe().
      * The item "has" member contains all instances including self.
      *
      * @param pubItem  the publisher item being found, for adding 'has' items
      * @param itemPath the itemPath() of the item to find
-     * @return the boolean
+     * @return the Item, or null
      */
     public Item hasItem(Item pubItem, String libName, String itemPath) throws MungeException
     {
@@ -759,7 +759,7 @@ public class Repository
      * @param directory the directory
      * @throws MungeException the els exception
      */
-    private int scanDirectory(Library library, String base, String directory) throws MungeException
+    public int scanDirectory(Library library, String base, String directory) throws MungeException
     {
         int count = 0;
         Item item = null;

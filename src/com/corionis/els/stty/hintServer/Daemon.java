@@ -1,10 +1,13 @@
 package com.corionis.els.stty.hintServer;
 
+import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,6 +17,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -100,7 +104,7 @@ public class Daemon extends AbstractDaemon
                     // send my flavor
                     send(myRepo.getLibraryData().libraries.flavor, "");
 
-                    system = connectedKey.name;
+                    system = connectedKey.system;
                     logger.info("Authenticated automated session: " + system);
                     context.fault = false;
                     context.timeout = false;
@@ -154,6 +158,10 @@ public class Daemon extends AbstractDaemon
                 response = "CMD";
             }
 
+            // setup JSON handlers
+            Gson gsonBuilder = new GsonBuilder().create();
+            Gson gsonParser = new Gson();
+
             // prompt for & process interactive commands
             boolean isPing = false;
             while (stop == false)
@@ -191,14 +199,15 @@ public class Daemon extends AbstractDaemon
                         continue;
                     }
 
-                    if (line.trim().length() < 1)
+                    line = line.trim();
+                    if (line.length() < 1)
                     {
                         response = "\r";
                         continue;
                     }
 
                     ++commandCount;
-                    logger.info("Processing command: " + line + " from: " + system + ", " + Utils.formatAddresses(getSocket()));
+                    logger.info("Processing command: " + line + ", from: " + system + ", " + Utils.formatAddresses(getSocket()));
 
                     // parse the command
                     StringTokenizer t = new StringTokenizer(line, "\"");
@@ -213,21 +222,114 @@ public class Daemon extends AbstractDaemon
                         break;  // let the connection close
                     }
 
-                    // -------------- get status --------------------------------
-                    if (theCommand.equalsIgnoreCase("get"))
+                    // -------------- conflict ---------------------------------------
+                    if (theCommand.equalsIgnoreCase("conflict"))
                     {
                         boolean valid = false;
                         if (t.hasMoreTokens())
                         {
-                            String itemLib = getNextToken(t);
+                            String lib = getNextToken(t);
                             String itemPath = getNextToken(t);
-                            String systemName = getNextToken(t);
-                            String defaultStatus = getNextToken(t);
-                            if (itemLib.length() > 0 && itemPath.length() > 0 && systemName.length() > 0 && defaultStatus.length() > 0)
+                            ArrayList<Hint> results = context.hints.checkConflicts(lib, itemPath);
+                            if (results != null && results.size() > 0)
+                            {
+                                String json = gsonBuilder.toJson(results);
+                                if (json != null && json.length() > 0)
+                                {
+                                    valid = true;
+                                    response = json;
+                                }
+                            }
+                        }
+                        if (!valid)
+                            response = "false";
+                        continue;
+                    }
+
+                    // -------------- count ---------------------------------------
+                    if (theCommand.equalsIgnoreCase("count"))
+                    {
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
+                        {
+                            String who = getNextToken(t);
+                            int count = context.datastore.count(who);
+                            response = Integer.toString(count);
+                            valid = true;
+                        }
+                        if (!valid)
+                            response = "false";
+                        continue;
+                    }
+
+                    // -------------- get hint(s) --------------------------------
+                    if (theCommand.equalsIgnoreCase("get"))
+                    {
+                        String json = "";
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
+                        {
+                            String mode = getNextToken(t);
+
+                            if (mode.toLowerCase().equals("all"))
+                            {
+                                ArrayList<Hint> hints = context.datastore.getAll(null, mode);
+                                if (hints != null)
+                                {
+                                    json = gsonBuilder.toJson(hints);
+                                }
+                            }
+                            else if (mode.toLowerCase().equals("for"))
+                            {
+                                if (t.hasMoreTokens())
+                                {
+                                    String hintSystemName = getNextToken(t);
+                                    ArrayList<Hint> results = context.datastore.getFor(hintSystemName);
+                                    if (results != null)
+                                        json = gsonBuilder.toJson(results);
+                                }
+                            }
+                            else
+                            {
+                                int start = 4 + mode.length() + 2;
+                                if (line.length() > start)
+                                {
+                                    json = line.substring(start);
+                                    Hint hint = gsonParser.fromJson(json, Hint.class);
+                                    hint = context.datastore.get(hint, mode);
+                                    if (hint != null)
+                                    {
+                                        json = gsonBuilder.toJson(hint);
+                                    }
+                                    else
+                                        json = null;
+                                }
+                            }
+                            if (json != null && json.length() > 0)
                             {
                                 valid = true;
-                                response = context.datastore.getStatus(itemLib, itemPath, systemName, defaultStatus);
-                                logger.info("  > get response: " + response);
+                                response = json;
+                            }
+                        }
+                        if (!valid)
+                            response = "false";
+                        continue;
+                    }
+
+                    // -------------- write or update Hint --------------------------------
+                    if (theCommand.equalsIgnoreCase("hint"))
+                    {
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
+                        {
+                            if (line.length() > 7)
+                            {
+                                String json = line.substring(7);
+                                Hint hint = gsonParser.fromJson(json, Hint.class);
+                                context.hints.writeOrUpdateHint(hint, null);
+                                valid = true;
+                                response = "true";
+                                logger.info("Hint updated: " + hint.getLocalUtc(context));
                             }
                         }
                         if (!valid)
@@ -263,28 +365,6 @@ public class Daemon extends AbstractDaemon
                         else
                             logger.info("Ignoring quit command, --listener-keep-going enabled");
                         break; // break the loop
-                    }
-
-                    // -------------- set status --------------------------------
-                    if (theCommand.equalsIgnoreCase("set"))
-                    {
-                        boolean valid = false;
-                        if (t.hasMoreTokens())
-                        {
-                            String itemLib = getNextToken(t);
-                            String itemPath = getNextToken(t);
-                            String systemName = getNextToken(t);
-                            String status = getNextToken(t);
-                            if (itemLib.length() > 0 && itemPath.length() > 0 && systemName.length() > 0 && status.length() > 0)
-                            {
-                                valid = true;
-                                response = context.datastore.setStatus(itemLib, itemPath, systemName, status);
-                                logger.info("  > set response: " + response);
-                            }
-                        }
-                        if (!valid)
-                            response = "false";
-                        continue;
                     }
 
                     response = "\r\nunknown command '" + theCommand + "\r\n";

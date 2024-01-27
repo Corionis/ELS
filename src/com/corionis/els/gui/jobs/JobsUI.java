@@ -291,6 +291,7 @@ public class JobsUI extends AbstractToolDialog
         if (configModel.find(context.cfg.gs("Z.untitled"), null) == null)
         {
             Job job = new Job(context, context.cfg.gs("Z.untitled"));
+            job.setDataHasChanged();
             configModel.addRow(new Object[]{job});
             this.currentJob = job;
             loadTasks(-1);

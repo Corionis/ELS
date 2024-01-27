@@ -2382,6 +2382,9 @@ public class LibrariesUI
     {
         if (configModel.getRowCount() > 0)
         {
+            if (currentConfigIndex >= configModel.getRowCount())
+                currentConfigIndex = configModel.getRowCount() - 1;
+
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
             if (libMeta.card == Cards.Library)
             {

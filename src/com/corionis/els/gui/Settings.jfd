@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.0.0.338" Java: "17.0.9" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.9" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -283,7 +283,7 @@ new FormModel {
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 							"$columnSpecs": "0, 0"
-							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0"
+							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
 							"$hGap": 5
 							"$vGap": 20
 							"$alignTop": true
@@ -291,87 +291,61 @@ new FormModel {
 						} ) {
 							name: "browserPanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "autoRefreshLabel"
-								"text": "Auto-refresh:"
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"insets": new java.awt.Insets( 8, 8, 0, 0 )
-							} )
-							add( new FormComponent( "javax.swing.JCheckBox" ) {
-								name: "autoRefreshCheckBox"
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridx": 1
-								"insets": new java.awt.Insets( 8, 0, 0, 0 )
-							} )
-							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "hideFilesInTreeLabel"
 								"text": new FormMessage( null, "Settings.hideFilesInTreeLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 1
-								"insets": new java.awt.Insets( 0, 8, 0, 0 )
+								"insets": new java.awt.Insets( 8, 8, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "hideFilesInTreeCheckBox"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 1
-							} )
-							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "hideHiddenFilesLabel"
-								"text": new FormMessage( null, "Settings.hideHiddenFilesLabel.text" )
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 2
-								"insets": new java.awt.Insets( 0, 8, 0, 0 )
-							} )
-							add( new FormComponent( "javax.swing.JCheckBox" ) {
-								name: "hideHiddenFilesCheckBox"
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridx": 1
-								"gridy": 2
+								"insets": new java.awt.Insets( 8, 0, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "sortCaseSensitiveLabel"
 								"text": new FormMessage( null, "Settings.sortCaseSensitiveLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 3
+								"gridy": 1
 								"insets": new java.awt.Insets( 0, 8, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "sortCaseSensitiveCheckBox"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 3
+								"gridy": 1
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "sortFoldersBeforeFilesLabel"
 								"text": new FormMessage( null, "Settings.sortFoldersBeforeFilesLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 4
+								"gridy": 2
 								"insets": new java.awt.Insets( 0, 8, 0, 44 )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "sortFoldersBeforeFilesCheckBox"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 4
+								"gridy": 2
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "sortReverseLabel"
 								"text": new FormMessage( null, "Settings.sortReverseLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 5
+								"gridy": 3
 								"insets": new java.awt.Insets( 0, 8, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "sortReverseCheckBox"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 5
+								"gridy": 3
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "tabPlacementlabel"
 								"text": new FormMessage( null, "Settings.tabPlacementLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 6
+								"gridy": 4
 								"insets": new java.awt.Insets( 0, 8, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -387,13 +361,13 @@ new FormModel {
 								"name": "tabPlacementCombo"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 6
+								"gridy": 4
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "useLastPubSubLabel"
 								"text": new FormMessage( null, "Settings.useLastPubSubLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 7
+								"gridy": 5
 								"insets": new java.awt.Insets( 0, 8, 0, 14 )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
@@ -401,7 +375,7 @@ new FormModel {
 								"toolTipText": new FormMessage( null, "Settings.uselastPubSubCheckBox.toolTipText" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 7
+								"gridy": 5
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.browserPanel.tab.title" )

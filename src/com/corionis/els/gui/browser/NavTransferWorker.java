@@ -166,9 +166,9 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     }
 
     /**
-     * Export one or more Hint files to subscriber
+     * Export one or more Hint files to Hint Tracker/Server
      * <br/>
-     * Only move operationsUI that impact a media server collection are tracked with Hints
+     * Only move operationsUI that impact a collection are tracked with Hints
      *
      * @param transferData
      * @param targetTuo

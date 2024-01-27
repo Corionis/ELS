@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="100-02 Remote Hints + Navigator Sub" type="Multirun" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="3.0">
+    <runConfiguration name="100-10_Status-Server-listener" type="Application" />
+    <runConfiguration name="101-27_Navigator-sub-remote-hints" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>

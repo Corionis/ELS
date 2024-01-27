@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.1.0.0.283" Java: "17.0.6" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.9" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -726,6 +726,7 @@ new FormModel {
 									"fillsViewportHeight": true
 									"focusable": false
 									"toolTipText": new FormMessage( null, "Renamer.tableChanges.toolTipText" )
+									"autoResizeMode": 4
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "Center"

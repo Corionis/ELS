@@ -3,10 +3,10 @@ package com.corionis.els.gui;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
-import com.corionis.els.gui.browser.NavTreeUserObject;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.browser.BrowserTableModel;
+import com.corionis.els.gui.util.*;
 import com.corionis.els.gui.util.RotatedIcon;
 import com.corionis.els.gui.util.SmartScroller;
 import com.corionis.els.gui.util.TextIcon;
@@ -57,39 +57,16 @@ public class MainFrame extends JFrame
 
         try
         {
-//            context.preferences.initLookAndFeel();
             initComponents();
             setTitle(context.cfg.NAVIGATOR_NAME);
             setBrowserTabs(-1);
 
+            panelToolbar.setBackground(menuToolbar.getBackground());
+            tabbedPaneMain.putClientProperty("JTabbedPane.tabType", "card");
+            tabbedPaneNavigatorBottom.putClientProperty("JTabbedPane.tabType", "card");
+
             // re-create the right-side tables, for getToolTipText(), and re-setup
-            tableCollectionOne = new JTable ()
-            {
-                @Override
-                public String getToolTipText(MouseEvent e)
-                {
-                    String tip = null;
-                    java.awt.Point p = e.getPoint();
-                    int row = rowAtPoint(p);
-                    int col = columnAtPoint(p);
-                    try
-                    {
-                        if (row != 0)
-                        {
-                            NavTreeUserObject tuo = (NavTreeUserObject) getValueAt(row, 1);
-                            if (tuo.path.toLowerCase().endsWith(".els"))
-                            {
-                                tip = context.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // nop
-                    }
-                    return tip;
-                }
-            };
+            tableCollectionOne = new TooltipsTable ();
             tableCollectionOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
             tableCollectionOne.setFillsViewportHeight(true);
             tableCollectionOne.setDragEnabled(true);
@@ -107,33 +84,7 @@ public class MainFrame extends JFrame
             adjustTableColumns(tableCollectionOne);
             scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
 
-            tableSystemOne = new JTable ()
-            {
-                @Override
-                public String getToolTipText(MouseEvent e)
-                {
-                    String tip = null;
-                    java.awt.Point p = e.getPoint();
-                    int row = rowAtPoint(p);
-                    int col = columnAtPoint(p);
-                    try
-                    {
-                        if (row != 0)
-                        {
-                            NavTreeUserObject tuo = (NavTreeUserObject) getValueAt(row, 1);
-                            if (tuo.path.toLowerCase().endsWith(".els"))
-                            {
-                                tip = context.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // nop
-                    }
-                    return tip;
-                }
-            };
+            tableSystemOne = new TooltipsTable ();
             tableSystemOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
             tableSystemOne.setFillsViewportHeight(true);
             tableSystemOne.setDragEnabled(true);
@@ -151,33 +102,7 @@ public class MainFrame extends JFrame
             adjustTableColumns(tableSystemOne);
             scrollPaneTableSystemOne.setViewportView(tableSystemOne);
 
-            tableCollectionTwo = new JTable ()
-            {
-                @Override
-                public String getToolTipText(MouseEvent e)
-                {
-                    String tip = null;
-                    java.awt.Point p = e.getPoint();
-                    int row = rowAtPoint(p);
-                    int col = columnAtPoint(p);
-                    try
-                    {
-                        if (row != 0)
-                        {
-                            NavTreeUserObject tuo = (NavTreeUserObject) getValueAt(row, 1);
-                            if (tuo.path.toLowerCase().endsWith(".els"))
-                            {
-                                tip = context.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // nop
-                    }
-                    return tip;
-                }
-            };
+            tableCollectionTwo = new TooltipsTable ();
             tableCollectionTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
             tableCollectionTwo.setFillsViewportHeight(true);
             tableCollectionTwo.setDragEnabled(true);
@@ -195,33 +120,7 @@ public class MainFrame extends JFrame
             adjustTableColumns(tableCollectionTwo);
             scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
 
-            tableSystemTwo = new JTable ()
-            {
-                @Override
-                public String getToolTipText(MouseEvent e)
-                {
-                    String tip = null;
-                    java.awt.Point p = e.getPoint();
-                    int row = rowAtPoint(p);
-                    int col = columnAtPoint(p);
-                    try
-                    {
-                        if (row != 0)
-                        {
-                            NavTreeUserObject tuo = (NavTreeUserObject) getValueAt(row, 1);
-                            if (tuo.path.toLowerCase().endsWith(".els"))
-                            {
-                                tip = context.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // nop
-                    }
-                    return tip;
-                }
-            };
+            tableSystemTwo = new TooltipsTable ();
             tableSystemTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
             tableSystemTwo.setFillsViewportHeight(true);
             tableSystemTwo.setDragEnabled(true);
@@ -494,6 +393,10 @@ public class MainFrame extends JFrame
         int index = tabbedPaneMain.getSelectedIndex();
         if (index == 0)
         {
+            context.mainFrame.menuItemCopy.setEnabled(true);
+            context.mainFrame.menuItemCut.setEnabled(true);
+            context.mainFrame.menuItemPaste.setEnabled(true);
+            context.mainFrame.menuItemDelete.setEnabled(true);
             context.mainFrame.menuItemNewFolder.setEnabled(true);
             context.mainFrame.menuItemRename.setEnabled(true);
             context.mainFrame.menuItemTouch.setEnabled(true);
@@ -504,6 +407,13 @@ public class MainFrame extends JFrame
             context.mainFrame.menuItemShowHidden.setEnabled(true);
             context.mainFrame.menuItemWordWrap.setEnabled(true);
 
+            context.mainFrame.menuTbCopy.setEnabled(true);
+            context.mainFrame.menuTbCut.setEnabled(true);
+            context.mainFrame.menuTbPaste.setEnabled(true);
+            context.mainFrame.menuTbDelete.setEnabled(true);
+            context.mainFrame.menuTbNewFolder.setEnabled(true);
+            context.mainFrame.menuTbRefresh.setEnabled(true);
+
             if (context.browser != null)
                 context.browser.selectPanelNumber(context.browser.lastPanelNumber);
         }
@@ -511,6 +421,10 @@ public class MainFrame extends JFrame
         {
             context.libraries.tabbedPaneLibrarySpacesStateChanged(null);
 
+            context.mainFrame.menuItemCopy.setEnabled(false);
+            context.mainFrame.menuItemCut.setEnabled(false);
+            context.mainFrame.menuItemPaste.setEnabled(false);
+            context.mainFrame.menuItemDelete.setEnabled(false);
             context.mainFrame.menuItemNewFolder.setEnabled(false);
             context.mainFrame.menuItemRename.setEnabled(false);
             context.mainFrame.menuItemTouch.setEnabled(false);
@@ -520,6 +434,13 @@ public class MainFrame extends JFrame
             context.mainFrame.menuItemAutoRefresh.setEnabled(false);
             context.mainFrame.menuItemShowHidden.setEnabled(false);
             context.mainFrame.menuItemWordWrap.setEnabled(false);
+
+            context.mainFrame.menuTbCopy.setEnabled(false);
+            context.mainFrame.menuTbCut.setEnabled(false);
+            context.mainFrame.menuTbPaste.setEnabled(false);
+            context.mainFrame.menuTbDelete.setEnabled(false);
+            context.mainFrame.menuTbNewFolder.setEnabled(false);
+            context.mainFrame.menuTbRefresh.setEnabled(false);
 
             if (context.browser != null)
                 context.libraries.selectLastTab();
@@ -564,6 +485,7 @@ public class MainFrame extends JFrame
         menuItemRefresh = new JMenuItem();
         menuItemAutoRefresh = new JCheckBoxMenuItem();
         menuItemShowHidden = new JCheckBoxMenuItem();
+        menuItemShowToolbar = new JCheckBoxMenuItem();
         menuItemWordWrap = new JCheckBoxMenuItem();
         menuBookmarks = new JMenu();
         menuItemAddBookmark = new JMenuItem();
@@ -577,10 +499,11 @@ public class MainFrame extends JFrame
         menuItemSleep = new JMenuItem();
         menuItemExternalTools = new JMenuItem();
         menuItemPlexGenerator = new JMenuItem();
-        menuItem1 = new JMenuItem();
+        menuItemHandbrake = new JMenuItem();
         menuJobs = new JMenu();
         menuItemJobsManage = new JMenuItem();
         menuSystem = new JMenu();
+        menuItemHints = new JMenuItem();
         menuItemAuthKeys = new JMenuItem();
         menuItemHintKeys = new JMenuItem();
         menuItemBlacklist = new JMenuItem();
@@ -604,11 +527,27 @@ public class MainFrame extends JFrame
         menuItemReleaseNotes = new JMenuItem();
         menuItemUpdates = new JMenuItem();
         menuItemAbout = new JMenuItem();
+        panelAlertsMenu = new JPanel();
+        labelAlertHintsMenu = new JLabel();
+        labelAlertUpdateMenu = new JLabel();
         panelMain = new JPanel();
+        panelToolbar = new JPanel();
+        menuToolbar = new JMenuBar();
+        menuTbCopy = new JButton();
+        menuTbCut = new JButton();
+        menuTbPaste = new JButton();
+        menuTbDelete = new JButton();
+        menuTbNewFolder = new JButton();
+        menuTbRefresh = new JButton();
+        panelAlertsToolbar = new JPanel();
+        labelAlertHintsToolbar = new JLabel();
+        labelAlertUpdateToolbar = new JLabel();
+        vSpacer5 = new JPanel(null);
         tabbedPaneMain = new JTabbedPane();
         splitPaneBrowser = new JSplitPane();
         panelBrowserTop = new JPanel();
         panelLocationAndButtons = new JPanel();
+        panelLocationAndTracker = new JPanel();
         vSpacer1 = new JPanel(null);
         panelLocation = new JPanel();
         panelLocationLeft = new JPanel();
@@ -628,26 +567,26 @@ public class MainFrame extends JFrame
         scrollPaneTreeCollectionOne = new JScrollPane();
         treeCollectionOne = new JTree();
         scrollPaneTableCollectionOne = new JScrollPane();
-        tableCollectionOne = new JTable();
+        tableCollectionOne = new TooltipsTable();
         panelSystemOne = new JPanel();
         splitPaneSystemOne = new JSplitPane();
         scrollPaneTreeSystemOne = new JScrollPane();
         treeSystemOne = new JTree();
         scrollPaneTableSystemOne = new JScrollPane();
-        tableSystemOne = new JTable();
+        tableSystemOne = new TooltipsTable();
         tabbedPaneBrowserTwo = new JTabbedPane();
         panelCollectionTwo = new JPanel();
         splitPaneCollectionTwo = new JSplitPane();
         scrollPaneTreeCollectionTwo = new JScrollPane();
         treeCollectionTwo = new JTree();
         scrollPaneTableCollectionTwo = new JScrollPane();
-        tableCollectionTwo = new JTable();
+        tableCollectionTwo = new TooltipsTable();
         panelSystemTwo = new JPanel();
         splitPaneSystemTwo = new JSplitPane();
         scrollPaneTreeSystemTwo = new JScrollPane();
         treeSystemTwo = new JTree();
         scrollPaneTableSystemTwo = new JScrollPane();
-        tableSystemTwo = new JTable();
+        tableSystemTwo = new TooltipsTable();
         tabbedPaneNavigatorBottom = new JTabbedPane();
         scrollPaneLog = new JScrollPane();
         textAreaLog = new JTextArea();
@@ -756,10 +695,12 @@ public class MainFrame extends JFrame
         buttonBarLibs = new JPanel();
         saveButton = new JButton();
         cancelButton = new JButton();
+        hSpacer8 = new JPanel(null);
         panelStatus = new JPanel();
         labelStatusLeft = new JLabel();
         labelStatusMiddle = new JLabel();
         labelStatusRight = new JLabel();
+        hSpacer9 = new JPanel(null);
         popupMenuBrowser = new JPopupMenu();
         popupMenuItemRefresh = new JMenuItem();
         popupMenuItemCopy = new JMenuItem();
@@ -790,7 +731,7 @@ public class MainFrame extends JFrame
             }
         });
         var contentPane = getContentPane();
-        contentPane.setLayout(new BorderLayout());
+        contentPane.setLayout(new BorderLayout(0, 2));
 
         //======== menuBarMain ========
         {
@@ -992,6 +933,10 @@ public class MainFrame extends JFrame
                 menuItemShowHidden.setIcon(null);
                 menuView.add(menuItemShowHidden);
 
+                //---- menuItemShowToolbar ----
+                menuItemShowToolbar.setText(context.cfg.gs("Navigator.menuItemShowToolbar.text"));
+                menuView.add(menuItemShowToolbar);
+
                 //---- menuItemWordWrap ----
                 menuItemWordWrap.setText(context.cfg.gs("Navigator.menuItemWordWrap.text"));
                 menuItemWordWrap.setMnemonic(context.cfg.gs("Navigator.menuItemWordWrap.mnemonic").charAt(0));
@@ -1028,32 +973,38 @@ public class MainFrame extends JFrame
                 //---- menuItemDuplicates ----
                 menuItemDuplicates.setText(context.cfg.gs("Navigator.menu.Duplicates.text"));
                 menuItemDuplicates.setMnemonic(context.cfg.gs("Navigator.menu.Duplicates.mnemonic").charAt(0));
+                menuItemDuplicates.setIcon(new ImageIcon(getClass().getResource("/d-duplicate.png")));
                 menuTools.add(menuItemDuplicates);
 
                 //---- menuItemEmptyFinder ----
                 menuItemEmptyFinder.setText(context.cfg.gs("Navigator.menuItemEmptyFinder.text"));
                 menuItemEmptyFinder.setMnemonic(context.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic").charAt(0));
+                menuItemEmptyFinder.setIcon(new ImageIcon(getClass().getResource("/e-empty.png")));
                 menuTools.add(menuItemEmptyFinder);
                 menuTools.addSeparator();
 
                 //---- menuItemJunk ----
                 menuItemJunk.setText(context.cfg.gs("Navigator.menu.Junk.text"));
                 menuItemJunk.setMnemonic(context.cfg.gs("Navigator.menu.Junk.mnemonic").charAt(0));
+                menuItemJunk.setIcon(new ImageIcon(getClass().getResource("/j-junk.png")));
                 menuTools.add(menuItemJunk);
 
                 //---- menuItemOperations ----
                 menuItemOperations.setText(context.cfg.gs("Navigator.menuItemOperations.text"));
                 menuItemOperations.setMnemonic(context.cfg.gs("Navigator.menuItemOperations.mnemonic").charAt(0));
+                menuItemOperations.setIcon(new ImageIcon(getClass().getResource("/o-operations.png")));
                 menuTools.add(menuItemOperations);
 
                 //---- menuItemRenamer ----
                 menuItemRenamer.setText(context.cfg.gs("Navigator.menu.Renamer.text"));
                 menuItemRenamer.setMnemonic(context.cfg.gs("Navigator.menu.Renamer.mnemonic").charAt(0));
+                menuItemRenamer.setIcon(new ImageIcon(getClass().getResource("/r-renamer.png")));
                 menuTools.add(menuItemRenamer);
 
                 //---- menuItemSleep ----
                 menuItemSleep.setText(context.cfg.gs("Navigator.menuItemSleep.text"));
                 menuItemSleep.setMnemonic(context.cfg.gs("Navigator.menuItemSleep.mnemonic").charAt(0));
+                menuItemSleep.setIcon(new ImageIcon(getClass().getResource("/s-sleep.png")));
                 menuTools.add(menuItemSleep);
                 menuTools.addSeparator();
 
@@ -1072,12 +1023,12 @@ public class MainFrame extends JFrame
                 menuItemPlexGenerator.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
                 menuTools.add(menuItemPlexGenerator);
 
-                //---- menuItem1 ----
-                menuItem1.setText("Handbrake");
-                menuItem1.setMargin(new Insets(2, 18, 2, 2));
-                menuItem1.setEnabled(false);
-                menuItem1.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
-                menuTools.add(menuItem1);
+                //---- menuItemHandbrake ----
+                menuItemHandbrake.setText("Handbrake");
+                menuItemHandbrake.setMargin(new Insets(2, 18, 2, 2));
+                menuItemHandbrake.setEnabled(false);
+                menuItemHandbrake.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
+                menuTools.add(menuItemHandbrake);
             }
             menuBarMain.add(menuTools);
 
@@ -1101,6 +1052,13 @@ public class MainFrame extends JFrame
                 menuSystem.setText("System");
                 menuSystem.setMnemonic(context.cfg.gs("Navigator.menuSystem.mnemonic").charAt(0));
 
+                //---- menuItemHints ----
+                menuItemHints.setText(context.cfg.gs("Navigator.menuItemHints.text"));
+                menuItemHints.setMnemonic(context.cfg.gs("Navigator.menuItemHints.mnemonic").charAt(0));
+                menuItemHints.setIcon(new ImageIcon(getClass().getResource("/hints.png")));
+                menuSystem.add(menuItemHints);
+                menuSystem.addSeparator();
+
                 //---- menuItemAuthKeys ----
                 menuItemAuthKeys.setText(context.cfg.gs("Navigator.menuItemAuthKeys.text"));
                 menuItemAuthKeys.setMnemonic(context.cfg.gs("Navigator.menuItemAuthKeys.mnemonic").charAt(0));
@@ -1109,7 +1067,7 @@ public class MainFrame extends JFrame
 
                 //---- menuItemHintKeys ----
                 menuItemHintKeys.setText(context.cfg.gs("Navigator.menuItemHintKeys.text"));
-                menuItemHintKeys.setMnemonic(context.cfg.gs("Navigator.menuItemHintKeys.mnemonic").charAt(0));
+                menuItemHintKeys.setMnemonic(context.cfg.gs("Navigator.menuItemHintKeys.mnemonic_2").charAt(0));
                 menuItemHintKeys.setIcon(new ImageIcon(getClass().getResource("/hint-keys.png")));
                 menuSystem.add(menuItemHintKeys);
                 menuSystem.addSeparator();
@@ -1249,12 +1207,158 @@ public class MainFrame extends JFrame
                 menuHelp.add(menuItemAbout);
             }
             menuBarMain.add(menuHelp);
+
+            //======== panelAlertsMenu ========
+            {
+                panelAlertsMenu.setOpaque(false);
+                panelAlertsMenu.setPreferredSize(new Dimension(58, 21));
+                panelAlertsMenu.setMinimumSize(new Dimension(58, 21));
+                panelAlertsMenu.setMaximumSize(new Dimension(32767, 21));
+                panelAlertsMenu.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+
+                //---- labelAlertHintsMenu ----
+                labelAlertHintsMenu.setIcon(new ImageIcon(getClass().getResource("/hints.png")));
+                labelAlertHintsMenu.setHorizontalAlignment(SwingConstants.CENTER);
+                labelAlertHintsMenu.setIconTextGap(0);
+                labelAlertHintsMenu.setToolTipText(context.cfg.gs("Navigator.hints.available"));
+                labelAlertHintsMenu.setAlignmentY(0.0F);
+                labelAlertHintsMenu.setPreferredSize(new Dimension(14, 21));
+                labelAlertHintsMenu.setMinimumSize(new Dimension(14, 21));
+                labelAlertHintsMenu.setMaximumSize(new Dimension(14, 21));
+                labelAlertHintsMenu.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                panelAlertsMenu.add(labelAlertHintsMenu);
+
+                //---- labelAlertUpdateMenu ----
+                labelAlertUpdateMenu.setIcon(new ImageIcon(getClass().getResource("/updates.png")));
+                labelAlertUpdateMenu.setHorizontalAlignment(SwingConstants.CENTER);
+                labelAlertUpdateMenu.setIconTextGap(0);
+                labelAlertUpdateMenu.setAlignmentY(0.0F);
+                labelAlertUpdateMenu.setToolTipText(context.cfg.gs("Navigator.update.available"));
+                labelAlertUpdateMenu.setPreferredSize(new Dimension(14, 21));
+                labelAlertUpdateMenu.setMinimumSize(new Dimension(14, 21));
+                labelAlertUpdateMenu.setMaximumSize(new Dimension(14, 21));
+                labelAlertUpdateMenu.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                panelAlertsMenu.add(labelAlertUpdateMenu);
+            }
+            menuBarMain.add(panelAlertsMenu);
         }
         setJMenuBar(menuBarMain);
 
         //======== panelMain ========
         {
+            panelMain.setPreferredSize(new Dimension(1162, 26));
+            panelMain.setMaximumSize(new Dimension(2147483647, 26));
+            panelMain.setMinimumSize(new Dimension(256, 26));
             panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.PAGE_AXIS));
+
+            //======== panelToolbar ========
+            {
+                panelToolbar.setMaximumSize(new Dimension(2147483647, 24));
+                panelToolbar.setLayout(new BorderLayout());
+
+                //======== menuToolbar ========
+                {
+                    menuToolbar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+                    menuToolbar.setFont(menuToolbar.getFont().deriveFont(menuToolbar.getFont().getSize() - 2f));
+                    menuToolbar.setBorderPainted(false);
+                    menuToolbar.setAlignmentX(1.0F);
+                    menuToolbar.setMargin(new Insets(1, 0, 0, 0));
+
+                    //---- menuTbCopy ----
+                    menuTbCopy.setText(context.cfg.gs("Navigator.menuTbCopy.text"));
+                    menuTbCopy.setIcon(new ImageIcon(getClass().getResource("/copy.png")));
+                    menuTbCopy.setHorizontalAlignment(SwingConstants.CENTER);
+                    menuTbCopy.setToolTipText(context.cfg.gs("Navigator.menuTbCopy.toolTipText"));
+                    menuTbCopy.setFont(menuTbCopy.getFont().deriveFont(menuTbCopy.getFont().getSize() - 2f));
+                    menuTbCopy.setAlignmentX(0.0F);
+                    menuToolbar.add(menuTbCopy);
+
+                    //---- menuTbCut ----
+                    menuTbCut.setText(context.cfg.gs("Navigator.menuTbCut.text"));
+                    menuTbCut.setIcon(new ImageIcon(getClass().getResource("/cut.png")));
+                    menuTbCut.setHorizontalAlignment(SwingConstants.CENTER);
+                    menuTbCut.setToolTipText(context.cfg.gs("Navigator.menuTbCut.toolTipText"));
+                    menuTbCut.setFont(menuTbCut.getFont().deriveFont(menuTbCut.getFont().getSize() - 2f));
+                    menuTbCut.setAlignmentX(0.0F);
+                    menuToolbar.add(menuTbCut);
+
+                    //---- menuTbPaste ----
+                    menuTbPaste.setText(context.cfg.gs("Navigator.menuTbPaste.text"));
+                    menuTbPaste.setIcon(new ImageIcon(getClass().getResource("/paste.png")));
+                    menuTbPaste.setHorizontalAlignment(SwingConstants.CENTER);
+                    menuTbPaste.setToolTipText(context.cfg.gs("Navigator.menuTbPaste.toolTipText"));
+                    menuTbPaste.setFont(menuTbPaste.getFont().deriveFont(menuTbPaste.getFont().getSize() - 2f));
+                    menuTbPaste.setAlignmentX(0.0F);
+                    menuToolbar.add(menuTbPaste);
+
+                    //---- menuTbDelete ----
+                    menuTbDelete.setText(context.cfg.gs("Navigator.menuTbDelete.text"));
+                    menuTbDelete.setIcon(new ImageIcon(getClass().getResource("/delete-x.png")));
+                    menuTbDelete.setHorizontalAlignment(SwingConstants.CENTER);
+                    menuTbDelete.setToolTipText(context.cfg.gs("Navigator.menuTbDelete.toolTipText"));
+                    menuTbDelete.setFont(menuTbDelete.getFont().deriveFont(menuTbDelete.getFont().getSize() - 2f));
+                    menuTbDelete.setAlignmentX(0.0F);
+                    menuToolbar.add(menuTbDelete);
+
+                    //---- menuTbNewFolder ----
+                    menuTbNewFolder.setText(context.cfg.gs("Navigator.menuTbNewFolder.text"));
+                    menuTbNewFolder.setIcon(new ImageIcon(getClass().getResource("/new-folder.png")));
+                    menuTbNewFolder.setHorizontalAlignment(SwingConstants.CENTER);
+                    menuTbNewFolder.setToolTipText(context.cfg.gs("Navigator.menuTbNewFolder.toolTipText"));
+                    menuTbNewFolder.setFont(menuTbNewFolder.getFont().deriveFont(menuTbNewFolder.getFont().getSize() - 2f));
+                    menuTbNewFolder.setAlignmentX(0.0F);
+                    menuToolbar.add(menuTbNewFolder);
+
+                    //---- menuTbRefresh ----
+                    menuTbRefresh.setText(context.cfg.gs("Navigator.menuTbRefresh.text"));
+                    menuTbRefresh.setIcon(new ImageIcon(getClass().getResource("/refresh.png")));
+                    menuTbRefresh.setHorizontalAlignment(SwingConstants.CENTER);
+                    menuTbRefresh.setToolTipText(context.cfg.gs("Navigator.menuTbRefresh.toolTipText"));
+                    menuTbRefresh.setFont(menuTbRefresh.getFont().deriveFont(menuTbRefresh.getFont().getSize() - 2f));
+                    menuTbRefresh.setAlignmentX(0.0F);
+                    menuToolbar.add(menuTbRefresh);
+                }
+                panelToolbar.add(menuToolbar, BorderLayout.WEST);
+
+                //======== panelAlertsToolbar ========
+                {
+                    panelAlertsToolbar.setOpaque(false);
+                    panelAlertsToolbar.setAlignmentX(-1.0F);
+                    panelAlertsToolbar.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+
+                    //---- labelAlertHintsToolbar ----
+                    labelAlertHintsToolbar.setIcon(new ImageIcon(getClass().getResource("/hints.png")));
+                    labelAlertHintsToolbar.setHorizontalAlignment(SwingConstants.CENTER);
+                    labelAlertHintsToolbar.setIconTextGap(0);
+                    labelAlertHintsToolbar.setToolTipText(context.cfg.gs("Navigator.hints.available"));
+                    labelAlertHintsToolbar.setAlignmentY(0.0F);
+                    labelAlertHintsToolbar.setPreferredSize(new Dimension(14, 26));
+                    labelAlertHintsToolbar.setMinimumSize(new Dimension(14, 26));
+                    labelAlertHintsToolbar.setMaximumSize(new Dimension(14, 26));
+                    labelAlertHintsToolbar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    panelAlertsToolbar.add(labelAlertHintsToolbar);
+
+                    //---- labelAlertUpdateToolbar ----
+                    labelAlertUpdateToolbar.setIcon(new ImageIcon(getClass().getResource("/updates.png")));
+                    labelAlertUpdateToolbar.setHorizontalAlignment(SwingConstants.CENTER);
+                    labelAlertUpdateToolbar.setIconTextGap(0);
+                    labelAlertUpdateToolbar.setAlignmentY(0.0F);
+                    labelAlertUpdateToolbar.setToolTipText(context.cfg.gs("Navigator.update.available"));
+                    labelAlertUpdateToolbar.setPreferredSize(new Dimension(14, 26));
+                    labelAlertUpdateToolbar.setMinimumSize(new Dimension(14, 26));
+                    labelAlertUpdateToolbar.setMaximumSize(new Dimension(14, 26));
+                    labelAlertUpdateToolbar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    panelAlertsToolbar.add(labelAlertUpdateToolbar);
+                }
+                panelToolbar.add(panelAlertsToolbar, BorderLayout.EAST);
+
+                //---- vSpacer5 ----
+                vSpacer5.setPreferredSize(new Dimension(2, 2));
+                vSpacer5.setMinimumSize(new Dimension(2, 2));
+                vSpacer5.setMaximumSize(new Dimension(2, 2));
+                panelToolbar.add(vSpacer5, BorderLayout.SOUTH);
+            }
+            panelMain.add(panelToolbar);
 
             //======== tabbedPaneMain ========
             {
@@ -1277,122 +1381,130 @@ public class MainFrame extends JFrame
                         //======== panelLocationAndButtons ========
                         {
                             panelLocationAndButtons.setFocusable(false);
-                            panelLocationAndButtons.setPreferredSize(new Dimension(952, 36));
-                            panelLocationAndButtons.setMinimumSize(new Dimension(219, 36));
-                            panelLocationAndButtons.setMaximumSize(new Dimension(2147483647, 36));
+                            panelLocationAndButtons.setPreferredSize(new Dimension(952, 34));
+                            panelLocationAndButtons.setMinimumSize(new Dimension(219, 34));
+                            panelLocationAndButtons.setMaximumSize(new Dimension(32767, 34));
                             panelLocationAndButtons.setLayout(new BorderLayout());
 
-                            //---- vSpacer1 ----
-                            vSpacer1.setPreferredSize(new Dimension(10, 4));
-                            vSpacer1.setMinimumSize(new Dimension(10, 4));
-                            vSpacer1.setMaximumSize(new Dimension(10, 4));
-                            panelLocationAndButtons.add(vSpacer1, BorderLayout.NORTH);
-
-                            //======== panelLocation ========
+                            //======== panelLocationAndTracker ========
                             {
-                                panelLocation.setFocusable(false);
-                                panelLocation.setPreferredSize(new Dimension(952, 30));
-                                panelLocation.setMinimumSize(new Dimension(191, 30));
-                                panelLocation.setMaximumSize(new Dimension(2147483647, 30));
-                                panelLocation.setLayout(new BorderLayout());
+                                panelLocationAndTracker.setPreferredSize(new Dimension(1088, 34));
+                                panelLocationAndTracker.setLayout(new BorderLayout());
 
-                                //======== panelLocationLeft ========
+                                //---- vSpacer1 ----
+                                vSpacer1.setPreferredSize(new Dimension(10, 2));
+                                vSpacer1.setMinimumSize(new Dimension(12, 2));
+                                vSpacer1.setMaximumSize(new Dimension(32767, 2));
+                                panelLocationAndTracker.add(vSpacer1, BorderLayout.NORTH);
+
+                                //======== panelLocation ========
                                 {
-                                    panelLocationLeft.setPreferredSize(new Dimension(142, 30));
-                                    panelLocationLeft.setMinimumSize(new Dimension(142, 30));
-                                    panelLocationLeft.setMaximumSize(new Dimension(2147483647, 30));
-                                    panelLocationLeft.setLayout(new GridBagLayout());
-                                    ((GridBagLayout)panelLocationLeft.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0};
-                                    ((GridBagLayout)panelLocationLeft.getLayout()).columnWeights = new double[] {1.0, 1.0, 1.0, 0.0, 1.0E-4};
-                                    ((GridBagLayout)panelLocationLeft.getLayout()).rowWeights = new double[] {1.0};
+                                    panelLocation.setFocusable(false);
+                                    panelLocation.setPreferredSize(new Dimension(952, 30));
+                                    panelLocation.setMinimumSize(new Dimension(191, 30));
+                                    panelLocation.setMaximumSize(new Dimension(32767, 30));
+                                    panelLocation.setLayout(new BorderLayout());
 
-                                    //---- buttonBack ----
-                                    buttonBack.setText("<html>&lt;</html>");
-                                    buttonBack.setMaximumSize(new Dimension(36, 30));
-                                    buttonBack.setMinimumSize(new Dimension(36, 30));
-                                    buttonBack.setPreferredSize(new Dimension(36, 30));
-                                    buttonBack.setToolTipText(context.cfg.gs("Navigator.button.Back.toolTipText"));
-                                    buttonBack.setActionCommand("navBack");
-                                    buttonBack.setFocusable(false);
-                                    buttonBack.setDefaultCapable(false);
-                                    buttonBack.setHorizontalTextPosition(SwingConstants.CENTER);
-                                    panelLocationLeft.add(buttonBack, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 4, 0, 0), 0, 0));
+                                    //======== panelLocationLeft ========
+                                    {
+                                        panelLocationLeft.setPreferredSize(new Dimension(142, 30));
+                                        panelLocationLeft.setMinimumSize(new Dimension(142, 30));
+                                        panelLocationLeft.setMaximumSize(new Dimension(2147483647, 30));
+                                        panelLocationLeft.setLayout(new GridBagLayout());
+                                        ((GridBagLayout)panelLocationLeft.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0};
+                                        ((GridBagLayout)panelLocationLeft.getLayout()).columnWeights = new double[] {1.0, 1.0, 1.0, 0.0, 1.0E-4};
+                                        ((GridBagLayout)panelLocationLeft.getLayout()).rowWeights = new double[] {1.0};
 
-                                    //---- buttonForward ----
-                                    buttonForward.setText("<html>&gt;</html>");
-                                    buttonForward.setMaximumSize(new Dimension(36, 30));
-                                    buttonForward.setMinimumSize(new Dimension(36, 30));
-                                    buttonForward.setPreferredSize(new Dimension(36, 30));
-                                    buttonForward.setToolTipText(context.cfg.gs("Navigator.button.Forward.toolTipText"));
-                                    buttonForward.setActionCommand("NavForward");
-                                    buttonForward.setFocusable(false);
-                                    buttonForward.setDefaultCapable(false);
-                                    buttonForward.setHorizontalTextPosition(SwingConstants.CENTER);
-                                    panelLocationLeft.add(buttonForward, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 4, 0, 0), 0, 0));
+                                        //---- buttonBack ----
+                                        buttonBack.setText("<html>&lt;</html>");
+                                        buttonBack.setMaximumSize(new Dimension(36, 30));
+                                        buttonBack.setMinimumSize(new Dimension(36, 30));
+                                        buttonBack.setPreferredSize(new Dimension(36, 30));
+                                        buttonBack.setToolTipText(context.cfg.gs("Navigator.buttonBack.toolTipText"));
+                                        buttonBack.setActionCommand("navBack");
+                                        buttonBack.setFocusable(false);
+                                        buttonBack.setDefaultCapable(false);
+                                        buttonBack.setHorizontalTextPosition(SwingConstants.CENTER);
+                                        panelLocationLeft.add(buttonBack, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 4, 0, 0), 0, 0));
 
-                                    //---- buttonUp ----
-                                    buttonUp.setText("^");
-                                    buttonUp.setMaximumSize(new Dimension(36, 30));
-                                    buttonUp.setMinimumSize(new Dimension(36, 30));
-                                    buttonUp.setPreferredSize(new Dimension(36, 30));
-                                    buttonUp.setToolTipText(context.cfg.gs("Navigator.button.Up.toolTipText"));
-                                    buttonUp.setActionCommand("NavUp");
-                                    buttonUp.setFocusable(false);
-                                    buttonUp.setDefaultCapable(false);
-                                    buttonUp.setHorizontalTextPosition(SwingConstants.CENTER);
-                                    panelLocationLeft.add(buttonUp, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 4, 0, 4), 0, 0));
+                                        //---- buttonForward ----
+                                        buttonForward.setText("<html>&gt;</html>");
+                                        buttonForward.setMaximumSize(new Dimension(36, 30));
+                                        buttonForward.setMinimumSize(new Dimension(36, 30));
+                                        buttonForward.setPreferredSize(new Dimension(36, 30));
+                                        buttonForward.setToolTipText(context.cfg.gs("Navigator.buttonForward.toolTipText"));
+                                        buttonForward.setActionCommand("NavForward");
+                                        buttonForward.setFocusable(false);
+                                        buttonForward.setDefaultCapable(false);
+                                        buttonForward.setHorizontalTextPosition(SwingConstants.CENTER);
+                                        panelLocationLeft.add(buttonForward, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 4, 0, 0), 0, 0));
+
+                                        //---- buttonUp ----
+                                        buttonUp.setText("^");
+                                        buttonUp.setMaximumSize(new Dimension(36, 30));
+                                        buttonUp.setMinimumSize(new Dimension(36, 30));
+                                        buttonUp.setPreferredSize(new Dimension(36, 30));
+                                        buttonUp.setToolTipText(context.cfg.gs("Navigator.buttonUp.toolTipText"));
+                                        buttonUp.setActionCommand("NavUp");
+                                        buttonUp.setFocusable(false);
+                                        buttonUp.setDefaultCapable(false);
+                                        buttonUp.setHorizontalTextPosition(SwingConstants.CENTER);
+                                        panelLocationLeft.add(buttonUp, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 4, 0, 4), 0, 0));
+                                    }
+                                    panelLocation.add(panelLocationLeft, BorderLayout.WEST);
+
+                                    //---- textFieldLocation ----
+                                    textFieldLocation.setPreferredSize(new Dimension(810, 30));
+                                    textFieldLocation.setHorizontalAlignment(SwingConstants.LEFT);
+                                    textFieldLocation.setToolTipText(context.cfg.gs("Navigator.textFieldLocation.toolTipText"));
+                                    textFieldLocation.setName("location");
+                                    textFieldLocation.setEditable(false);
+                                    textFieldLocation.setMaximumSize(new Dimension(2147483647, 30));
+                                    textFieldLocation.setMargin(new Insets(0, 6, 0, 6));
+                                    panelLocation.add(textFieldLocation, BorderLayout.CENTER);
+
+                                    //---- hSpacer1 ----
+                                    hSpacer1.setPreferredSize(new Dimension(4, 30));
+                                    hSpacer1.setMinimumSize(new Dimension(4, 30));
+                                    hSpacer1.setMaximumSize(new Dimension(4, 30));
+                                    panelLocation.add(hSpacer1, BorderLayout.EAST);
                                 }
-                                panelLocation.add(panelLocationLeft, BorderLayout.WEST);
+                                panelLocationAndTracker.add(panelLocation, BorderLayout.CENTER);
 
-                                //---- textFieldLocation ----
-                                textFieldLocation.setPreferredSize(new Dimension(810, 30));
-                                textFieldLocation.setHorizontalAlignment(SwingConstants.LEFT);
-                                textFieldLocation.setToolTipText(context.cfg.gs("Navigator.textField.Location.toolTipText"));
-                                textFieldLocation.setName("location");
-                                textFieldLocation.setEditable(false);
-                                textFieldLocation.setMaximumSize(new Dimension(2147483647, 30));
-                                panelLocation.add(textFieldLocation, BorderLayout.CENTER);
+                                //======== panelHintTracking ========
+                                {
+                                    panelHintTracking.setMaximumSize(new Dimension(136, 30));
+                                    panelHintTracking.setMinimumSize(new Dimension(136, 30));
+                                    panelHintTracking.setPreferredSize(new Dimension(136, 30));
+                                    panelHintTracking.setLayout(new BorderLayout());
 
-                                //---- hSpacer1 ----
-                                hSpacer1.setPreferredSize(new Dimension(4, 30));
-                                hSpacer1.setMinimumSize(new Dimension(4, 30));
-                                hSpacer1.setMaximumSize(new Dimension(4, 30));
-                                panelLocation.add(hSpacer1, BorderLayout.EAST);
+                                    //---- buttonHintTracking ----
+                                    buttonHintTracking.setText(context.cfg.gs("Navigator.buttonHintTracking.text"));
+                                    buttonHintTracking.setMnemonic(context.cfg.gs("Navigator.buttonHintTracking.mnemonic").charAt(0));
+                                    buttonHintTracking.setFocusable(false);
+                                    buttonHintTracking.setPreferredSize(new Dimension(124, 30));
+                                    buttonHintTracking.setMinimumSize(new Dimension(124, 30));
+                                    buttonHintTracking.setMaximumSize(new Dimension(124, 30));
+                                    buttonHintTracking.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
+                                    buttonHintTracking.setActionCommand("hints");
+                                    buttonHintTracking.setToolTipText(context.cfg.gs("Navigator.buttonHintTracking.toolTipText"));
+                                    panelHintTracking.add(buttonHintTracking, BorderLayout.CENTER);
+
+                                    //---- hSpacer2 ----
+                                    hSpacer2.setPreferredSize(new Dimension(6, 30));
+                                    hSpacer2.setMinimumSize(new Dimension(6, 30));
+                                    hSpacer2.setMaximumSize(new Dimension(6, 30));
+                                    panelHintTracking.add(hSpacer2, BorderLayout.EAST);
+                                }
+                                panelLocationAndTracker.add(panelHintTracking, BorderLayout.EAST);
                             }
-                            panelLocationAndButtons.add(panelLocation, BorderLayout.CENTER);
-
-                            //======== panelHintTracking ========
-                            {
-                                panelHintTracking.setMaximumSize(new Dimension(136, 30));
-                                panelHintTracking.setMinimumSize(new Dimension(136, 30));
-                                panelHintTracking.setPreferredSize(new Dimension(136, 30));
-                                panelHintTracking.setLayout(new BorderLayout());
-
-                                //---- buttonHintTracking ----
-                                buttonHintTracking.setText(context.cfg.gs("Navigator.button.HintTracking.text"));
-                                buttonHintTracking.setMnemonic(context.cfg.gs("Navigator.buttonHintTracking.mnemonic").charAt(0));
-                                buttonHintTracking.setFocusable(false);
-                                buttonHintTracking.setPreferredSize(new Dimension(124, 30));
-                                buttonHintTracking.setMinimumSize(new Dimension(124, 30));
-                                buttonHintTracking.setMaximumSize(new Dimension(124, 30));
-                                buttonHintTracking.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
-                                buttonHintTracking.setActionCommand("hints");
-                                buttonHintTracking.setToolTipText(context.cfg.gs("Navigator.button.HintTracking.enabled.tooltip"));
-                                panelHintTracking.add(buttonHintTracking, BorderLayout.CENTER);
-
-                                //---- hSpacer2 ----
-                                hSpacer2.setPreferredSize(new Dimension(6, 30));
-                                hSpacer2.setMinimumSize(new Dimension(6, 30));
-                                hSpacer2.setMaximumSize(new Dimension(6, 30));
-                                panelHintTracking.add(hSpacer2, BorderLayout.EAST);
-                            }
-                            panelLocationAndButtons.add(panelHintTracking, BorderLayout.EAST);
+                            panelLocationAndButtons.add(panelLocationAndTracker, BorderLayout.CENTER);
 
                             //---- vSpacer2 ----
                             vSpacer2.setPreferredSize(new Dimension(10, 2));
@@ -1400,7 +1512,7 @@ public class MainFrame extends JFrame
                             vSpacer2.setMaximumSize(new Dimension(10, 2));
                             panelLocationAndButtons.add(vSpacer2, BorderLayout.SOUTH);
                         }
-                        panelBrowserTop.add(panelLocationAndButtons, BorderLayout.PAGE_START);
+                        panelBrowserTop.add(panelLocationAndButtons, BorderLayout.NORTH);
 
                         //======== splitPaneTwoBrowsers ========
                         {
@@ -1464,6 +1576,7 @@ public class MainFrame extends JFrame
                                             tableCollectionOne.setComponentPopupMenu(popupMenuBrowser);
                                             tableCollectionOne.setShowHorizontalLines(false);
                                             tableCollectionOne.setShowVerticalLines(false);
+                                            tableCollectionOne.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                                             scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
                                         }
                                         splitPaneCollectionOne.setRightComponent(scrollPaneTableCollectionOne);
@@ -1512,6 +1625,7 @@ public class MainFrame extends JFrame
                                             tableSystemOne.setComponentPopupMenu(popupMenuBrowser);
                                             tableSystemOne.setShowHorizontalLines(false);
                                             tableSystemOne.setShowVerticalLines(false);
+                                            tableSystemOne.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                                             scrollPaneTableSystemOne.setViewportView(tableSystemOne);
                                         }
                                         splitPaneSystemOne.setRightComponent(scrollPaneTableSystemOne);
@@ -1574,6 +1688,7 @@ public class MainFrame extends JFrame
                                             tableCollectionTwo.setComponentPopupMenu(popupMenuBrowser);
                                             tableCollectionTwo.setShowHorizontalLines(false);
                                             tableCollectionTwo.setShowVerticalLines(false);
+                                            tableCollectionTwo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                                             scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
                                         }
                                         splitPaneCollectionTwo.setRightComponent(scrollPaneTableCollectionTwo);
@@ -1621,6 +1736,7 @@ public class MainFrame extends JFrame
                                             tableSystemTwo.setComponentPopupMenu(popupMenuBrowser);
                                             tableSystemTwo.setShowHorizontalLines(false);
                                             tableSystemTwo.setShowVerticalLines(false);
+                                            tableSystemTwo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                                             scrollPaneTableSystemTwo.setViewportView(tableSystemTwo);
                                         }
                                         splitPaneSystemTwo.setRightComponent(scrollPaneTableSystemTwo);
@@ -2521,6 +2637,12 @@ public class MainFrame extends JFrame
         }
         contentPane.add(panelMain, BorderLayout.CENTER);
 
+        //---- hSpacer8 ----
+        hSpacer8.setPreferredSize(new Dimension(2, 10));
+        hSpacer8.setMinimumSize(new Dimension(2, 12));
+        hSpacer8.setMaximumSize(new Dimension(2, 32767));
+        contentPane.add(hSpacer8, BorderLayout.WEST);
+
         //======== panelStatus ========
         {
             panelStatus.setLayout(new GridBagLayout());
@@ -2530,7 +2652,7 @@ public class MainFrame extends JFrame
             labelStatusLeft.setIconTextGap(0);
             panelStatus.add(labelStatusLeft, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
-                new Insets(0, 4, 0, 4), 0, 0));
+                new Insets(0, 10, 0, 4), 0, 0));
 
             //---- labelStatusMiddle ----
             labelStatusMiddle.setHorizontalAlignment(SwingConstants.CENTER);
@@ -2545,9 +2667,15 @@ public class MainFrame extends JFrame
             labelStatusRight.setIconTextGap(0);
             panelStatus.add(labelStatusRight, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-                new Insets(0, 0, 0, 4), 0, 0));
+                new Insets(0, 0, 0, 14), 0, 0));
         }
         contentPane.add(panelStatus, BorderLayout.SOUTH);
+
+        //---- hSpacer9 ----
+        hSpacer9.setPreferredSize(new Dimension(2, 10));
+        hSpacer9.setMinimumSize(new Dimension(2, 12));
+        hSpacer9.setMaximumSize(new Dimension(2, 32767));
+        contentPane.add(hSpacer9, BorderLayout.EAST);
         pack();
         setLocationRelativeTo(getOwner());
 
@@ -2696,6 +2824,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemRefresh;
     public JCheckBoxMenuItem menuItemAutoRefresh;
     public JCheckBoxMenuItem menuItemShowHidden;
+    public JCheckBoxMenuItem menuItemShowToolbar;
     public JCheckBoxMenuItem menuItemWordWrap;
     public JMenu menuBookmarks;
     public JMenuItem menuItemAddBookmark;
@@ -2709,10 +2838,11 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemSleep;
     public JMenuItem menuItemExternalTools;
     public JMenuItem menuItemPlexGenerator;
-    public JMenuItem menuItem1;
+    public JMenuItem menuItemHandbrake;
     public JMenu menuJobs;
     public JMenuItem menuItemJobsManage;
     public JMenu menuSystem;
+    public JMenuItem menuItemHints;
     public JMenuItem menuItemAuthKeys;
     public JMenuItem menuItemHintKeys;
     public JMenuItem menuItemBlacklist;
@@ -2736,11 +2866,27 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemReleaseNotes;
     public JMenuItem menuItemUpdates;
     public JMenuItem menuItemAbout;
+    public JPanel panelAlertsMenu;
+    public JLabel labelAlertHintsMenu;
+    public JLabel labelAlertUpdateMenu;
     public JPanel panelMain;
+    public JPanel panelToolbar;
+    public JMenuBar menuToolbar;
+    public JButton menuTbCopy;
+    public JButton menuTbCut;
+    public JButton menuTbPaste;
+    public JButton menuTbDelete;
+    public JButton menuTbNewFolder;
+    public JButton menuTbRefresh;
+    public JPanel panelAlertsToolbar;
+    public JLabel labelAlertHintsToolbar;
+    public JLabel labelAlertUpdateToolbar;
+    public JPanel vSpacer5;
     public JTabbedPane tabbedPaneMain;
     public JSplitPane splitPaneBrowser;
     public JPanel panelBrowserTop;
     public JPanel panelLocationAndButtons;
+    public JPanel panelLocationAndTracker;
     public JPanel vSpacer1;
     public JPanel panelLocation;
     public JPanel panelLocationLeft;
@@ -2760,26 +2906,26 @@ public class MainFrame extends JFrame
     public JScrollPane scrollPaneTreeCollectionOne;
     public JTree treeCollectionOne;
     public JScrollPane scrollPaneTableCollectionOne;
-    public JTable tableCollectionOne;
+    public TooltipsTable tableCollectionOne;
     public JPanel panelSystemOne;
     public JSplitPane splitPaneSystemOne;
     public JScrollPane scrollPaneTreeSystemOne;
     public JTree treeSystemOne;
     public JScrollPane scrollPaneTableSystemOne;
-    public JTable tableSystemOne;
+    public TooltipsTable tableSystemOne;
     public JTabbedPane tabbedPaneBrowserTwo;
     public JPanel panelCollectionTwo;
     public JSplitPane splitPaneCollectionTwo;
     public JScrollPane scrollPaneTreeCollectionTwo;
     public JTree treeCollectionTwo;
     public JScrollPane scrollPaneTableCollectionTwo;
-    public JTable tableCollectionTwo;
+    public TooltipsTable tableCollectionTwo;
     public JPanel panelSystemTwo;
     public JSplitPane splitPaneSystemTwo;
     public JScrollPane scrollPaneTreeSystemTwo;
     public JTree treeSystemTwo;
     public JScrollPane scrollPaneTableSystemTwo;
-    public JTable tableSystemTwo;
+    public TooltipsTable tableSystemTwo;
     public JTabbedPane tabbedPaneNavigatorBottom;
     public JScrollPane scrollPaneLog;
     public JTextArea textAreaLog;
@@ -2888,10 +3034,12 @@ public class MainFrame extends JFrame
     public JPanel buttonBarLibs;
     public JButton saveButton;
     public JButton cancelButton;
+    public JPanel hSpacer8;
     public JPanel panelStatus;
     public JLabel labelStatusLeft;
     public JLabel labelStatusMiddle;
     public JLabel labelStatusRight;
+    public JPanel hSpacer9;
     public JPopupMenu popupMenuBrowser;
     public JMenuItem popupMenuItemRefresh;
     public JMenuItem popupMenuItemCopy;

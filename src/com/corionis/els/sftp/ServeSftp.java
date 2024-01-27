@@ -157,7 +157,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                             String them = "";
                             HintKey theirKey = context.hintKeys.findKey(s);
                             if (theirKey != null)
-                                them = theirKey.name + " at ";
+                                them = theirKey.system + " at ";
                             logger.info("Sftp server authenticated: " + them + serverSession.getClientAddress().toString());
                         }
                     } else if (s.equals(user) && s1.equals(password))

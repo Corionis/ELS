@@ -36,15 +36,26 @@
 <p>Hint Keys control Hint processing and which ELS instances are involved. These may
 include publishers and subscribers.</p>
 
-<p>A Hint Key is the "key" element from a collection JSON file.<br/><br/></p>
+<p>A Hint Key is the "Key" element from a collection JSON file.<br/><br/></p>
 
-<h3>UUID List Button</h3>
-<p>The UUID List button present a list of known collection files and displays the
-    "description" and "key" elements from each file found in the ELS ./libraries/ directory.</p>
+<h3>Key List Button</h3>
+<p>
+    The Key List button presents a list of existing Library files and displays the
+    "Description" and "Key" elements from each file found in the ELS ./libraries/ directory.
+</p>
 
+<br/>
 <i><b>Note:</b></i>
-<p>This option must be defined on the command line with the <blockquote>-k | --keys or -K | --keys-only  [file]</blockquote> option
-or in an Operation for them to be used. These Navigator dialogs only edit the files.</p>
+<p>
+    This option must be defined on the command line with one of the following
+    options or in an Operation for them to be used in a Job.
+    <blockquote>-k | --keys [file] or -K | --keys-only [file]</blockquote>
+    <br/>
+    <p>
+        The -K | --keys-only option executes Hints and other back-up options, such as --duplicates,
+        but does not perform back-up operations.
+    </p>
+</p>
 
 </body>
 </html>

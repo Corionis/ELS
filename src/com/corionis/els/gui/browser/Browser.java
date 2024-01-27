@@ -1,6 +1,7 @@
 package com.corionis.els.gui.browser;
 
 import com.corionis.els.gui.bookmarks.Bookmark;
+import com.corionis.els.hints.Hint;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
@@ -66,8 +67,17 @@ public class Browser
         initialize();
     }
 
-    private void addFocusListener(Component component)
+    private void addGeneraListeners(Component component)
     {
+        MouseAdapter componentMouseListener = new MouseAdapter()
+        {
+            synchronized public void mouseClicked(MouseEvent mouseEvent)
+            {
+                context.mainFrame.labelStatusMiddle.setText("");
+            }
+        };
+        component.addMouseListener(componentMouseListener);
+
         FocusListener focusListener = new FocusListener()
         {
             @Override
@@ -172,7 +182,6 @@ public class Browser
         {
             synchronized public void mouseClicked(MouseEvent mouseEvent)
             {
-                context.mainFrame.labelStatusMiddle.setText("");
                 JTable target = (JTable) mouseEvent.getSource();
                 NavTreeNode node = ((BrowserTableModel) target.getModel()).getNode();
                 target.requestFocus();
@@ -749,6 +758,7 @@ public class Browser
                             context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
+
                 isRemote = tuo.isRemote;
                 if (tuo.isDir)
                 {
@@ -764,6 +774,15 @@ public class Browser
                 }
             }
 
+            // check for Hint conflicts after deep scan
+            for (int i = 0; i < rows.length; ++i)
+            {
+                NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                if (context.navigator.checkForConflicts(tuo, context.cfg.gs("HintsUI.action.delete")))
+                    return;
+            }
+
+            boolean error = false;
             int reply = JOptionPane.YES_OPTION;
             if (context.preferences.isShowDeleteConfirmation())
             {
@@ -775,8 +794,6 @@ public class Browser
                 reply = JOptionPane.showConfirmDialog(context.mainFrame, msg,
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
-
-            boolean error = false;
             if (reply == JOptionPane.YES_OPTION)
             {
                 for (int i = 0; i < rows.length; ++i)
@@ -872,6 +889,15 @@ public class Browser
                     ++fileCount;
                     size += tuo.size;
                 }
+            }
+
+            // check for Hint conflicts after deep scan
+            for (TreePath path : paths)
+            {
+                NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
+                NavTreeUserObject tuo = ntn.getUserObject();
+                if (context.navigator.checkForConflicts(tuo, context.cfg.gs("HintsUI.action.delete")))
+                    return;
             }
 
             int reply = JOptionPane.YES_OPTION;
@@ -1008,9 +1034,9 @@ public class Browser
             while (expandedDescendants.hasMoreElements())
             {
                 TreePath tp = expandedDescendants.nextElement();
-                NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
-                int type = ntn.getUserObject().type;
-                if (ntn.getUserObject().isDir && type != NavTreeUserObject.COLLECTION && type != NavTreeUserObject.SYSTEM)
+// TODO Remove?               NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+//                int type = ntn.getUserObject().type;
+//                if (ntn.getUserObject().isDir && type != NavTreeUserObject.COLLECTION && type != NavTreeUserObject.SYSTEM)
                     combinedPaths.add(tp);
             }
         }
@@ -1359,9 +1385,9 @@ public class Browser
             }
         });
         context.mainFrame.treeCollectionOne.setTransferHandler(navTransferHandler);
-        addFocusListener(context.mainFrame.treeCollectionOne);
+        addGeneraListeners(context.mainFrame.treeCollectionOne);
         addHandlersToTable(context.mainFrame.tableCollectionOne);
-        addFocusListener(context.mainFrame.tableCollectionOne);
+        addGeneraListeners(context.mainFrame.tableCollectionOne);
         javax.swing.ToolTipManager.sharedInstance().registerComponent(context.mainFrame.treeCollectionOne);
 
         // --- treeSystemOne
@@ -1404,9 +1430,9 @@ public class Browser
             }
         });
         context.mainFrame.treeSystemOne.setTransferHandler(navTransferHandler);
-        addFocusListener(context.mainFrame.treeSystemOne);
+        addGeneraListeners(context.mainFrame.treeSystemOne);
         addHandlersToTable(context.mainFrame.tableSystemOne);
-        addFocusListener(context.mainFrame.tableSystemOne);
+        addGeneraListeners(context.mainFrame.tableSystemOne);
         javax.swing.ToolTipManager.sharedInstance().registerComponent(context.mainFrame.treeSystemOne);
     }
 
@@ -1478,9 +1504,9 @@ public class Browser
             }
         });
         context.mainFrame.treeCollectionTwo.setTransferHandler(navTransferHandler);
-        addFocusListener(context.mainFrame.treeCollectionTwo);
+        addGeneraListeners(context.mainFrame.treeCollectionTwo);
         addHandlersToTable(context.mainFrame.tableCollectionTwo);
-        addFocusListener(context.mainFrame.tableCollectionTwo);
+        addGeneraListeners(context.mainFrame.tableCollectionTwo);
         javax.swing.ToolTipManager.sharedInstance().registerComponent(context.mainFrame.treeCollectionTwo);
 
         // --- treeSystemTwo
@@ -1523,9 +1549,9 @@ public class Browser
             }
         });
         context.mainFrame.treeSystemTwo.setTransferHandler(navTransferHandler);
-        addFocusListener(context.mainFrame.treeSystemTwo);
+        addGeneraListeners(context.mainFrame.treeSystemTwo);
         addHandlersToTable(context.mainFrame.tableSystemTwo);
-        addFocusListener(context.mainFrame.tableSystemTwo);
+        addGeneraListeners(context.mainFrame.tableSystemTwo);
         javax.swing.ToolTipManager.sharedInstance().registerComponent(context.mainFrame.treeSystemTwo);
     }
 
@@ -1882,7 +1908,8 @@ public class Browser
                     for (int i = 0; i < selectedRows.length; ++i)
                     {
                         NavTreeUserObject tuo = (NavTreeUserObject) ((BrowserTableModel) table.getModel()).getValueAt(selectedRows[i], 1);
-                        selectedNodes.add(tuo.node);
+                        if (tuo != null)
+                            selectedNodes.add(tuo.node);
                     }
                 }
             }
@@ -1943,7 +1970,8 @@ public class Browser
                             if (selectedRows[i] < table.getRowCount() && selectedRows[i] >= 0)
                                 table.addRowSelectionInterval(selectedRows[i], selectedRows[i]);
                         }
-                        table.scrollRectToVisible(new Rectangle((table.getCellRect(selectedRows[0], 0, true))));
+                        if (selectedRows.length > 0)
+                            table.scrollRectToVisible(new Rectangle((table.getCellRect(selectedRows[0], 0, true))));
                     }
                 }
             }
@@ -1991,9 +2019,8 @@ public class Browser
     public boolean resetHintTrackingButton()
     {
         String tt = "";
-        tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintServer.text") :
-                (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintTracking.text") :
-                        (context.cfg.getHintKeysFile().length() > 0 ? context.cfg.gs("Navigator.button.HintsKeys.text") : ""));
+        tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintServer.text") :
+                (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintTracking.text") : "");
 
         if (tt.length() > 0)
         {
@@ -2400,22 +2427,19 @@ public class Browser
     public void setHintTrackingButton(boolean enabled)
     {
         String tt;
-        tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintServer.text") :
-                (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintTracking.text") :
-                        context.cfg.gs("Navigator.button.HintsKeys.text"));
+        tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintServer.text") :
+                (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintTracking.text") : "");
         context.mainFrame.buttonHintTracking.setText(tt);
 
         if (enabled)
         {
-            tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintServer.enabled.tooltip") :
-                    (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintTracking.enabled.tooltip") :
-                            context.cfg.gs("Navigator.button.Hints.enabled.tooltip"));
+            tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintServer.enabled.tooltip") :
+                    (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintTracking.enabled.tooltip") : "");
         }
         else
         {
-            tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
-                    (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
-                            context.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
+            tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintServer.disabled.tooltip") :
+                    (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintTracking.disabled.tooltip") : "");
         }
         context.mainFrame.buttonHintTracking.setToolTipText(tt);
     }
@@ -2586,9 +2610,9 @@ public class Browser
                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-red.png");
                 Image icon = ImageIO.read(url);
                 context.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
-                String tt = level == 3 ? context.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
-                        (level == 2 ? context.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
-                                context.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
+                String tt = level == 3 ? context.cfg.gs("Navigator.buttonHintServer.disabled.tooltip") :
+                        (level == 2 ? context.cfg.gs("Navigator.buttonHintTracking.disabled.tooltip") :
+                                context.cfg.gs("Navigator.buttonHintTracking.disabled.tooltip"));
                 context.mainFrame.buttonHintTracking.setToolTipText(tt);
                 hintTrackingEnabled = false;
                 setHintTrackingButton(false);

@@ -4,6 +4,7 @@ import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
 import com.corionis.els.gui.bookmarks.Bookmark;
+import com.corionis.els.gui.util.*;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
@@ -150,7 +151,7 @@ public class DuplicateFinderUI extends JDialog
         if (name.toLowerCase().contains("system"))
         {
             Object[] opts = { context.cfg.gs("Z.ok") };
-            JOptionPane.showOptionDialog(this, context.cfg.gs("DuplicateFinder.please.select.a.collection.for.run"),
+            JOptionPane.showOptionDialog(this, context.cfg.gs("Z.select.collection.for.run"),
                     this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                     null, opts, opts[0]);
             return;
@@ -455,7 +456,7 @@ public class DuplicateFinderUI extends JDialog
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         scrollPaneDupes = new JScrollPane();
-        tableDupes = new JTable();
+        tableDupes = new TooltipsTable();
         panelBottom = new JPanel();
         labelStatus = new JLabel();
         buttonBar = new JPanel();
@@ -472,7 +473,7 @@ public class DuplicateFinderUI extends JDialog
                 DuplicateFinderUI.this.windowClosing(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========
@@ -550,6 +551,7 @@ public class DuplicateFinderUI extends JDialog
                     //---- tableDupes ----
                     tableDupes.setFillsViewportHeight(true);
                     tableDupes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    tableDupes.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                     scrollPaneDupes.setViewportView(tableDupes);
                 }
                 contentPanel.add(scrollPaneDupes, BorderLayout.CENTER);
@@ -597,7 +599,7 @@ public class DuplicateFinderUI extends JDialog
     private JPanel panelHelp;
     private JLabel labelHelp;
     private JScrollPane scrollPaneDupes;
-    private JTable tableDupes;
+    private TooltipsTable tableDupes;
     private JPanel panelBottom;
     private JLabel labelStatus;
     private JPanel buttonBar;

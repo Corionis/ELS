@@ -188,6 +188,7 @@ public class Settings extends JDialog
             Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
             FlatLaf.setup(lafClass.newInstance());
             FlatLaf.updateUI();
+            context.mainFrame.panelToolbar.setBackground(context.mainFrame.menuToolbar.getBackground());
         }
         catch (Exception ex)
         {
@@ -211,6 +212,7 @@ public class Settings extends JDialog
                 updateLAFRecursively(frame);
             }
 
+            context.mainFrame.panelToolbar.setBackground(context.mainFrame.menuToolbar.getBackground());
             context.mainFrame.setBrowserTabs(-1);
             context.browser.refreshAll();
         }
@@ -285,9 +287,7 @@ public class Settings extends JDialog
         showMnemonicsCheckBox.setSelected(context.preferences.isShowMnemonics());
 
         // browser
-        autoRefreshCheckBox.setSelected(context.preferences.isAutoRefresh());
         hideFilesInTreeCheckBox.setSelected(context.preferences.isHideFilesInTree());
-        hideHiddenFilesCheckBox.setSelected(context.preferences.isHideHiddenFiles());
         sortCaseSensitiveCheckBox.setSelected(context.preferences.isSortCaseInsensitive());
         sortFoldersBeforeFilesCheckBox.setSelected(context.preferences.isSortFoldersBeforeFiles());
         sortReverseCheckBox.setSelected(context.preferences.isSortReverse());
@@ -356,9 +356,7 @@ public class Settings extends JDialog
         context.preferences.setShowMnemonics(showMnemonicsCheckBox.isSelected());
 
         // browser
-        context.preferences.setAutoRefresh(autoRefreshCheckBox.isSelected());
         context.preferences.setHideFilesInTree(hideFilesInTreeCheckBox.isSelected());
-        context.preferences.setHideHiddenFiles(hideHiddenFilesCheckBox.isSelected());
         context.preferences.setSortCaseInsensitive(sortCaseSensitiveCheckBox.isSelected());
         context.preferences.setSortFoldersBeforeFiles(sortFoldersBeforeFilesCheckBox.isSelected());
         context.preferences.setSortReverse(sortReverseCheckBox.isSelected());
@@ -429,12 +427,8 @@ public class Settings extends JDialog
         showMnemonicsLabel = new JLabel();
         showMnemonicsCheckBox = new JCheckBox();
         browserPanel = new JPanel();
-        autoRefreshLabel = new JLabel();
-        autoRefreshCheckBox = new JCheckBox();
         hideFilesInTreeLabel = new JLabel();
         hideFilesInTreeCheckBox = new JCheckBox();
-        hideHiddenFilesLabel = new JLabel();
-        hideHiddenFilesCheckBox = new JCheckBox();
         sortCaseSensitiveLabel = new JLabel();
         sortCaseSensitiveCheckBox = new JCheckBox();
         sortFoldersBeforeFilesLabel = new JLabel();
@@ -681,67 +675,49 @@ public class Settings extends JDialog
                     {
                         browserPanel.setLayout(new GridBagLayout());
                         ((GridBagLayout)browserPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
-                        ((GridBagLayout)browserPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)browserPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                         ((GridBagLayout)browserPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                        ((GridBagLayout)browserPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
-
-                        //---- autoRefreshLabel ----
-                        autoRefreshLabel.setText("Auto-refresh:");
-                        browserPanel.add(autoRefreshLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(8, 8, 20, 5), 0, 0));
-                        browserPanel.add(autoRefreshCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(8, 0, 20, 0), 0, 0));
+                        ((GridBagLayout)browserPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- hideFilesInTreeLabel ----
                         hideFilesInTreeLabel.setText(context.cfg.gs("Settings.hideFilesInTreeLabel.text"));
-                        browserPanel.add(hideFilesInTreeLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                        browserPanel.add(hideFilesInTreeLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 5), 0, 0));
-                        browserPanel.add(hideFilesInTreeCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                            new Insets(8, 8, 20, 5), 0, 0));
+                        browserPanel.add(hideFilesInTreeCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 20, 0), 0, 0));
-
-                        //---- hideHiddenFilesLabel ----
-                        hideHiddenFilesLabel.setText(context.cfg.gs("Settings.hideHiddenFilesLabel.text"));
-                        browserPanel.add(hideHiddenFilesLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 5), 0, 0));
-                        browserPanel.add(hideHiddenFilesCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 20, 0), 0, 0));
+                            new Insets(8, 0, 20, 0), 0, 0));
 
                         //---- sortCaseSensitiveLabel ----
                         sortCaseSensitiveLabel.setText(context.cfg.gs("Settings.sortCaseSensitiveLabel.text"));
-                        browserPanel.add(sortCaseSensitiveLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                        browserPanel.add(sortCaseSensitiveLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
-                        browserPanel.add(sortCaseSensitiveCheckBox, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                        browserPanel.add(sortCaseSensitiveCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- sortFoldersBeforeFilesLabel ----
                         sortFoldersBeforeFilesLabel.setText(context.cfg.gs("Settings.sortFoldersBeforeFilesLabel.text"));
-                        browserPanel.add(sortFoldersBeforeFilesLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                        browserPanel.add(sortFoldersBeforeFilesLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 49), 0, 0));
-                        browserPanel.add(sortFoldersBeforeFilesCheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                        browserPanel.add(sortFoldersBeforeFilesCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- sortReverseLabel ----
                         sortReverseLabel.setText(context.cfg.gs("Settings.sortReverseLabel.text"));
-                        browserPanel.add(sortReverseLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                        browserPanel.add(sortReverseLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
-                        browserPanel.add(sortReverseCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                        browserPanel.add(sortReverseCheckBox, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- tabPlacementlabel ----
                         tabPlacementlabel.setText(context.cfg.gs("Settings.tabPlacementLabel.text"));
-                        browserPanel.add(tabPlacementlabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                        browserPanel.add(tabPlacementlabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
 
@@ -754,21 +730,21 @@ public class Settings extends JDialog
                         }));
                         tabPlacementComboBox.setPreferredSize(new Dimension(100, 30));
                         tabPlacementComboBox.setName("tabPlacementCombo");
-                        browserPanel.add(tabPlacementComboBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                        browserPanel.add(tabPlacementComboBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- useLastPubSubLabel ----
                         useLastPubSubLabel.setText(context.cfg.gs("Settings.useLastPubSubLabel.text"));
-                        browserPanel.add(useLastPubSubLabel, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+                        browserPanel.add(useLastPubSubLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 0, 19), 0, 0));
+                            new Insets(0, 8, 20, 19), 0, 0));
 
                         //---- uselastPubSubCheckBox ----
                         uselastPubSubCheckBox.setToolTipText(context.cfg.gs("Settings.uselastPubSubCheckBox.toolTipText"));
-                        browserPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
+                        browserPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 0, 0), 0, 0));
+                            new Insets(0, 0, 20, 0), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
                     settingsTabbedPane.setMnemonicAt(2, context.cfg.gs("Settings.browserPanel.tab.mnemonic").charAt(0));
@@ -848,12 +824,8 @@ public class Settings extends JDialog
     private JLabel showMnemonicsLabel;
     private JCheckBox showMnemonicsCheckBox;
     private JPanel browserPanel;
-    private JLabel autoRefreshLabel;
-    private JCheckBox autoRefreshCheckBox;
     private JLabel hideFilesInTreeLabel;
     private JCheckBox hideFilesInTreeCheckBox;
-    private JLabel hideHiddenFilesLabel;
-    private JCheckBox hideHiddenFilesCheckBox;
     private JLabel sortCaseSensitiveLabel;
     private JCheckBox sortCaseSensitiveCheckBox;
     private JLabel sortFoldersBeforeFilesLabel;

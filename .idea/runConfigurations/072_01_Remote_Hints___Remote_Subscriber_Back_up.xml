@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="072-01 Remote Hints + Remote Subscriber Back-up" type="Multirun" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="3.0">
+    <runConfiguration name="072-10_Status-Server-listener" type="Application" />
+    <runConfiguration name="073-21_Subscriber-One-listener" type="Application" />
+    <runConfiguration name="073-23_Publisher-One-backup" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>

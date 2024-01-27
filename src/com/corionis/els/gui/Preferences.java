@@ -47,7 +47,7 @@ public class Preferences implements Serializable
     private int collectionTwoSortColumn = 1;
     private int collectionTwoSortDirection = 0;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
-    private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
+    private String dateFormat = "yyyy-MM-dd hh:mm:ss a";
     private boolean defaultDryrun = true;
     private int directoryPickerXpos = 0;
     private int directoryPickerYpos = 0;
@@ -58,6 +58,19 @@ public class Preferences implements Serializable
     private boolean generateLongOptions = false;
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
+    private int hintsActionWidth = 60;
+    private int hintsByWidth = 46;
+    private int hintsDateWidth = 154;
+    private int hintsFromItemWidth = 160;
+    private int hintsFromLibWidth = 88;
+    private int hintsHeight = 520;
+    private int hintsStatusWidth = 104;
+    private int hintsSystemWidth = 104;
+    private int hintsToItemWidth = 160;
+    private int hintsToLibWidth = 88;
+    private int hintsWidth = 1140;
+    private int hintsXpos = 0;
+    private int hintsYpos = 0;
     private int jobsHeight = 470;
     private int jobsOriginDividerLocation = 142;
     private int jobsTaskDividerLocation = 142;
@@ -95,6 +108,7 @@ public class Preferences implements Serializable
     private boolean showDeleteConfirmation = true;
     private boolean showDnDConfirmation = true;
     private boolean showMnemonics = true;
+    private boolean showToolbar = true;
     private boolean showTouchConfirmation = true;
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
@@ -143,6 +157,7 @@ public class Preferences implements Serializable
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
+
     /**
      * Constructor
      */
@@ -256,6 +271,8 @@ public class Preferences implements Serializable
             if (context.mainFrame.tableCollectionOne.getColumnModel().getColumnCount() == 4)
             {
                 context.mainFrame.splitPaneCollectionOne.setDividerLocation(getCollectionOneDividerLocation());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(0).setPreferredWidth(22);
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(0).setWidth(22);
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setPreferredWidth(getCollectionOneNameWidth());
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setWidth(getCollectionOneNameWidth());
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setPreferredWidth(getCollectionOneSizeWidth());
@@ -271,6 +288,8 @@ public class Preferences implements Serializable
             if (context.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
             {
                 context.mainFrame.splitPaneCollectionTwo.setDividerLocation(getCollectionTwoDividerLocation());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(0).setPreferredWidth(22);
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(0).setWidth(22);
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setPreferredWidth(getCollectionTwoNameWidth());
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setWidth(getCollectionTwoNameWidth());
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setPreferredWidth(getCollectionTwoSizeWidth());
@@ -286,6 +305,8 @@ public class Preferences implements Serializable
             if (context.mainFrame.tableSystemOne.getColumnModel().getColumnCount() == 4)
             {
                 context.mainFrame.splitPaneSystemOne.setDividerLocation(getSystemOneDividerLocation());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(0).setPreferredWidth(22);
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(0).setWidth(22);
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setPreferredWidth(getSystemOneNameWidth());
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setWidth(getSystemOneNameWidth());
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setPreferredWidth(getSystemOneSizeWidth());
@@ -301,6 +322,8 @@ public class Preferences implements Serializable
             if (context.mainFrame.tableSystemTwo.getColumnModel().getColumnCount() == 4)
             {
                 context.mainFrame.splitPaneSystemTwo.setDividerLocation(getSystemTwoDividerLocation());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(0).setPreferredWidth(22);
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(0).setWidth(22);
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setPreferredWidth(getSystemTwoNameWidth());
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setWidth(getSystemTwoNameWidth());
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setPreferredWidth(getSystemTwoSizeWidth());
@@ -326,7 +349,6 @@ public class Preferences implements Serializable
     {
         return appWidth;
     }
-    //private transient LookAndFeel laf = null;
 
     public int getAppXpos()
     {
@@ -415,6 +437,13 @@ public class Preferences implements Serializable
 
     public String getDateFormat()
     {
+        if (dateFormat != null && dateFormat.length() > 0)
+        {
+            if (dateFormat.toLowerCase().endsWith("aa"))
+            {
+                dateFormat = dateFormat.substring(0, dateFormat.length() - 1);
+            }
+        }
         return dateFormat;
     }
 
@@ -456,6 +485,72 @@ public class Preferences implements Serializable
         String path = workingDirectory + System.getProperty("file.separator") + "local" +
                 System.getProperty("file.separator") + "preferences.json";
         return path;
+    }
+
+    public int getHintsActionWidth()
+    {
+        return hintsActionWidth;
+    }
+
+    public int getHintsByWidth()
+    {
+        return hintsByWidth;
+    }
+
+    public int getHintsDateWidth()
+    {
+        return hintsDateWidth;
+    }
+    //private transient LookAndFeel laf = null;
+
+    public int getHintsFromItemWidth()
+    {
+        return hintsFromItemWidth;
+    }
+
+    public int getHintsFromLibWidth()
+    {
+        return hintsFromLibWidth;
+    }
+
+    public int getHintsHeight()
+    {
+        return hintsHeight;
+    }
+
+    public int getHintsStatusWidth()
+    {
+        return hintsStatusWidth;
+    }
+
+    public int getHintsSystemWidth()
+    {
+        return hintsSystemWidth;
+    }
+
+    public int getHintsToItemWidth()
+    {
+        return hintsToItemWidth;
+    }
+
+    public int getHintsToLibWidth()
+    {
+        return hintsToLibWidth;
+    }
+
+    public int getHintsWidth()
+    {
+        return hintsWidth;
+    }
+
+    public int getHintsXpos()
+    {
+        return hintsXpos;
+    }
+
+    public int getHintsYpos()
+    {
+        return hintsYpos;
     }
 
     public int getJobsHeight()
@@ -1003,6 +1098,11 @@ public class Preferences implements Serializable
         return showMnemonics;
     }
 
+    public boolean isShowToolbar()
+    {
+        return showToolbar;
+    }
+
     public boolean isShowTouchConfirmation()
     {
         return showTouchConfirmation;
@@ -1200,6 +1300,71 @@ public class Preferences implements Serializable
         this.hideHiddenFiles = hideHiddenFiles;
     }
 
+    public void setHintsActionWidth(int hintsActionWidth)
+    {
+        this.hintsActionWidth = hintsActionWidth;
+    }
+
+    public void setHintsByWidth(int hintsByWidth)
+    {
+        this.hintsByWidth = hintsByWidth;
+    }
+
+    public void setHintsDateWidth(int hintsDateWidth)
+    {
+        this.hintsDateWidth = hintsDateWidth;
+    }
+
+    public void setHintsFromItemWidth(int hintsFromItemWidth)
+    {
+        this.hintsFromItemWidth = hintsFromItemWidth;
+    }
+
+    public void setHintsFromLibWidth(int hintsFromLibWidth)
+    {
+        this.hintsFromLibWidth = hintsFromLibWidth;
+    }
+
+    public void setHintsHeight(int hintsHeight)
+    {
+        this.hintsHeight = hintsHeight;
+    }
+
+    public void setHintsStatusWidth(int hintsStatusWidth)
+    {
+        this.hintsStatusWidth = hintsStatusWidth;
+    }
+
+    public void setHintsSystemWidth(int hintsSystemWidth)
+    {
+        this.hintsSystemWidth = hintsSystemWidth;
+    }
+
+    public void setHintsToItemWidth(int hintsToItemWidth)
+    {
+        this.hintsToItemWidth = hintsToItemWidth;
+    }
+
+    public void setHintsToLibWidth(int hintsToLibWidth)
+    {
+        this.hintsToLibWidth = hintsToLibWidth;
+    }
+
+    public void setHintsWidth(int hintsWidth)
+    {
+        this.hintsWidth = hintsWidth;
+    }
+
+    public void setHintsXpos(int hintsXpos)
+    {
+        this.hintsXpos = hintsXpos;
+    }
+
+    public void setHintsYpos(int hintsYpos)
+    {
+        this.hintsYpos = hintsYpos;
+    }
+
     public void setJobsHeight(int jobsHeight)
     {
         this.jobsHeight = jobsHeight;
@@ -1378,6 +1543,11 @@ public class Preferences implements Serializable
     public void setShowMnemonics(boolean showMnemonics)
     {
         this.showMnemonics = showMnemonics;
+    }
+
+    public void setShowToolbar(boolean showToolbar)
+    {
+        this.showToolbar = showToolbar;
     }
 
     public void setShowTouchConfirmation(boolean showTouchConfirmation)

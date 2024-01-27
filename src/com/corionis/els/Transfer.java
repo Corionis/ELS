@@ -1,6 +1,7 @@
 package com.corionis.els;
 
 import com.corionis.els.gui.browser.NavTreeUserObject;
+import com.corionis.els.hints.Hint;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Location;
@@ -612,20 +613,24 @@ public class Transfer
      * <p>
      * This is a local-only method
      */
-    public boolean move(Repository repo, String fromLibName, String fromName, String toLibName, String toName) throws Exception
+    public boolean move(Repository repo, Hint hint) throws Exception
     {
         boolean libAltered = false;
 
-        Library fromLib = repo.getLibrary(fromLibName);
+        logger.info(MessageFormat.format(context.cfg.gs("Transfer.mv.directory.file"), hint.directory ? 0 : 1) +
+                "\"" + hint.fromLibrary + "|" + hint.fromItemPath + "\"" + context.cfg.gs("NavTransferHandler.transfer.file.to") + "\"" +
+                hint.toLibrary + "|" + hint.toItemPath + "\"");
+
+        Library fromLib = repo.getLibrary(hint.fromLibrary);
         if (fromLib == null)
         {
-            logger.info(context.cfg.gs("Transfer.from.library.not.found") + fromLibName);
+            logger.info(context.cfg.gs("Transfer.from.library.not.found") + hint.fromLibrary);
             return false;
         }
-        Library toLib = repo.getLibrary(toLibName);
+        Library toLib = repo.getLibrary(hint.toLibrary);
         if (toLib == null)
         {
-            logger.info(context.cfg.gs("Transfer.to.library.not.found") + toLibName);
+            logger.info(context.cfg.gs("Transfer.to.library.not.found") + hint.toLibrary);
             return false;
         }
 
@@ -635,7 +640,7 @@ public class Transfer
             repo.scan(toLib.name);
         }
 
-        Collection collection = repo.getMapItem(fromLib, Utils.pipe(repo, fromName));
+        Collection collection = repo.getMapItem(fromLib, Utils.pipe(repo, hint.fromItemPath));
         if (collection != null)
         {
             Iterator it = collection.iterator();
@@ -660,10 +665,11 @@ public class Transfer
                                 if (nextItem.getItemPath().startsWith(fromItem.getItemPath() + repo.getSeparator()))
                                 {
                                     String nextName = nextItem.getItemPath().substring(fromItem.getItemPath().length() + 1);
-                                    String nextPath = toName + repo.getSeparator() + nextName;
+                                    String nextPath = hint.toItemPath + repo.getSeparator() + nextName;
                                     if (moveItem(repo, fromLib, nextItem, toLib, nextPath))
                                     {
                                         fromLib.rescanNeeded = true;
+                                        toLib.rescanNeeded = true;
                                         libAltered = true;
                                     }
                                 }
@@ -677,32 +683,43 @@ public class Transfer
                                 {
                                     logger.warn(context.cfg.gs("Transfer.previous.directory.was.not.empty") + fromItem.getFullPath());
                                 }
+                                fromLib.rescanNeeded = true;
+                                toLib.rescanNeeded = true;
+                                libAltered = true;
                                 ++movedDirectories;
                             }
                         }
                         else // logically it is a rename within same library
                         {
                             // rename the directory
-                            if (moveItem(repo, fromLib, fromItem, toLib, toName))
+                            if (moveItem(repo, fromLib, fromItem, toLib, hint.toItemPath))
+                            {
+                                fromLib.rescanNeeded = true;
+                                toLib.rescanNeeded = true;
                                 libAltered = true;
+                            }
                         }
                     }
                     else // it is a file
                     {
-                        if (moveItem(repo, fromLib, fromItem, toLib, toName))
+                        if (moveItem(repo, fromLib, fromItem, toLib, hint.toItemPath))
+                        {
+                            fromLib.rescanNeeded = true;
+                            toLib.rescanNeeded = true;
                             libAltered = true;
+                        }
                     }
                 }
             }
             else
             {
-                logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + fromLibName + "|" + fromName);
+                logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + hint.fromLibrary + "|" + hint.fromItemPath);
                 ++skippedMissing;
             }
         }
         else
         {
-            logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + fromLibName + "|" + fromName);
+            logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + hint.fromLibrary + "|" + hint.fromItemPath);
             ++skippedMissing;
         }
 
@@ -711,6 +728,8 @@ public class Transfer
 
     /**
      * Move a local file
+     * <p>
+     * This is a local-only method
      *
      * @param from      the full from path
      * @param to        the full to path
@@ -775,10 +794,8 @@ public class Transfer
                 libAltered = true;
             }
 
-            logger.info(MessageFormat.format(context.cfg.gs("Transfer.mv.directory.file"), fromItem.isDirectory() ? 0 : 1) +
-                    "\"" + fromLib.name + "|" + fromPath + "\"" + context.cfg.gs("NavTransferHandler.transfer.file.to") + "\"" +
-                    toLib.name + "|" + toPath + "\"");
             Files.move(fromFile.toPath(), toFile.toPath(), REPLACE_EXISTING);
+            libAltered = true;
 
             // no exception thrown
             if (toFile.isDirectory()) // directories should not reach here
@@ -846,18 +863,18 @@ public class Transfer
      * <p>
      * This is a local-only method
      */
-    public boolean remove(Repository repo, String fromLibName, String fromName) throws Exception
+    public boolean remove(Repository repo, Hint hint) throws Exception
     {
         boolean libAltered = false;
 
-        Library fromLib = repo.getLibrary(fromLibName);
+        Library fromLib = repo.getLibrary(hint.fromLibrary);
         if (fromLib == null)
         {
-            logger.info(context.cfg.gs("Transfer.from.library.not.found") + fromLibName);
+            logger.info(context.cfg.gs("Transfer.from.library.not.found") + hint.fromLibrary);
             return false;
         }
 
-        Collection collection = repo.getMapItem(fromLib, Utils.pipe(repo, fromName));
+        Collection collection = repo.getMapItem(fromLib, Utils.pipe(repo, hint.fromItemPath));
         if (collection != null)
         {
             Iterator it = collection.iterator();
@@ -873,7 +890,7 @@ public class Transfer
                     {
                         if (context.cfg.isDryRun())
                         {
-                            logger.info(context.cfg.gs("Transfer.would.rm.directory") + "\"" + fromLibName + "|" + fromItem.getFullPath() + "\"");
+                            logger.info(context.cfg.gs("Transfer.would.rm.directory") + "\"" + hint.fromLibrary + "|" + fromItem.getFullPath() + "\"");
                         }
                         else
                         {
@@ -894,7 +911,7 @@ public class Transfer
                     {
                         if (context.cfg.isDryRun())
                         {
-                            logger.info(context.cfg.gs("Transfer.would.rm.file") + fromLibName + "|" + fromItem.getFullPath());
+                            logger.info(context.cfg.gs("Transfer.would.rm.file") + hint.fromLibrary + "|" + fromItem.getFullPath());
                         }
                         else
                         {
@@ -913,13 +930,13 @@ public class Transfer
             }
             else
             {
-                logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + fromLibName + "|" + fromName);
+                logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + hint.fromLibrary + "|" + hint.fromItemPath);
                 ++skippedMissing;
             }
         }
         else
         {
-            logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + fromLibName + "|" + fromName);
+            logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + hint.fromLibrary + "|" + hint.fromItemPath);
             ++skippedMissing;
         }
 
@@ -1010,7 +1027,7 @@ public class Transfer
                 toItem = SerializationUtils.clone(fromItem);
                 toItem.setLibrary(toLib.name);
                 toItem.setItemPath(toName);
-                path = getTarget(toLib.name, false, toItem.getSize(), toItem.getItemPath());
+                path = getTarget(repo, toItem.getLibrary(), toItem.getSize(), repo, false, toItem.getItemPath());
                 path = path + repo.getSeparator() + toName;
             }
             else // exists, use same object

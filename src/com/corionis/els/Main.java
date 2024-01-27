@@ -645,6 +645,7 @@ public class Main
                     // Get Hint Keys
                     context.hintKeys = new HintKeys(context);
                     context.hintKeys.read(context.cfg.getHintKeysFile());
+                    context.hints = new Hints(context, context.hintKeys);
 
                     // Get the Hint Status Server repository
                     context.statusRepo = new Repository(context, Repository.HINT_SERVER);
@@ -652,10 +653,10 @@ public class Main
 
                     // Setup the Hint Status Server datastore, single instance
                     context.datastore = new Datastore(context);
-                    context.datastore.initialize();
+                    boolean valid = context.datastore.initialize();
 
                     // start server
-                    if (context.statusRepo.isInitialized())
+                    if (valid && context.statusRepo.isInitialized())
                     {
                         // start serveStty server
                         sessionThreads = new ThreadGroup("hint.status.server");
@@ -976,9 +977,8 @@ public class Main
 
     /**
      * Setup hint keys & tracking, connect to hint server if specified
-     * <br/>
-     * <br/>
-     * Gets Hints Keys if specified. Hint Keys are required for Hint Tracking/Daemon.
+     * <br/><br/>
+     * Hint Keys are required for Hint Tracking/Daemon.<br/><br/>
      * Will connect to a Hint Server, if specified, or local Hint Tracker, if specified.
      * If none of those things are defined in the configuration this method simply returns.
      *
@@ -987,23 +987,22 @@ public class Main
      */
     public void setupHints(Repository repo) throws Exception
     {
-        boolean keys = false;
         String msg = "";
         try
         {
-            if (context.cfg.getHintKeysFile().length() > 0)
+            if (context.cfg.isHintTrackingEnabled())
             {
-                // Hints Keys
-                keys = true;
-                context.hintKeys = new HintKeys(context);
-                msg = "Exception while reading Hint Keys: ";
-                context.hintKeys.read(context.cfg.getHintKeysFile());
-                context.hints = new Hints(context, context.hintKeys);
-            }
+                if (context.cfg.getHintKeysFile().length() > 0)
+                {
+                    // Hints Keys
+                    context.hintKeys = new HintKeys(context);
+                    msg = "Exception while reading Hint Keys: ";
+                    context.hintKeys.read(context.cfg.getHintKeysFile());
+                    context.hints = new Hints(context, context.hintKeys);
+                }
+                else
+                    throw new MungeException("Hint Keys are required to use Hint Tracking");
 
-            if (context.cfg.isUsingHintTracking())
-            {
-                keys = false;
                 context.statusRepo = new Repository(context, Repository.HINT_SERVER);
 
                 // Remote Hint Status Server
@@ -1044,8 +1043,13 @@ public class Main
                     if (context.statusRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
                     {
                         // Setup the Hint Tracker datastore, single instance
+                        catchExceptions = true;
                         context.datastore = new Datastore(context);
-                        context.datastore.initialize();
+                        boolean valid = context.datastore.initialize();
+                        if (!valid)
+                        {
+                            throw new MungeException("Error initializing from hint status server JSON file");
+                        }
                     }
                     else
                     {
@@ -1063,13 +1067,13 @@ public class Main
 
                 context.cfg.setHintsDaemonFilename("");
                 context.cfg.setHintTrackerFilename("");
-                if (keys)
-                    context.cfg.setHintKeysFile("");
+                context.cfg.setHintKeysFile("");
 
                 if (msg.length() > 0)
                     msg += "<br/>" + e.toString();
                 else
                     msg = e.toString();
+                logger.error(msg);
 
                 if (isStartupActive())
                 {

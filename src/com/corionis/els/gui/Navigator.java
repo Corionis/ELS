@@ -6,12 +6,15 @@ import com.corionis.els.gui.bookmarks.Bookmarks;
 import com.corionis.els.gui.browser.NavTransferHandler;
 import com.corionis.els.gui.browser.NavTreeNode;
 import com.corionis.els.gui.browser.NavTreeUserObject;
+import com.corionis.els.gui.hints.HintsUI;
 import com.corionis.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.corionis.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.corionis.els.gui.tools.junkRemover.JunkRemoverUI;
 import com.corionis.els.gui.tools.operations.OperationsUI;
 import com.corionis.els.gui.tools.renamer.RenamerUI;
 import com.corionis.els.gui.tools.sleep.SleepUI;
+import com.corionis.els.hints.Hint;
+import com.corionis.els.hints.HintKey;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Origins;
@@ -53,12 +56,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static com.corionis.els.gui.system.FileEditor.EditorTypes.*;
+
 public class Navigator
 {
     public Bookmarks bookmarks;
     public Context context;
     public DuplicateFinderUI dialogDuplicateFinder;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
+    public HintsUI dialogHints = null;
     public JobsUI dialogJobs = null;
     public JunkRemoverUI dialogJunkRemover = null;
     public OperationsUI dialogOperations = null;
@@ -86,6 +92,82 @@ public class Navigator
     {
         this.context = context;
         this.context.navigator = this;
+    }
+
+    public boolean checkForConflicts(NavTreeUserObject tuo, String action)
+    {
+        if (tuo.type == NavTreeUserObject.REAL)
+        {
+            if (context.cfg.isHintTrackingEnabled() && tuo.node.getMyTree().getName().toLowerCase().contains("collection"))
+            {
+                ArrayList<Hint> hints = null;
+                String libName = tuo.getParentLibrary().getUserObject().name;
+                try
+                {
+                    hints = context.hints.checkConflicts(libName, tuo.getItemPath(libName, tuo.getPath()));
+                    if (hints != null && hints.size() > 0)
+                    {
+                        logger.info(context.cfg.gs("NavTransferHandler.action.cancelled"));
+                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.action.cancelled"));
+                        String msg = "" + hints.size() + " Hint(s) conflict with the current " + action;
+                        JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                        return true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    String message = e.getMessage();
+                    logger.error(message);
+                    Object[] opts = {context.cfg.gs("Z.ok")};
+                    JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Z.exception"),
+                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                    return true;
+                }
+            }
+        }
+        else
+            return true;
+        return false;
+    }
+
+    public int checkForHints(boolean checkOnly)
+    {
+        int count = 0;
+        if (context.cfg.isHintTrackingEnabled() && context.hints != null)
+        {
+            try
+            {
+                HintKey hk = context.hints.findHintKey(context.publisherRepo);
+                if (hk != null)
+                    count = context.hints.getCount(hk.system);
+
+                if (count > 0)
+                {
+                    String text = "" + count + " " + context.cfg.gs("Navigator.hints.available");
+                    logger.info(text);
+                    context.mainFrame.labelAlertHintsMenu.setToolTipText(text);
+                    context.mainFrame.labelAlertHintsToolbar.setToolTipText(text);
+                    context.mainFrame.labelAlertHintsMenu.setVisible(true);
+                    context.mainFrame.labelAlertHintsToolbar.setVisible(true);
+                }
+                else
+                {
+                    context.mainFrame.labelAlertHintsMenu.setVisible(false);
+                    context.mainFrame.labelAlertHintsToolbar.setVisible(false);
+                }
+            }
+            catch (Exception e)
+            {
+                context.fault = true;
+                logger.error(Utils.getStackTrace(e));
+            }
+        }
+        else
+        {
+            context.mainFrame.labelAlertHintsMenu.setVisible(false);
+            context.mainFrame.labelAlertHintsToolbar.setVisible(false);
+        }
+        return count;
     }
 
     /**
@@ -197,7 +279,11 @@ public class Navigator
                 if (checkOnly) // automated check
                 {
                     if (flags.toLowerCase().contains("ignore") || version.get(Configuration.BUILD_NUMBER).equals(Configuration.getBuildNumber()))
+                    {
+                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.installed.up.to.date"));
                         return false;
+                    }
+                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.update.available"));
                     return true;
                 }
 
@@ -206,6 +292,9 @@ public class Navigator
                     // yes, up-to-date
                     message = context.cfg.gs("Navigator.installed.up.to.date");
                     logger.info(message);
+                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.installed.up.to.date"));
+                    context.mainFrame.labelAlertUpdateMenu.setVisible(false);
+                    context.mainFrame.labelAlertUpdateToolbar.setVisible(false);
                     Object[] opts = {context.cfg.gs("Z.ok")};
                     JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                             JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, opts, opts[0]);
@@ -213,6 +302,9 @@ public class Navigator
                 }
                 else
                 {
+                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.update.available"));
+                    context.mainFrame.labelAlertUpdateMenu.setVisible(true);
+                    context.mainFrame.labelAlertUpdateToolbar.setVisible(true);
                     while (true)
                     {
                         // a new version is available
@@ -317,20 +409,27 @@ public class Navigator
         context.mainFrame.menuItemOpenHintKeys.setEnabled(enable);
         context.mainFrame.menuItemOpenHintTracking.setEnabled(enable);
 
+        context.mainFrame.menuItemCopy.setEnabled(enable);
+        context.mainFrame.menuItemCut.setEnabled(enable);
+        context.mainFrame.menuItemPaste.setEnabled(enable);
+        context.mainFrame.menuItemDelete.setEnabled(enable);
         context.mainFrame.menuItemFind.setEnabled(enable);
         context.mainFrame.menuItemFindNext.setEnabled(enable);
         context.mainFrame.menuItemNewFolder.setEnabled(enable);
         context.mainFrame.menuItemRename.setEnabled(enable);
         context.mainFrame.menuItemTouch.setEnabled(enable);
-        context.mainFrame.menuItemCopy.setEnabled(enable);
-        context.mainFrame.menuItemCut.setEnabled(enable);
-        context.mainFrame.menuItemPaste.setEnabled(enable);
-        context.mainFrame.menuItemDelete.setEnabled(enable);
 
         context.mainFrame.menuItemRefresh.setEnabled(enable);
         context.mainFrame.menuItemAutoRefresh.setEnabled(enable);
         context.mainFrame.menuItemShowHidden.setEnabled(enable);
         context.mainFrame.menuItemWordWrap.setEnabled(enable);
+
+        context.mainFrame.menuTbCopy.setEnabled(enable);
+        context.mainFrame.menuTbCut.setEnabled(enable);
+        context.mainFrame.menuTbPaste.setEnabled(enable);
+        context.mainFrame.menuTbDelete.setEnabled(enable);
+        context.mainFrame.menuTbNewFolder.setEnabled(enable);
+        context.mainFrame.menuTbRefresh.setEnabled(enable);
 
         for (int i = 0; i < context.mainFrame.menuBookmarks.getItemCount(); ++i)
         {
@@ -420,6 +519,59 @@ public class Navigator
             {
                 context.mainFrame.menuItemJobsManage.setEnabled(true);
                 context.mainFrame.menuItemJobsManage.setToolTipText("");
+            }
+        }
+    }
+    
+    public void enableDisableSystemMenus(FileEditor.EditorTypes type, boolean enable)
+    {
+        if (enable)
+        {
+            context.mainFrame.menuItemHints.setEnabled(true);
+            context.mainFrame.menuItemAuthKeys.setEnabled(true);
+            context.mainFrame.menuItemHintKeys.setEnabled(true);
+            context.mainFrame.menuItemBlacklist.setEnabled(true);
+            context.mainFrame.menuItemWhitelist.setEnabled(true);
+        }
+        else
+        {
+            switch (type)
+            {
+                case Authentication:
+                    context.mainFrame.menuItemHints.setEnabled(false);
+                    context.mainFrame.menuItemAuthKeys.setEnabled(true);
+                    context.mainFrame.menuItemHintKeys.setEnabled(false);
+                    context.mainFrame.menuItemBlacklist.setEnabled(false);
+                    context.mainFrame.menuItemWhitelist.setEnabled(false);
+                    break;
+                case Hints:
+                    context.mainFrame.menuItemHints.setEnabled(true);
+                    context.mainFrame.menuItemAuthKeys.setEnabled(false);
+                    context.mainFrame.menuItemHintKeys.setEnabled(false);
+                    context.mainFrame.menuItemBlacklist.setEnabled(false);
+                    context.mainFrame.menuItemWhitelist.setEnabled(false);
+                    break;
+                case HintKeys:
+                    context.mainFrame.menuItemHints.setEnabled(false);
+                    context.mainFrame.menuItemAuthKeys.setEnabled(false);
+                    context.mainFrame.menuItemHintKeys.setEnabled(true);
+                    context.mainFrame.menuItemBlacklist.setEnabled(false);
+                    context.mainFrame.menuItemWhitelist.setEnabled(false);
+                    break;
+                case BlackList:
+                    context.mainFrame.menuItemHints.setEnabled(false);
+                    context.mainFrame.menuItemAuthKeys.setEnabled(false);
+                    context.mainFrame.menuItemHintKeys.setEnabled(false);
+                    context.mainFrame.menuItemBlacklist.setEnabled(true);
+                    context.mainFrame.menuItemWhitelist.setEnabled(false);
+                    break;
+                case WhiteList:
+                    context.mainFrame.menuItemHints.setEnabled(false);
+                    context.mainFrame.menuItemAuthKeys.setEnabled(false);
+                    context.mainFrame.menuItemHintKeys.setEnabled(false);
+                    context.mainFrame.menuItemBlacklist.setEnabled(false);
+                    context.mainFrame.menuItemWhitelist.setEnabled(true);
+                    break;
             }
         }
     }
@@ -528,7 +680,7 @@ public class Navigator
         if (context.preferences.getLastSubscriberOpenPath().equals(context.preferences.getLastSubscriberOpenFile()))
             context.preferences.setLastSubscriberOpenPath(""); //context.cfg.getWorkingDirectory());
 
-        if (context.cfg.isUsingHintTracking())
+        if (context.cfg.isHintTrackingEnabled())
         {
             context.preferences.setLastHintTrackingIsRemote(context.cfg.getHintsDaemonFilename().length() > 0);
             context.preferences.setLastHintTrackingOpenFile(context.cfg.getHintHandlerFilename());
@@ -606,12 +758,7 @@ public class Navigator
             // add any defined jobs to the menu
             loadJobsMenu();
 
-/*
-            Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
-                logger.error("GOT IT: " + Utils.getStackTrace(throwable));
-            });
-*/
-
+            context.cfg.setNavigator(true);
         }
 
         context.savedEnvironment = new SavedEnvironment(context);
@@ -732,7 +879,7 @@ public class Navigator
                             }
                         }
 
-                        if (context.cfg.isUsingHintTracking() && context.cfg.isRemoteStatusServer())
+                        if (context.cfg.isHintTrackingEnabled() && context.cfg.isRemoteStatusServer())
                         {
                             for (ActionListener listener : context.mainFrame.menuItemCloseHintTracking.getActionListeners())
                             {
@@ -1041,6 +1188,8 @@ public class Navigator
                                 context.mainFrame.buttonHintTracking.doClick();
                             }
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                            context.mainFrame.menuItemHints.setEnabled(false);
+                            context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
                         }
                         catch (Exception e)
                         {
@@ -1148,7 +1297,7 @@ public class Navigator
                             break;
                         }
 
-                        if (context.cfg.isUsingHintTracking() && context.cfg.isRemoteStatusServer())
+                        if (context.cfg.isHintTrackingEnabled() && context.cfg.isRemoteStatusServer())
                         {
                             int r = JOptionPane.showConfirmDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.hint.tracking.close.current.status.server"),
@@ -1182,6 +1331,8 @@ public class Navigator
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.browser.toggleHints(true);
                             setQuitTerminateVisibility();
+                            context.mainFrame.menuItemHints.setEnabled(true);
+                            context.mainFrame.menuItemHints.setToolTipText("");
                         }
                         catch (Exception e)
                         {
@@ -1321,6 +1472,8 @@ public class Navigator
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
+                    context.mainFrame.menuItemHints.setEnabled(false);
+                    context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs((("Navigator.open.hint.keys.and.hint.tracking.to.see.hints"))));
                 }
             }
         });
@@ -1345,9 +1498,27 @@ public class Navigator
                     context.cfg.setHintsDaemonFilename("");
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
                     setQuitTerminateVisibility();
+                    context.mainFrame.menuItemHints.setEnabled(false);
+                    context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
                 }
             }
         });
+
+        // --- Generate
+        AbstractAction generateAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                Generator generator = new Generator(context);
+                String configName = Configuration.NAVIGATOR_NAME;
+                JDialog dialog = new JDialog(context.mainFrame);
+                //dialog.setAlwaysOnTop(true);
+                dialog.setLocation(context.mainFrame.getX() + 42, context.mainFrame.getY() + 42);
+                generator.showDialog(dialog, null, configName);
+            }
+        };
+        context.mainFrame.menuItemGenerate.addActionListener(generateAction);
 
         // --- Quit & Stop Remote(s)
         context.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()
@@ -1388,7 +1559,7 @@ public class Navigator
 
         if (Utils.isOsMac())
         {
-            FlatDesktop.setQuitHandler( response -> {
+            FlatDesktop.setQuitHandler(response -> {
                 boolean canQuit = context.mainFrame.verifyClose();
                 if (canQuit)
                     context.navigator.stop();
@@ -1422,10 +1593,6 @@ public class Navigator
             }
         }
 
-
-
-
-
         // -- Edit Menu
         // --------------------------------------------------------
 
@@ -1448,6 +1615,7 @@ public class Navigator
         };
         context.mainFrame.menuItemCopy.addActionListener(copyAction);
         context.mainFrame.popupMenuItemCopy.addActionListener(copyAction);
+        context.mainFrame.menuTbCopy.addActionListener(copyAction);
 
         // --- Cut
         ActionListener cutAction = new AbstractAction()
@@ -1468,6 +1636,7 @@ public class Navigator
         };
         context.mainFrame.menuItemCut.addActionListener(cutAction);
         context.mainFrame.popupMenuItemCut.addActionListener(cutAction);
+        context.mainFrame.menuTbCut.addActionListener(cutAction);
 
         // --- Paste
         ActionListener pasteAction = new AbstractAction()
@@ -1488,6 +1657,7 @@ public class Navigator
         };
         context.mainFrame.menuItemPaste.addActionListener(pasteAction);
         context.mainFrame.popupMenuItemPaste.addActionListener(pasteAction);
+        context.mainFrame.menuTbPaste.addActionListener(pasteAction);
 
         // --- Delete
         ActionListener deleteAction = new AbstractAction()
@@ -1513,6 +1683,7 @@ public class Navigator
         };
         context.mainFrame.menuItemDelete.addActionListener(deleteAction);
         context.mainFrame.popupMenuItemDelete.addActionListener(deleteAction);
+        context.mainFrame.menuTbDelete.addActionListener(deleteAction);
 
         // --- Find in Log
         AbstractAction findAction = new AbstractAction()
@@ -1747,6 +1918,7 @@ public class Navigator
         };
         context.mainFrame.menuItemNewFolder.addActionListener(newFolderAction);
         context.mainFrame.popupMenuItemNewFolder.addActionListener(newFolderAction);
+        context.mainFrame.menuTbNewFolder.addActionListener(newFolderAction);
 
         // --- Rename
         ActionListener renameAction = new AbstractAction()
@@ -1805,6 +1977,10 @@ public class Navigator
                                     context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                             return;
                         }
+
+                        // check for Hint conflicts after deep scan
+                        if (context.navigator.checkForConflicts(tuo, context.cfg.gs("HintsUI.action.rename")))
+                            return;
 
                         String reply = name;
                         if (path.length() > 0)
@@ -1914,6 +2090,7 @@ public class Navigator
         };
         context.mainFrame.menuItemRefresh.addActionListener(refreshAction);
         context.mainFrame.popupMenuItemRefresh.addActionListener(refreshAction);
+        context.mainFrame.menuTbRefresh.addActionListener(refreshAction);
 
         // --- Progress
         context.mainFrame.menuItemProgress.addActionListener(new AbstractAction()
@@ -1973,6 +2150,31 @@ public class Navigator
             context.mainFrame.menuItemShowHidden.setSelected(false);
         else
             context.mainFrame.menuItemShowHidden.setSelected(true);
+
+        // --- Show Toolbar
+        context.mainFrame.menuItemShowToolbar.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                context.preferences.setShowToolbar(context.mainFrame.menuItemShowToolbar.isSelected());
+                if (context.mainFrame.menuItemShowToolbar.isSelected())
+                {
+                    context.mainFrame.panelAlertsMenu.setVisible(false);
+                    context.mainFrame.panelToolbar.setVisible(true);
+                }
+                else
+                {
+                    context.mainFrame.panelToolbar.setVisible(false);
+                    context.mainFrame.panelAlertsMenu.setVisible(true);
+                }
+            }
+        });
+        // set initial state of Show Toolbar checkbox
+        if (context.preferences.isShowToolbar())
+            context.mainFrame.menuItemShowToolbar.setSelected(true);
+        else
+            context.mainFrame.menuItemShowToolbar.setSelected(false);
 
         // --- Word Wrap Log
         ActionListener wordWrapAction = new AbstractAction()
@@ -2217,6 +2419,27 @@ public class Navigator
         // -- System Menu
         // --------------------------------------------------------
 
+        // --- Hints
+        context.mainFrame.menuItemHints.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                dialogHints = new HintsUI(context.mainFrame, context);
+                enableDisableSystemMenus(Hints, false);
+                dialogHints.setVisible(true);
+            }
+        });
+        if (!context.cfg.isHintTrackingEnabled())
+        {
+            context.mainFrame.menuItemHints.setEnabled(false);
+            if (context.cfg.getHintKeysFile().length() > 0)
+                context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
+            else
+                context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs((("Navigator.open.hint.keys.and.hint.tracking.to.see.hints"))));
+        }
+
+        // --- Authorization Keys
         context.mainFrame.menuItemAuthKeys.addActionListener(new AbstractAction()
         {
             @Override
@@ -2225,10 +2448,11 @@ public class Navigator
                 if (fileeditor != null && fileeditor.isVisible())
                     fileeditor.requestFocus();
                 else
-                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.Authentication);
+                    fileeditor = new FileEditor(context, Authentication);
             }
         });
 
+        // --- Hint Keys
         context.mainFrame.menuItemHintKeys.addActionListener(new AbstractAction()
         {
             @Override
@@ -2237,10 +2461,11 @@ public class Navigator
                 if (fileeditor != null && fileeditor.isVisible())
                     fileeditor.requestFocus();
                 else
-                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.HintKeys);
+                    fileeditor = new FileEditor(context, HintKeys);
             }
         });
 
+        // --- Blacklist
         context.mainFrame.menuItemBlacklist.addActionListener(new AbstractAction()
         {
             @Override
@@ -2253,6 +2478,7 @@ public class Navigator
             }
         });
 
+        // --- Whitelist
         context.mainFrame.menuItemWhitelist.addActionListener(new AbstractAction()
         {
             @Override
@@ -2261,27 +2487,11 @@ public class Navigator
                 if (fileeditor != null && fileeditor.isVisible())
                     fileeditor.requestFocus();
                 else
-                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.WhiteList);
+                    fileeditor = new FileEditor(context, WhiteList);
             }
         });
 
-        // --- Generate
-        AbstractAction generateAction = new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                Generator generator = new Generator(context);
-                String configName = Configuration.NAVIGATOR_NAME;
-                JDialog dialog = new JDialog(context.mainFrame);
-                //dialog.setAlwaysOnTop(true);
-                dialog.setLocation(context.mainFrame.getX() + 42, context.mainFrame.getY() + 42);
-                generator.showDialog(dialog, null, configName);
-            }
-        };
-        context.mainFrame.menuItemGenerate.addActionListener(generateAction);
-
-        // --- Save Layout
+        // --- Settings
         AbstractAction saveLayoutAction = new AbstractAction()
         {
             @Override
@@ -2306,7 +2516,7 @@ public class Navigator
         // --- Settings
         if (Utils.isOsMac())
         {
-            FlatDesktop.setPreferencesHandler( () -> {
+            FlatDesktop.setPreferencesHandler(() -> {
                 if (dialogSettings == null || !dialogSettings.isShowing())
                 {
                     dialogSettings = new Settings(context.mainFrame, context);
@@ -2321,8 +2531,9 @@ public class Navigator
 
             for (Component comp : context.mainFrame.menuSystem.getComponents())
             {
-                if (comp instanceof  JSeparator && ((JSeparator)comp).getName().equalsIgnoreCase("separatorSettings")) {
-                    ((JSeparator)comp).setVisible(false);
+                if (comp instanceof JSeparator && ((JSeparator) comp).getName().equalsIgnoreCase("separatorSettings"))
+                {
+                    ((JSeparator) comp).setVisible(false);
                 }
             }
             context.mainFrame.menuItemSettings.setVisible(false);
@@ -2579,7 +2790,7 @@ public class Navigator
         // --- About
         if (Utils.isOsMac())
         {
-            FlatDesktop.setAboutHandler( () -> {
+            FlatDesktop.setAboutHandler(() -> {
                 About about = new About(context.mainFrame, context);
                 about.setVisible(true);
             });
@@ -2601,6 +2812,8 @@ public class Navigator
 
         // -- popup menu browser log tab
         // --------------------------------------------------------
+
+        /* Other popup menu items are defined under the Edit menu */
 
         // --- Bottom
         context.mainFrame.popupMenuItemBottom.addActionListener(new AbstractAction()
@@ -2633,6 +2846,34 @@ public class Navigator
                 vertical.setValue(0);
             }
         });
+
+        // -- alerts panel
+        // --------------------------------------------------------
+
+        //--- Hints alert
+        MouseAdapter mad = new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                context.mainFrame.menuItemHints.doClick();
+            }
+        };
+        context.mainFrame.labelAlertHintsMenu.addMouseListener(mad);
+        context.mainFrame.labelAlertHintsToolbar.addMouseListener(mad);
+
+        //--- Update alert
+        mad = new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                checkForUpdates(false);
+            }
+        };
+        context.mainFrame.labelAlertUpdateMenu.addMouseListener(mad);
+        context.mainFrame.labelAlertUpdateToolbar.addMouseListener(mad);
+
     }
 
     public boolean isUpdaterProcess()
@@ -3090,11 +3331,27 @@ public class Navigator
                     {
                         logger.info(context.cfg.gs("Navigator.update.available"));
                         context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.update.available"));
+                        context.mainFrame.labelAlertUpdateMenu.setVisible(true);
+                        context.mainFrame.labelAlertUpdateToolbar.setVisible(true);
                     }
                     else
                     {
                         logger.info(context.cfg.gs("Navigator.installed.up.to.date"));
                         context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.installed.up.to.date"));
+                        context.mainFrame.labelAlertUpdateMenu.setVisible(false);
+                        context.mainFrame.labelAlertUpdateToolbar.setVisible(false);
+                    }
+
+                    checkForHints(true);
+
+                    if (context.preferences.isShowToolbar())
+                    {
+                        context.mainFrame.panelAlertsMenu.setVisible(false);
+                    }
+                    else
+                    {
+                        context.mainFrame.menuToolbar.setVisible(false);
+                        context.mainFrame.panelAlertsMenu.setVisible(true);
                     }
 
                     context.mainFrame.setVisible(true);
@@ -3226,13 +3483,13 @@ public class Navigator
                 {
                     String[] args;
                     String cmd = "";
-                    String[] parms = { Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
+                    String[] parms = {Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
                             "ELS_Updater" + System.getProperty("file.separator") +
                             "rt" + System.getProperty("file.separator") +
                             "bin" + System.getProperty("file.separator") +
                             "java" + (Utils.isOsWindows() ? ".exe" : ""),
-                        "-jar",
-                        updaterJar };
+                            "-jar",
+                            updaterJar};
                     args = parms;
                     cmd = parms.toString();
 

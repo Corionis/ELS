@@ -1,7 +1,9 @@
 package com.corionis.els.stty.subscriber;
 
+import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintKeys;
+import com.corionis.els.hints.Hints;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.stty.ServeStty;
 import com.corionis.els.Context;
@@ -18,6 +20,7 @@ import java.io.*;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -31,6 +34,7 @@ public class Daemon extends AbstractDaemon
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
+    private Hints hints = null;
     private boolean isTerminal = false;
 
     /**
@@ -131,7 +135,7 @@ public class Daemon extends AbstractDaemon
                         // send my flavor
                         send(myRepo.getLibraryData().libraries.flavor, "");
 
-                        system = connectedKey.name;
+                        system = connectedKey.system;
                         logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
                         context.fault = false;
                         context.timeout = false;
@@ -180,6 +184,11 @@ public class Daemon extends AbstractDaemon
             {
                 context.authKeys = new HintKeys(context);
                 context.authKeys.read(context.cfg.getAuthKeysFile());
+            }
+
+            if (context.cfg.isHintTrackingEnabled())
+            {
+                hints = new Hints(context, context.hintKeys);
             }
         }
         catch (Exception e)
@@ -232,6 +241,10 @@ public class Daemon extends AbstractDaemon
                 }
             }
 
+            // setup JSON handlers
+            Gson gsonBuilder = new GsonBuilder().create();
+            Gson gsonParser = new Gson();
+
             // prompt for & process interactive commands
             try
             {
@@ -267,14 +280,15 @@ public class Daemon extends AbstractDaemon
                             break; // break read loop and let the connection be closed
                         }
 
-                        if (line.trim().length() < 1)
+                        line = line.trim();
+                        if (line.length() < 1)
                         {
                             response = "\r";
                             continue;
                         }
 
                         ++commandCount;
-                        logger.info("Processing command: " + line + " from: " + system); // + ", " + Utils.formatAddresses(getSocket()));
+                        logger.info("Processing command: " + line + ", from: " + system); // + ", " + Utils.formatAddresses(getSocket()));
 
                         // parse the command
                         StringTokenizer t = new StringTokenizer(line, "\"");
@@ -313,19 +327,6 @@ public class Daemon extends AbstractDaemon
                         if (theCommand.equalsIgnoreCase("bye"))
                         {
                             break;  // let the connection close
-                        }
-
-                        // -------------- cleanup -----------------------------------
-                        if (theCommand.equalsIgnoreCase("cleanup"))
-                        {
-                            if (context.hints != null)
-                            {
-                                context.localMode = true;
-                                context.hints.hintsSubscriberCleanup();
-                                context.localMode = false;
-                                response = "true";
-                            }
-                            continue;
                         }
 
                         // -------------- return collection file --------------------
@@ -422,14 +423,15 @@ public class Daemon extends AbstractDaemon
                                 boolean valid = false;
                                 if (t.hasMoreTokens())
                                 {
-                                    String libName = getNextToken(t);
-                                    String itemPath = getNextToken(t);
-                                    String toPath = getNextToken(t);
-                                    if (libName.length() > 0 && itemPath.length() > 0 && toPath.length() > 0)
+                                    Hint hint = null;
+                                    if (line.length() > 8)
                                     {
                                         valid = true;
-                                        boolean sense = context.hints.hintRun(libName, itemPath, toPath);
-                                        response = (isTerminal ? "ok" + (sense ? ", executed" : "") + "\r\n" : Boolean.toString(sense));
+                                        String json = line.substring(9);
+                                        hint = gsonParser.fromJson(json, Hint.class);
+                                        ArrayList<Hint> pending = new ArrayList<>();
+                                        pending.add(hint);
+                                        response = context.hints.hintsMunge(pending); // process locally
                                     }
                                 }
                                 if (!valid)
@@ -448,44 +450,6 @@ public class Daemon extends AbstractDaemon
                             if (!context.timeout)
                                 send("End-Execution", trace ? "send End-Execution" : "");
                             Thread.sleep(3000);
-                        }
-
-                        // -------------- hint -----------------------------------
-                        if (theCommand.equalsIgnoreCase("hint"))
-                        {
-                            if (context.hintKeys == null)
-                            {
-                                response = (isTerminal ? "hint command requires a --keys file\r\n" : "false");
-                                logger.warn("hint command received with no --keys file specified");
-                            }
-                            else
-                            {
-                                boolean valid = false;
-                                if (t.hasMoreTokens())
-                                {
-                                    String filename = getNextToken(t);
-                                    String command = getNextToken(t).trim();
-                                    command += " \"" + getNextToken(t) + "\""; // arg1
-                                    if (t.hasMoreTokens())
-                                    {
-                                        String arg = getNextToken(t);
-                                        if (!arg.equals("\n"))
-                                            command += " \"" + arg + "\""; // possible arg2
-                                    }
-                                    if (filename.length() > 0 && command.length() > 0)
-                                    {
-                                        valid = true;
-                                        context.localMode = true;
-                                        context.hints.writeOrUpdateHint(filename, command, myKey); // response is ignored
-                                        context.localMode = false;
-                                    }
-                                }
-                                if (!valid)
-                                    response = (isTerminal ? "hint command requires a 2 arguments, filename and command\r\n" : "false");
-                                else
-                                    response = (isTerminal ? "\r\n" : "true");
-                            }
-                            continue;
                         }
 
                         // -------------- return library file --------------------

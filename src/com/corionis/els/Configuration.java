@@ -1338,6 +1338,16 @@ public class Configuration
     }
 
     /**
+     * Is a Hint Status Tracker or Status Server being used?
+     *
+     * @return true if so
+     */
+    public boolean isHintTrackingEnabled()
+    {
+        return (hintTrackerFilename.length() > 0 || hintsDaemonFilename.length() > 0);
+    }
+
+    /**
      * Should ignored files be reported?
      *
      * @return true to report ignored files
@@ -1611,16 +1621,6 @@ public class Configuration
     }
 
     /**
-     * Is a Hint Status Tracker or Status Server being used?
-     *
-     * @return true if so
-     */
-    public boolean isUsingHintTracking()
-    {
-        return (hintTrackerFilename.length() > 0 || hintsDaemonFilename.length() > 0);
-    }
-
-    /**
      * Is the validation of collections and targets enabled?
      *
      * @return true if validation should be done
@@ -1682,15 +1682,14 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
+        // Available: O J
         // Reserved:
-        //   J jump-up on-demand (auto-start, inetd)
         //   M match dates
-        //   O operation
-        //   R restrict hint processing
-        //   U check for updates
+        //   R restrict Hint processing, i.e. do not execute
+        //   U check for update without GUI
         //   V user authentication & authorization
-        //   X execute an internal command to handle long command lines
-        //   Y install update
+        //   X execute Hints only. -X -R checks for Hints but does not execute
+        //   Y install update without GUI
         //   Z verify connectivity (only)
 
         int index;

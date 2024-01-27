@@ -2,18 +2,28 @@ package com.corionis.els.stty.hintServer;
 
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
+import com.corionis.els.Utils;
+import com.corionis.els.hints.Hint;
+import com.corionis.els.hints.HintStatus;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import javax.swing.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -22,126 +32,150 @@ import java.util.List;
 
 public class Datastore
 {
+    public List<Hint> hints;
+
+    private transient Context context;
+    private transient Library statusLibrary;
+    private transient String statusDirectory;
+    private transient String statusFullPath;
+
+    private final transient String DATASTORE_NAME = "hint-datastore.json";
     private final transient Logger logger = LogManager.getLogger("applog");
-    private final Marker SHORT = MarkerManager.getMarker("SHORT");
-    private final Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
-    private Context context;
-    private String statusDirectory;
-    private Library statusLibrary;
+    private final transient Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+    private final transient Marker SHORT = MarkerManager.getMarker("SHORT");
 
     /**
      * Constructor
      *
-     * @param context    Context
+     * @param context Context
      */
     public Datastore(Context context)
     {
         this.context = context;
     }
 
-    /**
-     * Add a hint status tracker collection Item and empty file to track a hint's status
-     *
-     * @param itemLib       The library of the hint
-     * @param itemPath      The path to the new hint file
-     * @param backupName    The back-up name for the status
-     * @param defaultStatus The default status for the back-up
-     * @return The new Item for the hint
-     * @throws Exception
-     */
-    private synchronized Item add(String itemLib, String itemPath, String backupName, String defaultStatus) throws Exception
+    public synchronized void add(Hint hint)
     {
-        Item item = new Item();
-        item.setLibrary(itemLib);
-        String trackPath = itemLib + "--" + itemPath.replaceAll("/", "--").replaceAll("\\\\", "--");
-        item.setItemPath(trackPath);
-        item.setFullPath(statusDirectory + context.statusRepo.getSeparator() + item.getItemPath());
-        item.setSize(42);
-        statusLibrary.items.add(item); // add to the in-memory collection
+        if (this.hints == null)
+            this.hints = new ArrayList<Hint>();
 
-        File stat = new File(item.getFullPath()); // create an empty file
-        stat.createNewFile();
-        logger.info("  + Added hint status file: " + item.getFullPath());
-        return item;
+        this.hints.add(hint);
     }
 
-    /**
-     * Find a back-up name in a hint status file
-     *
-     * @param lines      The lines of the hint status file
-     * @param backupName The back-up name to find
-     * @return String line found, or null
-     */
-    private String findBackup(List<String> lines, String backupName)
+    public synchronized int count(String system)
     {
-        for (int i = 0; i < lines.size(); ++i)
+        int count = 0;
+        if (hints != null && hints.size() > 0)
         {
-            String line = lines.get(i);
-            if (line.toLowerCase().startsWith(backupName.toLowerCase() + " "))
+            for (int i = 0; i < hints.size(); ++i)
             {
-                return line;
+                HintStatus hs = hints.get(i).findStatus(system);
+                if (hs != null && !hs.status.toLowerCase().equals("done"))
+                    ++count;
+                else if (hs == null)
+                    ++count;
             }
         }
+        return count;
+    }
+
+    public synchronized Hint get(Hint hint, String mode)
+    {
+        ArrayList<Hint> list = getAll(hint, mode);
+        if (list != null && list.size() == 1)
+            return list.get(0);
+
+        if (list.size() > 1)
+            logger.warn("!!! Datastore get singleton Hint returned " + list.size() + " Hints");
+
         return null;
     }
 
-    /**
-     * Find a hint Item in the hint status tracker collection
-     * <p>
-     * If not found a new Item is added.
-     *
-     * @param itemLib       The library of the hint
-     * @param itemPath      The path to the new hint file
-     * @param backupName    The back-up name for the status
-     * @param defaultStatus The default status for the back-up
-     * @return The Item of the hint
-     * @throws Exception
-     */
-    private Item findItem(String itemLib, String itemPath, String backupName, String defaultStatus) throws Exception
+    public synchronized ArrayList<Hint> getAll(Hint hint, String mode)
     {
-        String path = itemLib + "--" + itemPath;
-        Item item = statusLibrary.get(path);
-        if (item == null)
+        ArrayList<Hint> results = new ArrayList<Hint>();
+        if (hints != null && hints.size() > 0)
         {
-            item = add(itemLib, itemPath, backupName, defaultStatus);
+            boolean all = mode.toLowerCase().equals("all") ? true : false;
+            boolean exact = mode.toLowerCase().equals("exact") ? true : false;
+            boolean full = mode.toLowerCase().equals("full") ? true : false;
+            boolean conflict = mode.toLowerCase().equals("conflict") ? true : false;
+
+            if (all)
+            {
+                if (hints != null)
+                {
+                    results.addAll(hints);
+                }
+                return results;
+            }
+
+            if (exact || full || conflict)
+            {
+                for (int i = 0; i < hints.size(); ++i)
+                {
+                    Hint entry = hints.get(i);
+                    if (conflict)
+                    {
+                        if (hint.fromLibrary != null && hint.fromLibrary.length() > 0 && entry.fromLibrary.compareTo(hint.fromLibrary) != 0 ? false : true)
+                        {
+                            if (hint.fromItemPath != null && hint.fromItemPath.length() > 0 && entry.fromItemPath.compareTo(hint.fromItemPath) != 0 ? false : true)
+                            {
+                                results.add(entry);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (exact && (hint.utc != 0 && entry.utc != hint.utc) ? false : true)
+                        {
+                            if (exact && (hint.author != null && hint.author.length() > 0 && entry.author.compareTo(hint.author) != 0) ? false : true)
+                            {
+                                if (hint.system != null && hint.system.length() > 0 && entry.system.compareTo(hint.system) != 0 ? false : true)
+                                {
+                                    if (hint.action != null && hint.action.length() > 0 && entry.action.compareTo(hint.action) != 0 ? false : true)
+                                    {
+                                        if (hint.fromLibrary != null && hint.fromLibrary.length() > 0 && entry.fromLibrary.compareTo(hint.fromLibrary) != 0 ? false : true)
+                                        {
+                                            if (hint.fromItemPath != null && hint.fromItemPath.length() > 0 && entry.fromItemPath.compareTo(hint.fromItemPath) != 0 ? false : true)
+                                            {
+                                                if (hint.toLibrary != null && hint.toLibrary.length() > 0 && entry.toLibrary.compareTo(hint.toLibrary) != 0 ? false : true)
+                                                {
+                                                    if (hint.toItemPath != null && hint.toItemPath.length() > 0 && entry.toItemPath.compareTo(hint.toItemPath) != 0 ? false : true)
+                                                    {
+                                                        results.add(entry);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        return item;
+        return results;
     }
 
-    /**
-     * Command "get" to return the status of a back-up
-     *
-     * @param itemLib       The library of the hint
-     * @param itemPath      The item path of the hint
-     * @param backupName    The back-up name to find
-     * @param defaultStatus The default status if not found
-     * @return The current status of the hint
-     * @throws Exception
-     */
-    public synchronized String getStatus(String itemLib, String itemPath, String backupName, String defaultStatus) throws Exception
+    public ArrayList<Hint> getFor(String hintSystemName)
     {
-        String status = "";
-
-        itemPath = itemPath.replaceAll("/", "--").replaceAll("\\\\", "--");
-        Item item = findItem(itemLib, itemPath, backupName, defaultStatus);
-        List<String> lines = Files.readAllLines(Paths.get(item.getFullPath()));
-        String line = findBackup(lines, backupName);
-        if (line == null)
+        ArrayList<Hint> results = null;
+        if (hints != null && hints.size() > 0)
         {
-            status = defaultStatus;
-            updateDatastore(item, lines, backupName, status);
-        }
-        else
-        {
-            String[] parts = line.split("[\\s]+");
-            if (parts.length == 2)
+            for (int i = 0; i < hints.size(); ++i)
             {
-                status = parts[1];
+                Hint hint = hints.get(i);
+                if (hint.isFor(hintSystemName) >= -1)
+                {
+                    if (results == null)
+                        results = new ArrayList<Hint>();
+                    results.add(hint);
+                }
             }
-            else
-                throw new MungeException("Malformed datastore status line in: " + item.getFullPath());
         }
-        return status;
+        return results;
     }
 
     /**
@@ -153,7 +187,7 @@ public class Datastore
      *
      * @throws MungeException
      */
-    public void initialize() throws MungeException
+    public boolean initialize() throws Exception
     {
         if (context.statusRepo.getLibraryData() != null &&
                 context.statusRepo.getLibraryData().libraries != null &&
@@ -186,93 +220,131 @@ public class Datastore
             dir.mkdirs();
         }
 
-        // scan the status datastore (repository)
+        // scan the status repository
         context.statusRepo.scan(statusLibrary.name);
 
-        Library lib = context.statusRepo.getLibrary(statusLibrary.name);
         int count = 0;
-        if (lib != null && lib.items != null)
-            count = lib.items.size();
-        logger.info("Status datastore contains " + count + " items");
-    }
+        if (statusLibrary.items != null)
+            count = statusLibrary.items.size();
 
-    /**
-     * Command "set" to change the status of a back-up
-     *
-     * @param itemLib    The library of the hint
-     * @param itemPath   The item path of the hint
-     * @param backupName The back-up name to find
-     * @param status     The status to use
-     * @return The updated status of the hint; should be the same as that passed
-     * @throws Exception
-     */
-    public synchronized String setStatus(String itemLib, String itemPath, String backupName, String status) throws Exception
-    {
-        String path = itemLib + "--" + itemPath;
-        path = path.replaceAll("/", "--").replaceAll("\\\\", "--");
-        Item item = statusLibrary.get(path);
-        if (item == null)
+        if (count == 1)
         {
-            item = add(itemLib, itemPath, backupName, status);
-        }
-
-        List<String> lines = new ArrayList<String>();
-        lines = Files.readAllLines(Paths.get(item.getFullPath()));
-        lines = updateDatastore(item, lines, backupName, status);
-        return status;
-    }
-
-    /**
-     * Update the datastore.
-     * <p>
-     * If the hint has been Deleted by all participants then the
-     * hint status tracker/server file is deleted for automatic
-     * hint file maintenance.
-     *
-     * @param item       The Item to be updated
-     * @param lines      The lines of the item
-     * @param backupName The back-up name to be updated
-     * @param status     The status value to be used
-     * @return The updates lines of the hint status tracker/server
-     * @throws Exception
-     */
-    private synchronized List<String> updateDatastore(Item item, List<String> lines, String backupName, String status) throws Exception
-    {
-        int count = 0;
-        int deleted = 0;
-        boolean found = false;
-        for (int i = 0; i < lines.size(); ++i)
-        {
-            String update = "";
-            String line = lines.get(i).trim().toLowerCase();
-            if (line.length() == 0)
-                continue;
-            ++count;
-            if (line.startsWith(backupName.toLowerCase() + " "))
-            {
-                update = backupName + " " + status;
-                lines.set(i, update);
-                line = update.toLowerCase();
-                found = true;
-            }
-            if (line.endsWith(" deleted"))
-                ++deleted;
-        }
-        if (!found)
-        {
-            lines.add(backupName + " " + status);
-            ++count;
-            if (status.trim().equalsIgnoreCase("deleted"))
-                ++deleted;
-        }
-        if (deleted == count)
-        {
-            Files.delete(Paths.get(item.getFullPath()));
-            logger.info("  $ Hint finished by all participants, deleted hint status file: " + item.getFullPath());
+            Item item = statusLibrary.items.get(0);
+            statusFullPath = item.getFullPath();
+            if (!read())
+                return false;
         }
         else
-            Files.write(Paths.get(item.getFullPath()), lines, StandardOpenOption.CREATE);
-        return lines;
+        {
+            if (count != 0)
+                throw new MungeException("Multiple status files are not supported in " + statusDirectory);
+
+            statusFullPath = statusLibrary.sources[0] + System.getProperty("file.separator") + DATASTORE_NAME;
+        }
+        return true;
+    }
+
+    private synchronized void normalize()
+    {
+        sort("utc");
+    }
+
+    public boolean read() throws Exception
+    {
+        boolean valid = false;
+        try
+        {
+            String json;
+            String path = statusFullPath;
+            if (Utils.isRelativePath(path))
+            {
+                path = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + path;
+            }
+
+            Gson gson = new Gson();
+            logger.info("Reading Library file " + path);
+            if (Utils.isRelativePath(path))
+            {
+                path = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + path;
+            }
+            json = new String(Files.readAllBytes(Paths.get(path)));
+
+            Datastore ds = gson.fromJson(json, Datastore.class);
+            if (ds != null && ds.hints != null)
+            {
+                this.hints = ds.hints;
+                normalize();
+                logger.info("Read \"" + path + "\" successfully");
+                valid = true;
+            }
+            else
+            {
+                logger.info("Read \"" + path + "\", content is empty");
+            }
+        }
+        catch (IOException ioe)
+        {
+            String msg = "Exception while reading Hint datastore: " + ioe.toString();
+            if (context.main.isStartupActive())
+            {
+                logger.error(msg);
+                int opt = JOptionPane.showConfirmDialog(context.main.getGuiLogAppender().getStartup(),
+                        "<html><body>" + msg + "<br/><br/>Continue?</body></html>",
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                if (opt == JOptionPane.YES_OPTION)
+                {
+                    context.fault = false;
+                    return false;
+                }
+            }
+            throw new MungeException(msg);
+        }
+        return valid;
+    }
+
+    public void sort(String element)
+    {
+        switch (element.toLowerCase())
+        {
+            case "utc":
+                Collections.sort(hints, sortByUtc());
+                break;
+        }
+    }
+
+    public static synchronized Comparator<Hint> sortByUtc()
+    {
+        Comparator comp = new Comparator<Hint>()
+        {
+            @Override
+            public int compare(Hint hint1, Hint hint2)
+            {
+                return (hint1.utc < hint2.utc ? -1 : (hint1.utc > hint2.utc ? 1 : 0));
+            }
+        };
+        return comp;
+    }
+
+    public void write() throws Exception
+    {
+        String path = statusFullPath;
+        if (Utils.isRelativePath(path))
+        {
+            path = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + path;
+        }
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(this);
+        try
+        {
+            PrintWriter outputStream = new PrintWriter(path);
+            outputStream.println(json);
+            outputStream.close();
+        }
+        catch (FileNotFoundException fnf)
+        {
+            throw new MungeException(context.cfg.gs("Z.error.writing") + path + ": " + Utils.getStackTrace(fnf));
+        }
     }
 
 }

@@ -80,6 +80,10 @@ public class BrowserTableModel extends DefaultTableModel
     {
         NavTreeNode child;
         NavTreeUserObject tuo;
+
+        if (row >= node.getChildCount(hideFilesInTreeFilterActive, hideHiddenFilterActive))
+            return null;
+
         child = (NavTreeNode) node.getChildAt(row, hideFilesInTreeFilterActive, hideHiddenFilterActive);
         if (child == null)
             return null;

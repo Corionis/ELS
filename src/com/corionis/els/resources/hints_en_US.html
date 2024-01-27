@@ -1,0 +1,141 @@
+<html>
+<head>
+    <style>
+        html, body {
+            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+        }
+
+        div {
+            margin-left: 10px;
+            margin-right: 4px;
+        }
+
+        p {
+            margin-left: 10px;
+            margin-top: -8px;
+            margin-right: 4px;
+        }
+
+        table {
+            border-bottom: 1px solid;
+            margin: 0 4px 4px;
+            padding: 4px;
+            width: 100%;
+        }
+
+        th {
+            border-bottom: 1px solid ;
+            text-align: left;
+        }
+
+        td {
+            text-align: left;
+        }
+
+        ul {
+            margin-left: 22px;
+        }
+    </style>
+</head>
+<body>
+<h2>Hints</h2>
+<p>
+    Hints are optional and used to track manual changes made to a Library. Those changes
+    are propagated to other back-ups either when they are connected using the Run button or
+    at back-up time.
+</p>
+<br/>
+<p>
+    The changes that tracked are rename, move and delete. Additions or copies are a normal part
+    of ELS back-up operations and do not involve Hints.
+</p>
+<br/>
+<p>
+    When enabled Hints are automatically created when any tracked action is performed on
+    a Library. Hints are not tracked on System tab content.
+</p>
+<br/>
+<p>
+    When tracked actions are performed ELS checks for conflicts with existing Hints and will
+    cancel the action and display a message dialog. If multiple ELS instances (Navigators) are
+    participating they must all have "live" connections to a Hint Tracker/Server for Hints and
+    conflicts to be tracked and detected.
+</p>
+<br/>
+<p>
+    When opening a Publisher the Collection/Workstation radio button controls whether Hints
+    are tracked for actions on that Library. Collections are tracked, Workstations are not.
+    This supports ELS Navigator running on a computer used to create content with a Collection
+    as the Subscriber. The Collection may have one or more back-ups all using Hints.
+</p>
+
+<h3>Requirements</h3>
+<p>
+    For Hints to be enabled the following is required:
+    <ul>
+    <li>A Hint Keys file of Libraries (back-ups) participating in Hints.</li>
+    <li>A Hint Tracker/Server Library to manage Hint data.</li>
+</ul>
+</p>
+
+<h4>Hint Keys</h4>
+<p>
+    After one or more Libraries have been created use System, Hint Keys to create
+    name/key pairs. The name may only use alphanumeric characters with no special
+    characters or whitespace. The key is one of the existing Library keys. Use the
+    Key List button to select one from a list.
+</p>
+<br/>
+<p>
+    Hint Track/Server Library keys should <b>not</b> be in Hint Keys.
+</p>
+
+<h4>Hint Tracker/Server</h4>
+<p>
+    A Hint Tracker is a Library created to hold the Hints data.
+    <ul>
+        <li>A single Location.</li>
+        <li>A single Library in it's Bibliography.</li>
+        <li>A single Source for the Library.</li>
+    </ul>
+</p>
+<p>
+    A Hint Tracker is ELS configured to use Hints where the data is stored
+    locally on the system running ELS. It's build-in.
+</p>
+<br/>
+<p>
+    A Hint Server is ELS running as a separate process (on another computer) using
+    a Hint Tracker library, similar to a Subscriber Listener. When used remotely
+    a valid network name or IP address and port are required, e.g. 10.1.1.5:50271
+</p>
+
+<h3>Executing Hints</h3>
+<p>
+    Hints are designed so they may be propagated to back-ups <i>later</i> during
+    back-up operations. However Hints may also be executed on any connected library that
+    is participating in Hints using the Run button.
+</p>
+<br/>
+<p>
+    Once all back-ups participating in Hints have executed a Hint the Hint is removed.
+</p>
+
+<br/>
+<i><b>Note:</b></i>
+<p>
+    This option must be defined on the command line with one of the following
+    options or in an Operation for them to be used in a Job.
+        <blockquote>-k | --keys [file] or -K | --keys-only [file]</blockquote>
+<br/>
+    <p>
+        The -K | --keys-only option executes Hints and other back-up options, such as --duplicates,
+        but does not perform a back-up operation.
+    </p>
+</p>
+
+<br/>
+<br/>
+
+</body>
+</html>

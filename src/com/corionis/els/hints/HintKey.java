@@ -2,6 +2,6 @@ package com.corionis.els.hints;
 
 public class HintKey
 {
-    public String name = null;
+    public String system = null;
     public String uuid = null;
 }

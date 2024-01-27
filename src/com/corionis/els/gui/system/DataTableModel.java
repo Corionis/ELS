@@ -75,7 +75,7 @@ public class DataTableModel extends DefaultTableModel
         if (column == 0)
         {
             if (keys != null)
-                return keys.get(row).name;
+                return keys.get(row).system;
             if (ipAddresses != null)
                 return ipAddresses.get(row);
         }
@@ -119,7 +119,7 @@ public class DataTableModel extends DefaultTableModel
         if (col == 0)
         {
             if (keys != null)
-                keys.get(row).name = (String) object;
+                keys.get(row).system = (String) object;
             if (ipAddresses != null)
                 ipAddresses.set(row, (String) object);
         }

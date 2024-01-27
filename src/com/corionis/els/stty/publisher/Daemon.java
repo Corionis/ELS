@@ -99,7 +99,7 @@ public class Daemon extends AbstractDaemon
                         // send my flavor
                         send(myRepo.getLibraryData().libraries.flavor, "");
 
-                        system = connectedKey.name;
+                        system = connectedKey.system;
                         logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
                         context.fault = false;
                         context.timeout = false;
@@ -223,14 +223,15 @@ public class Daemon extends AbstractDaemon
                             break; // break read loop and let the connection be closed
                         }
 
-                        if (line.trim().length() < 1)
+                        line = line.trim();
+                        if (line.length() < 1)
                         {
                             response = "\r";
                             continue;
                         }
 
                         ++commandCount;
-                        logger.info("Processing command: " + line + " from: " + system + ", " + Utils.formatAddresses(getSocket()));
+                        logger.info("Processing command: " + line + ", from: " + system + ", " + Utils.formatAddresses(getSocket()));
 
                         // parse the command
                         StringTokenizer t = new StringTokenizer(line, "\"");

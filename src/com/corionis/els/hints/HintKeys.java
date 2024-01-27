@@ -40,6 +40,16 @@ public class HintKeys
         return null;
     }
 
+    public HintKey findSystem(String system)
+    {
+        for (HintKey key : keys)
+        {
+            if (key.system.equals(system))
+                return key;
+        }
+        return null;
+    }
+
     public ArrayList<HintKey> get()
     {
         return keys;
@@ -92,7 +102,7 @@ public class HintKeys
                 }
 
                 HintKey key = new HintKey();
-                key.name = parts[0].trim();
+                key.system = parts[0].trim();
                 key.uuid = parts[1].trim();
 
                 if (keys == null)
@@ -118,6 +128,13 @@ public class HintKeys
         this.filename = filename;
     }
 
+    public int size()
+    {
+        if (keys != null)
+            return keys.size();
+        return 0;
+    }
+
     public void write(String header) throws Exception
     {
         String base = FilenameUtils.getFullPathNoEndSeparator(filename);
@@ -130,9 +147,9 @@ public class HintKeys
         for (int i = 0; i < keys.size(); ++i)
         {
             HintKey hintKey = keys.get(i);
-            if (hintKey.name != null && hintKey.name.length() > 0 && hintKey.uuid != null && hintKey.uuid.length() > 0)
+            if (hintKey.system != null && hintKey.system.length() > 0 && hintKey.uuid != null && hintKey.uuid.length() > 0)
             {
-                String line = hintKey.name + "\t\t" + hintKey.uuid + System.getProperty("line.separator");
+                String line = hintKey.system + "\t\t" + hintKey.uuid + System.getProperty("line.separator");
                 fw.write(line);
             }
         }

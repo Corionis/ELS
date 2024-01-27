@@ -1,13 +1,11 @@
 package com.corionis.els.gui.browser;
 
 import com.corionis.els.Context;
-import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.bookmarks.Bookmark;
-import com.corionis.els.hints.HintKey;
+import com.corionis.els.hints.Hint;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
-import com.jcraft.jsch.SftpATTRS;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -206,19 +204,6 @@ public class NavTransferHandler extends TransferHandler
 
         FileTransferable ft = new FileTransferable(rowList);
 
-/*
-        Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
-        ClipboardOwner owner = new ClipboardOwner()
-        {
-            @Override
-            public void lostOwnership(Clipboard clipboard, Transferable transferable)
-            {
-                logger.debug("lost clipboard ownership");
-            }
-        };
-        clip.setContents(ft, owner);
-*/
-
         return ft;
     }
 
@@ -316,7 +301,7 @@ public class NavTransferHandler extends TransferHandler
     }
 
     /**
-     * Export a Hint to subscriber
+     * Export a Hint to Hint Tracker/Server
      *
      * @param act       Action mv or rm
      * @param sourceTuo Source NavTreeUserObject
@@ -327,56 +312,7 @@ public class NavTransferHandler extends TransferHandler
     {
         if (context.browser.isHintTrackingEnabled() && sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection"))
         {
-            String hintPath = context.hints.writeHint(act, context.preferences.isLastPublisherIsWorkstation(), sourceTuo, targetTuo);
-            if (hintPath.length() > 0)
-            {
-                if (hintPath.toLowerCase().equals("false"))
-                {
-                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.hint.could.not.be.created"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                }
-                else
-                {
-                    // make tuo and add node if it doesn't exist
-                    NavTreeNode ntn = ((NavTreeNode) sourceTuo.node.getParent()).findChildName(Utils.getRightPath(hintPath, null));
-                    if (ntn == null)
-                    {
-                        NavTreeUserObject createdTuo = null;
-                        NavTreeNode createdNode = new NavTreeNode(context, sourceTuo.node.getMyRepo(), sourceTuo.node.getMyTree());
-                        if (sourceTuo.isRemote)
-                        {
-                            Thread.sleep(500L); // give the remote time to register new hint file
-                            SftpATTRS attrs = context.clientSftp.stat(hintPath);
-                            createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null),
-                                    hintPath, attrs.getSize(), attrs.getMTime(), false);
-                        }
-                        else
-                        {
-                            createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null), new File(hintPath));
-                        }
-
-                        createdNode.setNavTreeUserObject(createdTuo);
-                        createdNode.setAllowsChildren(false);
-                        createdNode.setVisible(!context.preferences.isHideFilesInTree());
-                        ((NavTreeNode) sourceTuo.node.getParent()).add(createdNode);
-                    }
-
-                    // update status tracking
-                    if (!context.preferences.isLastPublisherIsWorkstation() || sourceTuo.isSubscriber())
-                    {
-                        NavTreeNode node = sourceTuo.getParentLibrary();
-                        if (node == null)
-                            throw new MungeException("logic fault: cannot find parent library of relevant item");
-                        String lib = node.getUserObject().name;
-                        String itemPath = sourceTuo.getItemPath(lib, hintPath);
-                        HintKey key = context.hintKeys.findKey(sourceTuo.getRepo().getLibraryData().libraries.key);
-                        if (key == null)
-                            throw new MungeException("Repository not found in ELS keys " + context.hintKeys.getFilename() + " matching key in " + sourceTuo.getRepo().getLibraryData().libraries.description);
-                        String backup = key.name;
-                        String status = "Done";
-                        context.hints.updateStatusTracking(lib, itemPath, backup, status);
-                    }
-                }
-            }
+            context.hints.writeHint(act, context.preferences.isLastPublisherIsWorkstation(), sourceTuo, targetTuo);
         }
     }
 
@@ -696,6 +632,16 @@ public class NavTransferHandler extends TransferHandler
                     logger.warn(context.cfg.gs("NavTransferHandler.action.cancelled"));
                     context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.action.cancelled"));
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.cannot.transfer") + sourceTuo.getType(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
+            }
+
+            // Check for Hint conflicts after deep scan
+            for (NavTreeUserObject tuo : actionList)
+            {
+                if (context.navigator.checkForConflicts(tuo, getOperationText(action, true)))
+                {
+                    reset();
                     return false;
                 }
             }

@@ -3,6 +3,29 @@
 
 ## Current Short-List
 
+### Hints Reengineering
+
+#### Short List
+ * Test cross-platform
+   * "pipe" itemPaths?
+ * Run and re-Run on fault - ADD sources for testing
+ * Error handling
+ * Statistics
+ * Test script, and match run profiles to o/s scripts
+
+#### Thoughts
+ * Opens possibility of the Hint Status Server optionally auto-pushing new Hints to systems in Hint Keys.
+
+### Should Workstation/Collection be in the JSON file?
+ * Controls whether a Hint is created
+ * If Hints are enabled - and the Hint Server does not connect:
+    * If publisher is Collection option to operate in read-only mode
+    * Subscriber - by definition is a Collection - is read-only
+
+
+
+
+
 
 ## To Do
  1. Go through ClientSftp and ClientStty for handling subscriber disconnects in Navigator.

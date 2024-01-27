@@ -592,7 +592,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
     {
         if (file.isDirectory())
         {
-            File[] files = FileSystemView.getFileSystemView().getFiles(file, true);
+            File[] files = FileSystemView.getFileSystemView().getFiles(file, (Utils.isOsMac() ? true : false));
             logger.info(Utils.formatInteger(files.length) + context.cfg.gs("NavTreeNode.received.entries.from") + file.getAbsolutePath());
             for (File entry : files)
             {
