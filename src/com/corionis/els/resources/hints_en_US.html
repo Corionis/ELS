@@ -124,11 +124,24 @@
 <br/>
 <i><b>Note:</b></i>
 <p>
-    This option must be defined on the command line with one of the following
-    options or in an Operation for them to be used in a Job.
-        <blockquote>-k | --keys [file] or -K | --keys-only [file]</blockquote>
-<br/>
+    These options must be defined on the command line, or in an Operation that can
+    also be used as a Task in a Job.<br/>
     <p>
+    <br/>
+    Hint Keys:
+        <blockquote>-k | --keys [file] or -K | --keys-only [file]</blockquote>
+    </p>
+    <p>
+        <br/>
+        Hint Tracker/Server:
+        <blockquote>-h | --hints [files} or -H | --hint-server [file]</blockquote>
+    </p>
+    <p>
+        <br/>
+        Both options are required.
+    </p>
+    <p>
+        <br/>
         The -K | --keys-only option executes Hints and other back-up options, such as --duplicates,
         but does not perform a back-up operation.
     </p>
