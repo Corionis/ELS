@@ -47,6 +47,7 @@ public class TooltipsTable extends JTable
                     int columnWidth = getColumnModel().getColumn(column).getWidth();
 
                     // will the text fit, i.e. is the ellipsis showing?
+                    textWidth += 6; // fudge factor
                     if (columnWidth < textWidth)
                         tip = value;
                 }

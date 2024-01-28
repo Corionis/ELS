@@ -2425,19 +2425,10 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                dialogHints = new HintsUI(context.mainFrame, context);
                 enableDisableSystemMenus(Hints, false);
-                dialogHints.setVisible(true);
+                dialogHints = new HintsUI(context.mainFrame, context);
             }
         });
-//        if (!context.cfg.isHintTrackingEnabled())
-//        {
-//            context.mainFrame.menuItemHints.setEnabled(false);
-//            if (context.cfg.getHintKeysFile().length() > 0)
-//                context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
-//            else
-//                context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs((("Navigator.open.hint.keys.and.hint.tracking.to.see.hints"))));
-//        }
 
         // --- Authorization Keys
         context.mainFrame.menuItemAuthKeys.addActionListener(new AbstractAction()

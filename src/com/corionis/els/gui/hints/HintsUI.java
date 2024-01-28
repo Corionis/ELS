@@ -141,6 +141,8 @@ public class HintsUI extends JDialog
         setButtons();
 
         context.mainFrame.labelStatusMiddle.setText("");
+        setVisible(true);
+        requestFocus();
     }
 
     private void actionAllClicked(ActionEvent e)

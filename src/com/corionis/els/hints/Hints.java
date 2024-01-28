@@ -627,7 +627,7 @@ public class Hints
         if (context.cfg.isNavigator())
         {
             context.navigator.checkForHints(true);
-            if (context.navigator.dialogHints.isVisible())
+            if (context.navigator.dialogHints != null && context.navigator.dialogHints.isVisible())
                 context.navigator.dialogHints.refresh();
         }
 

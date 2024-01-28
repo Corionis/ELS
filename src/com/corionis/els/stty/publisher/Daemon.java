@@ -231,7 +231,7 @@ public class Daemon extends AbstractDaemon
                         }
 
                         ++commandCount;
-                        logger.info("Processing command: " + line + ", from: " + system + ", " + Utils.formatAddresses(getSocket()));
+                        logger.info("Processing command: " + line + ", from: " + system); // + ", " + Utils.formatAddresses(getSocket()));
 
                         // parse the command
                         StringTokenizer t = new StringTokenizer(line, "\"");
