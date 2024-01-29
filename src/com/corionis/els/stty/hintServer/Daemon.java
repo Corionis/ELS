@@ -2,6 +2,8 @@ package com.corionis.els.stty.hintServer;
 
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
+import com.corionis.els.hints.HintKeys;
+import com.corionis.els.hints.Hints;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.Context;
@@ -99,15 +101,28 @@ public class Daemon extends AbstractDaemon
                 send(myKey, "");
 
                 input = receive("", 5000);
-                // validate with Hint Keys
-                HintKey connectedKey = context.hintKeys.findKey(input);  // look for matching key in hints keys file
-                if (connectedKey != null)
+                // validate with Authentication Keys if specified
+                if (context.authKeys != null)
+                {
+                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
+                    if (connectedKey != null)
+                    {
+                        // send my flavor
+                        send(myRepo.getLibraryData().libraries.flavor, "");
+
+                        system = connectedKey.system;
+                        logger.info("Hint Server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                        context.fault = false;
+                        context.timeout = false;
+                    }
+                }
+                else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
                 {
                     // send my flavor
                     send(myRepo.getLibraryData().libraries.flavor, "");
 
-                    system = connectedKey.system;
-                    logger.info("Authenticated automated session: " + system);
+                    system = theirRepo.getLibraryData().libraries.description;
+                    logger.info("Hint Server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
                     context.fault = false;
                     context.timeout = false;
                 }
@@ -132,6 +147,21 @@ public class Daemon extends AbstractDaemon
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
+
+        // Get ELS Authentication Keys if specified
+        try
+        {
+            if (context.cfg.getAuthKeysFile().length() > 0)
+            {
+                context.authKeys = new HintKeys(context);
+                context.authKeys.read(context.cfg.getAuthKeysFile());
+            }
+        }
+        catch (Exception e)
+        {
+            context.fault = true;
+            throw e;
+        }
 
         port = getSocket().getPort();
         address = getSocket().getInetAddress();

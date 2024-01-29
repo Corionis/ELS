@@ -149,10 +149,10 @@ public class Hints
     {
         // find the ELS key for this repo
         HintKey hintKey = keys.findKey(repo.getLibraryData().libraries.key);
-        if (hintKey == null)
-        {
-            throw new MungeException("Repository not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
-        }
+//        if (hintKey == null)
+//        {
+//            throw new MungeException("Repository not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
+//        }
         return hintKey;
     }
 

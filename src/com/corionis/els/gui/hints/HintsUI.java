@@ -1,6 +1,7 @@
 package com.corionis.els.gui.hints;
 
 import com.corionis.els.Context;
+import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
 import com.corionis.els.gui.util.TooltipsTable;
@@ -99,11 +100,22 @@ public class HintsUI extends JDialog
 
                 if (context.publisherRepo != null)
                 {
-                    hintPublisherName = context.hintKeys.findKey(context.publisherRepo.getLibraryData().libraries.key).system;
                     publisherDisplayName = context.publisherRepo.getLibraryData().libraries.description;
-                    pendingPublisherHints = context.hints.getFor(hintPublisherName);
-                    if (pendingPublisherHints != null)
-                        pendingPublisher = pendingPublisherHints.size();
+                    HintKey hk = context.hintKeys.findKey(context.publisherRepo.getLibraryData().libraries.key);
+                    if (hk != null)
+                    {
+                        hintPublisherName = hk.system;
+                        pendingPublisherHints = context.hints.getFor(hintPublisherName);
+                        if (pendingPublisherHints != null)
+                            pendingPublisher = pendingPublisherHints.size();
+                    }
+                    else
+                    {
+                        if (context.preferences.isLastPublisherIsWorkstation())
+                            hintPublisherName = publisherDisplayName + "*";
+                        else
+                            throw new MungeException("Hint Key for " + publisherDisplayName + " not found");
+                    }
                 }
                 if (context.subscriberRepo != null)
                 {

@@ -140,7 +140,8 @@ public class Daemon extends AbstractDaemon
                         context.fault = false;
                         context.timeout = false;
                     }
-                } else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
+                }
+                else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
                 {
                     // send my flavor
                     send(myRepo.getLibraryData().libraries.flavor, "");

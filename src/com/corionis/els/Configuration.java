@@ -422,7 +422,7 @@ public class Configuration
 
         // --- libraries
         if (pr.getLastPublisherOpenFile().length() > 0)
-            sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" +
+            sb.append(" " + (glo ? "--publisher-libraries" : (context.preferences.isLastPublisherIsWorkstation() ? "-p" : "-P")) + " \"" +
             Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastPublisherOpenFile()) + "\"");
         if (pr.getLastSubscriberOpenFile().length() > 0)
             sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
