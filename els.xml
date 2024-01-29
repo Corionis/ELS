@@ -193,6 +193,7 @@
     <target name="updater-compile" depends="els-compile">
         <mkdir dir="out/updater/jar"/>
         <copy overwrite="true" file="out/ELS/jar/com/corionis/els/gui/Preferences.class" tofile="out/updater/jar/com/corionis/els/gui/Preferences.class"/>
+        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/gui/util/TooltipsTable.class" tofile="out/updater/jar/com/corionis/els/gui/util/TooltipsTable.class"/>
         <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Configuration.class" tofile="out/updater/jar/com/corionis/els/Configuration.class"/>
         <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Context.class" tofile="out/updater/jar/com/corionis/els/Context.class"/>
         <copy overwrite="true" file="out/ELS/jar/com/corionis/els/MungeException.class" tofile="out/updater/jar/com/corionis/els/MungeException.class"/>
@@ -224,9 +225,9 @@
                 <include name="**/commons-compress-1.23.0.jar"/>
                 <include name="**/commons-io-2.11.0.jar"/>
                 <include name="**/commons-lang3-3.12.0.jar"/>
-                <include name="**/flatlaf-3.2.5.jar"/>
-                <include name="**/flatlaf-extras-3.2.5.jar"/>
-                <include name="**/flatlaf-intellij-themes-3.2.5.jar"/>
+                <include name="**/flatlaf-3.3.jar"/>
+                <include name="**/flatlaf-extras-3.3.jar"/>
+                <include name="**/flatlaf-intellij-themes-3.3.jar"/>
                 <include name="**/gson-2.10.1.jar"/>
                 <include name="**/guava-32.0.1-jre.jar"/>
                 <include name="**/javax.activation-1.2.0.jar"/>
