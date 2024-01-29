@@ -339,6 +339,16 @@ public class HintsUI extends JDialog
             return;
         }
 
+        // is it a workstation?
+        if (isPublisher && context.preferences.isLastPublisherIsWorkstation())
+        {
+            Object[] opts = { context.cfg.gs("Z.ok") };
+            JOptionPane.showOptionDialog(this, context.cfg.gs("HintsUI.not.workstation"),
+                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
+                    null, opts, opts[0]);
+            return;
+        }
+
         // any Hints selected For chosen collection?
         ArrayList<Hint> pendingFor = getSelectedFor(isPublisher ? hintPublisherName : hintSubscriberName);
         if (pendingFor == null || pendingFor.size() < 1)

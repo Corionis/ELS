@@ -3,7 +3,6 @@ package com.corionis.els.stty.hintServer;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintKeys;
-import com.corionis.els.hints.Hints;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.Context;
