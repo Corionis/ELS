@@ -125,8 +125,8 @@ public class HintsTableModel extends DefaultTableModel
                 RepoMeta meta = repositories.find(key);
                 if (meta != null)
                     name = meta.description;
-                else if (hk != null) // use system if repo not on this instance
-                    name = hk.system;
+                else if (hk != null)
+                    name = hk.system; // use system if repo not on this instance
                 break;
         }
         return name;
@@ -158,6 +158,8 @@ public class HintsTableModel extends DefaultTableModel
                         RepoMeta meta = repositories.find(hk.uuid);
                         if (meta != null)
                             object = meta.description;
+                        else
+                            object = hk.system; // use system if repo not on this instance
                     }
                     break;
                 case 2:
