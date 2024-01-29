@@ -120,10 +120,13 @@ public class HintsTableModel extends DefaultTableModel
                 name = context.cfg.gs("HintsUI.header.to.item");
                 break;
             default:
-                String key = context.hintKeys.get().get(column - 9).uuid;
+                HintKey hk = context.hintKeys.get().get(column - 9);
+                String key = hk.uuid;
                 RepoMeta meta = repositories.find(key);
                 if (meta != null)
                     name = meta.description;
+                else if (hk != null) // use system if repo not on this instance
+                    name = hk.system;
                 break;
         }
         return name;
