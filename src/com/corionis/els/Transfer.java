@@ -35,11 +35,6 @@ public class Transfer
     private long grandTotalSize = 0L;
     private boolean isInitialized = false;
     private String lastGroupName = "";
-    private int movedDirectories = 0;
-    private int movedFiles = 0;
-    private int removedDirectories = 0;
-    private int removedFiles = 0;
-    private int skippedMissing = 0;
     private Storage storageTargets = null;
     private boolean toIsNew = false;
 
@@ -266,56 +261,6 @@ public class Transfer
             minimum = Storage.MINIMUM_BYTES;
         }
         return minimum;
-    }
-
-    /**
-     * Get the count of moved directories
-     *
-     * @return int count
-     */
-    public int getMovedDirectories()
-    {
-        return movedDirectories;
-    }
-
-    /**
-     * Get the count of moved files
-     *
-     * @return int count
-     */
-    public int getMovedFiles()
-    {
-        return movedFiles;
-    }
-
-    /**
-     * Get the count of removed directories
-     *
-     * @return int count
-     */
-    public int getRemovedDirectories()
-    {
-        return removedDirectories;
-    }
-
-    /**
-     * Get the count of removed files
-     *
-     * @return int count
-     */
-    public int getRemovedFiles()
-    {
-        return removedFiles;
-    }
-
-    /**
-     * Get the count of items skipped because they are missing
-     *
-     * @return int count
-     */
-    public int getSkippedMissing()
-    {
-        return skippedMissing;
     }
 
     /**
@@ -686,7 +631,6 @@ public class Transfer
                                 fromLib.rescanNeeded = true;
                                 toLib.rescanNeeded = true;
                                 libAltered = true;
-                                ++movedDirectories;
                             }
                         }
                         else // logically it is a rename within same library
@@ -714,13 +658,11 @@ public class Transfer
             else
             {
                 logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + hint.fromLibrary + "|" + hint.fromItemPath);
-                ++skippedMissing;
             }
         }
         else
         {
             logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + hint.fromLibrary + "|" + hint.fromItemPath);
-            ++skippedMissing;
         }
 
         return libAltered;
@@ -796,21 +738,10 @@ public class Transfer
 
             Files.move(fromFile.toPath(), toFile.toPath(), REPLACE_EXISTING);
             libAltered = true;
-
-            // no exception thrown
-            if (toFile.isDirectory()) // directories should not reach here
-            {
-                ++movedDirectories;
-            }
-            else
-            {
-                ++movedFiles;
-            }
         }
         else
         {
             logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + fromItem.getFullPath());
-            ++skippedMissing;
         }
         return libAltered;
     }
@@ -904,7 +835,6 @@ public class Transfer
                             logger.info(context.cfg.gs("Transfer.rm.directory") + "\"" + fromItem.getFullPath() + "\"");
                             fromLib.rescanNeeded = true;
                             libAltered = true;
-                            ++removedDirectories;
                         }
                     }
                     else // it is a file
@@ -922,7 +852,6 @@ public class Transfer
                                 logger.info(context.cfg.gs("Transfer.rm.file") + "\"" + fromItem.getFullPath() + "\"");
                                 fromLib.rescanNeeded = true;
                                 libAltered = true;
-                                ++removedFiles;
                             }
                         }
                     }
@@ -931,13 +860,11 @@ public class Transfer
             else
             {
                 logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + hint.fromLibrary + "|" + hint.fromItemPath);
-                ++skippedMissing;
             }
         }
         else
         {
             logger.info(context.cfg.gs("Transfer.does.not.exist.skipping") + hint.fromLibrary + "|" + hint.fromItemPath);
-            ++skippedMissing;
         }
 
         return libAltered;

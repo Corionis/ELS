@@ -28,16 +28,10 @@ public class Hints
     private final Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
     private final Logger logger = LogManager.getLogger("applog");
     private Context context;
-    private int deletedHints = 0;
-    private int doneHints = 0;
     private int executedHints = 0;
     private Gson gsonBuilder = new GsonBuilder().create();
     private Gson gsonParser = new Gson();
-    private String hintItemSubdirectory = "";
     private HintKeys keys;
-    private int seenHints = 0;
-    private int skippedHints = 0;
-    private int validatedHints = 0;
 
     /**
      * Constructor
@@ -51,34 +45,7 @@ public class Hints
         this.keys = hintKeys;
     }
 
-    /**
-     * Dump the statistics of an ELS Hints runs
-     */
-    private void dumpStats()
-    {
-        logger.info(SHORT, "+------------------------------------------");
-        if (validatedHints > 0)
-        {
-            logger.info(SHORT, "# Validated hints    : " + validatedHints + " (--dry-run)");
-        }
-        else
-        {
-            logger.info(SHORT, "# Executed hints     : " + executedHints + (context.cfg.isDryRun() ? " (--dry-run)" : ""));
-            logger.info(SHORT, "# Seen Hints         : " + seenHints);
-            logger.info(SHORT, "# Done hints         : " + doneHints);
-            logger.info(SHORT, "# Deleted hints      : " + deletedHints);
-            logger.info(SHORT, "# Skipped hints      : " + skippedHints);
-            logger.info(SHORT, "# Moved directories  : " + context.transfer.getMovedDirectories());
-            logger.info(SHORT, "# Moved files        : " + context.transfer.getMovedFiles());
-            logger.info(SHORT, "# Removed directories: " + context.transfer.getRemovedDirectories());
-            logger.info(SHORT, "# Removed files      : " + context.transfer.getRemovedFiles());
-            logger.info(SHORT, "# Skipped missing    : " + context.transfer.getSkippedMissing());
-        }
-        if (!context.cfg.isHintSkipMainProcess())
-            logger.info(SHORT, "-------------------------------------------");
-    }
-
-    public ArrayList<Hint> checkConflicts(String library, String itemPath) throws Exception
+   public ArrayList<Hint> checkConflicts(String library, String itemPath) throws Exception
     {
         ArrayList<Hint> results = new ArrayList<Hint>();
         if (context.cfg.isRemoteStatusServer())

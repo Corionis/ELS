@@ -6,9 +6,6 @@
 ### Hints Reengineering
 
 #### Short List
- * Test cross-platform
-   * "pipe" itemPaths?
- * Run and re-Run on fault - ADD sources for testing
  * Error handling
  * Statistics
  * Test script, and match run profiles to o/s scripts
@@ -21,9 +18,6 @@
  * If Hints are enabled - and the Hint Server does not connect:
     * If publisher is Collection option to operate in read-only mode
     * Subscriber - by definition is a Collection - is read-only
-
-
-
 
 
 
