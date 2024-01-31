@@ -72,7 +72,6 @@ public class Navigator
     public SleepUI dialogSleep = null;
     public FileEditor fileeditor = null;
     public Job[] jobs;
-    public boolean showHintTrackingButton = false;
     public SwingWorker<Void, Void> worker;
     private int bottomSizeBrowser;
     private Settings dialogSettings = null;
@@ -706,7 +705,6 @@ public class Navigator
 
             if (context.cfg.getHintKeysFile() != null && context.cfg.getHintKeysFile().length() > 0)
             {
-                showHintTrackingButton = true;
                 context.preferences.setLastHintKeysOpenFile(context.cfg.getHintKeysFile());
                 context.preferences.setLastHintKeysOpenPath(FilenameUtils.getFullPathNoEndSeparator(context.cfg.getHintKeysFile()));
             }
@@ -1181,15 +1179,7 @@ public class Navigator
                             context.preferences.setLastHintKeysOpenPath(last.getAbsolutePath());
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
                             context.main.setupHints(context.publisherRepo);
-                            if (!showHintTrackingButton)
-                            {
-                                showHintTrackingButton = true;
-                                context.mainFrame.panelHintTracking.setVisible(true);
-                                context.mainFrame.buttonHintTracking.doClick();
-                            }
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-//                            context.mainFrame.menuItemHints.setEnabled(false);
-//                            context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
                         }
                         catch (Exception e)
                         {
@@ -1329,10 +1319,8 @@ public class Navigator
                             // connect to the hint tracker or status server
                             context.main.setupHints(context.publisherRepo);
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-                            context.browser.toggleHints(true);
+                            context.browser.setupHintTrackingButton();
                             setQuitTerminateVisibility();
-//                            context.mainFrame.menuItemHints.setEnabled(true);
-//                            context.mainFrame.menuItemHints.setToolTipText("");
                         }
                         catch (Exception e)
                         {
@@ -1471,9 +1459,7 @@ public class Navigator
                     context.statusRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
-                    showHintTrackingButton = context.browser.resetHintTrackingButton();
-//                    context.mainFrame.menuItemHints.setEnabled(false);
-//                    context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs((("Navigator.open.hint.keys.and.hint.tracking.to.see.hints"))));
+                    context.browser.setupHintTrackingButton();
                 }
             }
         });
@@ -1496,10 +1482,8 @@ public class Navigator
                     context.statusRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
-                    showHintTrackingButton = context.browser.resetHintTrackingButton();
+                    context.browser.setupHintTrackingButton();
                     setQuitTerminateVisibility();
-//                    context.mainFrame.menuItemHints.setEnabled(false);
-//                    context.mainFrame.menuItemHints.setToolTipText(context.cfg.gs(("Navigator.open.hint.tracking.to.see.hints")));
                 }
             }
         });
@@ -1539,7 +1523,7 @@ public class Navigator
                             quitRemoteSubscriber = true;
                     }
 
-                    if (context.cfg.getHintsDaemonFilename() != null && context.cfg.getHintsDaemonFilename().length() > 0)
+                    if (context.statusStty != null)
                     {
                         int r = JOptionPane.showConfirmDialog(context.mainFrame,
                                 context.cfg.gs("Navigator.menu.QuitTerminate.stop.hint.status.server"),

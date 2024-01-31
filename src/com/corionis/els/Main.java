@@ -990,71 +990,80 @@ public class Main
         String msg = "";
         try
         {
-            if (context.cfg.isHintTrackingEnabled())
+            if (context.cfg.isHintTrackingEnabled() || context.cfg.getHintKeysFile().length() > 0)
             {
                 if (context.cfg.getHintKeysFile().length() > 0)
                 {
-                    // Hints Keys
-                    context.hintKeys = new HintKeys(context);
-                    msg = "Exception while reading Hint Keys: ";
-                    context.hintKeys.read(context.cfg.getHintKeysFile());
-                    context.hints = new Hints(context, context.hintKeys);
+                    if (context.hints == null)
+                    {
+                        // Hints Keys
+                        context.hintKeys = new HintKeys(context);
+                        msg = "Exception while reading Hint Keys: ";
+                        context.hintKeys.read(context.cfg.getHintKeysFile());
+                        context.hints = new Hints(context, context.hintKeys);
+                    }
                 }
                 else
                     throw new MungeException("Hint Keys are required to use Hint Tracking");
 
-                context.statusRepo = new Repository(context, Repository.HINT_SERVER);
-
-                // Remote Hint Status Server
-                if (context.cfg.getHintsDaemonFilename().length() > 0 && repo != null)
+                if (context.cfg.isHintTrackingEnabled())
                 {
-                    // exceptions handle by read()
-                    catchExceptions = false;
+                    context.statusRepo = new Repository(context, Repository.HINT_SERVER);
 
-                    if (context.statusRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true))
+                    // Remote Hint Status Server
+                    if (context.cfg.getHintsDaemonFilename().length() > 0 && repo != null)
                     {
-                        catchExceptions = true;
+                        // exceptions handle by read()
+                        catchExceptions = false;
+                        msg = "Exception while reading Hint Server: ";
 
-                        // start the serveStty client connection the Hint Status Server
-                        context.statusStty = new ClientStty(context, false, true);
-                        if (!context.statusStty.connect(repo, context.statusRepo))
+                        if (context.statusRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true))
                         {
-                            msg = "";
-                            throw new MungeException("Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description + " failed to connect");
+                            catchExceptions = true;
+
+                            // start the serveStty client connection the Hint Status Server
+                            context.statusStty = new ClientStty(context, false, true);
+                            if (!context.statusStty.connect(repo, context.statusRepo))
+                            {
+                                msg = "";
+                                throw new MungeException("Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description + " failed to connect");
+                            }
+
+                            String response = context.statusStty.receive("", 5000); // check the initial prompt
+                            if (!response.startsWith("CMD"))
+                            {
+                                msg = "";
+                                throw new MungeException("Bad initial response from Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
+                            }
                         }
-
-                        String response = context.statusStty.receive("", 5000); // check the initial prompt
-                        if (!response.startsWith("CMD"))
+                        else
                         {
-                            msg = "";
-                            throw new MungeException("Bad initial response from Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
-                        }
-                    }
-                    else
-                    {
-                        catchExceptions = true;
-                        context.cfg.setHintsDaemonFilename("");
-                    }
-                }
-                else // Local Hint Tracker
-                {
-                    // exceptions handle by read()
-                    catchExceptions = false;
-                    if (context.statusRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
-                    {
-                        // Setup the Hint Tracker datastore, single instance
-                        catchExceptions = true;
-                        context.datastore = new Datastore(context);
-                        boolean valid = context.datastore.initialize();
-                        if (!valid)
-                        {
-                            throw new MungeException("Error initializing from hint status server JSON file");
+                            catchExceptions = true;
+                            context.cfg.setHintsDaemonFilename("");
                         }
                     }
-                    else
+                    else // Local Hint Tracker
                     {
-                        catchExceptions = true;
-                        context.cfg.setHintTrackerFilename("");
+                        // exceptions handle by read()
+                        catchExceptions = false;
+                        msg = "Exception while reading Hint Tracker: ";
+
+                        if (context.statusRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
+                        {
+                            // Setup the Hint Tracker datastore, single instance
+                            catchExceptions = true;
+                            context.datastore = new Datastore(context);
+                            boolean valid = context.datastore.initialize();
+                            if (!valid)
+                            {
+                                throw new MungeException("Error initializing from hint status server JSON file");
+                            }
+                        }
+                        else
+                        {
+                            catchExceptions = true;
+                            context.cfg.setHintTrackerFilename("");
+                        }
                     }
                 }
             }
@@ -1063,17 +1072,12 @@ public class Main
         {
             if (catchExceptions)
             {
-                logger.error(msg + " " + e.toString());
+                msg += " " + e.toString();
+                logger.error(msg);
 
                 context.cfg.setHintsDaemonFilename("");
                 context.cfg.setHintTrackerFilename("");
                 context.cfg.setHintKeysFile("");
-
-                if (msg.length() > 0)
-                    msg += "<br/>" + e.toString();
-                else
-                    msg = e.toString();
-                logger.error(msg);
 
                 if (isStartupActive())
                 {

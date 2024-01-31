@@ -1,7 +1,6 @@
 package com.corionis.els.gui.browser;
 
 import com.corionis.els.gui.bookmarks.Bookmark;
-import com.corionis.els.hints.Hint;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
@@ -43,7 +42,7 @@ public class Browser
     private static int styleTwo = STYLE_SYSTEM_ALL;
     //
     private Context context;
-    public boolean hintTrackingEnabled = false;
+    private boolean hintTrackingButtonEnabled = false;
     private String keyBuffer = "";
     private long keyTime = 0L;
     public JComponent lastComponent = null;
@@ -1598,14 +1597,6 @@ public class Browser
 
     private void initializeToolbar()
     {
-        if (!context.navigator.showHintTrackingButton)
-        {
-            context.mainFrame.panelHintTracking.setVisible(false);
-            hintTrackingEnabled = false;
-        }
-        else
-            hintTrackingEnabled = true;
-
         // toggle hint tracking
         context.mainFrame.buttonHintTracking.addActionListener(new AbstractAction()
         {
@@ -1614,17 +1605,17 @@ public class Browser
             {
                 if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hints"))
                 {
-                    toggleHints(!hintTrackingEnabled);
+                    toggleHintTracking(!hintTrackingButtonEnabled);
                 }
             }
         });
 
-        setHintTrackingButton(hintTrackingEnabled);
+        setupHintTrackingButton();
     }
 
-    public boolean isHintTrackingEnabled()
+    public boolean isHintTrackingButtonEnabled()
     {
-        return this.hintTrackingEnabled;
+        return this.hintTrackingButtonEnabled;
     }
 
     public void loadCollectionTree(JTree tree, Repository repo, boolean remote)
@@ -2016,27 +2007,6 @@ public class Browser
         refreshTree(sourceTree);
     }
 
-    public boolean resetHintTrackingButton()
-    {
-        String tt = "";
-        tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintServer.text") :
-                (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintTracking.text") : "");
-
-        if (tt.length() > 0)
-        {
-            context.mainFrame.buttonHintTracking.setText(tt);
-            context.mainFrame.panelHintTracking.setVisible(true);
-            hintTrackingEnabled = true;
-            return true;
-        }
-        else
-        {
-            context.mainFrame.panelHintTracking.setVisible(false);
-            hintTrackingEnabled = false;
-        }
-        return false;
-    }
-
     private int[] resetTableSelections(JTable table, ArrayList<NavTreeNode> selectedNodes)
     {
         int index = 0;
@@ -2424,29 +2394,25 @@ public class Browser
         return root;
     }
 
-    public void setHintTrackingButton(boolean enabled)
+    public void setupHintTrackingButton()
     {
-        String tt;
-        tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintServer.text") :
-                (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintTracking.text") : "");
-        context.mainFrame.buttonHintTracking.setText(tt);
+        String tt = "";
+        tt = context.cfg.getHintsDaemonFilename().length() > 0 ?
+                context.cfg.gs("Navigator.buttonHintServer.text") :
+                (context.cfg.getHintTrackerFilename().length() > 0 ?
+                        context.cfg.gs("Navigator.buttonHintTracking.text") : "");
 
-        if (enabled)
+        if (tt.length() > 0)
         {
-            tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintServer.enabled.tooltip") :
-                    (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintTracking.enabled.tooltip") : "");
+            context.mainFrame.panelHintTracking.setVisible(true);
+            hintTrackingButtonEnabled = true;
         }
         else
         {
-            tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintServer.disabled.tooltip") :
-                    (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.buttonHintTracking.disabled.tooltip") : "");
+            context.mainFrame.panelHintTracking.setVisible(false);
+            hintTrackingButtonEnabled = false;
         }
-        context.mainFrame.buttonHintTracking.setToolTipText(tt);
-    }
-
-    public void setHintTrackingEnabled(boolean sense)
-    {
-        hintTrackingEnabled = sense;
+        toggleHintTracking(hintTrackingButtonEnabled);
     }
 
     private void styleCollection(JTree tree, Repository repo, boolean remote, boolean deep, boolean recursive)
@@ -2583,18 +2549,23 @@ public class Browser
         return homeNode;
     }
 
-    public void toggleHints(boolean sense)
+    public void toggleHintTracking(boolean sense)
     {
+        Image icon = null;
+        String tt = "";
+
+        String tl = (context.cfg.getHintsDaemonFilename().length() > 0 ?
+                context.cfg.gs("Navigator.buttonHintServer.text") :
+                context.cfg.gs("Navigator.buttonHintTracking.text"));
+
         if (sense)
         {
             try
             {
+                hintTrackingButtonEnabled = true;
+                tt = context.cfg.gs("Navigator.buttonHint.enabled.tooltip");
                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-green.png");
-                Image icon = ImageIO.read(url);
-                context.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
-                context.mainFrame.buttonHintTracking.setEnabled(true);
-                hintTrackingEnabled = true;
-                setHintTrackingButton(true);
+                icon = ImageIO.read(url);
             }
             catch (Exception e)
             {
@@ -2604,23 +2575,18 @@ public class Browser
         {
             try
             {
-                // 1 hints, 2 tracker, 3 server
-                int level = context.cfg.getHintsDaemonFilename().length() > 0 ? 3 : (context.cfg.getHintTrackerFilename().length() > 0 ? 2 : 1);
-
+                hintTrackingButtonEnabled = false;
+                tt = context.cfg.gs("Navigator.buttonHint.disabled.tooltip");
                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-red.png");
-                Image icon = ImageIO.read(url);
-                context.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
-                String tt = level == 3 ? context.cfg.gs("Navigator.buttonHintServer.disabled.tooltip") :
-                        (level == 2 ? context.cfg.gs("Navigator.buttonHintTracking.disabled.tooltip") :
-                                context.cfg.gs("Navigator.buttonHintTracking.disabled.tooltip"));
-                context.mainFrame.buttonHintTracking.setToolTipText(tt);
-                hintTrackingEnabled = false;
-                setHintTrackingButton(false);
+                icon = ImageIO.read(url);
             }
             catch (Exception e)
             {
             }
         }
+        context.mainFrame.buttonHintTracking.setText(tl);
+        context.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
+        context.mainFrame.buttonHintTracking.setToolTipText(tt);
     }
 
     public void toggleShowHiddenFiles()

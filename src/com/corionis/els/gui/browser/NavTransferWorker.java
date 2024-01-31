@@ -122,7 +122,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
             if (!error && !isCancelled())
             {
-                if (context.browser.hintTrackingEnabled == true)
+                if (context.browser.isHintTrackingButtonEnabled())
                     exportHints(transferData, targetTuo);
                 removeTransferData(transferData);
             }

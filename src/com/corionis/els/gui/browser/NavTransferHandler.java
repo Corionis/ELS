@@ -3,7 +3,6 @@ package com.corionis.els.gui.browser;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.bookmarks.Bookmark;
-import com.corionis.els.hints.Hint;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -310,7 +309,7 @@ public class NavTransferHandler extends TransferHandler
      */
     public synchronized void exportHint(String act, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
     {
-        if (context.browser.isHintTrackingEnabled() && sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection"))
+        if (context.browser.isHintTrackingButtonEnabled() && sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection"))
         {
             context.hints.writeHint(act, context.preferences.isLastPublisherIsWorkstation(), sourceTuo, targetTuo);
         }

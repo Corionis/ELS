@@ -227,7 +227,7 @@ public class ClientStty
                 {
                     context.fault = true;
                     if (context.browser != null)
-                        context.browser.toggleHints(false);
+                        context.browser.toggleHintTracking(false);
                     if (context.mainFrame != null)
                         context.mainFrame.buttonHintTracking.setEnabled(false);
                     errorMessage = "(Hint Server) " + e.getMessage();
