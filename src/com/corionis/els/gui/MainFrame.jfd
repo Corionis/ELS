@@ -134,14 +134,12 @@ new FormModel {
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "East"
 					} )
-					add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
-						name: "vSpacer5"
-						"preferredSize": new java.awt.Dimension( 2, 2 )
-						"minimumSize": new java.awt.Dimension( 2, 2 )
-						"maximumSize": new java.awt.Dimension( 2, 2 )
-					}, new FormLayoutConstraints( class java.lang.String ) {
-						"value": "South"
-					} )
+				} )
+				add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+					name: "vSpacer5"
+					"preferredSize": new java.awt.Dimension( 2, 2 )
+					"minimumSize": new java.awt.Dimension( 2, 2 )
+					"maximumSize": new java.awt.Dimension( 2, 2 )
 				} )
 				add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 					name: "tabbedPaneMain"

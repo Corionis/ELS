@@ -1351,14 +1351,14 @@ public class MainFrame extends JFrame
                     panelAlertsToolbar.add(labelAlertUpdateToolbar);
                 }
                 panelToolbar.add(panelAlertsToolbar, BorderLayout.EAST);
-
-                //---- vSpacer5 ----
-                vSpacer5.setPreferredSize(new Dimension(2, 2));
-                vSpacer5.setMinimumSize(new Dimension(2, 2));
-                vSpacer5.setMaximumSize(new Dimension(2, 2));
-                panelToolbar.add(vSpacer5, BorderLayout.SOUTH);
             }
             panelMain.add(panelToolbar);
+
+            //---- vSpacer5 ----
+            vSpacer5.setPreferredSize(new Dimension(2, 2));
+            vSpacer5.setMinimumSize(new Dimension(2, 2));
+            vSpacer5.setMaximumSize(new Dimension(2, 2));
+            panelMain.add(vSpacer5);
 
             //======== tabbedPaneMain ========
             {
