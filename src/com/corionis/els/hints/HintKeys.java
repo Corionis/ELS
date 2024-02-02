@@ -114,10 +114,13 @@ public class HintKeys
 
         if (!context.cfg.isStatusServer() && !context.cfg.isNavigator())
         {
+            String which = "";
             if (!foundPublisher)
-                throw new MungeException("The current publisher key was not found in ELS keys file: " + file);
+                which = "publisher";
             if (context.subscriberRepo != null && !foundSubscriber)
-                throw new MungeException("The current subscriber key was not found in ELS keys file: " + file);
+                which = "subscriber";
+            String msg = java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"), which, file);
+            throw new MungeException(msg);
         }
 
         logger.info("Read keys: " + file + " successfully");

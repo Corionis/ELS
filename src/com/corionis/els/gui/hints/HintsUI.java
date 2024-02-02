@@ -114,16 +114,26 @@ public class HintsUI extends JDialog
                         if (context.preferences.isLastPublisherIsWorkstation())
                             hintPublisherName = publisherDisplayName + "*";
                         else
-                            throw new MungeException("Hint Key for " + publisherDisplayName + " not found");
+                            throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"),
+                                    "publisher", context.hintKeys.getFilename()));
                     }
                 }
                 if (context.subscriberRepo != null)
                 {
-                    hintSubscriberName = context.hintKeys.findKey(context.subscriberRepo.getLibraryData().libraries.key).system;
-                    subscriberDisplayName = context.subscriberRepo.getLibraryData().libraries.description;
-                    pendingSubscriberHints = context.hints.getFor(hintSubscriberName);
-                    if (pendingSubscriberHints != null)
-                        pendingSubscriber = pendingSubscriberHints.size();
+                    HintKey hk = context.hintKeys.findKey(context.subscriberRepo.getLibraryData().libraries.key);
+                    if (hk != null)
+                    {
+                        hintSubscriberName = hk.system;
+                        subscriberDisplayName = context.subscriberRepo.getLibraryData().libraries.description;
+                        pendingSubscriberHints = context.hints.getFor(hintSubscriberName);
+                        if (pendingSubscriberHints != null)
+                            pendingSubscriber = pendingSubscriberHints.size();
+                    }
+                    else
+                    {
+                        throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"),
+                                "subscriber", context.hintKeys.getFilename()));
+                    }
                 }
 
                 setWidths();
@@ -135,7 +145,7 @@ public class HintsUI extends JDialog
             }
             catch (Exception e)
             {
-                String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+                String msg = context.cfg.gs("Z.exception") + e.getMessage();
                 logger.error(msg);
                 JOptionPane.showMessageDialog(this, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
             }
