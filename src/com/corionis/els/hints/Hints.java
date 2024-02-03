@@ -374,6 +374,8 @@ public class Hints
                 }
             }
         }
+        else
+            return false;
         return true;
     }
 
@@ -544,8 +546,6 @@ public class Hints
         if (dsHint != null)
         {
             // existing Hint
-            dsHint.copyStatusData(hint);
-            hint = dsHint;
             found = true;
         }
         else

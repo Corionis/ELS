@@ -133,10 +133,11 @@ Special command authorization use, with quotes:  auth "sharkbait"
 The Local Hint Tracker tracks the processing status of each Hint on each back-up locally.
 
  * ``reset`` : Reset the test/ directory
- * ``090-23_Navigator-local`` : Perform the [Manual Tests](#Manual-tests) below to create some Hints
+ * ``090-26_Navigator-pub-local`` : Perform the [Manual Tests](#Manual-tests) below to create some Hints
  * ``060-01_Hints-publisher`` : Run once, if not Done in Navigator
  * ``060-22_Publisher-One-dryrun`` : Run once
  * ``060-23_Publisher-One-backup`` : Run once
+ * ``060-44_Subscriber-One-backup`` : Run once, back-up to Publisher and process Hints
  * ``060-32_Publisher-Two-dryrun`` : Run once
  * ``060-33_Publisher-Two-backup`` : Run once
  <p></p>

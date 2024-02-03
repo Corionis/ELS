@@ -85,6 +85,7 @@ public class HintsUI extends JDialog
         {
             try
             {
+                context.datastore.reload();
                 hints = context.hints.getAll();
                 model = new HintsTableModel(context, repositories, hints);
                 tableHints.setModel(model);

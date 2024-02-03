@@ -5,8 +5,10 @@ import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintStatus;
+import com.corionis.els.hints.Hints;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -269,10 +272,12 @@ public class Datastore
             }
             json = new String(Files.readAllBytes(Paths.get(path)));
 
-            Datastore ds = gson.fromJson(json, Datastore.class);
-            if (ds != null && ds.hints != null)
+            Type listType = new TypeToken<ArrayList<Hint>>()
             {
-                this.hints = ds.hints;
+            }.getType();
+            hints = gson.fromJson(json, listType);
+            if (hints != null)
+            {
                 normalize();
                 logger.info("Read \"" + path + "\" successfully");
                 valid = true;
@@ -300,6 +305,13 @@ public class Datastore
             throw new MungeException(msg);
         }
         return valid;
+    }
+
+    public boolean reload() throws Exception
+    {
+        if (!read())
+            return false;
+        return true;
     }
 
     public void sort(String element)
@@ -334,7 +346,7 @@ public class Datastore
         }
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String json = gson.toJson(this);
+        String json = gson.toJson(hints);
         try
         {
             PrintWriter outputStream = new PrintWriter(path);

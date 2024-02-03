@@ -44,36 +44,6 @@ public class Hint implements Comparable, Serializable
         return this.utc < ((Hint)o).utc ? -1 : (this.utc == ((Hint)o).utc) ? 0 : 1;
     }
 
-    public void copyAllData(Hint hint)
-    {
-        this.author = hint.author;
-        this.system = hint.system;
-        this.action = hint.action;
-        this.fromLibrary = hint.fromLibrary;
-        this.fromItemPath = hint.fromItemPath;
-        this.directory = hint.directory;
-        this.toLibrary = hint.toLibrary;
-        this.toItemPath = hint.toItemPath;
-        copyStatusData(hint);
-    }
-
-    public void copyStatusData(Hint hint)
-    {
-        if (hint.statuses != null && hint.statuses.size() > 0)
-        {
-            this.statuses = new ArrayList<HintStatus>();
-            for (int i = 0; i < hint.statuses.size(); ++i)
-            {
-                HintStatus stat = new HintStatus(hint.statuses.get(i).system, hint.statuses.get(i).status);
-                this.statuses.add(stat);
-            }
-        }
-        else
-        {
-            this.statuses = null;
-        }
-    }
-
     public HintStatus findStatus(String system)
     {
         HintStatus hs = null;
