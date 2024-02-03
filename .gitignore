@@ -27,6 +27,7 @@ hs_err_pid*
 /mock/Notice.txt
 /mock/bin/
 /mock/datastore/
+/mock/datastore-backup/
 /mock/jobs/
 /mock/libraries/
 /mock/local/
@@ -38,6 +39,7 @@ hs_err_pid*
 /mock/scripts/macOS/9*
 /mock/system/
 /mock/test/
+/mock/test-backup/
 /mock/tools/
 /out
 /build/build-stamp.properties

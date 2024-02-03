@@ -119,8 +119,11 @@ public class HintKeys
                 which = "publisher";
             if (context.subscriberRepo != null && !foundSubscriber)
                 which = "subscriber";
-            String msg = java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"), which, file);
-            throw new MungeException(msg);
+            if (which.length() > 0)
+            {
+                String msg = java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"), which, file);
+                throw new MungeException(msg);
+            }
         }
 
         logger.info("Read keys: " + file + " successfully");

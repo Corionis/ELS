@@ -26,8 +26,8 @@ Tests are *generally* organized in increasing options and functionality.
  [010-00  Local Backup](#010-00--local-backup)<br/>
  [020-00  Remote Backup](#020-00--remote-backup)<br/>
  [030-00  Interactive Terminals](#030-00--interactive-terminals)<br/>
- [040-00  Local Hints](#040-00--local-hints)<br/>
- [050-00  Remote Hints](#050-00--remote-hints)<br/>
+ [040-00  Local Hints] - Deprecated<br/>
+ [050-00  Remote Hints] - Deprecated<br/>
  [060-00  Local Hint Tracker - Local Backup](#060-00--local-hint-tracker---local-backup)<br/>
  [062-00  Local Hint Tracker - Remote Backup](#062-00--local-hint-tracker---remote-backup)<br/>
  [070-00  Remote Hint Server - Local Backup](#070-00--remote-hint-server---local-backup)<br/>
@@ -45,8 +45,11 @@ Tests are *generally* organized in increasing options and functionality.
 
 ``clear-output`` : Removes all files from the mock/output/ directory
 
-``reset`` : Resets the mock/test/ directory by deleting it and copying the 
-mock/media-base_copy-only directory to a new mock/test/ directory
+``reset`` : Resets the configuration and test data
+
+``reset-config`` : Only resets the configuration data
+
+``reset-test`` : Only resets the test data
 
 
 ## Tests & Sequence
@@ -57,7 +60,7 @@ sequence.
 Examine the screen and/or log output for warnings, errors and exceptions. Examine the test/ directory
 for the appropriate changes at each step of the test sequences.
 
-Automation and result-checking have not been, and might not be, implemented. It's a lot of work.
+Automation and result-checking have not been, and might not be, implemented. That's a lot of work.
 At this point it's a manual and visual process.
 
 ### 000-00  Basic Functionality
@@ -125,62 +128,12 @@ Special command authorization use, with quotes:  auth "sharkbait"
  * ``030-39_Subscriber-terminal`` :  Separate terminal 2, bye leaves listener running, quit ends listener
 
 
-### 040-00  Local Hints
-
-Local Hints are used when both the publisher and subscriber (back-up) drives are connected
-to the same system, i.e. appear in a file browser.
-
-Reminder: Hints must be Done on the publisher before publishing to a subscriber - so the
-two collections match during the backup operation. If not an exception is thrown. Changes
-made with Hints, and optionally Hint Tracking, enabled are automatically marked as Done.
-
- * ``reset`` : Reset the test/ directory
- * ``080-26_Navigator-local`` : Navigator to create Hints
- * ``040-01_Hints-publisher`` : Run Hints on publisher, once, if not Done by Navigator
- * ``reset`` : Reset the test/ directory
- * ``040-22_Publisher-dryrun`` : Run once, results & copies _will be wrong_ because hints not processed
- * ``040-23_Publisher-backup`` : Run once
-
-
-### 050-00  Remote Hints
-
-Remote Hints for networked back-ups are sent from publisher to a remote subscriber
-then executed on the subscriber.
-
- * ``reset`` : Reset the test/ directory
- * Edit test/system/hint.keys and remove all name/key pairs except MediaPublisher and SubscribeOne
- * BE SURE to keep the deleted lines to put back after this test
- * ``082-23_Navigator-local`` : Perform the Manual Tests below to create some Hints with no tracking
- * ``050-21_Subscriber-One-listener`` : Separate terminal 1
- * ``050-23_Publisher-One-backup`` : Separate terminal 2
-
-When done MediaPublisher and SubscriberOne should be matched based on MediaPublisher content and
-all .els Hint files should be removed (gone).
-
- * Replace name/key pairs in /test/system/hint.keys
-
- * ``reset`` : Reset the test/ directory
- * ``082-23_Navigator-local`` : Perform the Manual Tests below to create some Hints with no tracking
- * ``050-01_Hints-publisher`` : Run once
- * ``050-21_Subscriber-One-listener`` : Separate terminal 1
- * ``050-22_Publisher-One-dryrun`` : Separate terminal 2, results & copies will be wrong because hints not processed
- * ``050-21_Subscriber-One-listener`` : Separate terminal 1
- * ``050-23_Publisher-One-backup`` : Separate terminal 2
- * ``050-31_Subscriber-Two-listener`` : Separate terminal 1
- * ``050-32_Publisher-Two-dryrun`` : Separate terminal 2
- * ``050-31_Subscriber-Two-listener`` : Separate terminal 1, various "Does not exist" because of test setup
- * ``050-33_Publisher-Two-backup`` : Separate terminal 2
-
-Note: This sequence results in orphaned .els files on Subscriber Two. The "odd man out" problem.
-
-
 ### 060-00  Local Hint Tracker - Local Backup
 
-The Local Hint Tracker solves the "odd man out" problem for local back-ups by tracking the
-processing status of each Hint on each back-up locally.
+The Local Hint Tracker tracks the processing status of each Hint on each back-up locally.
 
  * ``reset`` : Reset the test/ directory
- * ``090-23_Navigator-local`` : Perform the Manual Tests below to create some Hints
+ * ``090-23_Navigator-local`` : Perform the [Manual Tests](#Manual-tests) below to create some Hints
  * ``060-01_Hints-publisher`` : Run once, if not Done in Navigator
  * ``060-22_Publisher-One-dryrun`` : Run once
  * ``060-23_Publisher-One-backup`` : Run once
@@ -340,11 +293,9 @@ Run one at a time for basic local Navigator functionality.
 
 ### Manual Test Checks
 
- * Check the [hint].els file:
-   * The local system is marked as Done
-   * The command is correct
- * Check the Hint Tracker datastore hint tracking file:
-   * The local system is marked as Done
+Check the Hint Tracker datastore/ file:
+ * The local system is marked as Done
+ * The command is correct
 
 ### Manual tests
 
@@ -364,37 +315,6 @@ Run one at a time for basic local Navigator functionality.
  * D2 : Delete root-level directory & subdirectories
  * D3 : Delete file in a subdirectory
  * D4 : Delete subdirectory in a subdirectory
-
-#### Test Hint processing on publisher
-
- 1. Perform above tests on publisher
- 2. Optional: Copy the mock/test directory for later comparison 
- 3. Reset the test directory and Hint files
-    1. Run ``capture -d -r`` that:
-        1. Captures the .els files in the output directory
-        2. Changes Done to For
-        3. Resets the test directory with reset -f
-        4. Restores the .els files
- 4. Run the Hint and back-up series for that test set to process hints
- 5. Check hints executed correctly at each step
- 6. Check status updated correctly in [hint].els to Done
- 7. Check hint tracking files in datastore updated correct
- 8. Perform any desired comparison 
- 
-#### Test Hint processing on subscriber
-
- 1. Perform above tests on subscriber
- 2. Reset the test directory and Hint files
-    1.Run ``capture -d -r`` that:
-      1. Captures the .els files in the output directory
-      2. Changes Done to For
-      3. Resets the test directory with reset -f
-      4. Restores the .els files
- 3. Run the Hint and back-up series for that test set to process hints
- 4. Check hints executed correctly on publisher
- 5. Check local system status updated in [hint].els to Done
- 6. Check hint tracking files correct
-
 
 
 -end-

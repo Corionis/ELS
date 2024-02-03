@@ -23,6 +23,8 @@
       <excludeFolder url="file://$MODULE_DIR$/mock/system" />
       <excludeFolder url="file://$MODULE_DIR$/mock/tools" />
       <excludeFolder url="file://$MODULE_DIR$/docs/_site" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/datastore-backup" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/test-backup" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
