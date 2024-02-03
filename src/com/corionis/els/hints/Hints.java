@@ -45,7 +45,7 @@ public class Hints
         this.keys = hintKeys;
     }
 
-   public ArrayList<Hint> checkConflicts(String library, String itemPath) throws Exception
+    public ArrayList<Hint> checkConflicts(String library, String itemPath) throws Exception
     {
         ArrayList<Hint> results = new ArrayList<Hint>();
         if (context.cfg.isRemoteStatusServer())
@@ -210,15 +210,13 @@ public class Hints
     {
         String result = hintsMunge(null, true, null);
         if (!result.toLowerCase().equals("false"))
-        {
             rescanLibraries(true);
-            if (!publisherOnly)
+        if (!publisherOnly)
+        {
+            result = hintsMunge(null, false, null);
+            if (!result.toLowerCase().equals("false"))
             {
-                result = hintsMunge(null, false, null);
-                if (!result.toLowerCase().equals("false"))
-                {
-                    rescanLibraries(false);
-                }
+                rescanLibraries(false);
             }
         }
         return result;
@@ -228,7 +226,7 @@ public class Hints
      * Process Hints<br/>
      * <br/>
      * Used by Subscriber Listener (subscriber.Daemon). Does not update status.
-     *
+     * <p>
      * This is a local-only method
      *
      * @param pending

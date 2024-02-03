@@ -85,8 +85,13 @@ public class HintsUI extends JDialog
         {
             try
             {
-                context.datastore.reload();
-                hints = context.hints.getAll();
+                if (context.datastore != null)
+                {
+                    context.datastore.reload();
+                    hints = context.hints.getAll();
+                }
+                else
+                    hints = new ArrayList<>();
                 model = new HintsTableModel(context, repositories, hints);
                 tableHints.setModel(model);
 
@@ -148,7 +153,7 @@ public class HintsUI extends JDialog
             {
                 String msg = context.cfg.gs("Z.exception") + e.getMessage();
                 logger.error(msg);
-                JOptionPane.showMessageDialog(this, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
             }
         }
 
