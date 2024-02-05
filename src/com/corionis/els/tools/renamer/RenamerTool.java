@@ -624,6 +624,7 @@ public class RenamerTool extends AbstractTool
     public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
         // create a fresh dialog
+/*
         if (context.navigator != null)
         {
             if (context.progress == null || !context.progress.isBeingUsed())
@@ -645,6 +646,7 @@ public class RenamerTool extends AbstractTool
                 return null;
             }
         }
+*/
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
         {

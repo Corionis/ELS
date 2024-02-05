@@ -11,6 +11,7 @@ import com.corionis.els.repository.Library;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -265,12 +266,17 @@ public class Datastore
             }
 
             Gson gson = new Gson();
-            logger.info("Reading Library file " + path);
+            logger.info("Reading Hint datastore " + path);
             if (Utils.isRelativePath(path))
             {
                 path = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + path;
             }
-            json = new String(Files.readAllBytes(Paths.get(path)));
+
+            File ds = new File(path);
+            if (ds.exists())
+                json = new String(Files.readAllBytes(Paths.get(path)));
+            else
+                json = "[]";
 
             Type listType = new TypeToken<ArrayList<Hint>>()
             {
@@ -279,7 +285,7 @@ public class Datastore
             if (hints != null)
             {
                 normalize();
-                logger.info("Read \"" + path + "\" successfully");
+                logger.info("Read \"" + path + "\" successfully, " + hints.size() + " Hints");
                 valid = true;
             }
             else

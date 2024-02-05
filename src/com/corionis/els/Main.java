@@ -111,7 +111,16 @@ public class Main
             if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
             {
                 if (context.preferences.getLastPublisherOpenPath().length() > 0)
-                    context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
+                    if (context.preferences.isLastPublisherIsWorkstation())
+                    {
+                        context.cfg.setPublisherCollectionFilename("");
+                        context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
+                    }
+                    else
+                    {
+                        context.cfg.setPublisherCollectionFilename(context.preferences.getLastPublisherOpenFile());
+                        context.cfg.setPublisherLibrariesFileName("");
+                    }
 
                 if (context.preferences.getLastSubscriberOpenFile().length() > 0)
                 {
@@ -402,7 +411,11 @@ public class Main
                         logger.info("ELS: Local Publish, version " + getBuildVersionName() + ", " + getBuildDate());
                         context.cfg.dump();
 
-                        context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+                        if (context.cfg.getPublisherFilename().length() > 0)
+                            context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+                        else
+                            throw new MungeException("A -p publisher library or -P collection file is required for Local Publish");
+
                         if (!context.cfg.isValidation() && (context.cfg.getSubscriberFilename().length() > 0))
                         {
                             context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
@@ -632,6 +645,9 @@ public class Main
 
                     if (context.cfg.getHintsDaemonFilename() == null || context.cfg.getHintsDaemonFilename().length() == 0)
                         throw new MungeException("-H|--status-server requires Hint Server JSON file");
+
+                    if (context.cfg.getAuthKeysFile() == null || context.cfg.getAuthKeysFile().length() == 0)
+                        throw new MungeException("-H|--status-server requires a -A|--auth-keys file");
 
                     if (context.cfg.getPublisherFilename().length() > 0)
                         throw new MungeException("-H|--status-server does not use -p|-P");
@@ -1004,7 +1020,10 @@ public class Main
                     }
                 }
                 else
-                    throw new MungeException("Hint Keys are required to use Hint Tracking");
+                {
+                    if (!context.cfg.isQuitStatusServer())
+                        throw new MungeException("Hint Keys are required to use Hint Tracking");
+                }
 
                 if (context.cfg.isHintTrackingEnabled())
                 {

@@ -297,6 +297,7 @@ public class JunkRemoverTool extends AbstractTool
     public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
         // create a fresh dialog
+/*
         if (context != null)
         {
             if (context.progress == null || !context.progress.isBeingUsed())
@@ -318,6 +319,7 @@ public class JunkRemoverTool extends AbstractTool
                 return null;
             }
         }
+*/
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
         {

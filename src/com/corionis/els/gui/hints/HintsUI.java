@@ -86,12 +86,11 @@ public class HintsUI extends JDialog
             try
             {
                 if (context.datastore != null)
-                {
                     context.datastore.reload();
-                    hints = context.hints.getAll();
-                }
                 else
                     hints = new ArrayList<>();
+
+                hints = context.hints.getAll();
                 model = new HintsTableModel(context, repositories, hints);
                 tableHints.setModel(model);
 

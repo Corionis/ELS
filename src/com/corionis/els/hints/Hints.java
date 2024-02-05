@@ -293,63 +293,70 @@ public class Hints
         else
             repo = context.subscriberRepo;
 
-        logger.info("Munging Hints to " + repo.getLibraryData().libraries.description + (context.cfg.isDryRun() ? " (--dry-run)" : ""));
-
-        // participating in Hints?
-        key = findHintKey(repo);
-        if (key != null && key.system != null)
+        if (context.cfg.isDryRun())
         {
-            // any Hints? If not process all pending For
-            if (pending == null || pending.size() < 1)
-            {
-                pending = getFor(key.system);
-            }
+            logger.info("Skipping munge of Hints to " + repo.getLibraryData().libraries.description + " (--dry-run)");
+        }
+        else
+        {
+            logger.info("Munging Hints to " + repo.getLibraryData().libraries.description);
 
-            if (pending != null && pending.size() > 0)
+            // participating in Hints?
+            key = findHintKey(repo);
+            if (key != null && key.system != null)
             {
-                for (int i = 0; i < pending.size(); ++i)
+                // any Hints? If not process all pending For
+                if (pending == null || pending.size() < 1)
                 {
-                    Hint hint = pending.get(i);
-                    forIndex = hint.isFor(key.system);
-                    if (forIndex >= -1)
-                    {
-                        try
-                        {
-                            ++executedHints;
-                            logger.info("Executing Hint #" + executedHints + ": " + hint.getLocalUtc(context));
-                            if (!forMe && context.cfg.isRemoteSubscriber())
-                            {
-                                // execute each remotely on subscriber
-                                String json = gsonBuilder.toJson(hint);
-                                String line = "\"execute\" " + json;
-                                response = context.clientStty.roundTrip(line + "\n", null, 10000); // 20 second time-out
-                            }
-                            else
-                            {
-                                // execute each locally
-                                response = execute(repo, hint);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            logger.error(Utils.getStackTrace(e));
-                            response = "fault";
-                        }
-
-                        if (response.trim().toLowerCase().equals("true"))
-                            hint.setStatus(key.system, "Done");
-                        else if (!response.trim().toLowerCase().equals("false"))
-                            hint.setStatus(key.system, "Fault");
-                        else
-                            hint.setStatus(key.system, "Done");
-
-                        if (model != null)
-                            model.fireTableDataChanged();
-
-                        writeOrUpdateHint(hint, key.uuid);
-                    }
+                    pending = getFor(key.system);
                 }
-                logger.info("Hints execution complete, " + response);
+
+                if (pending != null && pending.size() > 0)
+                {
+                    for (int i = 0; i < pending.size(); ++i)
+                    {
+                        Hint hint = pending.get(i);
+                        forIndex = hint.isFor(key.system);
+                        if (forIndex >= -1)
+                        {
+                            try
+                            {
+                                ++executedHints;
+                                logger.info("Executing Hint #" + executedHints + ": " + hint.getLocalUtc(context));
+                                if (!forMe && context.cfg.isRemoteSubscriber())
+                                {
+                                    // execute each remotely on subscriber
+                                    String json = gsonBuilder.toJson(hint);
+                                    String line = "\"execute\" " + json;
+                                    response = context.clientStty.roundTrip(line + "\n", null, 10000); // 20 second time-out
+                                }
+                                else
+                                {
+                                    // execute each locally
+                                    response = execute(repo, hint);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                logger.error(Utils.getStackTrace(e));
+                                response = "fault";
+                            }
+
+                            if (response.trim().toLowerCase().equals("true"))
+                                hint.setStatus(key.system, "Done");
+                            else if (!response.trim().toLowerCase().equals("false"))
+                                hint.setStatus(key.system, "Fault");
+                            else
+                                hint.setStatus(key.system, "Done");
+
+                            if (model != null)
+                                model.fireTableDataChanged();
+
+                            writeOrUpdateHint(hint, key.uuid);
+                        }
+                    }
+                    logger.info("Hint execution complete, result: " + response);
+                }
             }
         }
         return response;
@@ -360,7 +367,7 @@ public class Hints
         if (hint.statuses != null && hint.statuses.size() > 0)
         {
             // does it have status for all participating Hint Keys?
-            if (hint.statuses.size() < context.hintKeys.size())
+            if (hint.statuses.size() != context.hintKeys.size())
                 return false;
 
             for (int i = 0; i < hint.statuses.size(); ++i)
@@ -545,6 +552,8 @@ public class Hints
         {
             // existing Hint
             found = true;
+            dsHint.copyStatusFrom(hint);
+            hint = dsHint;
         }
         else
         {
@@ -582,7 +591,8 @@ public class Hints
                 context.datastore.hints.remove(hint);
                 if (executedHints < 1)
                     executedHints = 1;
-                logger.info("Hint Done and removed #" + executedHints + ": " + hint.getLocalUtc(context));
+                logger.info("Hint Done and removed #" + executedHints + ": " + hint.getLocalUtc(context) + ", " +
+                        context.datastore.hints.size() + " remaining");
             }
 
             context.datastore.write();

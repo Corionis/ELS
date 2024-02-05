@@ -137,29 +137,16 @@ The Local Hint Tracker tracks the processing status of each Hint on each back-up
  * ``060-01_Hints-publisher`` : Run once, if not Done in Navigator
  * ``060-22_Publisher-One-dryrun`` : Run once
  * ``060-23_Publisher-One-backup`` : Run once
- * ``060-44_Subscriber-One-backup`` : Run once, back-up to Publisher and process Hints
+ * ``060-24_Subscriber-One-backup`` : Run once, back-up to Publisher and process Hints
  * ``060-32_Publisher-Two-dryrun`` : Run once
  * ``060-33_Publisher-Two-backup`` : Run once
- <p></p>
-
- * One more time:
- <p></p>
-
- * ``060-23_Publisher-One-backup`` : Run once
- * ``060-33_Publisher-Two-backup`` : Run once
-
-Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty.
 
 
 ### 062-00  Local Hint Tracker - Remote Backup
 
-This permutation tests with a remote backup, and has the "odd man out" issue, because
-the back-ups are remote but the Hint Tracker is local.
-
  * ``reset`` : Reset the test/ directory
- * ``090-23_Navigator-local`` : Perform the Manual Tests below to create some Hints
- * ``062-01_Hints-publisher`` : Run once, if not done in Navigator
  * ``062-21_Subscriber-One-listener`` : Separate terminal 1
+ * ``092-26_Navigator-remote`` : Perform the [Manual Tests](#Manual-tests) below to create some Hints
  * ``062-22_Publisher-One-dryrun`` : Separate terminal 2
  * ``062-21_Subscriber-One-listener`` : Separate terminal 1
  * ``062-23_Publisher-One-backup`` : Separate terminal 2
@@ -167,55 +154,27 @@ the back-ups are remote but the Hint Tracker is local.
  * ``062-32_Publisher-Two-dryrun`` : Separate terminal 2
  * ``062-31_Subscriber-Two-listener`` : Separate terminal 1
  * ``062-33_Publisher-Two-backup`` : Separate terminal 2
- <p></p>
-
- * One more time:
- <p></p>
-
- * ``062-21_Subscriber-One-listener`` : Separate terminal 1
- * ``062-23_Publisher-One-backup`` : Separate terminal 2
- * ``062-31_Subscriber-Two-listener`` : Separate terminal 1
- * ``062-33_Publisher-Two-backup`` : Separate terminal 2
-
-Note: This sequence results in orphaned .els files on Subscriber Two. The "odd man out" problem.
 
 
 ### 070-00  Remote Hint Server - Local Backup
 
-The Remote Hint Server solves the "odd man out" problem for networked back-ups by tracking the
-processing status of each Hint on each back-up using a separate ELS process the publisher and
-subscriber communicate with.
-
  * ``reset`` : Reset the test/ directory
- * ``090-23_Navigator-local`` : Perform the Manual Tests below to create some Hints, OR
- * ``100-26_Navigator-remote-hints`` : and skip 070-01_Hints-publisher next
- * ``070-01_Hints-publisher`` : Run once, if not done in Navigator
  * ``070-10_Status-Server-listener`` : Separate terminal 1
+ * ``100-26_Navigator-remote-hints`` :  Perform the [Manual Tests](#Manual-tests) below to create some Hints
  * ``070-22_Publisher-One-dryrun`` ; Separate terminal 2
  * ``070-23_Publisher-One-backup`` : Separate terminal 2
  * ``070-32_Publisher-Two-dryrun`` : Separate terminal 2
  * ``070-33_Publisher-Two-backup`` : Separate terminal 2
- <p></p>
-
- * One more time:
- <p></p>
-
- * ``070-23_Publisher-One-backup`` : Separate terminal 2
- * ``070-33_Publisher-Two-backup`` : Separate terminal 2
- * ``070-99_Quit-Status-Server`` : Separate terminal 2
-
-Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty
+ * ``070-99_Quit-Status-Server`` : Stop Hint Status Server
 
 
 ### 072-00  Remote Hint Server - Remote Backup
 
-This permutation tests with both a remote Hint Server and remote backup.
-
  * ``reset`` : Reset the test/ directory
  * ``072-10_Status-Server-listener`` : Separate terminal 1.
- * ``100-23_Navigator-remote-hints`` : Perform the Manual Tests below to create some Hints
- * ``072-01_Hints-publisher`` : Run once, hints are tracked locally
  * ``072-21_Subscriber-One-listener`` : Separate terminal 2
+ * ``100-26_Navigator-remote-hints`` :  Perform the [Manual Tests](#Manual-tests) below to create some Hints
+ * ``072-01_Hints-publisher`` : Run once, hints are tracked locally
  * ``072-22_Publisher-One-dryrun`` ; Separate terminal 3
  * ``072-21_Subscriber-One-listener`` : Separate terminal 2
  * ``072-23_Publisher-One-backup`` : Separate terminal 3
@@ -223,24 +182,12 @@ This permutation tests with both a remote Hint Server and remote backup.
  * ``072-32_Publisher-Two-dryrun`` : Separate terminal 3
  * ``072-31_Subscriber-Two-listener`` : Separate terminal 2
  * ``072-33_Publisher-Two-backup`` : Separate terminal 3
- <p></p>
-
- * One more time:
- <p></p>
-
- * ``072-21_Subscriber-One-listener`` : Separate terminal 2
- * ``072-23_Publisher-One-backup`` : Separate terminal 3
- * ``072-31_Subscriber-Two-listener`` : Separate terminal 2
- * ``072-33_Publisher-Two-backup`` : Separate terminal 3
- * ``072-99_Quit-Status-Server`` : Separate terminal 2 or 3
-
-Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty
+ * ``072-99_Quit-Status-Server`` : Stop Hint Status Server
  
 
 ### 080-00  Navigator - Local Backup
 
-Run one at a time for basic local Navigator functionality.
-
+ * ``reset`` : Reset the test/ directory
  * ``080-01_Navigator-no-args`` : ELS with no arguments
  * ``080-02_Navigator-navigator`` : With --navigator option only
  * ``080-03_Navigator-publisher-only`` :: With a publisher

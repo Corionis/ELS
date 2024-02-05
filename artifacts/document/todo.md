@@ -3,6 +3,11 @@
 
 ## Current Short-List
 
+### Regression Tests
+
+ * Saw exception when deleting file or directory, index out of bounds
+ * Saw exception with Junk Remover
+
 ### Hints Reengineering
 
 #### Short List

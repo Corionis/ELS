@@ -33,10 +33,15 @@
 </head>
 <body>
 <h2>Authentication Keys</h2>
-<p>Authentication Keys control what ELS instances are allowed to access this ELS instance. Those may
-    include publishers and Navigators. Note a subscriber is the same as a publisher.
-    Their role as a publisher or subscriber is controlled by which is defined for
-    the -p|-P and -s|-S options.</p>
+<p>Authentication Keys control what ELS instances are allowed to access this ELS listener instance.
+Note a subscriber is the same as a publisher. Their role as a publisher or subscriber is controlled
+by which is defined for the -p|-P and -s|-S options.</p>
+
+<p>Authentication Keys may be used with ELS subscriber and publisher listeners, and are
+<i>required</i> for the Hint Server listener.</p>
+
+<p>If Authentication Keys are not specified the current publisher is used and is the
+only client that may connect to the subscriber.</p>
 
 <p>An Authentication Key is the "key" element from a collection JSON file.<br/><br/></p>
 

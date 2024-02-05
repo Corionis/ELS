@@ -347,31 +347,7 @@ public class Daemon extends AbstractDaemon
                         continue;
                     }
 
-                    // -------------- save all --------------------------------
-                    if (theCommand.equalsIgnoreCase("save"))
-                    {
-                        boolean valid = false;
-                        if (t.hasMoreTokens())
-                        {
-                            if (line.length() > 7)
-                            {
-                                String json = line.substring(7);
-                                Type listType = new TypeToken<ArrayList<Hint>>()
-                                {
-                                }.getType();
-                                context.datastore.hints = gsonParser.fromJson(json, listType);
-                                context.datastore.write();
-                                valid = true;
-                                response = "true";
-                                logger.info("All Hints saved");
-                            }
-                        }
-                        if (!valid)
-                            response = "false";
-                        continue;
-                    }
-
-                    // -------------- write or update Hint --------------------------------
+                    // -------------- Hint write or update --------------------------------
                     if (theCommand.equalsIgnoreCase("hint"))
                     {
                         boolean valid = false;
@@ -420,6 +396,30 @@ public class Daemon extends AbstractDaemon
                         else
                             logger.info("Ignoring quit command, --listener-keep-going enabled");
                         break; // break the loop
+                    }
+
+                    // -------------- save all --------------------------------
+                    if (theCommand.equalsIgnoreCase("save"))
+                    {
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
+                        {
+                            if (line.length() > 7)
+                            {
+                                String json = line.substring(7);
+                                Type listType = new TypeToken<ArrayList<Hint>>()
+                                {
+                                }.getType();
+                                context.datastore.hints = gsonParser.fromJson(json, listType);
+                                context.datastore.write();
+                                valid = true;
+                                response = "true";
+                                logger.info("All Hints saved");
+                            }
+                        }
+                        if (!valid)
+                            response = "false";
+                        continue;
                     }
 
                     response = "\r\nunknown command '" + theCommand + "\r\n";
