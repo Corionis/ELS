@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.7" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.9" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": false
@@ -713,9 +713,9 @@ new FormModel {
 										add( new FormComponent( "javax.swing.JComboBox" ) {
 											name: "comboBoxOperationHintsAndServer"
 											"prototypeDisplayValue": new FormMessage( null, "OperationsUI.comboBoxOperationHintsAndServer.prototypeDisplayValue" )
-											"model": &DefaultComboBoxModel0 new javax.swing.DefaultComboBoxModel {
-												selectedItem: "Hints:"
-												addElement( "Hints:" )
+											"model": new javax.swing.DefaultComboBoxModel {
+												selectedItem: "Hint Tracker:"
+												addElement( "Hint Tracker:" )
 												addElement( "Hint Server:" )
 											}
 											"minimumSize": &Dimension25 new java.awt.Dimension( 60, 30 )
@@ -1356,7 +1356,11 @@ new FormModel {
 										add( new FormComponent( "javax.swing.JComboBox" ) {
 											name: "comboBoxOperationHintsAndServer2"
 											"prototypeDisplayValue": new FormMessage( null, "OperationsUI.comboBoxOperationHintsAndServer2.prototypeDisplayValue" )
-											"model": #DefaultComboBoxModel0
+											"model": new javax.swing.DefaultComboBoxModel {
+												selectedItem: "Hint Tracker:"
+												addElement( "Hint Tracker:" )
+												addElement( "Hint Server:" )
+											}
 											"minimumSize": #Dimension25
 											"name": "hints"
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
@@ -1487,7 +1491,7 @@ new FormModel {
 									} )
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 										"$columnSpecs": "0, 0, 0, 0, 0, 0, 0"
-										"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
+										"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
 										"$hGap": 4
 										"$vGap": 4
 										"$alignTop": true
@@ -1595,11 +1599,56 @@ new FormModel {
 											"gridx": 3
 										} )
 										add( new FormComponent( "javax.swing.JLabel" ) {
+											name: "label1"
+											"text": new FormMessage( null, "OperationsUI.labelOperationAuthKeys.text" )
+										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+											"gridy": 3
+										} )
+										add( new FormComponent( "javax.swing.JTextField" ) {
+											name: "textFieldOperationAuthKeys3"
+											"minimumSize": #Dimension26
+											"name": "authkeys3"
+											"maximumSize": #Dimension27
+											"preferredSize": #Dimension28
+											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+											"gridy": 3
+											"gridx": 1
+										} )
+										add( new FormComponent( "javax.swing.JButton" ) {
+											name: "buttonOperationAuthKeysFilePick3"
+											"text": "..."
+											"font": #SwingDerivedFont1
+											"maximumSize": #Dimension16
+											"minimumSize": #Dimension17
+											"preferredSize": #Dimension18
+											"verticalTextPosition": 1
+											"iconTextGap": 0
+											"horizontalTextPosition": 10
+											"actionCommand": "authKeysFilePick"
+											"toolTipText": new FormMessage( null, "OperationsUI.buttonOperationAuthKeysFilePick.toolTipText" )
+											"name": "authkeys3"
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+											"gridy": 3
+											"gridx": 2
+										} )
+										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+											name: "vSpacer44"
+											"minimumSize": #Dimension0
+											"preferredSize": #Dimension1
+											"maximumSize": #Dimension2
+										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+											"gridy": 3
+											"gridx": 3
+										} )
+										add( new FormComponent( "javax.swing.JLabel" ) {
 											name: "labelOperationKeepGoing3"
 											"text": new FormMessage( null, "OperationsUI.labelOperationKeepGoing3.text" )
 											"minimumSize": #Dimension29
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridy": 3
+											"gridy": 4
 										} )
 										add( new FormComponent( "javax.swing.JCheckBox" ) {
 											name: "checkBoxOperationKeepGoing3"
@@ -1608,7 +1657,7 @@ new FormModel {
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridx": 1
-											"gridy": 3
+											"gridy": 4
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 											name: "vSpacer36"
@@ -1616,7 +1665,7 @@ new FormModel {
 											"preferredSize": #Dimension1
 											"maximumSize": #Dimension2
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridy": 3
+											"gridy": 4
 											"gridx": 3
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
@@ -1625,14 +1674,14 @@ new FormModel {
 											"preferredSize": #Dimension1
 											"maximumSize": #Dimension2
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridy": 4
+											"gridy": 5
 											"gridx": 3
 										} )
 										add( new FormComponent( "javax.swing.JLabel" ) {
 											name: "labelOperationBlacklist3"
 											"text": new FormMessage( null, "OperationsUI.labelOperationBlacklist3.text" )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridy": 5
+											"gridy": 6
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationBlacklist3"
@@ -1644,7 +1693,7 @@ new FormModel {
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridx": 1
-											"gridy": 5
+											"gridy": 6
 										} )
 										add( new FormComponent( "javax.swing.JButton" ) {
 											name: "buttonOperationBlacklistFilePick3"
@@ -1661,7 +1710,7 @@ new FormModel {
 											"name": "blacklist3"
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridy": 5
+											"gridy": 6
 											"gridx": 2
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
@@ -1670,14 +1719,14 @@ new FormModel {
 											"preferredSize": #Dimension1
 											"maximumSize": #Dimension2
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridy": 5
+											"gridy": 6
 											"gridx": 3
 										} )
 										add( new FormComponent( "javax.swing.JLabel" ) {
 											name: "labelOperationIpWhitelist3"
 											"text": new FormMessage( null, "OperationsUI.labelOperationIpWhitelist3.text" )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridy": 6
+											"gridy": 7
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationIpWhitelist3"
@@ -1689,7 +1738,7 @@ new FormModel {
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridx": 1
-											"gridy": 6
+											"gridy": 7
 										} )
 										add( new FormComponent( "javax.swing.JButton" ) {
 											name: "buttonOperationIpWhitelistFilePick3"
@@ -1706,7 +1755,7 @@ new FormModel {
 											"name": "ipwhitelist3"
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridy": 6
+											"gridy": 7
 											"gridx": 2
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
@@ -1715,7 +1764,7 @@ new FormModel {
 											"preferredSize": #Dimension1
 											"maximumSize": #Dimension2
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridy": 6
+											"gridy": 7
 											"gridx": 3
 										} )
 									}, new FormLayoutConstraints( class java.lang.String ) {

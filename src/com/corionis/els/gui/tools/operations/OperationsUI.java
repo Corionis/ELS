@@ -399,6 +399,7 @@ public class OperationsUI extends AbstractToolDialog
                 switch (button.getName().toLowerCase())
                 {
                     case "authkeys":
+                    case "authkeys3":
                         desc = context.cfg.gs("OperationsUI.els.auth.keys.file");
                         pickerAnyFile = false;
                         pickerFileMustExist = true;
@@ -468,6 +469,9 @@ public class OperationsUI extends AbstractToolDialog
         {
             case "authkeys":
                 fileName = textFieldOperationAuthKeys.getText();
+                break;
+            case "authkeys3":
+                fileName = textFieldOperationAuthKeys3.getText();
                 break;
             case "blacklist":
                 fileName = textFieldOperationBlacklist.getText();
@@ -591,6 +595,10 @@ public class OperationsUI extends AbstractToolDialog
                     case "authkeys":
                         textFieldOperationAuthKeys.setText(path);
                         textFieldOperationAuthKeys.postActionEvent();
+                        break;
+                    case "authkeys3":
+                        textFieldOperationAuthKeys3.setText(path);
+                        textFieldOperationAuthKeys3.postActionEvent();
                         break;
                     case "blacklist":
                         textFieldOperationBlacklist.setText(path);
@@ -839,6 +847,10 @@ public class OperationsUI extends AbstractToolDialog
         comboBoxOperationHintsAndServer.removeAllItems();
         comboBoxOperationHintsAndServer.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.0.hints"));
         comboBoxOperationHintsAndServer.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.1.hintServer"));
+
+        comboBoxOperationHintsAndServer2.removeAllItems();
+        comboBoxOperationHintsAndServer2.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.0.hints"));
+        comboBoxOperationHintsAndServer2.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.1.hintServer"));
     }
 
     private void libraryLoader(int which)
@@ -1265,8 +1277,8 @@ public class OperationsUI extends AbstractToolDialog
             textFieldOperationHints3.setText("");
         }
 
+        textFieldOperationAuthKeys3.setText(currentTool.getOptAuthKeys());
         checkBoxOperationKeepGoing3.setSelected(currentTool.isOptListenerKeepGoing());
-
         textFieldOperationBlacklist3.setText(currentTool.getOptBlacklist());
         textFieldOperationIpWhitelist3.setText(currentTool.getOptIpWhitelist());
 
@@ -1563,6 +1575,7 @@ public class OperationsUI extends AbstractToolDialog
                 name = tf.getName();
                 switch (name.toLowerCase())
                 {
+                    case "authkeys3":
                     case "authkeys":
                         current = currentTool.getOptAuthKeys();
                         currentTool.setOptAuthKeys(tf.getText());
@@ -1822,7 +1835,7 @@ public class OperationsUI extends AbstractToolDialog
     {
         String current;
         int selected = 0;
-        if (carVar == 1)
+        if (carVar == 1)  // 1 publisher; 2 listener, 3 hint server, 6 hint quit
         {
             current = currentTool.getOptExportItems();
             textFieldOperationExportItems.setToolTipText(current);
@@ -2111,6 +2124,10 @@ public class OperationsUI extends AbstractToolDialog
         textFieldOperationHints3 = new JTextField();
         buttonOperationHintsFilePick3 = new JButton();
         vSpacer35 = new JPanel(null);
+        label1 = new JLabel();
+        textFieldOperationAuthKeys3 = new JTextField();
+        buttonOperationAuthKeysFilePick3 = new JButton();
+        vSpacer44 = new JPanel(null);
         labelOperationKeepGoing3 = new JLabel();
         checkBoxOperationKeepGoing3 = new JCheckBox();
         vSpacer36 = new JPanel(null);
@@ -2154,7 +2171,7 @@ public class OperationsUI extends AbstractToolDialog
                 windowHidden(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========
@@ -2857,7 +2874,7 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- comboBoxOperationHintsAndServer ----
                                     comboBoxOperationHintsAndServer.setPrototypeDisplayValue(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.prototypeDisplayValue"));
                                     comboBoxOperationHintsAndServer.setModel(new DefaultComboBoxModel<>(new String[] {
-                                        "Hints:",
+                                        "Hint Tracker:",
                                         "Hint Server:"
                                     }));
                                     comboBoxOperationHintsAndServer.setMinimumSize(new Dimension(60, 30));
@@ -3495,7 +3512,7 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- comboBoxOperationHintsAndServer2 ----
                                     comboBoxOperationHintsAndServer2.setPrototypeDisplayValue(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer2.prototypeDisplayValue"));
                                     comboBoxOperationHintsAndServer2.setModel(new DefaultComboBoxModel<>(new String[] {
-                                        "Hints:",
+                                        "Hint Tracker:",
                                         "Hint Server:"
                                     }));
                                     comboBoxOperationHintsAndServer2.setMinimumSize(new Dimension(60, 30));
@@ -3625,8 +3642,8 @@ public class OperationsUI extends AbstractToolDialog
                                     panelCardHintServer.setPreferredSize(new Dimension(824, 542));
                                     panelCardHintServer.setMinimumSize(new Dimension(0, 0));
                                     panelCardHintServer.setLayout(new GridBagLayout());
-                                    ((GridBagLayout)panelCardHintServer.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                                    ((GridBagLayout)panelCardHintServer.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                    ((GridBagLayout)panelCardHintServer.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                    ((GridBagLayout)panelCardHintServer.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                                     //---- vSpacer41 ----
                                     vSpacer41.setMaximumSize(new Dimension(32767, 8));
@@ -3730,10 +3747,57 @@ public class OperationsUI extends AbstractToolDialog
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
+                                    //---- label1 ----
+                                    label1.setText(context.cfg.gs("OperationsUI.labelOperationAuthKeys.text"));
+                                    panelCardHintServer.add(label1, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                        new Insets(0, 0, 4, 4), 0, 0));
+
+                                    //---- textFieldOperationAuthKeys3 ----
+                                    textFieldOperationAuthKeys3.setMinimumSize(new Dimension(60, 30));
+                                    textFieldOperationAuthKeys3.setName("authkeys3");
+                                    textFieldOperationAuthKeys3.setMaximumSize(new Dimension(240, 30));
+                                    textFieldOperationAuthKeys3.setPreferredSize(new Dimension(240, 30));
+                                    textFieldOperationAuthKeys3.addFocusListener(new FocusAdapter() {
+                                        @Override
+                                        public void focusLost(FocusEvent e) {
+                                            genericTextFieldFocusLost(e);
+                                        }
+                                    });
+                                    textFieldOperationAuthKeys3.addActionListener(e -> genericAction(e));
+                                    panelCardHintServer.add(textFieldOperationAuthKeys3, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                        new Insets(0, 0, 4, 4), 0, 0));
+
+                                    //---- buttonOperationAuthKeysFilePick3 ----
+                                    buttonOperationAuthKeysFilePick3.setText("...");
+                                    buttonOperationAuthKeysFilePick3.setFont(buttonOperationAuthKeysFilePick3.getFont().deriveFont(buttonOperationAuthKeysFilePick3.getFont().getStyle() | Font.BOLD));
+                                    buttonOperationAuthKeysFilePick3.setMaximumSize(new Dimension(32, 24));
+                                    buttonOperationAuthKeysFilePick3.setMinimumSize(new Dimension(32, 24));
+                                    buttonOperationAuthKeysFilePick3.setPreferredSize(new Dimension(32, 24));
+                                    buttonOperationAuthKeysFilePick3.setVerticalTextPosition(SwingConstants.TOP);
+                                    buttonOperationAuthKeysFilePick3.setIconTextGap(0);
+                                    buttonOperationAuthKeysFilePick3.setHorizontalTextPosition(SwingConstants.LEADING);
+                                    buttonOperationAuthKeysFilePick3.setActionCommand("authKeysFilePick");
+                                    buttonOperationAuthKeysFilePick3.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationAuthKeysFilePick.toolTipText"));
+                                    buttonOperationAuthKeysFilePick3.setName("authkeys3");
+                                    buttonOperationAuthKeysFilePick3.addActionListener(e -> genericAction(e));
+                                    panelCardHintServer.add(buttonOperationAuthKeysFilePick3, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
+                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                        new Insets(0, 0, 4, 4), 0, 0));
+
+                                    //---- vSpacer44 ----
+                                    vSpacer44.setMinimumSize(new Dimension(10, 30));
+                                    vSpacer44.setPreferredSize(new Dimension(20, 30));
+                                    vSpacer44.setMaximumSize(new Dimension(20, 30));
+                                    panelCardHintServer.add(vSpacer44, new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0,
+                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                        new Insets(0, 0, 4, 4), 0, 0));
+
                                     //---- labelOperationKeepGoing3 ----
                                     labelOperationKeepGoing3.setText(context.cfg.gs("OperationsUI.labelOperationKeepGoing3.text"));
                                     labelOperationKeepGoing3.setMinimumSize(new Dimension(60, 16));
-                                    panelCardHintServer.add(labelOperationKeepGoing3, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(labelOperationKeepGoing3, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3741,7 +3805,7 @@ public class OperationsUI extends AbstractToolDialog
                                     checkBoxOperationKeepGoing3.setName("keepgoing3");
                                     checkBoxOperationKeepGoing3.setToolTipText(context.cfg.gs("OperationsUI.checkBoxOperationKeepGoing3.toolTipText"));
                                     checkBoxOperationKeepGoing3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(checkBoxOperationKeepGoing3, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(checkBoxOperationKeepGoing3, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3749,7 +3813,7 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer36.setMinimumSize(new Dimension(10, 30));
                                     vSpacer36.setPreferredSize(new Dimension(20, 30));
                                     vSpacer36.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer36, new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(vSpacer36, new GridBagConstraints(3, 4, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3757,13 +3821,13 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer39.setMinimumSize(new Dimension(10, 30));
                                     vSpacer39.setPreferredSize(new Dimension(20, 30));
                                     vSpacer39.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer39, new GridBagConstraints(3, 4, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(vSpacer39, new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- labelOperationBlacklist3 ----
                                     labelOperationBlacklist3.setText(context.cfg.gs("OperationsUI.labelOperationBlacklist3.text"));
-                                    panelCardHintServer.add(labelOperationBlacklist3, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(labelOperationBlacklist3, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3779,7 +3843,7 @@ public class OperationsUI extends AbstractToolDialog
                                         }
                                     });
                                     textFieldOperationBlacklist3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(textFieldOperationBlacklist3, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(textFieldOperationBlacklist3, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3796,7 +3860,7 @@ public class OperationsUI extends AbstractToolDialog
                                     buttonOperationBlacklistFilePick3.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationBlacklistFilePick3.toolTipText"));
                                     buttonOperationBlacklistFilePick3.setName("blacklist3");
                                     buttonOperationBlacklistFilePick3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(buttonOperationBlacklistFilePick3, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(buttonOperationBlacklistFilePick3, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3804,13 +3868,13 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer37.setMinimumSize(new Dimension(10, 30));
                                     vSpacer37.setPreferredSize(new Dimension(20, 30));
                                     vSpacer37.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer37, new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(vSpacer37, new GridBagConstraints(3, 6, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- labelOperationIpWhitelist3 ----
                                     labelOperationIpWhitelist3.setText(context.cfg.gs("OperationsUI.labelOperationIpWhitelist3.text"));
-                                    panelCardHintServer.add(labelOperationIpWhitelist3, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(labelOperationIpWhitelist3, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3826,7 +3890,7 @@ public class OperationsUI extends AbstractToolDialog
                                         }
                                     });
                                     textFieldOperationIpWhitelist3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(textFieldOperationIpWhitelist3, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(textFieldOperationIpWhitelist3, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3843,7 +3907,7 @@ public class OperationsUI extends AbstractToolDialog
                                     buttonOperationIpWhitelistFilePick3.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationIpWhitelistFilePick3.toolTipText"));
                                     buttonOperationIpWhitelistFilePick3.setName("ipwhitelist3");
                                     buttonOperationIpWhitelistFilePick3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(buttonOperationIpWhitelistFilePick3, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(buttonOperationIpWhitelistFilePick3, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3851,7 +3915,7 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer38.setMinimumSize(new Dimension(10, 30));
                                     vSpacer38.setPreferredSize(new Dimension(20, 30));
                                     vSpacer38.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer38, new GridBagConstraints(3, 6, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(vSpacer38, new GridBagConstraints(3, 7, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
                                 }
@@ -4159,6 +4223,10 @@ public class OperationsUI extends AbstractToolDialog
     public JTextField textFieldOperationHints3;
     public JButton buttonOperationHintsFilePick3;
     public JPanel vSpacer35;
+    public JLabel label1;
+    public JTextField textFieldOperationAuthKeys3;
+    public JButton buttonOperationAuthKeysFilePick3;
+    public JPanel vSpacer44;
     public JLabel labelOperationKeepGoing3;
     public JCheckBox checkBoxOperationKeepGoing3;
     public JPanel vSpacer36;
