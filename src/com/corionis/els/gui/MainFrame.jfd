@@ -1712,6 +1712,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "menuItemShowToolbar"
 						"text": new FormMessage( null, "Navigator.menuItemShowToolbar.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemShowToolbar.mnemonic" )
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "menuItemWordWrap"

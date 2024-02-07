@@ -935,6 +935,7 @@ public class MainFrame extends JFrame
 
                 //---- menuItemShowToolbar ----
                 menuItemShowToolbar.setText(context.cfg.gs("Navigator.menuItemShowToolbar.text"));
+                menuItemShowToolbar.setMnemonic(context.cfg.gs("Navigator.menuItemShowToolbar.mnemonic").charAt(0));
                 menuView.add(menuItemShowToolbar);
 
                 //---- menuItemWordWrap ----

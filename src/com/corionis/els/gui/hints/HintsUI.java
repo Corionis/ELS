@@ -155,6 +155,10 @@ public class HintsUI extends JDialog
                 JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
             }
         }
+        else
+        {
+            labelStatus.setText(context.cfg.gs("HintsUI.hint.tracker.server.not.enabled"));
+        }
 
         if (model != null && model.hints != null)
         {

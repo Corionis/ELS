@@ -209,7 +209,7 @@ public class FileEditor extends JDialog
                 controls.setLayout(gridBagLayout);
 
                 // prompt
-                JLabel prompt = new JLabel(context.cfg.gs("FileEditor.select.collection.uuid"));
+                JLabel prompt = new JLabel(context.cfg.gs("FileEditor.select.library.uuid"));
                 controls.add(prompt, new GridBagConstraints(0, 0, 7, 1, 1.0, 0.0,
                         GridBagConstraints.WEST, GridBagConstraints.BOTH,
                         new Insets(4, 0, 4, 4), 0, 0));
