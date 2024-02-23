@@ -105,12 +105,16 @@ public class Main
                 !context.cfg.isStatusServer())
             context.cfg.setDefaultNavigator(true);
 
+        // operating as the Navigator desktop application?
         if (context.cfg.isNavigator() && context.preferences.isUseLastPublisherSubscriber() &&
                 (context.cfg.getOperation() == NOT_REMOTE || context.cfg.getOperation() == PUBLISH_REMOTE))
         {
+            // no pub and sub?
             if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
             {
-                if (context.preferences.getLastPublisherOpenPath().length() > 0)
+                // use saved publisher?
+                if (context.preferences.isLastPublisherIsOpen() && context.preferences.getLastPublisherOpenPath().length() > 0)
+                {
                     if (context.preferences.isLastPublisherIsWorkstation())
                     {
                         context.cfg.setPublisherCollectionFilename("");
@@ -121,8 +125,10 @@ public class Main
                         context.cfg.setPublisherCollectionFilename(context.preferences.getLastPublisherOpenFile());
                         context.cfg.setPublisherLibrariesFileName("");
                     }
+                }
 
-                if (context.preferences.getLastSubscriberOpenFile().length() > 0)
+                // use saved subscriber?
+                if (context.preferences.isLastSubscriberIsOpen() && context.preferences.getLastSubscriberOpenFile().length() > 0)
                 {
                     context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
                     if (context.preferences.isLastSubscriberIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
@@ -131,14 +137,16 @@ public class Main
                     }
                 }
 
-                // hint keys
-                if (context.cfg.getHintKeysFile().length() == 0 &&
+                // use last hint keys?
+                if (context.preferences.isLastHintKeysIsOpen() &&
+                        context.cfg.getHintKeysFile().length() == 0 &&
                         context.preferences.getLastHintKeysOpenFile().length() > 0)
                 {
                     context.cfg.setHintKeysFile(context.preferences.getLastHintKeysOpenFile());
 
                     // hint tracking, must have hint keys
-                    if (context.cfg.getHintHandlerFilename().length() == 0 &&
+                    if (context.preferences.isLastHintTrackingIsOpen() &&
+                            context.cfg.getHintHandlerFilename().length() == 0 &&
                             context.preferences.getLastHintTrackingOpenFile().length() > 0)
                     {
                         // hint daemon or tracker?

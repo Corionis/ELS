@@ -892,6 +892,7 @@ public class Navigator
                             context.preferences.setLastPublisherOpenFile(file.getAbsolutePath());
                             context.preferences.setLastPublisherOpenPath(last.getAbsolutePath());
                             context.preferences.setLastPublisherIsWorkstation(isWorkstation);
+                            context.preferences.setLastPublisherIsOpen(true);
                             if (isWorkstation)
                             {
                                 context.cfg.setPublisherCollectionFilename("");
@@ -1020,6 +1021,7 @@ public class Navigator
                         context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
                         context.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
                         context.preferences.setLastSubscriberIsRemote(cbIsRemote.isSelected());
+                        context.preferences.setLastSubscriberIsOpen(true);
 
                         // this defines the value returned by context.cfg.isRemoteSession()
                         if (context.preferences.isLastSubscriberIsRemote())
@@ -1179,6 +1181,7 @@ public class Navigator
                         {
                             context.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
                             context.preferences.setLastHintKeysOpenPath(last.getAbsolutePath());
+                            context.preferences.setLastHintKeysIsOpen(true);
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
                             context.main.setupHints(context.publisherRepo);
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
@@ -1306,6 +1309,7 @@ public class Navigator
                             context.preferences.setLastHintTrackingOpenFile(file.getAbsolutePath());
                             context.preferences.setLastHintTrackingOpenPath(last.getAbsolutePath());
                             context.preferences.setLastHintTrackingIsRemote(cbIsRemote.isSelected());
+                            context.preferences.setLastHintTrackingIsOpen(true);
 
                             if (context.preferences.isLastHintTrackingIsRemote())
                             {
@@ -1411,6 +1415,7 @@ public class Navigator
                     context.publisherRepo = null;
                     context.cfg.setPublisherCollectionFilename("");
                     context.cfg.setPublisherLibrariesFileName("");
+                    context.preferences.setLastPublisherIsOpen(false);
                     setQuitTerminateVisibility();
                 }
             }
@@ -1427,6 +1432,7 @@ public class Navigator
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (r == JOptionPane.YES_OPTION)
                 {
+                    context.preferences.setLastSubscriberIsOpen(false);
                     disconnectSubscriber();
                 }
             }
@@ -1461,6 +1467,7 @@ public class Navigator
                     context.statusRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
+                    context.preferences.setLastHintKeysIsOpen(false);
                     context.browser.setupHintTrackingButton();
                 }
             }
@@ -1484,6 +1491,7 @@ public class Navigator
                     context.statusRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
+                    context.preferences.setLastHintTrackingIsOpen(false);
                     context.browser.setupHintTrackingButton();
                     setQuitTerminateVisibility();
                 }

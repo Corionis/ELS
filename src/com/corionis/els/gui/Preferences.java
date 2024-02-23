@@ -1,6 +1,5 @@
 package com.corionis.els.gui;
 
-import com.corionis.els.gui.browser.BrowserTableModel;
 import com.formdev.flatlaf.*;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
@@ -13,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -77,14 +75,18 @@ public class Preferences implements Serializable
     private int jobsWidth = 570;
     private int jobsXpos = 0;
     private int jobsYpos = 0;
+    private boolean lastHintKeysIsOpen = false;
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
+    private boolean lastHintTrackingIsOpen = false;
     private boolean lastHintTrackingIsRemote = false;
     private String lastHintTrackingOpenFile = "";
     private String lastHintTrackingOpenPath = "";
+    private boolean lastPublisherIsOpen = false;
     private boolean lastPublisherIsWorkstation = false;
     private String lastPublisherOpenFile = "";
     private String lastPublisherOpenPath = "";
+    private boolean lastSubscriberIsOpen = false;
     private boolean lastSubscriberIsRemote = false;
     private String lastSubscriberOpenFile = "";
     private String lastSubscriberOpenPath = "";
@@ -157,7 +159,6 @@ public class Preferences implements Serializable
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
-
     /**
      * Constructor
      */
@@ -501,7 +502,6 @@ public class Preferences implements Serializable
     {
         return hintsDateWidth;
     }
-    //private transient LookAndFeel laf = null;
 
     public int getHintsFromItemWidth()
     {
@@ -542,6 +542,7 @@ public class Preferences implements Serializable
     {
         return hintsWidth;
     }
+    //private transient LookAndFeel laf = null;
 
     public int getHintsXpos()
     {
@@ -1053,14 +1054,34 @@ public class Preferences implements Serializable
         return hideHiddenFiles;
     }
 
+    public boolean isLastHintKeysIsOpen()
+    {
+        return lastHintKeysIsOpen;
+    }
+
+    public boolean isLastHintTrackingIsOpen()
+    {
+        return lastHintTrackingIsOpen;
+    }
+
     public boolean isLastHintTrackingIsRemote()
     {
         return lastHintTrackingIsRemote;
     }
 
+    public boolean isLastPublisherIsOpen()
+    {
+        return lastPublisherIsOpen;
+    }
+
     public boolean isLastPublisherIsWorkstation()
     {
         return lastPublisherIsWorkstation;
+    }
+
+    public boolean isLastSubscriberIsOpen()
+    {
+        return lastSubscriberIsOpen;
     }
 
     public boolean isLastSubscriberIsRemote()
@@ -1395,6 +1416,11 @@ public class Preferences implements Serializable
         this.jobsYpos = jobsYpos;
     }
 
+    public void setLastHintKeysIsOpen(boolean lastHintKeysIsOpen)
+    {
+        this.lastHintKeysIsOpen = lastHintKeysIsOpen;
+    }
+
     public void setLastHintKeysOpenFile(String lastHintKeysOpenFile)
     {
         this.lastHintKeysOpenFile = lastHintKeysOpenFile;
@@ -1403,6 +1429,11 @@ public class Preferences implements Serializable
     public void setLastHintKeysOpenPath(String lastHintKeysOpenPath)
     {
         this.lastHintKeysOpenPath = lastHintKeysOpenPath;
+    }
+
+    public void setLastHintTrackingIsOpen(boolean lastHintTrackingIsOpen)
+    {
+        this.lastHintTrackingIsOpen = lastHintTrackingIsOpen;
     }
 
     public void setLastHintTrackingIsRemote(boolean lastHintTrackingIsRemote)
@@ -1420,6 +1451,11 @@ public class Preferences implements Serializable
         this.lastHintTrackingOpenPath = lastHintTrackingOpenPath;
     }
 
+    public void setLastPublisherIsOpen(boolean lastPublisherIsOpen)
+    {
+        this.lastPublisherIsOpen = lastPublisherIsOpen;
+    }
+
     public void setLastPublisherIsWorkstation(boolean lastPublisherIsWorkstation)
     {
         this.lastPublisherIsWorkstation = lastPublisherIsWorkstation;
@@ -1433,6 +1469,11 @@ public class Preferences implements Serializable
     public void setLastPublisherOpenPath(String lastPublisherOpenPath)
     {
         this.lastPublisherOpenPath = lastPublisherOpenPath;
+    }
+
+    public void setLastSubscriberIsOpen(boolean lastSubscriberIsOpen)
+    {
+        this.lastSubscriberIsOpen = lastSubscriberIsOpen;
     }
 
     public void setLastSubscriberIsRemote(boolean lastSubscriberIsRemote)
