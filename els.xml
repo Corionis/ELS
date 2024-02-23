@@ -14,7 +14,8 @@
     </target>
 
     <target name="clean" depends="init">
-        <delete dir="out/ELS" failonerror="false"/>
+        <delete dir="out/els" failonerror="false"/>
+        <delete dir="out/updater" failonerror="false"/>
         <mkdir dir="out"/>
     </target>
 
@@ -66,8 +67,8 @@
     
     <!-- Compile ELS -->
     <target name="els-compile" depends="stamp">
-        <mkdir dir="out/ELS/jar"/>
-        <javac destdir="out/ELS/jar" classpathref="class.path" includeantruntime="false" debug="on">
+        <mkdir dir="out/els/jar"/>
+        <javac destdir="out/els/jar" classpathref="class.path" includeantruntime="false" debug="on">
             <src path="src"/>
             <include name="**/*.java"/>
         </javac>
@@ -75,20 +76,20 @@
 
     <!-- Assemble all the pieces to build the Jar -->
     <target name="els-assemble" depends="els-compile">
-        <copy todir="out/ELS/jar/com/corionis/els/locales" preservelastmodified="true">
+        <copy todir="out/els/jar/com/corionis/els/locales" preservelastmodified="true">
             <fileset dir="src/com/corionis/els/locales"/>
         </copy>
-        <copy todir="out/ELS/jar/com/corionis/els/resources" preservelastmodified="true">
+        <copy todir="out/els/jar/com/corionis/els/resources" preservelastmodified="true">
             <fileset dir="src/com/corionis/els/resources"/>
         </copy>
-        <copy todir="out/ELS/jar" preservelastmodified="true">
+        <copy todir="out/els/jar" preservelastmodified="true">
             <fileset dir="artifacts/images/"/>
             <fileset dir="src/com/corionis/els/locales/"/>
             <fileset dir="src/com/corionis/els/resources/"/>
         </copy>
-        <copy file="build/changes.html" tofile="out/ELS/jar/changes_en_US.html" preservelastmodified="true"/>
-        <copy file="lib/log4j2.xml" todir="out/ELS/jar" preservelastmodified="true"/>
-        <unzip dest="out/ELS/jar">
+        <copy file="build/changes.html" tofile="out/els/jar/changes_en_US.html" preservelastmodified="true"/>
+        <copy file="lib/log4j2.xml" todir="out/els/jar" preservelastmodified="true"/>
+        <unzip dest="out/els/jar">
             <fileset dir="lib">
                 <include name="**/*.jar"/>
             </fileset>
@@ -106,11 +107,11 @@
 
     <!-- Build ELS.jar -->
     <target name="els-jar" depends="els-assemble">
-        <manifest file="out/ELS/jar/META-INF/MANIFEST.MF">
+        <manifest file="out/els/jar/META-INF/MANIFEST.MF">
             <attribute name="Main-Class" value="com.corionis.els.Main"/>
         </manifest>
-        <jar destfile="build/ELS.jar" manifest="out/ELS/jar/META-INF/MANIFEST.MF">
-            <fileset dir="out/ELS/jar" includes="**/"/>
+        <jar destfile="build/ELS.jar" manifest="out/els/jar/META-INF/MANIFEST.MF">
+            <fileset dir="out/els/jar" includes="**/"/>
         </jar>
         <copy overwrite="true" file="build/ELS.jar" tofile="mock/bin/ELS.jar" preservelastmodified="true"/>
     </target>
@@ -122,13 +123,13 @@
                 <include name="ELS-*.tar.gz"/>
             </fileset>
         </delete>
-        <mkdir dir="out/ELS/tar/ELS"/>
-        <exec command="cp -rpf artifacts/stage/linux/ELS out/ELS/tar/" failonerror="true"/>
-        <copy file="mock/bin/update.info" tofile="out/ELS/tar/ELS/bin/update.info" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.ico" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.png" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
-        <copy file="build/ELS.jar" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
-        <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.tar.gz -C out/ELS/tar ELS"/>
+        <mkdir dir="out/els/tar/ELS"/>
+        <exec command="cp -rpf artifacts/stage/linux/ELS out/els/tar/" failonerror="true"/>
+        <copy file="mock/bin/update.info" tofile="out/els/tar/ELS/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.ico" todir="out/els/tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.png" todir="out/els/tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/ELS.jar" todir="out/els/tar/ELS/bin" preservelastmodified="true"/>
+        <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.tar.gz -C out/els/tar ELS"/>
     </target>
 
     <!-- Build ELS macOS .dmg -->
@@ -138,13 +139,13 @@
                 <include name="ELS-*.dmg"/>
             </fileset>
         </delete>
-        <mkdir dir="out/ELS/dmg/ELS"/>
-        <exec command="cp -rpf artifacts/stage/macos/ELS out/ELS/dmg/" failonerror="true"/>
-        <copy file="mock/bin/update.info" tofile="out/ELS/dmg/ELS/bin/update.info" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.icns" todir="out/ELS/dmg/ELS/bin" preservelastmodified="true"/>
-        <copy file="build/ELS.jar" todir="out/ELS/dmg/ELS/bin" preservelastmodified="true"/>
-        <copy file="build/build-stamp.properties" tofile="out/ELS/dmg/ELS/build-stamp.properties" />
-        <echo message="MANUAL STEP: Copy out/ELS/dmg/ELS to MacOS, complete DMG build on MacOS" />
+        <mkdir dir="out/els/dmg/ELS"/>
+        <exec command="cp -rpf artifacts/stage/macos/ELS out/els/dmg/" failonerror="true"/>
+        <copy file="mock/bin/update.info" tofile="out/els/dmg/ELS/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.icns" todir="out/els/dmg/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/ELS.jar" todir="out/els/dmg/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/build-stamp.properties" tofile="out/els/dmg/ELS/build-stamp.properties" />
+        <echo message="MANUAL STEP: Copy out/els/dmg/ELS to MacOS, complete DMG build on MacOS" />
     </target>
 
     <!-- Build ELS macOS .mac.tar.gz -->
@@ -154,13 +155,13 @@
                 <include name="ELS-*.mac.tar.gz"/>
             </fileset>
         </delete>
-        <mkdir dir="out/ELS/mac.tar/ELS"/>
-        <exec command="cp -rpf artifacts/stage/macos/ELS out/ELS/mac.tar/" failonerror="true"/>
-        <copy file="mock/bin/update.info" tofile="out/ELS/mac.tar/ELS/bin/update.info" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.icns" todir="out/ELS/mac.tar/ELS/bin" preservelastmodified="true"/>
-        <copy file="build/ELS.jar" todir="out/ELS/mac.tar/ELS/bin" preservelastmodified="true"/>
-        <!-- copy file="build/build-stamp.properties" tofile="out/ELS/mac.tar/ELS/build-stamp.properties" / -->
-        <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.mac.tar.gz -C out/ELS/mac.tar ELS"/>
+        <mkdir dir="out/els/mac.tar/ELS"/>
+        <exec command="cp -rpf artifacts/stage/macos/ELS out/els/mac.tar/" failonerror="true"/>
+        <copy file="mock/bin/update.info" tofile="out/els/mac.tar/ELS/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.icns" todir="out/els/mac.tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/ELS.jar" todir="out/els/mac.tar/ELS/bin" preservelastmodified="true"/>
+        <!-- copy file="build/build-stamp.properties" tofile="out/els/mac.tar/ELS/build-stamp.properties" / -->
+        <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.mac.tar.gz -C out/els/mac.tar ELS"/>
     </target>
 
     <!-- Build ELS Windows .zip -->
@@ -171,19 +172,19 @@
                 <include name="ELS-*.zip"/>
             </fileset>
         </delete>
-        <mkdir dir="out/ELS/zip/ELS"/>
-        <copy todir="out/ELS/zip/ELS" preservelastmodified="true">
+        <mkdir dir="out/els/zip/ELS"/>
+        <copy todir="out/els/zip/ELS" preservelastmodified="true">
             <fileset dir="artifacts/stage/windows"/>
         </copy>
-        <copy file="mock/bin/update.info" tofile="out/ELS/zip/ELS/bin/update.info" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.ico" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.png" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
-        <copy file="build/ELS.jar" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
+        <copy file="mock/bin/update.info" tofile="out/els/zip/ELS/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.ico" todir="out/els/zip/ELS/bin" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.png" todir="out/els/zip/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/ELS.jar" todir="out/els/zip/ELS/bin" preservelastmodified="true"/>
         <zip destfile="build/ELS-${els.version.name}-${NUMBERNOW}.zip">
-            <zipfileset dir="out/ELS/zip" includes="**/*"/>
+            <zipfileset dir="out/els/zip" includes="**/*"/>
         </zip>
-        <copy file="build/build-stamp.properties" tofile="out/ELS/zip/ELS/build-stamp.properties" />
-        <echo message="MANUAL STEP: Copy out/ELS/zip/ELS to Windows, complete installer build on Windows" />
+        <copy file="build/build-stamp.properties" tofile="out/els/zip/ELS/build-stamp.properties" />
+        <echo message="MANUAL STEP: Copy out/els/zip/ELS to Windows, complete installer build on Windows" />
     </target>
 
 
@@ -192,12 +193,12 @@
     <!-- Compile Updater -->
     <target name="updater-compile" depends="els-compile">
         <mkdir dir="out/updater/jar"/>
-        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/gui/Preferences.class" tofile="out/updater/jar/com/corionis/els/gui/Preferences.class"/>
-        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/gui/util/TooltipsTable.class" tofile="out/updater/jar/com/corionis/els/gui/util/TooltipsTable.class"/>
-        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Configuration.class" tofile="out/updater/jar/com/corionis/els/Configuration.class"/>
-        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Context.class" tofile="out/updater/jar/com/corionis/els/Context.class"/>
-        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/MungeException.class" tofile="out/updater/jar/com/corionis/els/MungeException.class"/>
-        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Utils.class" tofile="out/updater/jar/com/corionis/els/Utils.class"/>
+        <copy overwrite="true" file="out/els/jar/com/corionis/els/gui/Preferences.class" tofile="out/updater/jar/com/corionis/els/gui/Preferences.class"/>
+        <copy overwrite="true" file="out/els/jar/com/corionis/els/gui/util/TooltipsTable.class" tofile="out/updater/jar/com/corionis/els/gui/util/TooltipsTable.class"/>
+        <copy overwrite="true" file="out/els/jar/com/corionis/els/Configuration.class" tofile="out/updater/jar/com/corionis/els/Configuration.class"/>
+        <copy overwrite="true" file="out/els/jar/com/corionis/els/Context.class" tofile="out/updater/jar/com/corionis/els/Context.class"/>
+        <copy overwrite="true" file="out/els/jar/com/corionis/els/MungeException.class" tofile="out/updater/jar/com/corionis/els/MungeException.class"/>
+        <copy overwrite="true" file="out/els/jar/com/corionis/els/Utils.class" tofile="out/updater/jar/com/corionis/els/Utils.class"/>
         <copy overwrite="true" file="build/version.info" tofile="out/updater/jar/com/corionis/els/resources/version.info"/>
         <javac destdir="out/updater/jar" classpathref="class.path" includeantruntime="false" debug="on">
             <src path="updater/src"/>

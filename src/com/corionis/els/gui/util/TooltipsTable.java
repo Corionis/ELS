@@ -88,9 +88,6 @@ public class TooltipsTable extends JTable
             DefaultTableModel dtm = (DefaultTableModel) getModel();
             result = dtm.getRowCount();
         }
-
-//        TooltipsTableModel ttm = (TooltipsTableModel) getModel();
-//        result = ttm.ttGetRowCount();
         return result;
     }
 
@@ -115,9 +112,6 @@ public class TooltipsTable extends JTable
             DefaultTableModel dtm = (DefaultTableModel) getModel();
             obj = dtm.getValueAt(row, column);
         }
-
-//        TooltipsTableModel ttm = (TooltipsTableModel) getModel();
-//        obj = ttm.ttGetValueAt(row, column);
         return obj;
     }
 

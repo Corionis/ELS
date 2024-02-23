@@ -108,10 +108,11 @@ public class Progress extends JFrame
 
     public void done()
     {
+        // always store Progress preferences so the dialog can be viewed and moved/resized when not active
+        storePreferences();
+
         if (isBeingUsed())
         {
-            storePreferences();
-
             // clear the progress content
             labelForIcon.setVisible(false);
             setVisible(false);
