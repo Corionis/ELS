@@ -110,12 +110,13 @@ public class Progress extends JFrame
     {
         if (isBeingUsed())
         {
-            savePreferences();
+            storePreferences();
 
             // clear the progress content
             labelForIcon.setVisible(false);
+            setVisible(false);
             progressTextField.setText(context.cfg.gs("Progress.not.active"));
-            redraw();
+            //redraw();
         }
         beingUsed = false;
         setVisible(false);
@@ -153,7 +154,7 @@ public class Progress extends JFrame
         repaint();
     }
 
-    private void savePreferences()
+    private void storePreferences()
     {
         context.preferences.setProgressWidth(getWidth());
         context.preferences.setProgressHeight(getHeight());
@@ -186,7 +187,11 @@ public class Progress extends JFrame
 
     private void thisWindowClosing(WindowEvent e)
     {
-        savePreferences();
+        storePreferences();
+        if (!beingUsed)
+            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        beingUsed = false;
+        setVisible(false);
         if (owner != null)
             owner.requestFocus();
     }
@@ -245,6 +250,7 @@ public class Progress extends JFrame
         setMinimumSize(new Dimension(184, 75));
         setTitle(context.cfg.gs("Progress.title"));
         setName("ProgressBox");
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowActivated(WindowEvent e) {
@@ -266,7 +272,7 @@ public class Progress extends JFrame
             }
         });
         addWindowStateListener(e -> thisWindowStateChanged(e));
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout(4, 0));
 
         //======== panelWidget ========

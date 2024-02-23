@@ -636,7 +636,10 @@ public class JunkRemoverUI extends AbstractToolDialog
     private void processTerminated(Task task, JunkRemoverTool jrt)
     {
         if (context.progress != null)
+        {
             context.progress.done();
+            context.progress = null;
+        }
 
         Origins.setSelectedFromOrigins(context, this, task.getOrigins());
 

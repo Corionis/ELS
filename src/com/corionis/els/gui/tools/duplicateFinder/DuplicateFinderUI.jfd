@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.9" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.10" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -85,7 +85,7 @@ new FormModel {
 					} )
 					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 						name: "scrollPaneDupes"
-						add( new FormComponent( "com.corionis.els.gui.util.TooltipsTable" ) {
+						add( new FormComponent( "javax.swing.JTable" ) {
 							name: "tableDupes"
 							"fillsViewportHeight": true
 							"selectionMode": 0

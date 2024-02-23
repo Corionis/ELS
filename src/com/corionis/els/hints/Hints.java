@@ -362,7 +362,7 @@ public class Hints
         return response;
     }
 
-    public boolean isDone(Hint hint)
+    private boolean isDone(Hint hint)
     {
         if (hint.statuses != null && hint.statuses.size() > 0)
         {

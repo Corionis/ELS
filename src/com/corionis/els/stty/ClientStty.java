@@ -542,18 +542,19 @@ public class ClientStty
     {
         if (context.fault)
         {
-            if (heartBeat.isAlive())
-                stopHeartBeat();
             disconnect();
+
+            if (exceptionMessage.length() > 0)
+                logger.error(context.cfg.gs("Z.fault") + exceptionMessage);
+
             if (context.mainFrame != null && errorMessage.length() > 0)
             {
                 JOptionPane.showMessageDialog(context.mainFrame, "Client Stty: " + errorMessage,
                         context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
+
             if (context.serveStty != null && context.serveStty.isAlive())
             {
-                if (exceptionMessage.length() > 0)
-                    logger.error(context.cfg.gs("Z.fault") + exceptionMessage);
                 context.serveStty.requestStop();
                 context.serveStty.stopServer();
             }

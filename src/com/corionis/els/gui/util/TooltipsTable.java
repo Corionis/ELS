@@ -1,15 +1,20 @@
 package com.corionis.els.gui.util;
 
+import com.corionis.els.gui.browser.BrowserTableModel;
 import com.corionis.els.gui.browser.DateColumn;
 import com.corionis.els.gui.browser.NavTreeUserObject;
 import com.corionis.els.gui.hints.HintDate;
+import com.corionis.els.gui.hints.HintsTableModel;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
 public class TooltipsTable extends JTable
 {
+    @Override
     public String getToolTipText(MouseEvent e)
     {
         String tip = null;
@@ -60,4 +65,61 @@ public class TooltipsTable extends JTable
 
         return tip;
     }
+
+
+    @Override
+    public int getRowCount()
+    {
+        int result = 0;
+
+        TableModel tm = getModel();
+        if (tm instanceof BrowserTableModel)
+        {
+            BrowserTableModel btm = (BrowserTableModel) getModel();
+            result = btm.getRowCount();
+        }
+        else if (tm instanceof HintsTableModel)
+        {
+            HintsTableModel htm = (HintsTableModel) getModel();
+            result = htm.getRowCount();
+        }
+        else
+        {
+            DefaultTableModel dtm = (DefaultTableModel) getModel();
+            result = dtm.getRowCount();
+        }
+
+//        TooltipsTableModel ttm = (TooltipsTableModel) getModel();
+//        result = ttm.ttGetRowCount();
+        return result;
+    }
+
+    @Override
+    public Object getValueAt(int row, int column)
+    {
+        Object obj = null;
+
+        TableModel tm = getModel();
+        if (tm instanceof BrowserTableModel)
+        {
+            BrowserTableModel btm = (BrowserTableModel) getModel();
+            obj = btm.getValueAt(row, column);
+        }
+        else if (tm instanceof HintsTableModel)
+        {
+            HintsTableModel htm = (HintsTableModel) getModel();
+            obj = htm.getValueAt(row, column);
+        }
+        else
+        {
+            DefaultTableModel dtm = (DefaultTableModel) getModel();
+            obj = dtm.getValueAt(row, column);
+        }
+
+//        TooltipsTableModel ttm = (TooltipsTableModel) getModel();
+//        obj = ttm.ttGetValueAt(row, column);
+        return obj;
+    }
+
+
 }

@@ -119,7 +119,7 @@ At this point it's a manual and visual process.
 
 ### 030-00  Interactive Terminals
 
-Special command authorization use, with quotes:  auth "sharkbait"
+Special command authorization use, with quotes:  ``auth "sharkbait"``
 
  * ``reset`` : Reset the test/ directory
  * ``030-21_Subscriber-listener`` : Separate terminal 1
@@ -173,7 +173,7 @@ The Local Hint Tracker tracks the processing status of each Hint on each back-up
  * ``reset`` : Reset the test/ directory
  * ``072-10_Status-Server-listener`` : Separate terminal 1.
  * ``072-21_Subscriber-One-listener`` : Separate terminal 2
- * ``100-26_Navigator-remote-hints`` :  Perform the [Manual Tests](#Manual-tests) below to create some Hints
+ * ``102-26_Navigator-remote-hints`` :  Perform the [Manual Tests](#Manual-tests) below to create some Hints
  * ``072-01_Hints-publisher`` : Run once, hints are tracked locally
  * ``072-22_Publisher-One-dryrun`` ; Separate terminal 3
  * ``072-21_Subscriber-One-listener`` : Separate terminal 2
@@ -194,18 +194,25 @@ The Local Hint Tracker tracks the processing status of each Hint on each back-up
  * ``080-26_Navigator-local`` : With publisher as a Collection and local subscriber
  * ``080-27_Navigator-workstation`` : With publisher as a Workstation and local subscriber
 
+Hints are not created for Workstation instances.
+
 
 ### 082-00  Navigator - Remote Backup
 
  * ``082-21_Subscriber-One-listener`` : Start a subscriber listener
- * ``082-26_Navigator-remote`` : Navigator with publisher as Collection and remote subscriber
+ * ``082-26_Navigator-remote`` : Navigator; File, Quit and Stop Remote(s)
+ * ``082-31_Subscriber-One-listener-auth`` : Subscriber listener using Authentication Keys
+ * ``082-26_Navigator-remote`` : Navigator; File, Quit and Stop Remote(s)
+ * ``082-41_Subscriber-One-listener-keep-going`` : Subscriber listener using Keep Going
+ * ``082-26_Navigator-remote`` : Navigator; File, Quit and Stop Remote(s)
+ * ``082-89_Quit-Subscriber-listener`` : Quit subscriber listener that ignored previous Quit
 
 
 ### 090-00  Navigator - Local Hint Tracker - Local Backup
 
- * ``090-26_Navigator-hint-keys`` : Navigator
- * Run test series "_Testing Navigator with Hints & Hint Tracking_" below
- * Run series ``060-00 Local Hint Tracker - Local Backup`` to process Hints
+ * ``090-26_Navigator-pub-local`` : Perform the [Manual Tests](#Manual-tests) below to create some Hints
+ * Use System, Hints to execute the Hints with the Subscriber selected
+ * ``090-27_Navigator-sub-local`` : Navigator with subscriber-one as publisher
 
 
 ### 092-00  Navigator - Local Hint Tracker - Remote Backup
@@ -233,9 +240,6 @@ The Local Hint Tracker tracks the processing status of each Hint on each back-up
 ### 110-00  Jobs
 
  * tbd
-
-
-## Testing Navigator with Hints & Hint Tracking
 
 ---
 

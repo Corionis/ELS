@@ -62,6 +62,14 @@ public class BrowserTableModel extends DefaultTableModel
         return node;
     }
 
+/*
+    @Override
+    public int getRowCount()
+    {
+        return ttGetRowCount();
+    }
+*/
+
     @Override
     public int getRowCount()
     {
@@ -70,13 +78,21 @@ public class BrowserTableModel extends DefaultTableModel
         return 0;
     }
 
+/*
+    @Override
+    public Object getValueAt(int row, int column)
+    {
+        return ttGetValueAt(row, column);
+    }
+*/
+
     @Override
     public Object getValueAt(int row, int column)
     {
         return getValueAt(row, column, false, true);
     }
 
-    public Object getValueAt(int row, int column, boolean hideFilesInTreeFilterActive, boolean hideHiddenFilterActive)
+    private Object getValueAt(int row, int column, boolean hideFilesInTreeFilterActive, boolean hideHiddenFilterActive)
     {
         NavTreeNode child;
         NavTreeUserObject tuo;

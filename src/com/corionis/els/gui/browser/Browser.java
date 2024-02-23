@@ -843,6 +843,8 @@ public class Browser
                         if (tuo.type == NavTreeUserObject.REAL)
                         {
                             parent = (NavTreeNode) tuo.node.getParent();
+                            BrowserTableModel btm = (BrowserTableModel) parent.getMyTable().getModel();
+                            ((BrowserTableModel) btm).setNode(parent);
                             parent.remove(tuo.node);
                         }
                     }
@@ -965,6 +967,8 @@ public class Browser
                         if (tuo.type == NavTreeUserObject.REAL)
                         {
                             parent = (NavTreeNode) tuo.node.getParent();
+                            BrowserTableModel btm = (BrowserTableModel) parent.getMyTable().getModel();
+                            ((BrowserTableModel) btm).setNode(parent);
                             parent.remove(tuo.node);
                         }
                     }

@@ -1762,8 +1762,9 @@ public class LibrariesUI
         mf.tableLocations.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getLibrariesMinimumSizeColumnWidth());
 
         // bibliography tab
-        biblioLibrariesTableModel = new BiblioLibrariesTableModel(context, displayName, null);
+        biblioLibrariesTableModel = new BiblioLibrariesTableModel(context);
         biblioLibrariesTableModel.setColumnCount(1);
+        biblioLibrariesTableModel.setDisplayName(displayName);
         mf.tableBiblioLibraries.setModel(biblioLibrariesTableModel);
 
         mf.tableBiblioLibraries.getTableHeader().setUI(null);

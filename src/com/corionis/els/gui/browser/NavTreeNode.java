@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -466,12 +465,13 @@ public class NavTreeNode extends DefaultMutableTreeNode
 
     public void loadTable()
     {
-        DefaultTableModel btm = (DefaultTableModel) myTable.getModel();
+        BrowserTableModel btm = (BrowserTableModel) myTable.getModel();
+        btm.setNode(this);
+
         DefaultRowSorter sorter = ((DefaultRowSorter) myTable.getRowSorter());
 
         // remove all & set new data to use
         btm.getDataVector().removeAllElements();
-        ((BrowserTableModel) btm).setNode(this);
 
         // initialize model when there are columns; done once per table
         if (!((BrowserTableModel) btm).isInitialized() && btm.getColumnCount() > 0)
@@ -486,7 +486,6 @@ public class NavTreeNode extends DefaultMutableTreeNode
             sorter.setSortKeys(sortKeys);
 
             ((BrowserTableModel) btm).setInitialized(true);
-
             sorter.sort();
         }
         btm.fireTableDataChanged();

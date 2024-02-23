@@ -6,6 +6,7 @@ import javax.swing.event.*;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.browser.BrowserTableModel;
+import com.corionis.els.gui.libraries.BiblioLibrariesTableModel;
 import com.corionis.els.gui.util.*;
 import com.corionis.els.gui.util.RotatedIcon;
 import com.corionis.els.gui.util.SmartScroller;
@@ -20,6 +21,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.ColorModel;
 
 /**
  * Navigator graphical user interface main JFrame.
@@ -65,78 +67,10 @@ public class MainFrame extends JFrame
             tabbedPaneMain.putClientProperty("JTabbedPane.tabType", "card");
             tabbedPaneNavigatorBottom.putClientProperty("JTabbedPane.tabType", "card");
 
-            // re-create the right-side tables, for getToolTipText(), and re-setup
-            tableCollectionOne = new TooltipsTable ();
-            tableCollectionOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
-            tableCollectionOne.setFillsViewportHeight(true);
-            tableCollectionOne.setDragEnabled(true);
-            tableCollectionOne.setDropMode(DropMode.ON_OR_INSERT_ROWS);
-            tableCollectionOne.setComponentPopupMenu(popupMenuBrowser);
-            tableCollectionOne.setShowHorizontalLines(false);
-            tableCollectionOne.setShowVerticalLines(false);
-            tableCollectionOne.setName("tableCollectionOne");
-            tableCollectionOne.setAutoCreateRowSorter(true);
-            tableCollectionOne.setShowGrid(false);
-            tableCollectionOne.getTableHeader().setReorderingAllowed(false);
-            tableCollectionOne.setRowSelectionAllowed(true);
-            tableCollectionOne.setColumnSelectionAllowed(false);
-            tableCollectionOne.setModel(new BrowserTableModel(context));
             adjustTableColumns(tableCollectionOne);
-            scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
-
-            tableSystemOne = new TooltipsTable ();
-            tableSystemOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
-            tableSystemOne.setFillsViewportHeight(true);
-            tableSystemOne.setDragEnabled(true);
-            tableSystemOne.setDropMode(DropMode.ON_OR_INSERT_ROWS);
-            tableSystemOne.setComponentPopupMenu(popupMenuBrowser);
-            tableSystemOne.setShowHorizontalLines(false);
-            tableSystemOne.setShowVerticalLines(false);
-            tableSystemOne.setName("tableSystemOne");
-            tableSystemOne.setAutoCreateRowSorter(true);
-            tableSystemOne.setShowGrid(false);
-            tableSystemOne.getTableHeader().setReorderingAllowed(false);
-            tableSystemOne.setRowSelectionAllowed(true);
-            tableSystemOne.setColumnSelectionAllowed(false);
-            tableSystemOne.setModel(new BrowserTableModel(context));
             adjustTableColumns(tableSystemOne);
-            scrollPaneTableSystemOne.setViewportView(tableSystemOne);
-
-            tableCollectionTwo = new TooltipsTable ();
-            tableCollectionTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
-            tableCollectionTwo.setFillsViewportHeight(true);
-            tableCollectionTwo.setDragEnabled(true);
-            tableCollectionTwo.setDropMode(DropMode.ON_OR_INSERT_ROWS);
-            tableCollectionTwo.setComponentPopupMenu(popupMenuBrowser);
-            tableCollectionTwo.setShowHorizontalLines(false);
-            tableCollectionTwo.setShowVerticalLines(false);
-            tableCollectionTwo.setName("tableCollectionTwo");
-            tableCollectionTwo.setAutoCreateRowSorter(true);
-            tableCollectionTwo.setShowGrid(false);
-            tableCollectionTwo.getTableHeader().setReorderingAllowed(false);
-            tableCollectionTwo.setRowSelectionAllowed(true);
-            tableCollectionTwo.setColumnSelectionAllowed(false);
-            tableCollectionTwo.setModel(new BrowserTableModel(context));
             adjustTableColumns(tableCollectionTwo);
-            scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
-
-            tableSystemTwo = new TooltipsTable ();
-            tableSystemTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
-            tableSystemTwo.setFillsViewportHeight(true);
-            tableSystemTwo.setDragEnabled(true);
-            tableSystemTwo.setDropMode(DropMode.ON_OR_INSERT_ROWS);
-            tableSystemTwo.setComponentPopupMenu(popupMenuBrowser);
-            tableSystemTwo.setShowHorizontalLines(false);
-            tableSystemTwo.setShowVerticalLines(false);
-            tableSystemTwo.setName("tableSystemTwo");
-            tableSystemTwo.setAutoCreateRowSorter(true);
-            tableSystemTwo.setShowGrid(false);
-            tableSystemTwo.getTableHeader().setReorderingAllowed(false);
-            tableSystemTwo.setRowSelectionAllowed(true);
-            tableSystemTwo.setColumnSelectionAllowed(false);
-            tableSystemTwo.setModel(new BrowserTableModel(context));
             adjustTableColumns(tableSystemTwo);
-            scrollPaneTableSystemTwo.setViewportView(tableSystemTwo);
 
             // set Back/Forward keys
             buttonBack.setMnemonic(KeyEvent.VK_LEFT);
@@ -153,13 +87,9 @@ public class MainFrame extends JFrame
 
             // set the fixed-space font for the logs
             if (Utils.isOsLinux())
-            {
                 textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 13));
-            }
             else
-            {
-                textAreaLog.setFont(new Font("Courier New", Font.PLAIN, 13));
-            }
+                textAreaLog.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
             textAreaLog.setDisabledTextColor(tabbedPaneMain.getForeground());
 
             // add smart scroll to the logs
@@ -719,6 +649,11 @@ public class MainFrame extends JFrame
         popupCheckBoxMenuItemWordWrap = new JCheckBoxMenuItem();
 
         //======== this ========
+        tableCollectionOne.setModel(new BrowserTableModel(context));
+        tableSystemOne.setModel(new BrowserTableModel(context));
+        tableCollectionTwo.setModel(new BrowserTableModel(context));
+        tableSystemTwo.setModel(new BrowserTableModel(context));
+
         setMinimumSize(new Dimension(100, 100));
         setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -1578,6 +1513,8 @@ public class MainFrame extends JFrame
                                             tableCollectionOne.setShowHorizontalLines(false);
                                             tableCollectionOne.setShowVerticalLines(false);
                                             tableCollectionOne.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                                            tableCollectionOne.setAutoCreateRowSorter(true);
+                                            tableCollectionOne.setName("tableCollectionOne");
                                             scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
                                         }
                                         splitPaneCollectionOne.setRightComponent(scrollPaneTableCollectionOne);
@@ -1627,6 +1564,8 @@ public class MainFrame extends JFrame
                                             tableSystemOne.setShowHorizontalLines(false);
                                             tableSystemOne.setShowVerticalLines(false);
                                             tableSystemOne.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                                            tableSystemOne.setAutoCreateRowSorter(true);
+                                            tableSystemOne.setName("tableSystemOne");
                                             scrollPaneTableSystemOne.setViewportView(tableSystemOne);
                                         }
                                         splitPaneSystemOne.setRightComponent(scrollPaneTableSystemOne);
@@ -1690,6 +1629,8 @@ public class MainFrame extends JFrame
                                             tableCollectionTwo.setShowHorizontalLines(false);
                                             tableCollectionTwo.setShowVerticalLines(false);
                                             tableCollectionTwo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                                            tableCollectionTwo.setAutoCreateRowSorter(true);
+                                            tableCollectionTwo.setName("tableCollectionTwo");
                                             scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
                                         }
                                         splitPaneCollectionTwo.setRightComponent(scrollPaneTableCollectionTwo);
@@ -1738,6 +1679,8 @@ public class MainFrame extends JFrame
                                             tableSystemTwo.setShowHorizontalLines(false);
                                             tableSystemTwo.setShowVerticalLines(false);
                                             tableSystemTwo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                                            tableSystemTwo.setAutoCreateRowSorter(true);
+                                            tableSystemTwo.setName("tableSystemTwo");
                                             scrollPaneTableSystemTwo.setViewportView(tableSystemTwo);
                                         }
                                         splitPaneSystemTwo.setRightComponent(scrollPaneTableSystemTwo);

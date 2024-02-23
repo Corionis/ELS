@@ -3,6 +3,10 @@
 
 ## Current Short-List
 
+ * BUG: Run Hint from subOne on pub removes all status; reports 1 Hint
+ * BUG: Index exception when Move of last file in directory, does not happen if there's another file
+ * BUG: Refresh scans 3 times
+
 ### Regression Tests
 
  * Saw exception when deleting file or directory, index out of bounds

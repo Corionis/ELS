@@ -46,10 +46,13 @@ public class Hint implements Comparable, Serializable
 
     public void copyStatusFrom(Hint hint)
     {
-        this.statuses = new ArrayList<>();
-        for (HintStatus hs : hint.statuses)
+        if (this != hint)
         {
-            this.statuses.add(hs);
+            this.statuses = new ArrayList<>();
+            for (HintStatus hs : hint.statuses)
+            {
+                this.statuses.add(hs);
+            }
         }
     }
 

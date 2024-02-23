@@ -454,7 +454,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         scrollPaneEmpties = new JScrollPane();
-        tableEmpties = new TooltipsTable();
+        tableEmpties = new JTable();
         panelOptionsButtons = new JPanel();
         buttonAll = new JButton();
         buttonNone = new JButton();
@@ -628,7 +628,7 @@ public class EmptyDirectoryFinderUI extends JDialog
     private JPanel panelHelp;
     private JLabel labelHelp;
     private JScrollPane scrollPaneEmpties;
-    private TooltipsTable tableEmpties;
+    private JTable tableEmpties;
     private JPanel panelOptionsButtons;
     private JButton buttonAll;
     private JButton buttonNone;

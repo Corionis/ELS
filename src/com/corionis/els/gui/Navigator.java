@@ -97,7 +97,9 @@ public class Navigator
     {
         if (tuo.type == NavTreeUserObject.REAL)
         {
-            if (context.cfg.isHintTrackingEnabled() && tuo.node.getMyTree().getName().toLowerCase().contains("collection"))
+            if (context.cfg.isHintTrackingEnabled() &&
+                    context.browser.isHintTrackingButtonEnabled() &&
+                        tuo.node.getMyTree().getName().toLowerCase().contains("collection"))
             {
                 ArrayList<Hint> hints = null;
                 String libName = tuo.getParentLibrary().getUserObject().name;
@@ -3089,7 +3091,10 @@ public class Navigator
             }
 
             if (context.progress != null)
+            {
                 context.progress.done();
+                context.progress = null;
+            }
 
             remoteJobRunning = false;
             disableGui(false);

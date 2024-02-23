@@ -1,5 +1,6 @@
 package com.corionis.els.gui;
 
+import com.corionis.els.gui.browser.BrowserTableModel;
 import com.formdev.flatlaf.*;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
@@ -12,11 +13,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 
 @SuppressWarnings(value = "unchecked")
@@ -1903,6 +1903,22 @@ public class Preferences implements Serializable
         {
             this.column = column;
             this.direction = direction;
+        }
+    }
+
+    private class RowComparator implements Comparator<Object>
+    {
+
+        @Override
+        public int compare(Object o, Object t1)
+        {
+            return 0;
+        }
+
+        @Override
+        public Comparator<Object> reversed()
+        {
+            return Comparator.super.reversed();
         }
     }
 

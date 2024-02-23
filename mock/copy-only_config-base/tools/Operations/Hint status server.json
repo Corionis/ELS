@@ -3,7 +3,7 @@
   "internalName": "Operations",
   "operation": "StatusServer",
   "card": "HintServer",
-  "optAuthKeys": "",
+  "optAuthKeys": "system/authentication.keys",
   "optNoBackFill": false,
   "optBlacklist": "",
   "optDryRun": false,

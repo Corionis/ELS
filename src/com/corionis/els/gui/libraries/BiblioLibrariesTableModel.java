@@ -13,12 +13,15 @@ public class BiblioLibrariesTableModel extends DefaultTableModel
     String displayName;
     LibrariesUI.LibMeta libMeta;
 
-    public BiblioLibrariesTableModel(Context context, String displayName, LibrariesUI.LibMeta libMeta)
+    public BiblioLibrariesTableModel(Context context)
     {
         super();
         this.context = context;
+    }
+
+    public void setDisplayName(String displayName)
+    {
         this.displayName = displayName;
-        this.libMeta = libMeta;
     }
 
     public void setLibMeta(LibrariesUI.LibMeta libMeta)

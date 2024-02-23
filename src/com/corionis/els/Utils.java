@@ -971,13 +971,13 @@ public class Utils
     /**
      * Is the operating system Linux?
      *
-     * @return false if Windows from getOS(), otherwise true (linux or mac)
+     * @return true if Linux from getOS(), otherwise false
      */
     public static boolean isOsLinux()
     {
-        if (getOS().equalsIgnoreCase("Windows"))
-            return false;
-        return true;
+        if (getOS().equalsIgnoreCase("linux"))
+            return true;
+        return false;
     }
 
     /**

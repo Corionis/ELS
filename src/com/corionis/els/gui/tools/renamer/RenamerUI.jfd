@@ -701,32 +701,11 @@ new FormModel {
 									name: "tableChanges"
 									"selectionMode": 0
 									"rowSelectionAllowed": false
-									"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector {
-										add( new java.util.Vector {
-											add( null )
-											add( null )
-										} )
-										add( new java.util.Vector {
-											add( null )
-											add( null )
-										} )
-									}, new java.util.Vector {
-										add( "Old Name" )
-										add( "New Name" )
-									}, new java.util.Vector {
-										add( null )
-										add( null )
-									}, new java.util.Vector {
-										add( null )
-										add( null )
-									}, new java.util.Vector {
-										add( null )
-										add( null )
-									} )
 									"fillsViewportHeight": true
 									"focusable": false
 									"toolTipText": new FormMessage( null, "Renamer.tableChanges.toolTipText" )
 									"autoResizeMode": 4
+									"name": "tableChanges"
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "Center"

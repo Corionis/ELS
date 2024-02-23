@@ -14,7 +14,7 @@
     </target>
 
     <target name="clean" depends="init">
-        <delete dir="out" failonerror="false"/>
+        <delete dir="out/ELS" failonerror="false"/>
         <mkdir dir="out"/>
     </target>
 

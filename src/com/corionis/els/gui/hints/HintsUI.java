@@ -9,6 +9,7 @@ import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintStatus;
 import com.corionis.els.repository.Repositories;
+import com.corionis.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,6 +26,7 @@ public class HintsUI extends JDialog
     private Context context;
     private boolean changesMade = false;
     private NavHelp helpDialog;
+    ArrayList<Hint> hints = null;
     private String hintPublisherName = "-";
     private String hintSubscriberName = "-";
     private Logger logger = LogManager.getLogger("applog");
@@ -33,147 +35,172 @@ public class HintsUI extends JDialog
     private int pendingSubscriber = 0;
     private ArrayList<Hint> pendingPublisherHints;
     private ArrayList<Hint> pendingSubscriberHints;
-    private Repositories repositories;
+    private Repositories repositories = null;
 
     public HintsUI(Window owner, Context context)
     {
         super(owner);
         this.context = context;
-        initComponents();
+        boolean fault = false;
 
-        ArrayList<Hint> hints = null;
-
-        // scale the help icon
-        Icon icon = labelHelp.getIcon();
-        Image image = Utils.iconToImage(icon);
-        Image scaled = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        Icon replacement = new ImageIcon(scaled);
-        labelHelp.setIcon(replacement);
-
-        // restore window & column preferences
-        if (context.preferences.getHintsXpos() != 0 && Utils.isOnScreen(context.preferences.getHintsXpos(),
-                context.preferences.getHintsYpos()))
+        try
         {
-            this.setLocation(context.preferences.getHintsXpos(), context.preferences.getHintsYpos());
-            Dimension dim = new Dimension(context.preferences.getHintsWidth(), context.preferences.getHintsHeight());
-            this.setSize(dim);
+            // get data for initialization of table and model
+            repositories = getRepositories();
+
+            if (context.datastore != null)
+                context.datastore.reload();
+            else
+                hints = new ArrayList<>();
+
+            hints = context.hints.getAll();
         }
-        else
+        catch (Exception e)
         {
-            this.setLocation(Utils.getRelativePosition(this));
+            fault = true;
+            String msg = context.cfg.gs("Z.exception") + e.getMessage();
+            logger.error(msg);
+            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
         }
 
-        // Escape key
-        ActionListener escListener = new AbstractAction()
+        if (!fault)
         {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
+            initComponents();
+            model = (HintsTableModel) tableHints.getModel();
+
+            // scale the help icon
+            Icon icon = labelHelp.getIcon();
+            Image image = Utils.iconToImage(icon);
+            Image scaled = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+            Icon replacement = new ImageIcon(scaled);
+            labelHelp.setIcon(replacement);
+
+            // restore window & column preferences
+            if (context.preferences.getHintsXpos() != 0 && Utils.isOnScreen(context.preferences.getHintsXpos(),
+                    context.preferences.getHintsYpos()))
             {
-                cancelButton.doClick();
+                this.setLocation(context.preferences.getHintsXpos(), context.preferences.getHintsYpos());
+                Dimension dim = new Dimension(context.preferences.getHintsWidth(), context.preferences.getHintsHeight());
+                this.setSize(dim);
             }
-        };
-        getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-        // get data
-        repositories = getRepositories();
-
-        pendingPublisher = 0;
-        int count = 0;
-        String publisherDisplayName = "";
-        String subscriberDisplayName = "";
-        if (context.cfg.isHintTrackingEnabled())
-        {
-            try
+            else
             {
-                if (context.datastore != null)
-                    context.datastore.reload();
-                else
-                    hints = new ArrayList<>();
+                this.setLocation(Utils.getRelativePosition(this));
+            }
 
-                hints = context.hints.getAll();
-                model = new HintsTableModel(context, repositories, hints);
-                tableHints.setModel(model);
-
-                tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
-
-                DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
-                cellRenderer.setHorizontalAlignment(JLabel.CENTER);
-                tableHints.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
-
-                if (model != null && model.hints != null && model.hints.size() > 0)
-                    count = model.hints.size();
-
-                if (context.publisherRepo != null)
+            // Escape key
+            ActionListener escListener = new AbstractAction()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
                 {
-                    publisherDisplayName = context.publisherRepo.getLibraryData().libraries.description;
-                    HintKey hk = context.hintKeys.findKey(context.publisherRepo.getLibraryData().libraries.key);
-                    if (hk != null)
+                    cancelButton.doClick();
+                }
+            };
+            getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+            pendingPublisher = 0;
+            int count = 0;
+            String publisherDisplayName = "";
+            String subscriberDisplayName = "";
+            if (context.cfg.isHintTrackingEnabled())
+            {
+                try
+                {
+//                // get data
+//                repositories = getRepositories();
+//
+//                if (context.datastore != null)
+//                    context.datastore.reload();
+//                else
+//                    hints = new ArrayList<>();
+//
+//                hints = context.hints.getAll();
+//                model = new HintsTableModel(context);
+//                model.setData(repositories, hints);
+                    tableHints.setModel(model);
+
+                    tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
+
+                    DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
+                    cellRenderer.setHorizontalAlignment(JLabel.CENTER);
+                    tableHints.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
+
+                    if (model != null && model.hints != null && model.hints.size() > 0)
+                        count = model.hints.size();
+
+                    if (context.publisherRepo != null)
                     {
-                        hintPublisherName = hk.system;
-                        pendingPublisherHints = context.hints.getFor(hintPublisherName);
-                        if (pendingPublisherHints != null)
-                            pendingPublisher = pendingPublisherHints.size();
-                    }
-                    else
-                    {
-                        if (context.preferences.isLastPublisherIsWorkstation())
-                            hintPublisherName = publisherDisplayName + "*";
+                        publisherDisplayName = context.publisherRepo.getLibraryData().libraries.description;
+                        HintKey hk = context.hintKeys.findKey(context.publisherRepo.getLibraryData().libraries.key);
+                        if (hk != null)
+                        {
+                            hintPublisherName = hk.system;
+                            pendingPublisherHints = context.hints.getFor(hintPublisherName);
+                            if (pendingPublisherHints != null)
+                                pendingPublisher = pendingPublisherHints.size();
+                        }
                         else
+                        {
+                            if (context.preferences.isLastPublisherIsWorkstation())
+                                hintPublisherName = publisherDisplayName + "*";
+                            else
+                                throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"),
+                                        "publisher", context.hintKeys.getFilename()));
+                        }
+                    }
+                    if (context.subscriberRepo != null)
+                    {
+                        HintKey hk = context.hintKeys.findKey(context.subscriberRepo.getLibraryData().libraries.key);
+                        if (hk != null)
+                        {
+                            hintSubscriberName = hk.system;
+                            subscriberDisplayName = context.subscriberRepo.getLibraryData().libraries.description;
+                            pendingSubscriberHints = context.hints.getFor(hintSubscriberName);
+                            if (pendingSubscriberHints != null)
+                                pendingSubscriber = pendingSubscriberHints.size();
+                        }
+                        else
+                        {
                             throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"),
-                                    "publisher", context.hintKeys.getFilename()));
+                                    "subscriber", context.hintKeys.getFilename()));
+                        }
                     }
+
+                    setWidths();
+
+                    String msg = java.text.MessageFormat.format(context.cfg.gs("HintsUI.hints.for"),
+                            count, context.hintKeys.size(), pendingPublisher, publisherDisplayName, pendingSubscriber, subscriberDisplayName);
+
+                    labelStatus.setText(msg);
                 }
-                if (context.subscriberRepo != null)
+                catch (Exception e)
                 {
-                    HintKey hk = context.hintKeys.findKey(context.subscriberRepo.getLibraryData().libraries.key);
-                    if (hk != null)
-                    {
-                        hintSubscriberName = hk.system;
-                        subscriberDisplayName = context.subscriberRepo.getLibraryData().libraries.description;
-                        pendingSubscriberHints = context.hints.getFor(hintSubscriberName);
-                        if (pendingSubscriberHints != null)
-                            pendingSubscriber = pendingSubscriberHints.size();
-                    }
-                    else
-                    {
-                        throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"),
-                                "subscriber", context.hintKeys.getFilename()));
-                    }
+                    String msg = context.cfg.gs("Z.exception") + e.getMessage();
+                    logger.error(msg);
+                    JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
                 }
-
-                setWidths();
-
-                String msg = java.text.MessageFormat.format(context.cfg.gs("HintsUI.hints.for"),
-                        count, context.hintKeys.size(), pendingPublisher, publisherDisplayName, pendingSubscriber, subscriberDisplayName);
-
-                labelStatus.setText(msg);
             }
-            catch (Exception e)
+            else
             {
-                String msg = context.cfg.gs("Z.exception") + e.getMessage();
-                logger.error(msg);
-                JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
+                labelStatus.setText(context.cfg.gs("HintsUI.hint.tracker.server.not.enabled"));
             }
-        }
-        else
-        {
-            labelStatus.setText(context.cfg.gs("HintsUI.hint.tracker.server.not.enabled"));
-        }
 
-        if (model != null && model.hints != null)
-        {
-            for (Hint hint : model.hints)
+            if (model != null && model.hints != null)
             {
-                hint.selected = false;
+                for (Hint hint : model.hints)
+                {
+                    hint.selected = false;
+                }
+                model.fireTableDataChanged();
             }
-            model.fireTableDataChanged();
+
+            setButtons();
+
+            context.mainFrame.labelStatusMiddle.setText("");
+            setVisible(true);
+            requestFocus();
         }
-
-        setButtons();
-
-        context.mainFrame.labelStatusMiddle.setText("");
-        setVisible(true);
-        requestFocus();
     }
 
     private void actionAllClicked(ActionEvent e)
@@ -304,6 +331,7 @@ public class HintsUI extends JDialog
         String displayName = "";
         boolean isPublisher = false;
         String name = "";
+        Repository repo;
 
         labelStatus.setText("");
 
@@ -335,6 +363,7 @@ public class HintsUI extends JDialog
         if (name.toLowerCase().endsWith("one"))
         {
             isPublisher = true;
+            repo = context.publisherRepo;
             currentTree = context.mainFrame.treeCollectionOne;
             which = context.cfg.gs("Z.publisher");
             if (context.publisherRepo != null)
@@ -342,6 +371,7 @@ public class HintsUI extends JDialog
         }
         else
         {
+            repo = context.subscriberRepo;
             currentTree = context.mainFrame.treeCollectionTwo;
             which = context.cfg.gs("Z.subscriber");
             if (context.subscriberRepo != null)
@@ -390,7 +420,8 @@ public class HintsUI extends JDialog
                 if (!result.toLowerCase().equals("false"))
                 {
                     if (context.preferences.isAutoRefresh())
-                        context.browser.rescanByTreeOrTable(currentTree);
+                        context.browser.deepScanCollectionTree(currentTree, repo, context.cfg.isRemoteSubscriber(), false);
+                        //context.browser.rescan ByTreeOrTable(currentTree);
                     logger.info(context.cfg.gs(("HintsUI.hints.run.complete")) + result);
                 }
                 model.hints = context.hints.getAll();
@@ -620,6 +651,8 @@ public class HintsUI extends JDialog
         cancelButton = new JButton();
 
         //======== this ========
+        tableHints.setModel(new HintsTableModel(context, repositories, hints));
+
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle(context.cfg.gs("HintsUI.this.title"));
         setMinimumSize(new Dimension(150, 126));

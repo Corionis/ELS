@@ -1462,7 +1462,10 @@ public class JobsUI extends AbstractToolDialog
             }
 
             if (context.progress != null)
+            {
                 context.progress.done();
+                context.progress = null;
+            }
 
             workerRunning = false;
             context.navigator.disableGui(false);

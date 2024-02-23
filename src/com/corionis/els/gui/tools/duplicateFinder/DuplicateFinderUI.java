@@ -456,7 +456,7 @@ public class DuplicateFinderUI extends JDialog
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         scrollPaneDupes = new JScrollPane();
-        tableDupes = new TooltipsTable();
+        tableDupes = new JTable();
         panelBottom = new JPanel();
         labelStatus = new JLabel();
         buttonBar = new JPanel();
@@ -599,7 +599,7 @@ public class DuplicateFinderUI extends JDialog
     private JPanel panelHelp;
     private JLabel labelHelp;
     private JScrollPane scrollPaneDupes;
-    private TooltipsTable tableDupes;
+    private JTable tableDupes;
     private JPanel panelBottom;
     private JLabel labelStatus;
     private JPanel buttonBar;

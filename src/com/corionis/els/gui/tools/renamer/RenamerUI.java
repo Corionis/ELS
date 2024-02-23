@@ -1,7 +1,6 @@
 package com.corionis.els.gui.tools.renamer;
 
 import javax.swing.table.*;
-
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
@@ -872,7 +871,10 @@ public class RenamerUI extends AbstractToolDialog
         }
 
         if (context.progress != null)
+        {
             context.progress.done();
+            context.progress = null;
+        }
 
         Origins.setSelectedFromOrigins(context, this, task.getOrigins());
 
@@ -2185,19 +2187,11 @@ public class RenamerUI extends AbstractToolDialog
                             //---- tableChanges ----
                             tableChanges.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                             tableChanges.setRowSelectionAllowed(false);
-                            tableChanges.setModel(new DefaultTableModel(
-                                new Object[][] {
-                                    {null, null},
-                                    {null, null},
-                                },
-                                new String[] {
-                                    "Old Name", "New Name"
-                                }
-                            ));
                             tableChanges.setFillsViewportHeight(true);
                             tableChanges.setFocusable(false);
                             tableChanges.setToolTipText(context.cfg.gs("Renamer.tableChanges.toolTipText"));
                             tableChanges.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                            tableChanges.setName("tableChanges");
                             scrollPaneExamples.setViewportView(tableChanges);
                         }
                         panelOptions.add(scrollPaneExamples, BorderLayout.CENTER);

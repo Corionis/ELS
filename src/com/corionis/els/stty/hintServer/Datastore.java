@@ -214,11 +214,11 @@ public class Datastore
         {
             if (!dir.isDirectory())
                 throw new MungeException("Status directory is not a directory: " + statusDirectory);
-            logger.info("Using library \'" + statusLibrary.name + "\" source directory \"" + dir.getAbsolutePath() + "\" for status datastore");
+            logger.info("Using library \'" + statusLibrary.name + "\" source directory \"" + dir.getAbsolutePath() + "\" for Hint tracking datastore");
         }
         else
         {
-            logger.info("Creating new library \'" + statusLibrary.name + "\" source directory \"" + dir.getAbsolutePath() + "\" for status datastore");
+            logger.info("Creating new library \'" + statusLibrary.name + "\" source directory \"" + dir.getAbsolutePath() + "\" for Hint tracking datastore");
             dir.mkdirs();
         }
 

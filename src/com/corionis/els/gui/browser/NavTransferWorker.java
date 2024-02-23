@@ -56,25 +56,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         boolean error = false;
 
         // create a fresh dialog
-        if (context.progress == null || !context.progress.isBeingUsed())
-        {
-            ActionListener cancelAction = new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent)
-                {
-                    if (context.browser.navTransferHandler.getTransferWorker() != null &&
-                            !context.browser.navTransferHandler.getTransferWorker().isDone())
-                    {
-                        logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
-                        context.browser.navTransferHandler.getTransferWorker().cancel(true);
-                    }
-                }
-            };
-            context.progress = new Progress(context, context.mainFrame, cancelAction, context.cfg.isDryRun());
-            context.progress.display();
-        }
-        else
+        if (context.progress != null && context.progress.isBeingUsed())
         {
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             return false;
@@ -92,6 +74,26 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             targetTuo = batch.targetTuo;
             batchSize = batch.batchSize;
             targetIsPublisher = targetTree.getName().toLowerCase().endsWith("one");
+
+            // create a fresh dialog - don't flash it on the screen if the file is too small
+            if (batchSize > 524288L && (context.progress == null || !context.progress.isBeingUsed()))
+            {
+                ActionListener cancelAction = new ActionListener()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        if (context.browser.navTransferHandler.getTransferWorker() != null &&
+                                !context.browser.navTransferHandler.getTransferWorker().isDone())
+                        {
+                            logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
+                            context.browser.navTransferHandler.getTransferWorker().cancel(true);
+                        }
+                    }
+                };
+                context.progress = new Progress(context, context.mainFrame, cancelAction, context.cfg.isDryRun());
+                context.progress.display();
+            }
 
             // iterate the selected source row's user object
             for (NavTreeUserObject sourceTuo : transferData)
@@ -124,6 +126,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             {
                 if (context.browser.isHintTrackingButtonEnabled())
                     exportHints(transferData, targetTuo);
+
                 removeTransferData(transferData);
             }
             else
@@ -139,8 +142,6 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     @Override
     protected void done()
     {
-        if (context.progress != null)
-            context.progress.done();
         context.mainFrame.labelStatusMiddle.setText(MessageFormat.format(context.cfg.gs("Transfer.of.complete"), filesToCopy));
 
         // reset the queue
@@ -148,11 +149,29 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         filesToCopy = 0;
         filesSize = 0L;
 
+/*
         if (context.preferences.isAutoRefresh())
         {
+            try
+            {
+                // give other threads a moment to catch-up before refreshing
+                Thread.sleep(500);
+            }
+            catch (Exception e)
+            {
+            }
             context.browser.refreshTree(sourceTree);
-            context.browser.refreshTree(targetTree);
+            if (sourceTree != targetTree)
+                context.browser.refreshTree(targetTree);
         }
+*/
+
+        if (context.progress != null)
+        {
+            context.progress.done();
+            context.progress = null;
+        }
+
     }
 
     public void add(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)
@@ -257,12 +276,15 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         if (!error && !context.fault)
         {
             NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
+            BrowserTableModel btm = (BrowserTableModel) parent.getMyTable().getModel();
+            ((BrowserTableModel) btm).setNode(parent);
             parent.remove(sourceTuo.node);
 
             if (context.preferences.isAutoRefresh())
             {
                 context.browser.refreshTree(sourceTree);
-                context.browser.refreshTree(targetTree);
+                if (sourceTree != targetTree)
+                    context.browser.refreshTree(targetTree);
             }
         }
         return error;
@@ -386,9 +408,12 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         try
         {
             ++fileNumber;
-            String status = " " + fileNumber + context.cfg.gs("NavTransferHandler.progress.of") + filesToCopy +
-                    ", " + Utils.formatLong(sourceTuo.size, false, context.cfg.getLongScale()) + ", " + sourceTuo.name + " ";
-            context.progress.update(status);
+            if (context.progress != null)
+            {
+                String status = " " + fileNumber + context.cfg.gs("NavTransferHandler.progress.of") + filesToCopy +
+                        ", " + Utils.formatLong(sourceTuo.size, false, context.cfg.getLongScale()) + ", " + sourceTuo.name + " ";
+                context.progress.update(status);
+            }
 
             path = makeToPath(sourceTuo, targetTuo);
             msg += context.cfg.gs("NavTransferHandler.transfer.file.to") + path;
@@ -469,8 +494,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             {
                 if (action == TransferHandler.MOVE)
                     context.browser.refreshTree(sourceTree);
-
-                context.browser.refreshTree(targetTree);
+                if (sourceTree != targetTree)
+                    context.browser.refreshTree(targetTree);
             }
         }
         catch (MungeException me)
