@@ -83,7 +83,9 @@ public class HintsTableModel extends DefaultTableModel
     @Override
     public int getColumnCount()
     {
-        return context.hintKeys.size() + 9;
+        if (context.hintKeys != null)
+            return context.hintKeys.size() + 9;
+        return 9;
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.corionis.els.gui.util.TooltipsTable;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintStatus;
+import com.corionis.els.hints.Hints;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +53,9 @@ public class HintsUI extends JDialog
                 context.datastore.reload();
             else
                 hints = new ArrayList<>();
+
+            if (context.hints == null)
+                context.hints = new Hints(context, null);
 
             hints = context.hints.getAll();
         }

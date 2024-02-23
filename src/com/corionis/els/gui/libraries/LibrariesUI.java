@@ -185,7 +185,7 @@ public class LibrariesUI
         if (helpDialog == null)
         {
             helpDialog = new NavHelp(mf, mf, context,
-                    context.cfg.gs("Navigator.labelLibrariesHelp.toolTipText"), "libraries_" + context.preferences.getLocale() + ".html");
+                    context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.fault)
         {
