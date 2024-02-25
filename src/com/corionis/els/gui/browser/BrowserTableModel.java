@@ -17,6 +17,17 @@ public class BrowserTableModel extends DefaultTableModel
         this.context = context;
     }
 
+    public int findNavTreeUserObjectIndex(NavTreeNode find)
+    {
+        int size = node.getChildCount(false, true);
+        for (int i = 0; i < size; ++i)
+        {
+            if ((NavTreeNode) node.getChildAt(i, false, true) == find)
+                return i;
+        }
+        return -1;
+    }
+
     @Override
     public Class getColumnClass(int column)
     {
@@ -62,14 +73,6 @@ public class BrowserTableModel extends DefaultTableModel
         return node;
     }
 
-/*
-    @Override
-    public int getRowCount()
-    {
-        return ttGetRowCount();
-    }
-*/
-
     @Override
     public int getRowCount()
     {
@@ -77,14 +80,6 @@ public class BrowserTableModel extends DefaultTableModel
             return node.getChildCount(false, true);
         return 0;
     }
-
-/*
-    @Override
-    public Object getValueAt(int row, int column)
-    {
-        return ttGetValueAt(row, column);
-    }
-*/
 
     @Override
     public Object getValueAt(int row, int column)

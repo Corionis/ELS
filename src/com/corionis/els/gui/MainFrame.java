@@ -6,8 +6,6 @@ import javax.swing.event.*;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.browser.BrowserTableModel;
-import com.corionis.els.gui.libraries.BiblioLibrariesTableModel;
-import com.corionis.els.gui.util.*;
 import com.corionis.els.gui.util.RotatedIcon;
 import com.corionis.els.gui.util.SmartScroller;
 import com.corionis.els.gui.util.TextIcon;
@@ -21,7 +19,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.ColorModel;
 
 /**
  * Navigator graphical user interface main JFrame.
@@ -497,26 +494,26 @@ public class MainFrame extends JFrame
         scrollPaneTreeCollectionOne = new JScrollPane();
         treeCollectionOne = new JTree();
         scrollPaneTableCollectionOne = new JScrollPane();
-        tableCollectionOne = new TooltipsTable();
+        tableCollectionOne = new JTable();
         panelSystemOne = new JPanel();
         splitPaneSystemOne = new JSplitPane();
         scrollPaneTreeSystemOne = new JScrollPane();
         treeSystemOne = new JTree();
         scrollPaneTableSystemOne = new JScrollPane();
-        tableSystemOne = new TooltipsTable();
+        tableSystemOne = new JTable();
         tabbedPaneBrowserTwo = new JTabbedPane();
         panelCollectionTwo = new JPanel();
         splitPaneCollectionTwo = new JSplitPane();
         scrollPaneTreeCollectionTwo = new JScrollPane();
         treeCollectionTwo = new JTree();
         scrollPaneTableCollectionTwo = new JScrollPane();
-        tableCollectionTwo = new TooltipsTable();
+        tableCollectionTwo = new JTable();
         panelSystemTwo = new JPanel();
         splitPaneSystemTwo = new JSplitPane();
         scrollPaneTreeSystemTwo = new JScrollPane();
         treeSystemTwo = new JTree();
         scrollPaneTableSystemTwo = new JScrollPane();
-        tableSystemTwo = new TooltipsTable();
+        tableSystemTwo = new JTable();
         tabbedPaneNavigatorBottom = new JTabbedPane();
         scrollPaneLog = new JScrollPane();
         textAreaLog = new JTextArea();
@@ -1513,8 +1510,8 @@ public class MainFrame extends JFrame
                                             tableCollectionOne.setShowHorizontalLines(false);
                                             tableCollectionOne.setShowVerticalLines(false);
                                             tableCollectionOne.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-                                            tableCollectionOne.setAutoCreateRowSorter(true);
                                             tableCollectionOne.setName("tableCollectionOne");
+                                            tableCollectionOne.setAutoCreateRowSorter(true);
                                             scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
                                         }
                                         splitPaneCollectionOne.setRightComponent(scrollPaneTableCollectionOne);
@@ -1564,8 +1561,8 @@ public class MainFrame extends JFrame
                                             tableSystemOne.setShowHorizontalLines(false);
                                             tableSystemOne.setShowVerticalLines(false);
                                             tableSystemOne.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-                                            tableSystemOne.setAutoCreateRowSorter(true);
                                             tableSystemOne.setName("tableSystemOne");
+                                            tableSystemOne.setAutoCreateRowSorter(true);
                                             scrollPaneTableSystemOne.setViewportView(tableSystemOne);
                                         }
                                         splitPaneSystemOne.setRightComponent(scrollPaneTableSystemOne);
@@ -1629,8 +1626,8 @@ public class MainFrame extends JFrame
                                             tableCollectionTwo.setShowHorizontalLines(false);
                                             tableCollectionTwo.setShowVerticalLines(false);
                                             tableCollectionTwo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-                                            tableCollectionTwo.setAutoCreateRowSorter(true);
                                             tableCollectionTwo.setName("tableCollectionTwo");
+                                            tableCollectionTwo.setAutoCreateRowSorter(true);
                                             scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
                                         }
                                         splitPaneCollectionTwo.setRightComponent(scrollPaneTableCollectionTwo);
@@ -1679,8 +1676,8 @@ public class MainFrame extends JFrame
                                             tableSystemTwo.setShowHorizontalLines(false);
                                             tableSystemTwo.setShowVerticalLines(false);
                                             tableSystemTwo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-                                            tableSystemTwo.setAutoCreateRowSorter(true);
                                             tableSystemTwo.setName("tableSystemTwo");
+                                            tableSystemTwo.setAutoCreateRowSorter(true);
                                             scrollPaneTableSystemTwo.setViewportView(tableSystemTwo);
                                         }
                                         splitPaneSystemTwo.setRightComponent(scrollPaneTableSystemTwo);
@@ -2850,26 +2847,26 @@ public class MainFrame extends JFrame
     public JScrollPane scrollPaneTreeCollectionOne;
     public JTree treeCollectionOne;
     public JScrollPane scrollPaneTableCollectionOne;
-    public TooltipsTable tableCollectionOne;
+    public JTable tableCollectionOne;
     public JPanel panelSystemOne;
     public JSplitPane splitPaneSystemOne;
     public JScrollPane scrollPaneTreeSystemOne;
     public JTree treeSystemOne;
     public JScrollPane scrollPaneTableSystemOne;
-    public TooltipsTable tableSystemOne;
+    public JTable tableSystemOne;
     public JTabbedPane tabbedPaneBrowserTwo;
     public JPanel panelCollectionTwo;
     public JSplitPane splitPaneCollectionTwo;
     public JScrollPane scrollPaneTreeCollectionTwo;
     public JTree treeCollectionTwo;
     public JScrollPane scrollPaneTableCollectionTwo;
-    public TooltipsTable tableCollectionTwo;
+    public JTable tableCollectionTwo;
     public JPanel panelSystemTwo;
     public JSplitPane splitPaneSystemTwo;
     public JScrollPane scrollPaneTreeSystemTwo;
     public JTree treeSystemTwo;
     public JScrollPane scrollPaneTableSystemTwo;
-    public TooltipsTable tableSystemTwo;
+    public JTable tableSystemTwo;
     public JTabbedPane tabbedPaneNavigatorBottom;
     public JScrollPane scrollPaneLog;
     public JTextArea textAreaLog;

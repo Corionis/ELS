@@ -62,6 +62,10 @@ public class Preferences implements Serializable
     private int hintsFromItemWidth = 160;
     private int hintsFromLibWidth = 88;
     private int hintsHeight = 520;
+    private int hintsHelpHeight = 550;
+    private int hintsHelpWidth = 600;
+    private int hintsHelpXpos = -1;
+    private int hintsHelpYpos = -1;
     private int hintsStatusWidth = 104;
     private int hintsSystemWidth = 104;
     private int hintsToItemWidth = 160;
@@ -518,6 +522,26 @@ public class Preferences implements Serializable
         return hintsHeight;
     }
 
+    public int getHintsHelpHeight()
+    {
+        return hintsHelpHeight;
+    }
+
+    public int getHintsHelpWidth()
+    {
+        return hintsHelpWidth;
+    }
+
+    public int getHintsHelpXpos()
+    {
+        return hintsHelpXpos;
+    }
+
+    public int getHintsHelpYpos()
+    {
+        return hintsHelpYpos;
+    }
+
     public int getHintsStatusWidth()
     {
         return hintsStatusWidth;
@@ -542,7 +566,6 @@ public class Preferences implements Serializable
     {
         return hintsWidth;
     }
-    //private transient LookAndFeel laf = null;
 
     public int getHintsXpos()
     {
@@ -563,6 +586,7 @@ public class Preferences implements Serializable
     {
         return jobsOriginDividerLocation;
     }
+    //private transient LookAndFeel laf = null;
 
     public int getJobsTaskDividerLocation()
     {
@@ -1349,6 +1373,26 @@ public class Preferences implements Serializable
     public void setHintsHeight(int hintsHeight)
     {
         this.hintsHeight = hintsHeight;
+    }
+
+    public void setHintsHelpHeight(int hintsHelpHeight)
+    {
+        this.hintsHelpHeight = hintsHelpHeight;
+    }
+
+    public void setHintsHelpWidth(int hintsHelpWidth)
+    {
+        this.hintsHelpWidth = hintsHelpWidth;
+    }
+
+    public void setHintsHelpXpos(int hintsHelpXpos)
+    {
+        this.hintsHelpXpos = hintsHelpXpos;
+    }
+
+    public void setHintsHelpYpos(int hintsHelpYpos)
+    {
+        this.hintsHelpYpos = hintsHelpYpos;
     }
 
     public void setHintsStatusWidth(int hintsStatusWidth)

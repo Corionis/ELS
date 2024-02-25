@@ -275,9 +275,18 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
         if (!error && !context.fault)
         {
+            BrowserTableModel btm = (BrowserTableModel) sourceTuo.node.getMyTable().getModel();
+            int tableIndex = btm.findNavTreeUserObjectIndex(sourceTuo.node);
+            if (tableIndex >= 0)
+            {
+                JTable table = sourceTuo.node.getMyTable();
+                RowSorter sorter = table.getRowSorter();
+                sorter.rowsDeleted(tableIndex, tableIndex);
+            }
+
             NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
-            BrowserTableModel btm = (BrowserTableModel) parent.getMyTable().getModel();
-            ((BrowserTableModel) btm).setNode(parent);
+            btm = (BrowserTableModel) parent.getMyTable().getModel();
+            btm.setNode(parent);
             parent.remove(sourceTuo.node);
 
             if (context.preferences.isAutoRefresh())

@@ -103,19 +103,19 @@ public class JobsUI extends AbstractToolDialog
         buttonOriginDown.setIcon(r1);
 
         // position, size & dividers
-        if (context.preferences.getJobsXpos() != 0 && Utils.isOnScreen(context.preferences.getJobsXpos(), context.preferences.getJobsYpos()))
+        if (context.preferences.getJobsXpos() >= 0 && Utils.isOnScreen(context.preferences.getJobsXpos(), context.preferences.getJobsYpos()))
         {
             this.setLocation(context.preferences.getJobsXpos(), context.preferences.getJobsYpos());
             Dimension dim = new Dimension(context.preferences.getJobsWidth(), context.preferences.getJobsHeight());
             this.setSize(dim);
-
-            this.splitPaneContent.setDividerLocation(context.preferences.getJobsTaskDividerLocation());
-            this.splitPaneToolsOrigin.setDividerLocation(context.preferences.getJobsOriginDividerLocation());
         }
         else
         {
             this.setLocation(Utils.getRelativePosition(this));
         }
+
+        this.splitPaneContent.setDividerLocation(context.preferences.getJobsTaskDividerLocation());
+        this.splitPaneToolsOrigin.setDividerLocation(context.preferences.getJobsOriginDividerLocation());
 
         // Escape key
         ActionListener escListener = new AbstractAction()

@@ -469,9 +469,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
         btm.setNode(this);
 
         DefaultRowSorter sorter = ((DefaultRowSorter) myTable.getRowSorter());
-
-        // remove all & set new data to use
-        btm.getDataVector().removeAllElements();
+       // btm.getDataVector().removeAllElements();
 
         // initialize model when there are columns; done once per table
         if (!((BrowserTableModel) btm).isInitialized() && btm.getColumnCount() > 0)

@@ -350,7 +350,7 @@ new FormModel {
 												"focusable": false
 												"preferredSize": new java.awt.Dimension( 756, 384 )
 												"minimumSize": new java.awt.Dimension( 0, 0 )
-												add( new FormComponent( "com.corionis.els.gui.util.TooltipsTable" ) {
+												add( new FormComponent( "javax.swing.JTable" ) {
 													name: "tableCollectionOne"
 													"preferredScrollableViewportSize": &Dimension0 new java.awt.Dimension( 754, 400 )
 													"fillsViewportHeight": true
@@ -360,8 +360,8 @@ new FormModel {
 													"showHorizontalLines": false
 													"showVerticalLines": false
 													"autoResizeMode": 4
-													"autoCreateRowSorter": true
 													"name": "tableCollectionOne"
+													"autoCreateRowSorter": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -398,7 +398,7 @@ new FormModel {
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 												name: "scrollPaneTableSystemOne"
 												"minimumSize": new java.awt.Dimension( 0, 0 )
-												add( new FormComponent( "com.corionis.els.gui.util.TooltipsTable" ) {
+												add( new FormComponent( "javax.swing.JTable" ) {
 													name: "tableSystemOne"
 													"preferredScrollableViewportSize": #Dimension0
 													"fillsViewportHeight": true
@@ -408,8 +408,8 @@ new FormModel {
 													"showHorizontalLines": false
 													"showVerticalLines": false
 													"autoResizeMode": 4
-													"autoCreateRowSorter": true
 													"name": "tableSystemOne"
+													"autoCreateRowSorter": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -460,7 +460,7 @@ new FormModel {
 												name: "scrollPaneTableCollectionTwo"
 												"preferredSize": new java.awt.Dimension( 756, 384 )
 												"minimumSize": new java.awt.Dimension( 0, 0 )
-												add( new FormComponent( "com.corionis.els.gui.util.TooltipsTable" ) {
+												add( new FormComponent( "javax.swing.JTable" ) {
 													name: "tableCollectionTwo"
 													"preferredScrollableViewportSize": #Dimension0
 													"fillsViewportHeight": true
@@ -470,8 +470,8 @@ new FormModel {
 													"showHorizontalLines": false
 													"showVerticalLines": false
 													"autoResizeMode": 4
-													"autoCreateRowSorter": true
 													"name": "tableCollectionTwo"
+													"autoCreateRowSorter": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -507,7 +507,7 @@ new FormModel {
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 												name: "scrollPaneTableSystemTwo"
 												"minimumSize": new java.awt.Dimension( 0, 0 )
-												add( new FormComponent( "com.corionis.els.gui.util.TooltipsTable" ) {
+												add( new FormComponent( "javax.swing.JTable" ) {
 													name: "tableSystemTwo"
 													"preferredScrollableViewportSize": #Dimension0
 													"fillsViewportHeight": true
@@ -517,8 +517,8 @@ new FormModel {
 													"showHorizontalLines": false
 													"showVerticalLines": false
 													"autoResizeMode": 4
-													"autoCreateRowSorter": true
 													"name": "tableSystemTwo"
+													"autoCreateRowSorter": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"

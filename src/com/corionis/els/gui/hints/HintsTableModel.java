@@ -35,7 +35,6 @@ public class HintsTableModel extends DefaultTableModel
         iconRed.setDescription(context.cfg.gs("HintsUI.status.for"));
         iconYellow = getIcon("hint-yellow.png");
         iconYellow.setDescription(context.cfg.gs("HintsUI.status.unknown"));
-
     }
 
     private ImageIcon getIcon(String name)

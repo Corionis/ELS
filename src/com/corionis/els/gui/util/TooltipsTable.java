@@ -14,6 +14,11 @@ import java.awt.event.MouseEvent;
 
 public class TooltipsTable extends JTable
 {
+    public TooltipsTable()
+    {
+        super();
+    }
+
     @Override
     public String getToolTipText(MouseEvent e)
     {
@@ -114,6 +119,5 @@ public class TooltipsTable extends JTable
         }
         return obj;
     }
-
 
 }

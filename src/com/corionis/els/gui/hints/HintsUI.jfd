@@ -87,7 +87,7 @@ new FormModel {
 					} )
 					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 						name: "scrollPaneHints"
-						add( new FormComponent( "com.corionis.els.gui.util.TooltipsTable" ) {
+						add( new FormComponent( "javax.swing.JTable" ) {
 							name: "tableHints"
 							"fillsViewportHeight": true
 							"selectionMode": 0

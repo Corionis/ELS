@@ -55,19 +55,19 @@ public class JunkRemoverUI extends AbstractToolDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsJunkRemoverXpos() != 0 && Utils.isOnScreen(context.preferences.getToolsJunkRemoverXpos(),
+        if (context.preferences.getToolsJunkRemoverXpos() >= 0 && Utils.isOnScreen(context.preferences.getToolsJunkRemoverXpos(),
                 context.preferences.getToolsJunkRemoverYpos()))
         {
             this.setLocation(context.preferences.getToolsJunkRemoverXpos(), context.preferences.getToolsJunkRemoverYpos());
             Dimension dim = new Dimension(context.preferences.getToolsJunkRemoverWidth(), context.preferences.getToolsJunkRemoverHeight());
             this.setSize(dim);
-
-            this.splitPaneContent.setDividerLocation(context.preferences.getToolsJunkRemoverDividerLocation());
         }
         else
         {
             this.setLocation(Utils.getRelativePosition(this));
         }
+
+        this.splitPaneContent.setDividerLocation(context.preferences.getToolsJunkRemoverDividerLocation());
 
         // Escape key
         ActionListener escListener = new AbstractAction()

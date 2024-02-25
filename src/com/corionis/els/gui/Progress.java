@@ -2,8 +2,6 @@ package com.corionis.els.gui;
 
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -12,8 +10,6 @@ import javax.swing.*;
 
 public class Progress extends JFrame
 {
-    private transient Logger logger = LogManager.getLogger("applog");
-
     private boolean beingUsed = false;
     private ActionListener cancelAction;
     private int currentWidth;
@@ -73,7 +69,7 @@ public class Progress extends JFrame
     {
         beingUsed = true;
 
-        if (context.preferences.getProgressXpos() != 0 && Utils.isOnScreen(context.preferences.getProgressXpos(), context.preferences.getProgressYpos()))
+        if (context.preferences.getProgressXpos() >= 0 && Utils.isOnScreen(context.preferences.getProgressXpos(), context.preferences.getProgressYpos()))
         {
             setLocation(context.preferences.getProgressXpos(), context.preferences.getProgressYpos());
         }

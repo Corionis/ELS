@@ -4,7 +4,6 @@ import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
-import com.corionis.els.gui.util.TooltipsTable;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintStatus;
@@ -40,7 +39,7 @@ public class HintsUI extends JDialog
 
     public HintsUI(Window owner, Context context)
     {
-        super(owner);
+        super();
         this.context = context;
         boolean fault = false;
 
@@ -80,7 +79,7 @@ public class HintsUI extends JDialog
             labelHelp.setIcon(replacement);
 
             // restore window & column preferences
-            if (context.preferences.getHintsXpos() != 0 && Utils.isOnScreen(context.preferences.getHintsXpos(),
+            if (context.preferences.getHintsXpos() >= 0 && Utils.isOnScreen(context.preferences.getHintsXpos(),
                     context.preferences.getHintsYpos()))
             {
                 this.setLocation(context.preferences.getHintsXpos(), context.preferences.getHintsYpos());
@@ -301,12 +300,21 @@ public class HintsUI extends JDialog
         {
             if (!helpDialog.isVisible())
             {
+                if (context.preferences.getHintsHelpXpos() >= 0 && Utils.isOnScreen(context.preferences.getHintsHelpXpos(), context.preferences.getHintsHelpYpos()))
+                {
+                    helpDialog.setLocation(context.preferences.getHintsHelpXpos(), context.preferences.getHintsHelpYpos());
+                }
+                else
+                {
+                    helpDialog.setLocation(Utils.getRelativePosition(this));
+                }
+
+                if (context.preferences.getHintsHelpWidth() > 0)
+                {
+                    helpDialog.setSize(context.preferences.getHintsHelpWidth(), context.preferences.getHintsHelpHeight());
+                }
+
                 helpDialog.setVisible(true);
-                // offset the help dialog from the parent dialog
-                Point loc = this.getLocation();
-                loc.x = loc.x + 32;
-                loc.y = loc.y + 32;
-                helpDialog.setLocation(loc);
             }
             else
             {
@@ -644,7 +652,7 @@ public class HintsUI extends JDialog
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         scrollPaneHints = new JScrollPane();
-        tableHints = new TooltipsTable();
+        tableHints = new JTable();
         panelOptionsButtons = new JPanel();
         buttonAll = new JButton();
         buttonNone = new JButton();
@@ -833,7 +841,7 @@ public class HintsUI extends JDialog
     public JPanel panelHelp;
     public JLabel labelHelp;
     public JScrollPane scrollPaneHints;
-    public TooltipsTable tableHints;
+    public JTable tableHints;
     public JPanel panelOptionsButtons;
     public JButton buttonAll;
     public JButton buttonNone;

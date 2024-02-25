@@ -747,19 +747,19 @@ public class OperationsUI extends AbstractToolDialog
         labelOperationHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsOperationsXpos() != 0 && Utils.isOnScreen(context.preferences.getToolsOperationsXpos(),
+        if (context.preferences.getToolsOperationsXpos() >= 0 && Utils.isOnScreen(context.preferences.getToolsOperationsXpos(),
                 context.preferences.getToolsOperationsYpos()))
         {
             this.setLocation(context.preferences.getToolsOperationsXpos(), context.preferences.getToolsOperationsYpos());
             Dimension dim = new Dimension(context.preferences.getToolsOperationsWidth(), context.preferences.getToolsOperationsHeight());
             this.setSize(dim);
-
-            splitPaneOperationContent.setDividerLocation(context.preferences.getToolOperationsDividerConfigLocation());
         }
         else
         {
             this.setLocation(Utils.getRelativePosition(this));
         }
+
+        splitPaneOperationContent.setDividerLocation(context.preferences.getToolOperationsDividerConfigLocation());
 
         // Escape key
         ActionListener escListener = new AbstractAction()

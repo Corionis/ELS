@@ -49,19 +49,19 @@ public class SleepUI extends AbstractToolDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsSleepXpos() != 0 && Utils.isOnScreen(context.preferences.getToolsSleepXpos(),
+        if (context.preferences.getToolsSleepXpos() >= 0 && Utils.isOnScreen(context.preferences.getToolsSleepXpos(),
                 context.preferences.getToolsSleepYpos()))
         {
             this.setLocation(context.preferences.getToolsSleepXpos(), context.preferences.getToolsSleepYpos());
             Dimension dim = new Dimension(context.preferences.getToolsSleepWidth(), context.preferences.getToolsSleepHeight());
             this.setSize(dim);
-
-            this.splitPaneContent.setDividerLocation(context.preferences.getToolsSleepDividerLocation());
         }
         else
         {
             this.setLocation(Utils.getRelativePosition(this));
         }
+
+        this.splitPaneContent.setDividerLocation(context.preferences.getToolsSleepDividerLocation());
 
         // Escape key
         ActionListener escListener = new AbstractAction()

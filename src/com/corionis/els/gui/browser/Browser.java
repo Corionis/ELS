@@ -296,7 +296,7 @@ public class Browser
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // do nothing on JTable Enter pressed
+                // do nothing on Enter pressed
             }
         });
 

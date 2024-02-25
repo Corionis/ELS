@@ -2070,22 +2070,6 @@ public class Navigator
         // -- View Menu
         // --------------------------------------------------------
 
-        // --- Refresh
-        ActionListener refreshAction = new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
-                {
-                    context.browser.rescanByTreeOrTable(context.browser.lastComponent); // same as F5
-                }
-            }
-        };
-        context.mainFrame.menuItemRefresh.addActionListener(refreshAction);
-        context.mainFrame.popupMenuItemRefresh.addActionListener(refreshAction);
-        context.mainFrame.menuTbRefresh.addActionListener(refreshAction);
-
         // --- Progress
         context.mainFrame.menuItemProgress.addActionListener(new AbstractAction()
         {
@@ -2107,6 +2091,22 @@ public class Navigator
                 context.progress.view();
             }
         });
+
+        // --- Refresh
+        ActionListener refreshAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
+                {
+                    context.browser.rescanByTreeOrTable(context.browser.lastComponent); // same as F5
+                }
+            }
+        };
+        context.mainFrame.menuItemRefresh.addActionListener(refreshAction);
+        context.mainFrame.popupMenuItemRefresh.addActionListener(refreshAction);
+        context.mainFrame.menuTbRefresh.addActionListener(refreshAction);
 
         // --- Auto-Refresh
         context.mainFrame.menuItemAutoRefresh.addActionListener(new AbstractAction()
