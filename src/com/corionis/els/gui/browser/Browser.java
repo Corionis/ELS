@@ -275,7 +275,7 @@ public class Browser
                     if (object instanceof JTable)
                     {
                         int[] rows = {0};
-                        tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
+                        tree = navTransferHandler.getTargetTree((JTable) object);
                         rows = ((JTable) object).getSelectedRows();
                         if (rows.length > 0)
                         {
@@ -426,7 +426,7 @@ public class Browser
                         else if (object instanceof JTable)
                         {
                             int[] rows = {0};
-                            tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
+                            tree = navTransferHandler.getTargetTree((JTable) object);
                             rows = ((JTable) object).getSelectedRows();
                             if (rows.length > 0)
                             {
@@ -1168,7 +1168,7 @@ public class Browser
         NavTreeUserObject tuo = null;
         if (object instanceof JTable)
         {
-            tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
+            tree = navTransferHandler.getTargetTree((JTable) object);
             rows = ((JTable) object).getSelectedRows();
             if (rows.length > 0)
             {
@@ -1301,7 +1301,7 @@ public class Browser
                     }
                     else if (object instanceof JTable)
                     {
-                        tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
+                        tree = navTransferHandler.getTargetTree((JTable) object);
                     }
                     if (tree != null)
                     {
@@ -2611,7 +2611,7 @@ public class Browser
         }
         else if (object instanceof JTable)
         {
-            tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
+            tree = navTransferHandler.getTargetTree((JTable) object);
         }
         if (tree != null)
         {

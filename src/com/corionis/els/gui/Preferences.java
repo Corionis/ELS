@@ -1,5 +1,6 @@
 package com.corionis.els.gui;
 
+import com.corionis.els.gui.browser.BrowserTableCellRenderer;
 import com.formdev.flatlaf.*;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
@@ -285,6 +286,11 @@ public class Preferences implements Serializable
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setPreferredWidth(getCollectionOneDateWidth());
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setWidth(getCollectionOneDateWidth());
                 setTableSort(context.mainFrame.tableCollectionOne, getCollectionOneSortColumn(), getCollectionOneSortDirection());
+
+                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context.mainFrame.tableCollectionOne);
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setCellRenderer(btcr);
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setCellRenderer(btcr);
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setCellRenderer(btcr);
             }
         }
 
@@ -302,6 +308,11 @@ public class Preferences implements Serializable
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setPreferredWidth(getCollectionTwoDateWidth());
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setWidth(getCollectionTwoDateWidth());
                 setTableSort(context.mainFrame.tableCollectionTwo, getCollectionTwoSortColumn(), getCollectionTwoSortDirection());
+
+                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context.mainFrame.tableCollectionTwo);
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setCellRenderer(btcr);
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setCellRenderer(btcr);
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setCellRenderer(btcr);
             }
         }
 
@@ -319,6 +330,11 @@ public class Preferences implements Serializable
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setPreferredWidth(getSystemOneDateWidth());
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setWidth(getSystemOneDateWidth());
                 setTableSort(context.mainFrame.tableSystemOne, getSystemOneSortColumn(), getSystemOneSortDirection());
+
+                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context.mainFrame.tableSystemOne);
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setCellRenderer(btcr);
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setCellRenderer(btcr);
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setCellRenderer(btcr);
             }
         }
 
@@ -336,6 +352,11 @@ public class Preferences implements Serializable
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setPreferredWidth(getSystemTwoDateWidth());
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setWidth(getSystemTwoDateWidth());
                 setTableSort(context.mainFrame.tableSystemTwo, getSystemTwoSortColumn(), getSystemTwoSortDirection());
+
+                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context.mainFrame.tableSystemTwo);
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setCellRenderer(btcr);
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setCellRenderer(btcr);
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setCellRenderer(btcr);
             }
         }
     }

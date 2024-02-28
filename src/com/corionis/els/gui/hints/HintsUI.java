@@ -4,6 +4,7 @@ import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
+import com.corionis.els.gui.browser.BrowserTableCellRenderer;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintStatus;
@@ -125,9 +126,20 @@ public class HintsUI extends JDialog
 
                     tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
 
-                    DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
-                    cellRenderer.setHorizontalAlignment(JLabel.CENTER);
-                    tableHints.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
+//                    DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
+//                    cellRenderer.setHorizontalAlignment(JLabel.CENTER);
+//                    tableHints.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
+
+                    BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(tableHints);
+                    for (int i = 1; i < model.getColumnCount(); ++i)
+                    {
+                        tableHints.getColumnModel().getColumn(i).setCellRenderer(btcr);
+                    }
+
+                    btcr = (BrowserTableCellRenderer) tableHints.getColumnModel().getColumn(4).getCellRenderer();
+                    btcr.setHorizontalAlignment(JLabel.CENTER);
+                    tableHints.getColumnModel().getColumn(4).setCellRenderer(btcr);
+
 
                     if (model != null && model.hints != null && model.hints.size() > 0)
                         count = model.hints.size();

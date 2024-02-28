@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.event.TableModelListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -273,23 +274,41 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         else
             error = context.browser.navTransferHandler.removeFile(sourceTuo);
 
-        if (!error && !context.fault)
+        if (!error && !context.fault && context.preferences.isAutoRefresh())
         {
             BrowserTableModel btm = (BrowserTableModel) sourceTuo.node.getMyTable().getModel();
-            int tableIndex = btm.findNavTreeUserObjectIndex(sourceTuo.node);
-            if (tableIndex >= 0)
+//            int tableIndex = btm.findNavTreeUserObjectIndex(sourceTuo.node);
+//            if (tableIndex >= 0)
+//            {
+//                JTable table = sourceTuo.node.getMyTable();
+//                RowSorter sorter = table.getRowSorter();
+//                sorter.rowsDeleted(tableIndex, tableIndex);
+//            }
+
+            TableModelListener[] tml = btm.getTableModelListeners();
+            for (int i = 0; i < tml.length; ++i)
             {
-                JTable table = sourceTuo.node.getMyTable();
-                RowSorter sorter = table.getRowSorter();
-                sorter.rowsDeleted(tableIndex, tableIndex);
+                btm.removeTableModelListener(tml[i]);
             }
+
+            JTable table = sourceTuo.node.getMyTable();
+            int row = btm.findNavTreeUserObjectIndex(sourceTuo.node);
+            row = table.convertRowIndexToModel(row);
+// TODO Maybe just rescan and don't remove
+
+// TODO Use threads for deletes??
+            btm.removeRow(row);
 
             NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
             btm = (BrowserTableModel) parent.getMyTable().getModel();
             btm.setNode(parent);
             parent.remove(sourceTuo.node);
 
-            if (context.preferences.isAutoRefresh())
+            for (int i = 0; i < tml.length; ++i)
+            {
+                btm.addTableModelListener(tml[i]);
+            }
+
             {
                 context.browser.refreshTree(sourceTree);
                 if (sourceTree != targetTree)
