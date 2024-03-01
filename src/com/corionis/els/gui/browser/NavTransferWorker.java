@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.event.TableModelListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -276,27 +275,28 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
         if (!error && !context.fault && context.preferences.isAutoRefresh())
         {
-            BrowserTableModel btm = (BrowserTableModel) sourceTuo.node.getMyTable().getModel();
-//            int tableIndex = btm.findNavTreeUserObjectIndex(sourceTuo.node);
-//            if (tableIndex >= 0)
-//            {
-//                JTable table = sourceTuo.node.getMyTable();
-//                RowSorter sorter = table.getRowSorter();
-//                sorter.rowsDeleted(tableIndex, tableIndex);
-//            }
 
-            TableModelListener[] tml = btm.getTableModelListeners();
-            for (int i = 0; i < tml.length; ++i)
+            BrowserTableModel btm = (BrowserTableModel) sourceTuo.node.getMyTable().getModel();
+            int tableIndex = btm.findNavTreeUserObjectIndex(sourceTuo.node);
+            if (tableIndex >= 0)
             {
-                btm.removeTableModelListener(tml[i]);
+                JTable table = sourceTuo.node.getMyTable();
+                RowSorter sorter = table.getRowSorter();
+                sorter.rowsDeleted(tableIndex, tableIndex);
             }
+            btm.getDataVector().removeAllElements();
+
+
+/*
+    // Leaving this mess of different attempts to solve the intermittent
+    // exception "index out of bounds" when removing items. May want to
+    // come back to this for ideas.
+
+    // Use threads for deletes??
 
             JTable table = sourceTuo.node.getMyTable();
             int row = btm.findNavTreeUserObjectIndex(sourceTuo.node);
             row = table.convertRowIndexToModel(row);
-// TODO Maybe just rescan and don't remove
-
-// TODO Use threads for deletes??
             btm.removeRow(row);
 
             NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
@@ -304,16 +304,28 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             btm.setNode(parent);
             parent.remove(sourceTuo.node);
 
-            for (int i = 0; i < tml.length; ++i)
-            {
-                btm.addTableModelListener(tml[i]);
-            }
-
             {
                 context.browser.refreshTree(sourceTree);
                 if (sourceTree != targetTree)
                     context.browser.refreshTree(targetTree);
             }
+*/
+
+//            NavTreeNode node = (NavTreeNode) sourceTuo.node.getParent();
+//            BrowserTableModel btm = (BrowserTableModel) node.getMyTable().getModel();
+//            if (btm.getNode() == sourceTuo.node)
+
+//            {
+//                context.browser.rescanByTreeOrTable(sourceTuo.node.getMyTable());
+//            }
+
+            RowSorter drs = sourceTuo.node.getMyTable().getRowSorter();
+            sourceTuo.node.getMyTable().setRowSorter(null);
+
+            context.browser.rescanByNode((NavTreeNode) sourceTuo.node.getParent());
+
+            sourceTuo.node.getMyTable().setRowSorter(drs);
+            logger.trace("Removal complete");
         }
         return error;
     }

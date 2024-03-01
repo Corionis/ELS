@@ -194,7 +194,6 @@
     <target name="updater-compile" depends="els-compile">
         <mkdir dir="out/updater/jar"/>
         <copy overwrite="true" file="out/els/jar/com/corionis/els/gui/Preferences.class" tofile="out/updater/jar/com/corionis/els/gui/Preferences.class"/>
-        <copy overwrite="true" file="out/els/jar/com/corionis/els/gui/util/TooltipsTable.class" tofile="out/updater/jar/com/corionis/els/gui/util/TooltipsTable.class"/>
         <copy overwrite="true" file="out/els/jar/com/corionis/els/Configuration.class" tofile="out/updater/jar/com/corionis/els/Configuration.class"/>
         <copy overwrite="true" file="out/els/jar/com/corionis/els/Context.class" tofile="out/updater/jar/com/corionis/els/Context.class"/>
         <copy overwrite="true" file="out/els/jar/com/corionis/els/MungeException.class" tofile="out/updater/jar/com/corionis/els/MungeException.class"/>

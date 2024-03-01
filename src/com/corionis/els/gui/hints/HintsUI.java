@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.table.DefaultTableCellRenderer;
 
 public class HintsUI extends JDialog
 {
@@ -111,27 +110,12 @@ public class HintsUI extends JDialog
             {
                 try
                 {
-//                // get data
-//                repositories = getRepositories();
-//
-//                if (context.datastore != null)
-//                    context.datastore.reload();
-//                else
-//                    hints = new ArrayList<>();
-//
-//                hints = context.hints.getAll();
-//                model = new HintsTableModel(context);
-//                model.setData(repositories, hints);
                     tableHints.setModel(model);
-
                     tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
 
-//                    DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
-//                    cellRenderer.setHorizontalAlignment(JLabel.CENTER);
-//                    tableHints.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
-
                     BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(tableHints);
-                    for (int i = 1; i < model.getColumnCount(); ++i)
+                    // only the textual columns
+                    for (int i = 1; i < 9; ++i)         //model.getColumnCount(); ++i)
                     {
                         tableHints.getColumnModel().getColumn(i).setCellRenderer(btcr);
                     }
@@ -139,7 +123,6 @@ public class HintsUI extends JDialog
                     btcr = (BrowserTableCellRenderer) tableHints.getColumnModel().getColumn(4).getCellRenderer();
                     btcr.setHorizontalAlignment(JLabel.CENTER);
                     tableHints.getColumnModel().getColumn(4).setCellRenderer(btcr);
-
 
                     if (model != null && model.hints != null && model.hints.size() > 0)
                         count = model.hints.size();

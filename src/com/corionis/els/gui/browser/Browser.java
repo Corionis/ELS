@@ -260,6 +260,7 @@ public class Browser
                 }
             }
         };
+        table.addMouseListener(tableMouseListener);
 
         table.addKeyListener(new KeyAdapter()
         {
@@ -288,7 +289,6 @@ public class Browser
                 }
             }
         });
-        table.addMouseListener(tableMouseListener);
 
         table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
         table.getActionMap().put("Enter", new AbstractAction()
@@ -1973,6 +1973,19 @@ public class Browser
 
             tree.setEnabled(true);
         }
+    }
+
+    public void rescanByNode(NavTreeNode node)
+    {
+        JTree sourceTree = node.getMyTree();
+        TreePath tp = node.getTreePath();
+        for (int i = 0; i < tp.getPathCount(); ++i)
+        {
+            NavTreeNode ntn = (NavTreeNode) tp.getPathComponent(i);
+            ntn.setForceReload(true);
+        }
+        scanTreePath(sourceTree.getName(), Utils.getTreePathStringArray(tp), false, true, false);
+        refreshTree(sourceTree);
     }
 
     public void rescanByTreeOrTable(Object object)
