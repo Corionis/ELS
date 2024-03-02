@@ -38,8 +38,8 @@ import static com.corionis.els.Configuration.*;
  * <p>ELS uses an embedded JRE from the OpenJDK project.<br/>
  * * https://openjdk.org/<br/>
  * * https://github.com/AdoptOpenJDK<br/>
- * * https://wiki.openjdk.org/display/JDKUpdates/JDK11u<br/>
- * * Current: https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.21+9<br/>
+ * * https://github.com/adoptium<br/>
+ * * Current https://github.com/adoptium/temurin19-binaries/releases/tag/jdk-19.0.2%2B7<br/>
  */
 public class Main
 {

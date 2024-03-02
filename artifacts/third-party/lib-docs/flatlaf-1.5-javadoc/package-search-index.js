@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.formdev.flatlaf"},{"l":"com.formdev.flatlaf.icons"},{"l":"com.formdev.flatlaf.json"},{"l":"com.formdev.flatlaf.ui"},{"l":"com.formdev.flatlaf.util"}]

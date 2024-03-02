@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"m":"com.google.gson","l":"com.google.gson"},{"m":"com.google.gson","l":"com.google.gson.annotations"},{"m":"com.google.gson","l":"com.google.gson.reflect"},{"m":"com.google.gson","l":"com.google.gson.stream"}]
