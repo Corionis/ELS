@@ -43,6 +43,8 @@ The following downloads contain an embedded JRE for that platform.
 
  * Unpack the .tar.gz anywhere you have write permissions.<br/>
    Run ``` ELS-Navigator.sh ``` script in the root of that directory.
+ * If you see an error dialog saying it cannot be validated in a terminal try from the installed directory:<br/>
+   ``xattr -d com.apple.quarantine ELS/rt/Contents/Home/bin/java``
 
 ### &nbsp;&nbsp;&nbsp; Windows installer
 
@@ -70,6 +72,8 @@ Use Help, Check for Updates ... to see if a new build is available.
  * A dialog is displayed with Changelist, No, and ELS website. Due to constraints there is no
    auto-updater for macOS. Mac users may download the latest ELS Jar or update ELS entirely 
    using the .tar.gz.
+ * If you see an error dialog saying it cannot be validated in a terminal try from the installed directory:<br/>
+   ``xattr -d com.apple.quarantine ELS/rt/Contents/Home/bin/java``
 
 ## &bull; Configuration
 
