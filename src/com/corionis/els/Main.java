@@ -24,10 +24,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 import static com.corionis.els.Configuration.*;

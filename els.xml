@@ -9,6 +9,7 @@
         <path id="class.path">
             <fileset dir="lib">
                 <include name="*.jar"/>
+                <include name="org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor"/>
             </fileset>
         </path>
     </target>
@@ -72,6 +73,17 @@
             <src path="src"/>
             <include name="**/*.java"/>
         </javac>
+        <!-- Merge annotation-generate Log4j2Plugins.dat with those found in lib Jar files -->
+        <exec executable="/usr/bin/java">
+            <arg value="-jar"/>
+            <arg value="artifacts/bin/MergeLog4j2Plugins.jar"/>
+            <arg value="--dat"/>
+            <arg value="out/els/jar/META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat"/>
+            <arg value="--lib"/>
+            <arg value="lib"/>
+        </exec>
+        <!-- Save the merged Log4j2Plugins.dat -->
+        <copy file="out/els/jar/META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" tofile="out/Log4j2Plugins.dat" overwrite="true" preservelastmodified="true"/>
     </target>
 
     <!-- Assemble all the pieces to build the Jar -->
@@ -89,11 +101,14 @@
         </copy>
         <copy file="build/changes.html" tofile="out/els/jar/changes_en_US.html" preservelastmodified="true"/>
         <copy file="lib/log4j2.xml" todir="out/els/jar" preservelastmodified="true"/>
+        <!-- Unpack all lib Jar files. May overwrite Log4j2Plugins.dat -->
         <unzip dest="out/els/jar">
             <fileset dir="lib">
                 <include name="**/*.jar"/>
             </fileset>
         </unzip>
+        <!-- Copy merged Log4j2Plugins.dat back -->
+        <copy file="out/Log4j2Plugins.dat" tofile="out/els/jar/META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" overwrite="true" preservelastmodified="true"/>
     </target>
 
     <!-- Assemble all the pieces to run from IDE build classes -->
@@ -231,11 +246,11 @@
                 <include name="**/gson-2.10.1.jar"/>
                 <include name="**/guava-32.0.1-jre.jar"/>
                 <include name="**/javax.activation-1.2.0.jar"/>
-                <include name="**/log4j-api-2.19.0.jar"/>
-                <include name="**/log4j-core-2.19.0.jar"/>
-                <include name="**/log4j-slf4j2-impl-2.19.0.jar"/>
-                <include name="**/slf4j-api-2.0.7.jar"/>
-                <include name="**/slf4j-simple-2.0.7.jar"/>
+                <include name="**/log4j-api-2.23.0.jar"/>
+                <include name="**/log4j-core-2.23.0.jar"/>
+                <include name="**/log4j-slf4j2-impl-2.23.0.jar"/>
+                <include name="**/slf4j-api-2.0.12.jar"/>
+                <include name="**/slf4j-simple-2.0.12.jar"/>
                 <include name="**/sshd-common-2.10.0.jar"/>
             </fileset>
         </unzip>

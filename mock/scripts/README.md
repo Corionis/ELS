@@ -211,15 +211,15 @@ Hints are not created for Workstation instances.
 ### 090-00  Navigator - Local Hint Tracker - Local Backup
 
  * ``090-26_Navigator-pub-local`` : Perform the [Manual Tests](#Manual-tests) below to create some Hints
- * Use System, Hints to execute the Hints with the Subscriber selected
+ * Select Subscriber then use System, Hints to execute the Hints
  * ``090-27_Navigator-sub-local`` : Navigator with subscriber-one as publisher
 
 
 ### 092-00  Navigator - Local Hint Tracker - Remote Backup
 
  * ``092-21_Subscriber-One-listener`` : Subscriber One listener
- * ``092-26_Navigator-remote`` : Navigator with remote Subscriber One
- * Run series ``062-00 Local Hint Tracker - Remote Backup`` to process Hints
+ * ``092-26_Navigator-remote`` : Perform the [Manual Tests](#Manual-tests) below to create some Hints
+ * Run series ``062-00 Local Hint Tracker - Remote Backup`` to process Hints and back-up
 
 
 ### 100-00  Navigator - Remote Hint Server - Local Backup
