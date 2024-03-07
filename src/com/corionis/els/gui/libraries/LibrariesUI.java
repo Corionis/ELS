@@ -184,24 +184,14 @@ public class LibrariesUI
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(mf, mf, context,
-                    context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html");
+            helpDialog = new NavHelp(mf, mf, context, context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.fault)
         {
             if (!helpDialog.isVisible())
-            {
                 helpDialog.setVisible(true);
-                // offset the help dialog from the parent
-                Point loc = mf.getLocation();
-                loc.x = loc.x + 82;
-                loc.y = loc.y + 90;
-                helpDialog.setLocation(loc);
-            }
             else
-            {
                 helpDialog.toFront();
-            }
         }
     }
 

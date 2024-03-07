@@ -43,6 +43,7 @@ public class OperationsUI extends AbstractToolDialog
     private int currentConfigIndex = -1;
     private OperationsTool currentTool;
     private String displayName;
+    private Window owner;
     private boolean pickerAnyFile = false;
     private boolean pickerKeys = false;
     private boolean pickerFileMustExist = false;
@@ -59,6 +60,7 @@ public class OperationsUI extends AbstractToolDialog
     public OperationsUI(Window owner, Context context)
     {
         super(owner);
+        this.owner = owner;
         this.context = context;
         this.displayName = context.cfg.gs("Operations.displayName");
         initComponents();
@@ -188,18 +190,9 @@ public class OperationsUI extends AbstractToolDialog
         if (!helpDialog.fault)
         {
             if (!helpDialog.isVisible())
-            {
                 helpDialog.setVisible(true);
-                // offset the help dialog from the parent dialog
-                Point loc = getLocation();
-                loc.x = loc.x + 32;
-                loc.y = loc.y + 32;
-                helpDialog.setLocation(loc);
-            }
             else
-            {
                 helpDialog.toFront();
-            }
         }
     }
 

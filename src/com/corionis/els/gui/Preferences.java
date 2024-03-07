@@ -26,7 +26,7 @@ public class Preferences implements Serializable
     private String accentColor = DEFAULT_ACCENT_COLOR;
     private int appHeight = 640;
     private int appWidth = 1024;
-    private int appXpos = 0;
+    private int appXpos = -1;
     private int appYpos = 0;
     private boolean autoRefresh = true;
     private boolean binaryScale = true; // true = 1024, false = 1000
@@ -48,13 +48,17 @@ public class Preferences implements Serializable
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss a";
     private boolean defaultDryrun = true;
-    private int directoryPickerXpos = 0;
+    private int directoryPickerXpos = -1;
     private int directoryPickerYpos = 0;
     private int fileEditorHeight = 365;
     private int fileEditorWidth = 425;
-    private int fileEditorXpos = 0;
+    private int fileEditorXpos = -1;
     private int fileEditorYpos = 0;
     private boolean generateLongOptions = false;
+    private int helpHeight = 550;
+    private int helpWidth = 600;
+    private int helpXpos = -1;
+    private int helpYpos = 0;
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private int hintsActionWidth = 60;
@@ -63,22 +67,18 @@ public class Preferences implements Serializable
     private int hintsFromItemWidth = 160;
     private int hintsFromLibWidth = 88;
     private int hintsHeight = 520;
-    private int hintsHelpHeight = 550;
-    private int hintsHelpWidth = 600;
-    private int hintsHelpXpos = -1;
-    private int hintsHelpYpos = -1;
     private int hintsStatusWidth = 104;
     private int hintsSystemWidth = 104;
     private int hintsToItemWidth = 160;
     private int hintsToLibWidth = 88;
     private int hintsWidth = 1140;
-    private int hintsXpos = 0;
+    private int hintsXpos = -1;
     private int hintsYpos = 0;
     private int jobsHeight = 470;
     private int jobsOriginDividerLocation = 142;
     private int jobsTaskDividerLocation = 142;
     private int jobsWidth = 570;
-    private int jobsXpos = 0;
+    private int jobsXpos = -1;
     private int jobsYpos = 0;
     private boolean lastHintKeysIsOpen = false;
     private String lastHintKeysOpenFile = "";
@@ -136,34 +136,35 @@ public class Preferences implements Serializable
     private int toolOperationsDividerConfigLocation = 142;
     private int toolsDuplicateFinderHeight = 470;
     private int toolsDuplicateFinderWidth = 570;
-    private int toolsDuplicateFinderXpos = 0;
+    private int toolsDuplicateFinderXpos = -1;
     private int toolsDuplicateFinderYpos = 0;
     private int toolsEmptyDirectoryFinderHeight = 470;
     private int toolsEmptyDirectoryFinderWidth = 570;
-    private int toolsEmptyDirectoryFinderXpos = 0;
+    private int toolsEmptyDirectoryFinderXpos = -1;
     private int toolsEmptyDirectoryFinderYpos = 0;
     private int toolsJunkRemoverDividerLocation = 142;
     private int toolsJunkRemoverHeight = 470;
     private int toolsJunkRemoverWidth = 570;
-    private int toolsJunkRemoverXpos = 0;
+    private int toolsJunkRemoverXpos = -1;
     private int toolsJunkRemoverYpos = 0;
     private int toolsOperationsHeight = 470;
     private int toolsOperationsWidth = 570;
-    private int toolsOperationsXpos = 0;
+    private int toolsOperationsXpos = -1;
     private int toolsOperationsYpos = 0;
     private int toolsRenamerDividerLocation = 142;
     private int toolsRenamerHeight = 470;
     private int toolsRenamerWidth = 570;
-    private int toolsRenamerXpos = 0;
+    private int toolsRenamerXpos = -1;
     private int toolsRenamerYpos = 0;
     private int toolsSleepDividerLocation = 142;
     private int toolsSleepHeight = 470;
     private int toolsSleepWidth = 570;
-    private int toolsSleepXpos = 0;
+    private int toolsSleepXpos = -1;
     private int toolsSleepYpos = 0;
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
+
     /**
      * Constructor
      */
@@ -513,6 +514,26 @@ public class Preferences implements Serializable
         return path;
     }
 
+    public int getHelpHeight()
+    {
+        return helpHeight;
+    }
+
+    public int getHelpWidth()
+    {
+        return helpWidth;
+    }
+
+    public int getHelpXpos()
+    {
+        return helpXpos;
+    }
+
+    public int getHelpYpos()
+    {
+        return helpYpos;
+    }
+
     public int getHintsActionWidth()
     {
         return hintsActionWidth;
@@ -541,26 +562,6 @@ public class Preferences implements Serializable
     public int getHintsHeight()
     {
         return hintsHeight;
-    }
-
-    public int getHintsHelpHeight()
-    {
-        return hintsHelpHeight;
-    }
-
-    public int getHintsHelpWidth()
-    {
-        return hintsHelpWidth;
-    }
-
-    public int getHintsHelpXpos()
-    {
-        return hintsHelpXpos;
-    }
-
-    public int getHintsHelpYpos()
-    {
-        return hintsHelpYpos;
     }
 
     public int getHintsStatusWidth()
@@ -1356,6 +1357,26 @@ public class Preferences implements Serializable
         this.generateLongOptions = generateLongOptions;
     }
 
+    public void setHelpHeight(int helpHeight)
+    {
+        this.helpHeight = helpHeight;
+    }
+
+    public void setHelpWidth(int helpWidth)
+    {
+        this.helpWidth = helpWidth;
+    }
+
+    public void setHelpXpos(int helpXpos)
+    {
+        this.helpXpos = helpXpos;
+    }
+
+    public void setHelpYpos(int helpYpos)
+    {
+        this.helpYpos = helpYpos;
+    }
+
     public void setHideFilesInTree(boolean hideFilesInTree)
     {
         this.hideFilesInTree = hideFilesInTree;
@@ -1394,26 +1415,6 @@ public class Preferences implements Serializable
     public void setHintsHeight(int hintsHeight)
     {
         this.hintsHeight = hintsHeight;
-    }
-
-    public void setHintsHelpHeight(int hintsHelpHeight)
-    {
-        this.hintsHelpHeight = hintsHelpHeight;
-    }
-
-    public void setHintsHelpWidth(int hintsHelpWidth)
-    {
-        this.hintsHelpWidth = hintsHelpWidth;
-    }
-
-    public void setHintsHelpXpos(int hintsHelpXpos)
-    {
-        this.hintsHelpXpos = hintsHelpXpos;
-    }
-
-    public void setHintsHelpYpos(int hintsHelpYpos)
-    {
-        this.hintsHelpYpos = hintsHelpYpos;
     }
 
     public void setHintsStatusWidth(int hintsStatusWidth)

@@ -37,9 +37,9 @@ public class HintsUI extends JDialog
     private ArrayList<Hint> pendingSubscriberHints;
     private Repositories repositories = null;
 
-    public HintsUI(Window owner, Context context)
+    public HintsUI(Context context)
     {
-        super();
+        super(context.mainFrame);
         this.context = context;
         boolean fault = false;
 
@@ -294,27 +294,9 @@ public class HintsUI extends JDialog
         if (!helpDialog.fault)
         {
             if (!helpDialog.isVisible())
-            {
-                if (context.preferences.getHintsHelpXpos() >= 0 && Utils.isOnScreen(context.preferences.getHintsHelpXpos(), context.preferences.getHintsHelpYpos()))
-                {
-                    helpDialog.setLocation(context.preferences.getHintsHelpXpos(), context.preferences.getHintsHelpYpos());
-                }
-                else
-                {
-                    helpDialog.setLocation(Utils.getRelativePosition(this));
-                }
-
-                if (context.preferences.getHintsHelpWidth() > 0)
-                {
-                    helpDialog.setSize(context.preferences.getHintsHelpWidth(), context.preferences.getHintsHelpHeight());
-                }
-
                 helpDialog.setVisible(true);
-            }
             else
-            {
                 helpDialog.toFront();
-            }
         }
     }
 
@@ -743,7 +725,6 @@ public class HintsUI extends JDialog
 
                 //======== scrollPaneHints ========
                 {
-
                     //---- tableHints ----
                     tableHints.setFillsViewportHeight(true);
                     tableHints.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

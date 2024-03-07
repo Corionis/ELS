@@ -168,18 +168,9 @@ public class EmptyDirectoryFinderUI extends JDialog
         if (!helpDialog.fault)
         {
             if (!helpDialog.isVisible())
-            {
                 helpDialog.setVisible(true);
-                // offset the help dialog from the parent dialog
-                Point loc = this.getLocation();
-                loc.x = loc.x + 32;
-                loc.y = loc.y + 32;
-                helpDialog.setLocation(loc);
-            }
             else
-            {
                 helpDialog.toFront();
-            }
         }
     }
 

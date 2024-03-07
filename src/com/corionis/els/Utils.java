@@ -665,9 +665,11 @@ public class Utils
         Point parentPos = component.getParent().getLocation();
         Dimension parentSize = component.getParent().getSize();
         Dimension mySize = component.getSize();
-        Point center = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
-                parentPos.y + (parentSize.height / 2 - mySize.height / 2));
-        return center;
+        Point center = new Point(parentPos.x + parentSize.width / 2, parentPos.y + parentSize.height / 2);
+        int x = center.x - mySize.width / 2;
+        int y = center.y - mySize.height / 2;
+        Point position = new Point(x, y);
+        return position;
     }
 
     /**

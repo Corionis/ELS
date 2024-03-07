@@ -412,7 +412,7 @@ public class Generator
                     String generated = "";
                     generated = generate(tool,
                             consoleLevel,
-                            (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
+                            (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
                             (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath());
                     generatedTextField.setText(generated);
                     generatedTextField.selectAll();
@@ -448,7 +448,7 @@ public class Generator
                     debugLevel = (String) comboBoxDebugLevel.getItemAt(selected);
                     String generated = "";
                     generated = generate(tool,
-                            (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
+                            (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
                             debugLevel,
                             (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath());
                     generatedTextField.setText(generated);

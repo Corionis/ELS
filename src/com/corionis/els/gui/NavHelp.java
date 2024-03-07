@@ -56,6 +56,7 @@ public class NavHelp extends JDialog
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                savePreferences();
                 setVisible(false);
                 previous.requestFocus();
             }
@@ -82,6 +83,24 @@ public class NavHelp extends JDialog
                 }
             }
         });
+
+        if (context.preferences.getHelpXpos() >= 0 && Utils.isOnScreen(context.preferences.getHelpXpos(), context.preferences.getHelpYpos()))
+        {
+            setLocation(context.preferences.getHelpXpos(), context.preferences.getHelpYpos());
+            if (context.preferences.getHelpWidth() > 0)
+            {
+                setSize(context.preferences.getHelpWidth(), context.preferences.getHelpHeight());
+            }
+
+        }
+        else
+        {
+            setSize(600, 550);
+            Point position = owner.getLocation();
+            position.x += 32;
+            position.y += 32;
+            setLocation(position);
+        }
 
         load(resourceFilename);
     }
@@ -135,6 +154,15 @@ public class NavHelp extends JDialog
             logger.error(Utils.getStackTrace(e));
             JOptionPane.showMessageDialog(this.getOwner(), context.cfg.gs("NavHelp.error.opening.help.file") + resourceFilename + ", " + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void savePreferences()
+    {
+        context.preferences.setHelpHeight(this.getHeight());
+        context.preferences.setHelpWidth(this.getWidth());
+        Point location = this.getLocation();
+        context.preferences.setHelpXpos(location.x);
+        context.preferences.setHelpYpos(location.y);
     }
 
     private void thisWindowActivated(WindowEvent e)

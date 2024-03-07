@@ -2420,7 +2420,7 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 enableDisableSystemMenus(Hints, false);
-                dialogHints = new HintsUI(context.mainFrame, context);
+                dialogHints = new HintsUI(context);
             }
         });
 
