@@ -1,99 +1,36 @@
 ![ELS logo](https://github.com/Corionis/ELS/blob/master/artifacts/images/els-logo-98px.png)
 
-# Corionis ELS : Entertainment Library Synchronizer
+# ELS : Entertainment Library Synchronizer
 
-Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built tool
-for preparing, managing and backing-up media for creators of all kinds
-and applications such as home media systems.
+Entertainment Library Synchronizer (ELS) is a backup tool for home
+media systems. ELS views media spanning multiple hard drives the same
+way modern media systems do - on a logical library basis such as movies
+or TV shows. ELS combines the content of each library to determine what
+needs to be backed-up. The exact location of files in each library do not
+have to match on the back-up allowing a media library to grow "organically".
 
-If you create for YouTube, TikTok, Instagram, Mom 'n Dad managing your work
-and backing it up is important. ELS is a library- and title-oriented tool with
-both graphical and command line interfaces and a variety of powerful capabilities.
+Movies, TV shows with seasons, music and more are handled by ELS. When
+new content is added, for example another episode of a TV show, a check
+is made whether it will fit in the original location as other episodes.
+If it will not fit it is copied to a matching target location for new
+content for that library.
 
-* Started in 2015 as a command line back-up tool for home media systems version 4.0
-  adds a full-featured desktop application [screenshots].
+The version 3.1.0 pre-built executable and a Zip including examples are available
+on the **[ELS Wiki Downloads](https://github.com/Corionis/ELS/wiki/Downloads)** page.
 
-* Views a collection of libraries spanning multiple storage devices the same way modern
-  media systems do - on a logical library basis such as movies, TV shows, video segments,
-  pictures, and audio.
+See the **[ELS Wiki](https://github.com/Corionis/ELS/wiki)** for version 3.1.0
+features, downloads and documentation.
 
-* Has several modes of operation including the Navigator desktop application, new in
-  version 4, and several command-line automation modes to provide a wide variety of capabilities.
-
-* Is not specific to any system. Runs on Windows, Linux and Mac. Any modern 
-  media system using the standard directory structure is supported.
-
-The Navigator presents a workstation/collection and a back-up collection
-in split-pane file browsers. Tools for creating and maintaining collection
-content, tool automation in jobs, and back-up tool and collection
-meta-data file editing are included.
-
-The back-up tool may be run from the command line or scheduled using
-standard operating system tools.
-
-One or more local or LAN/Internet-connected back-ups are supported. All
-communication is encrypted.
-
-It's all built-in and free.
-
-![els-1](https://github.com/Corionis/ELS/assets/21012251/1f1337ef-f0f0-49a3-a741-98b1d46e55f4)
+ELS version 4.0 has been in development since September of 2021. It is a large
+project that adds a powerful desktop application - ELS Navigator. The
+new version is not complete however large portions are done and quite useful.
+See **[ELS Version 4.0.0](https://github.com/Corionis/ELS/tree/Version-4.0.0)**.
 
 ## Features
 
-**Note:** Version 4.0 is a work in progress. These are the planned features. Until this
-notice is removed there is no guarantee what works or has been completed, or even
-what *will be completed*. Also "Done" means code complete. Bugs are *entirely possible*.
-
-See the [Changelist](https://htmlpreview.github.io/?https://github.com/Corionis/ELS/blob/Version-4.0.0/deploy/changes.html):link: for
-a list of the most recent changes in the developmental download files in the
-[deploy](https://github.com/Corionis/ELS/blob/Version-4.0.0/deploy/) directory.
-
-See the [Developer](https://github.com/Corionis/ELS/blob/Version-4.0.0/artifacts/document/developer.md)
-notes in the Version-4.0.0 branch for information on how to run the Navigator. Pre-built Jars are available.
-
-See the [Release Notes](https://github.com/Corionis/ELS/blob/Version-4.0.0/artifacts/document/release-notes.md)
-in the Version-4.0.0 branch for on-going change information.
-
- * ELS Navigator added in version 4.0 is a powerful cross-platform desktop GUI application. It
-   is an ELS-smart, purpose-built, interactive tool designed to make building and curating
-   a media collection easier. 
-   * Another mode of operation (-n | --navigator) in addition to all prior ELS functionality.
-   * Done: Navigator Browser tab shows publisher and subscriber collections and local
-     storage on each, similar to Filezilla but also ELS-smart.
-     * Done: Drag and Drop, and Copy/Cut/Paste supported.
-     * Done: Automatic multiple-storage free space roll-over of a drop or paste on an ELS library.
-   * Done: Works with local or remote subscriber.
-     * Done: When in listener mode ELS may also be accessed with a standard SFTP tool such as Filezilla.
-   * Done: Optional automatic ELS Hint creation based on actions.
-   * Done: Various purpose-built tools for curating a media collection.
-     * Done: Duplicate Finder
-     * Done: Empty Directory Finder
-     * Done: Junk Remover
-     * Done: Renamer
-   * Done: Tools may be combined into jobs.
-     * Done: Creation of command line to execute jobs. Useful for Linux
-       cron jobs or Windows Task Scheduler tasks.
-     * Done: Jobs may include other Jobs.
-   * Done: Jobs may be executed from the command line 
-   * External tools supported.
-   * Done: Navigator Operations tool is for creation of ELS back-up tools that may be combined into jobs.
-   * Done: Navigator Libraries tab is for editing of publisher, subscriber, 
-     and hint management JSON files.
-   * Done: Secure remote operation. End-point cross authentication, all communication is encrypted.
-   * Add an inetd option for listener configurations so they may be started dynamically on-demand.
-   * Fully internationalized - **translations requested**.
-   * Done: Embedded JRE.
-   * Windows installer.
-   * Done: Linux install packages.
-   * Built-in updater.
-   * Cool new modern web site.
-   * ELS will always be free. A donation button on the web site(s) will be added eventually.
-   * Please use the Discussions. Feedback, ideas and code contributors are encouraged.
-     * Be kind. There is one person working on this part-time as available.
- ---
- * ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
- * ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
- * ELS Hints to coordinate manual changes, new in 3.0.0.
+ * New ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
+ * New ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
+ * New ELS Hints to coordinate manual changes, new in 3.0.0.
 
  * Supports movies, television shows with season subdirectories, 
    music with artists and albums, etc.
