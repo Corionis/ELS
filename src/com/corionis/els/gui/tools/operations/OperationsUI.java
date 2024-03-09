@@ -184,7 +184,7 @@ public class OperationsUI extends AbstractToolDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, context.mainFrame, context,
+            helpDialog = new NavHelp(this, this, context,
                     context.cfg.gs("OperationsUI.help"), "operations_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.fault)

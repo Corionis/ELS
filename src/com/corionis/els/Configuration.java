@@ -374,14 +374,10 @@ public class Configuration
      *
      * @return String command line
      */
-    public String generateCurrentCommandline()
+    public String generateCurrentCommandline(String consoleLevel, String debugLevel, boolean overwriteLog, String log)
     {
         String exec = context.cfg.getExecutablePath();
         String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
-        String consoleLevel = context.cfg.getConsoleLevel();
-        String debugLevel = context.cfg.getDebugLevel();
-        boolean overwriteLog = context.cfg.isLogOverwrite();
-        String log = context.cfg.getLogFileFullPath();
 
         String conf = "-C \"" + context.cfg.getWorkingDirectory() + "\" ";
         String opts;

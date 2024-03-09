@@ -348,13 +348,12 @@ public class Navigator
                                     context.cfg.gs("Navigator.recent.changes"), version.get(Configuration.BUILD_CHANGES_URL));
                             if (!helpDialog.fault)
                             {
-                                helpDialog.setModal(true);
-                                Point loc = context.mainFrame.getLocation();
-                                loc.x = loc.x + (context.mainFrame.getWidth() / 2) - (helpDialog.getWidth() / 2);
-                                loc.y = loc.y + (context.mainFrame.getHeight() / 2) - (helpDialog.getHeight() / 2);
-                                helpDialog.setLocation(loc);
                                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                 helpDialog.setVisible(true);
+                            }
+                            else
+                            {
+                                helpDialog.toFront();
                             }
                         }
                         else
@@ -2614,11 +2613,14 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Settings.date.format.help.title"), "controls_" + context.preferences.getLocale() + ".html");
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.controls.help.title"), "controls_" + context.preferences.getLocale() + ".html");
                 if (!dialog.fault)
                 {
-                    dialog.setTitle(context.cfg.gs("Navigator.controls.help.title"));
                     dialog.setVisible(true);
+                }
+                else
+                {
+                    dialog.toFront();
                 }
             }
         });
@@ -2632,8 +2634,11 @@ public class Navigator
                 NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html");
                 if (!dialog.fault)
                 {
-                    dialog.setTitle(context.cfg.gs("Navigator.getting.started"));
                     dialog.setVisible(true);
+                }
+                else
+                {
+                    dialog.toFront();
                 }
             }
         });
@@ -2734,11 +2739,14 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Settings.date.format.help.title"), "changes_" + context.preferences.getLocale() + ".html");
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.changes.help.title"), "changes_" + context.preferences.getLocale() + ".html");
                 if (!dialog.fault)
                 {
-                    dialog.setTitle(context.cfg.gs("Navigator.changes.help.title"));
                     dialog.setVisible(true);
+                }
+                else
+                {
+                    dialog.toFront();
                 }
             }
         });
@@ -2752,12 +2760,11 @@ public class Navigator
                 NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html");
                 if (!helpDialog.fault)
                 {
-                    helpDialog.setModal(true);
-                    Point loc = context.mainFrame.getLocation();
-                    loc.x = loc.x + (context.mainFrame.getWidth() / 2) - (helpDialog.getWidth() / 2);
-                    loc.y = loc.y + (context.mainFrame.getHeight() / 2) - (helpDialog.getHeight() / 2);
-                    helpDialog.setLocation(loc);
                     helpDialog.setVisible(true);
+                }
+                else
+                {
+                    helpDialog.toFront();
                 }
             }
         });

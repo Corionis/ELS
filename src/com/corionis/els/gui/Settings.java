@@ -115,11 +115,6 @@ public class Settings extends JDialog
                     if (!helpDialog.isVisible())
                     {
                         helpDialog.setVisible(true);
-                        // offset the help dialog from the Settings dialog
-                        Point loc = thisDialog.getLocation();
-                        loc.x = loc.x + 32;
-                        loc.y = loc.y + 32;
-                        helpDialog.setLocation(loc);
                     }
                     else
                     {

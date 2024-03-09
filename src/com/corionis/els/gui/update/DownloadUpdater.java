@@ -430,7 +430,13 @@ public class DownloadUpdater extends JFrame
             {
                 String infoPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
                         "ELS_Updater" + System.getProperty("file.separator") + "ELS_Updater.info";
-                String restartCommand = context.cfg.generateCurrentCommandline();
+
+                // use current values
+                String consoleLevel = context.cfg.getConsoleLevel();
+                String debugLevel = context.cfg.getDebugLevel();
+                boolean overwriteLog = context.cfg.isLogOverwrite();
+                String log = context.cfg.getLogFileFullPath();
+                String restartCommand = context.cfg.generateCurrentCommandline(consoleLevel, debugLevel, overwriteLog, log);
 
                 FileWriter writer = new FileWriter(infoPath, false);
                 writer.write(installedPath + System.getProperty("line.separator"));

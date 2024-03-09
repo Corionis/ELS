@@ -228,7 +228,7 @@ public class Generator
         {
             if (tool == null)
             {
-                generated = context.cfg.generateCurrentCommandline();
+                generated = context.cfg.generateCurrentCommandline(consoleLevel, debugLevel, overwrite, log);
             }
             else if (tool instanceof Job)
             {
@@ -412,7 +412,7 @@ public class Generator
                     String generated = "";
                     generated = generate(tool,
                             consoleLevel,
-                            (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
+                            (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
                             (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath());
                     generatedTextField.setText(generated);
                     generatedTextField.selectAll();
@@ -448,7 +448,7 @@ public class Generator
                     debugLevel = (String) comboBoxDebugLevel.getItemAt(selected);
                     String generated = "";
                     generated = generate(tool,
-                            (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
+                            (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
                             debugLevel,
                             (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath());
                     generatedTextField.setText(generated);
