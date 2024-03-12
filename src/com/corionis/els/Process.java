@@ -522,7 +522,7 @@ public class Process
                     }
                     else
                     {
-                        if (!context.cfg.isDuplicateCheck() && !context.cfg.isEmptyDirectoryCheck())
+                        if (!context.cfg.isDuplicateCheck() && !context.cfg.isEmptyDirectoryCheck() && !context.cfg.isValidation())
                             logger.warn("Something missing? Make sure publisher and subscriber are specified for backup operation");
                     }
                 }

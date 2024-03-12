@@ -43,6 +43,7 @@ public class Browser
     //
     private Context context;
     private boolean hintTrackingButtonEnabled = false;
+    private boolean inRescan = false;
     private String keyBuffer = "";
     private long keyTime = 0L;
     public JComponent lastComponent = null;
@@ -324,12 +325,6 @@ public class Browser
                         listener.actionPerformed(new ActionEvent(keyEvent.getSource(), ActionEvent.ACTION_PERFORMED, null));
                     }
                 }
-
-                // handle F5 Refresh
-                if (keyEvent.getKeyCode() == KeyEvent.VK_F5 && keyEvent.getModifiers() == 0)
-                {
-                    rescanByTreeOrTable(keyEvent.getSource()); // same as Refresh menu
-                }
             }
 
             @Override
@@ -344,7 +339,7 @@ public class Browser
                 // handle Ctrl-R to Refresh current selection
                 else if (keyEvent.getKeyChar() == 18 && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
                 {
-                    refreshByObject(keyEvent.getSource()); // menu handler is assigned to F5
+                    refreshByObject(keyEvent.getSource()); // menu handler is assigned to menu item Refresh
                 }
 
                 // handle Ctrl-T to Touch the current selection(s)
@@ -1366,9 +1361,12 @@ public class Browser
             @Override
             public void treeWillExpand(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
             {
-                TreePath treePath = treeExpansionEvent.getPath();
-                NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                node.loadChildren(true);
+                if (!inRescan)
+                {
+                    TreePath treePath = treeExpansionEvent.getPath();
+                    NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
+                    node.loadChildren(true);
+                }
             }
         });
         //
@@ -1985,7 +1983,9 @@ public class Browser
             ntn.setForceReload(true);
         }
         scanTreePath(sourceTree.getName(), Utils.getTreePathStringArray(tp), false, true, false);
+        inRescan = true;
         refreshTree(sourceTree);
+        inRescan = false;
     }
 
     public void rescanByTreeOrTable(Object object)

@@ -167,7 +167,6 @@ public class NavHelp extends JDialog
 
     private void thisWindowActivated(WindowEvent e)
     {
-        toFront();
         buttonFocus();
     }
 
