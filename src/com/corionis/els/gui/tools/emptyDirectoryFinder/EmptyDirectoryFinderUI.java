@@ -161,17 +161,9 @@ public class EmptyDirectoryFinderUI extends JDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        if (helpDialog == null)
-        {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + context.preferences.getLocale() + ".html");
-        }
+        helpDialog = new NavHelp(this, this, context, context.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + context.preferences.getLocale() + ".html");
         if (!helpDialog.fault)
-        {
-            if (!helpDialog.isVisible())
-                helpDialog.setVisible(true);
-            else
-                helpDialog.toFront();
-        }
+            helpDialog.buttonFocus();
     }
 
     private void actionNoneClicked(ActionEvent e)

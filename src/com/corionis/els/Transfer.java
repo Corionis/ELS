@@ -505,6 +505,8 @@ public class Transfer
 
     /**
      * Will the needed size fit?
+     * <br/>
+     * Each directory level is checked because drives may be mounted anywhere
      */
     public boolean itFits(Repository targetRepo, String path, boolean isRemote, long totalSize, long minimum, boolean hasTarget) throws Exception
     {

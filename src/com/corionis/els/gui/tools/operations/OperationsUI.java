@@ -182,18 +182,9 @@ public class OperationsUI extends AbstractToolDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        if (helpDialog == null)
-        {
-            helpDialog = new NavHelp(this, this, context,
-                    context.cfg.gs("OperationsUI.help"), "operations_" + context.preferences.getLocale() + ".html");
-        }
+        helpDialog = new NavHelp(this, this, context, context.cfg.gs("OperationsUI.help"), "operations_" + context.preferences.getLocale() + ".html");
         if (!helpDialog.fault)
-        {
-            if (!helpDialog.isVisible())
-                helpDialog.setVisible(true);
-            else
-                helpDialog.toFront();
-        }
+            helpDialog.buttonFocus();
     }
 
     private void actionNewClicked(ActionEvent e)

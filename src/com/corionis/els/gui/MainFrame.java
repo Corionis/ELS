@@ -300,7 +300,7 @@ public class MainFrame extends JFrame
                 return false;
         }
         if (context.browser.navTransferHandler.getTransferWorker() != null &&
-                !context.browser.navTransferHandler.getTransferWorker().isDone())
+                !context.browser.navTransferHandler.isTransferWorkerRunning())
         {
             logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
             context.browser.navTransferHandler.getTransferWorker().cancel(true);
@@ -330,7 +330,8 @@ public class MainFrame extends JFrame
             context.mainFrame.menuItemFind.setEnabled(true);
             context.mainFrame.menuItemFindNext.setEnabled(true);
             context.mainFrame.menuItemRefresh.setEnabled(true);
-            context.mainFrame.menuItemAutoRefresh.setEnabled(true);
+            context.mainFrame.radioButtonAutoRefresh.setEnabled(true);
+            context.mainFrame.radioButtonBatch.setEnabled(true);
             context.mainFrame.menuItemShowHidden.setEnabled(true);
             context.mainFrame.menuItemWordWrap.setEnabled(true);
 
@@ -358,7 +359,8 @@ public class MainFrame extends JFrame
             context.mainFrame.menuItemFind.setEnabled(false);
             context.mainFrame.menuItemFindNext.setEnabled(false);
             context.mainFrame.menuItemRefresh.setEnabled(false);
-            context.mainFrame.menuItemAutoRefresh.setEnabled(false);
+            context.mainFrame.radioButtonAutoRefresh.setEnabled(false);
+            context.mainFrame.radioButtonBatch.setEnabled(false);
             context.mainFrame.menuItemShowHidden.setEnabled(false);
             context.mainFrame.menuItemWordWrap.setEnabled(false);
 
@@ -410,7 +412,8 @@ public class MainFrame extends JFrame
         menuView = new JMenu();
         menuItemProgress = new JMenuItem();
         menuItemRefresh = new JMenuItem();
-        menuItemAutoRefresh = new JCheckBoxMenuItem();
+        radioButtonAutoRefresh = new JCheckBoxMenuItem();
+        radioButtonBatch = new JRadioButtonMenuItem();
         menuItemShowHidden = new JCheckBoxMenuItem();
         menuItemShowToolbar = new JCheckBoxMenuItem();
         menuItemWordWrap = new JCheckBoxMenuItem();
@@ -852,10 +855,17 @@ public class MainFrame extends JFrame
                 menuView.add(menuItemRefresh);
                 menuView.addSeparator();
 
-                //---- menuItemAutoRefresh ----
-                menuItemAutoRefresh.setText(context.cfg.gs("Navigator.menuItemAutoRefresh.text"));
-                menuItemAutoRefresh.setMnemonic(context.cfg.gs("Navigator.menuItemAutoRefresh.mnemonic").charAt(0));
-                menuView.add(menuItemAutoRefresh);
+                //---- radioButtonAutoRefresh ----
+                radioButtonAutoRefresh.setText(context.cfg.gs("Navigator.radioButtonAutoRefresh.text"));
+                menuView.add(radioButtonAutoRefresh);
+
+                //---- radioButtonBatch ----
+                radioButtonBatch.setText(context.cfg.gs("Navigator.radioButtonBatch.text"));
+                radioButtonBatch.setMnemonic(context.cfg.gs("Navigator.radioButtonBatch.mnemonic").charAt(0));
+                radioButtonBatch.setEnabled(false);
+                radioButtonBatch.setVisible(false);
+                menuView.add(radioButtonBatch);
+                menuView.addSeparator();
 
                 //---- menuItemShowHidden ----
                 menuItemShowHidden.setText(context.cfg.gs("Navigator.menu.ShowHidden.text"));
@@ -2763,7 +2773,8 @@ public class MainFrame extends JFrame
     public JMenu menuView;
     public JMenuItem menuItemProgress;
     public JMenuItem menuItemRefresh;
-    public JCheckBoxMenuItem menuItemAutoRefresh;
+    public JCheckBoxMenuItem radioButtonAutoRefresh;
+    public JRadioButtonMenuItem radioButtonBatch;
     public JCheckBoxMenuItem menuItemShowHidden;
     public JCheckBoxMenuItem menuItemShowToolbar;
     public JCheckBoxMenuItem menuItemWordWrap;

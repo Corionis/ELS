@@ -94,6 +94,13 @@ public class Main
         new Main(args);
     }
 
+    /**
+     * Check whether default values should be set from Preferences
+     * <br/>
+     * Rules: If this is a Navigator session; if no publisher and subscriber
+     * have been specified; if "Use Last Pubisher/Subscriber" is enabled;
+     * then set default arguments from the previous session.
+     */
     public void checkEmptyArguments()
     {
         if (context.cfg.getPublisherFilename().length() == 0 &&
@@ -157,6 +164,14 @@ public class Main
         }
     }
 
+    /**
+     * Execute an external executable and monitor it's output and execution
+     *
+     * @param comp Component performing action
+     * @param cfg The Configuration
+     * @param parms Execution parameters
+     * @return Success = true, else false
+     */
     public boolean execExternalExe(Component comp, Configuration cfg, String[] parms)
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
@@ -234,6 +249,11 @@ public class Main
         return false;
     }
 
+    /**
+     * Get the GuiLogAppender from log4j
+     *
+     * @return GuiLogAppender custom logger for Navigator
+     */
     public GuiLogAppender getGuiLogAppender()
     {
         if (appender == null)
@@ -247,6 +267,11 @@ public class Main
         return appender;
     }
 
+    /**
+     * Is ELS just starting-up?
+     *
+     * @return true/false
+     */
     public boolean isStartupActive()
     {
         if (appender != null && appender.isStartupActive())
@@ -312,7 +337,9 @@ public class Main
                 }
 
                 context.cfg.configureWorkingDirectory();
-                context.cfg.configureLogger();
+
+                // configure logger based on Configuration
+                context.cfg.configureLoggerPath();
                 if (context.cfg.isLogOverwrite()) // optionally delete any existing log
                 {
                     File delLog = new File(context.cfg.getLogFileFullPath());
@@ -330,6 +357,7 @@ public class Main
 
                 appender = getGuiLogAppender();
                 appender.setContext(context);
+
                 loggerContext.updateLoggers();
             }
             else // carry-over selected previous Context values

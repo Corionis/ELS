@@ -73,18 +73,18 @@ public class Navigator
     public FileEditor fileeditor = null;
     public Job[] jobs;
     public SwingWorker<Void, Void> worker;
+    boolean mockMode = false; // instead of downloading version.info get from mock/bin/
     private int bottomSizeBrowser;
     private Settings dialogSettings = null;
     private int lastFindPosition = 0;
     private String lastFindString = "";
     private int lastFindTab = -1;
-    boolean mockMode = false; // instead of downloading version.info get from mock/bin/
     private ArrayList<ArrayList<Origin>> originsArray = null;
     private boolean quitRemoteHintStatusServer = false;
     private boolean quitRemoteSubscriber = false;
     private boolean remoteJobRunning = false;
-    private boolean updaterProcess = false;
     private String updaterJar = null;
+    private boolean updaterProcess = false;
     private transient Logger logger = LogManager.getLogger("applog");
 
     public Navigator(Main main, Context context)
@@ -99,7 +99,7 @@ public class Navigator
         {
             if (context.cfg.isHintTrackingEnabled() &&
                     context.browser.isHintTrackingButtonEnabled() &&
-                        tuo.node.getMyTree().getName().toLowerCase().contains("collection"))
+                    tuo.node.getMyTree().getName().toLowerCase().contains("collection"))
             {
                 ArrayList<Hint> hints = null;
                 String libName = tuo.getParentLibrary().getUserObject().name;
@@ -347,14 +347,7 @@ public class Navigator
                             NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context,
                                     context.cfg.gs("Navigator.recent.changes"), version.get(Configuration.BUILD_CHANGES_URL));
                             if (!helpDialog.fault)
-                            {
-                                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                                helpDialog.setVisible(true);
-                            }
-                            else
-                            {
-                                helpDialog.toFront();
-                            }
+                                helpDialog.buttonFocus();
                         }
                         else
                         {
@@ -420,7 +413,8 @@ public class Navigator
         context.mainFrame.menuItemTouch.setEnabled(enable);
 
         context.mainFrame.menuItemRefresh.setEnabled(enable);
-        context.mainFrame.menuItemAutoRefresh.setEnabled(enable);
+        context.mainFrame.radioButtonAutoRefresh.setEnabled(enable);
+//        context.mainFrame.radioButtonBatch.setEnabled(enable);
         context.mainFrame.menuItemShowHidden.setEnabled(enable);
         context.mainFrame.menuItemWordWrap.setEnabled(enable);
 
@@ -473,56 +467,6 @@ public class Navigator
         setQuitTerminateVisibility();
     }
 
-    public void enableDisableToolMenus(AbstractToolDialog dialog, boolean enable)
-    {
-        context.mainFrame.menuItemJunk.setEnabled(enable);
-        context.mainFrame.menuItemJunk.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
-
-        context.mainFrame.menuItemOperations.setEnabled(enable);
-        context.mainFrame.menuItemOperations.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
-
-        context.mainFrame.menuItemRenamer.setEnabled(enable);
-        context.mainFrame.menuItemRenamer.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
-
-        context.mainFrame.menuItemSleep.setEnabled(enable);
-        context.mainFrame.menuItemSleep.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
-
-        context.mainFrame.menuItemJobsManage.setEnabled(enable);
-        context.mainFrame.menuItemJobsManage.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
-
-        context.mainFrame.menuItemUpdates.setEnabled(enable);
-        context.mainFrame.menuItemUpdates.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
-
-        if (!enable)
-        {
-            if (dialog instanceof JunkRemoverUI)
-            {
-                context.mainFrame.menuItemJunk.setEnabled(true);
-                context.mainFrame.menuItemJunk.setToolTipText("");
-            }
-            else if (dialog instanceof OperationsUI)
-            {
-                context.mainFrame.menuItemOperations.setEnabled(true);
-                context.mainFrame.menuItemOperations.setToolTipText("");
-            }
-            else if (dialog instanceof RenamerUI)
-            {
-                context.mainFrame.menuItemRenamer.setEnabled(true);
-                context.mainFrame.menuItemRenamer.setToolTipText("");
-            }
-            else if (dialog instanceof SleepUI)
-            {
-                context.mainFrame.menuItemSleep.setEnabled(true);
-                context.mainFrame.menuItemSleep.setToolTipText("");
-            }
-            else if (dialog instanceof JobsUI)
-            {
-                context.mainFrame.menuItemJobsManage.setEnabled(true);
-                context.mainFrame.menuItemJobsManage.setToolTipText("");
-            }
-        }
-    }
-    
     public void enableDisableSystemMenus(FileEditor.EditorTypes type, boolean enable)
     {
         if (enable)
@@ -572,6 +516,56 @@ public class Navigator
                     context.mainFrame.menuItemBlacklist.setEnabled(false);
                     context.mainFrame.menuItemWhitelist.setEnabled(true);
                     break;
+            }
+        }
+    }
+
+    public void enableDisableToolMenus(AbstractToolDialog dialog, boolean enable)
+    {
+        context.mainFrame.menuItemJunk.setEnabled(enable);
+        context.mainFrame.menuItemJunk.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
+        context.mainFrame.menuItemOperations.setEnabled(enable);
+        context.mainFrame.menuItemOperations.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
+        context.mainFrame.menuItemRenamer.setEnabled(enable);
+        context.mainFrame.menuItemRenamer.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
+        context.mainFrame.menuItemSleep.setEnabled(enable);
+        context.mainFrame.menuItemSleep.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
+        context.mainFrame.menuItemJobsManage.setEnabled(enable);
+        context.mainFrame.menuItemJobsManage.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
+        context.mainFrame.menuItemUpdates.setEnabled(enable);
+        context.mainFrame.menuItemUpdates.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
+        if (!enable)
+        {
+            if (dialog instanceof JunkRemoverUI)
+            {
+                context.mainFrame.menuItemJunk.setEnabled(true);
+                context.mainFrame.menuItemJunk.setToolTipText("");
+            }
+            else if (dialog instanceof OperationsUI)
+            {
+                context.mainFrame.menuItemOperations.setEnabled(true);
+                context.mainFrame.menuItemOperations.setToolTipText("");
+            }
+            else if (dialog instanceof RenamerUI)
+            {
+                context.mainFrame.menuItemRenamer.setEnabled(true);
+                context.mainFrame.menuItemRenamer.setToolTipText("");
+            }
+            else if (dialog instanceof SleepUI)
+            {
+                context.mainFrame.menuItemSleep.setEnabled(true);
+                context.mainFrame.menuItemSleep.setToolTipText("");
+            }
+            else if (dialog instanceof JobsUI)
+            {
+                context.mainFrame.menuItemJobsManage.setEnabled(true);
+                context.mainFrame.menuItemJobsManage.setToolTipText("");
             }
         }
     }
@@ -1055,6 +1049,7 @@ public class Navigator
                                     if (context.preferences.isLastSubscriberIsRemote())
                                     {
                                         // start the serveStty client for automation
+                                        context.mainFrame.labelStatusMiddle.setText("");
                                         context.clientStty = new ClientStty(context, false, true);
                                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                                         {
@@ -1078,6 +1073,7 @@ public class Navigator
                                         context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                                         if (!context.clientSftp.startClient())
                                         {
+                                            context.mainFrame.labelStatusMiddle.setText("");
                                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                             disconnectSubscriber();
                                             JOptionPane.showMessageDialog(context.mainFrame,
@@ -1096,6 +1092,7 @@ public class Navigator
                                 }
                                 catch (Exception e)
                                 {
+                                    context.mainFrame.labelStatusMiddle.setText("");
                                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                     disconnectSubscriber();
                                     JOptionPane.showMessageDialog(context.mainFrame,
@@ -2108,23 +2105,57 @@ public class Navigator
         context.mainFrame.menuTbRefresh.addActionListener(refreshAction);
 
         // --- Auto-Refresh
-        context.mainFrame.menuItemAutoRefresh.addActionListener(new AbstractAction()
+        context.mainFrame.radioButtonAutoRefresh.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
                 context.preferences.setAutoRefresh(!context.preferences.isAutoRefresh());
+                context.preferences.setBatch(!context.preferences.isAutoRefresh());
                 if (context.preferences.isAutoRefresh())
-                    context.mainFrame.menuItemAutoRefresh.setSelected(true);
+                {
+                    context.mainFrame.radioButtonAutoRefresh.setSelected(true);
+//                    context.mainFrame.radioButtonBatch.setSelected(false);
+                }
                 else
-                    context.mainFrame.menuItemAutoRefresh.setSelected(false);
+                {
+                    context.mainFrame.radioButtonAutoRefresh.setSelected(false);
+//                    context.mainFrame.radioButtonBatch.setSelected(true);
+                }
             }
         });
-        // set initial state of Auto-Refresh checkbox
+        // set initial state of Auto-Refresh radioButton
         if (context.preferences.isAutoRefresh())
-            context.mainFrame.menuItemAutoRefresh.setSelected(true);
+            context.mainFrame.radioButtonAutoRefresh.setSelected(true);
         else
-            context.mainFrame.menuItemAutoRefresh.setSelected(false);
+            context.mainFrame.radioButtonAutoRefresh.setSelected(false);
+        context.preferences.setBatch(!context.preferences.isAutoRefresh());
+
+        // --- Batch Actions
+        context.mainFrame.radioButtonBatch.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                context.preferences.setBatch(!context.preferences.isBatch());
+                context.preferences.setAutoRefresh(!context.preferences.isBatch());
+                if (context.preferences.isBatch())
+                {
+                    context.mainFrame.radioButtonBatch.setSelected(true);
+                    context.mainFrame.radioButtonAutoRefresh.setSelected(false);
+                }
+                else
+                {
+                    context.mainFrame.radioButtonBatch.setSelected(false);
+                    context.mainFrame.radioButtonAutoRefresh.setSelected(true);
+                }
+            }
+        });
+        // set initial state of Batch radioButton
+        if (context.preferences.isBatch())
+            context.mainFrame.radioButtonBatch.setSelected(true);
+        else
+            context.mainFrame.radioButtonBatch.setSelected(false);
 
         // --- Show Hidden
         context.mainFrame.menuItemShowHidden.addActionListener(new AbstractAction()
@@ -2615,13 +2646,7 @@ public class Navigator
             {
                 NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.controls.help.title"), "controls_" + context.preferences.getLocale() + ".html");
                 if (!dialog.fault)
-                {
-                    dialog.setVisible(true);
-                }
-                else
-                {
-                    dialog.toFront();
-                }
+                    dialog.buttonFocus();
             }
         });
 
@@ -2633,13 +2658,7 @@ public class Navigator
             {
                 NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html");
                 if (!dialog.fault)
-                {
-                    dialog.setVisible(true);
-                }
-                else
-                {
-                    dialog.toFront();
-                }
+                    dialog.buttonFocus();
             }
         });
 
@@ -2741,13 +2760,7 @@ public class Navigator
             {
                 NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.changes.help.title"), "changes_" + context.preferences.getLocale() + ".html");
                 if (!dialog.fault)
-                {
-                    dialog.setVisible(true);
-                }
-                else
-                {
-                    dialog.toFront();
-                }
+                    dialog.buttonFocus();
             }
         });
 
@@ -2759,13 +2772,7 @@ public class Navigator
             {
                 NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html");
                 if (!helpDialog.fault)
-                {
-                    helpDialog.setVisible(true);
-                }
-                else
-                {
-                    helpDialog.toFront();
-                }
+                    helpDialog.buttonFocus();
             }
         });
 
@@ -3108,6 +3115,7 @@ public class Navigator
             if (context.progress != null)
             {
                 context.progress.done();
+                context.progress.dispose();
                 context.progress = null;
             }
 
@@ -3140,8 +3148,10 @@ public class Navigator
             try
             {
                 closure = true;
-                context.clientSftp.stopClient();
-                if (context.clientStty.isConnected())
+                if (context.clientSftp != null)
+                    context.clientSftp.stopClient();
+
+                if (context.clientStty != null && context.clientStty.isConnected())
                 {
                     if (!context.timeout)
                     {
@@ -3165,6 +3175,7 @@ public class Navigator
                     }
                 }
                 context.clientStty = null;
+                context.clientSftp = null;
             }
             catch (Exception e)
             {

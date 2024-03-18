@@ -9,10 +9,12 @@ import java.awt.*;
 
 public class BrowserTableCellRenderer extends DefaultTableCellRenderer
 {
+    private Context context;
     private JTable table;
 
-    public BrowserTableCellRenderer(JTable table)
+    public BrowserTableCellRenderer(Context context, JTable table)
     {
+        this.context = context;
         this.table = table;
     }
 
@@ -44,14 +46,22 @@ public class BrowserTableCellRenderer extends DefaultTableCellRenderer
 
                     if (value != null)
                     {
+                        // table.getComponent() returns null with tables > about 1000 rows
+                        // See Settings, Browser tab, tooltipLargeTableCheckBox
+                        // When enabled just use a big textWidth value
+                        int textWidth = (context.preferences.isTooltipsLargeTables() ? 32768 : 0);
+
                         // get the widths of text & column
                         Component component = table.getComponentAt(row, column);
-                        FontMetrics metrics = component.getFontMetrics(component.getFont());
-                        int textWidth = SwingUtilities.computeStringWidth(metrics, value);
-                        int columnWidth = table.getColumnModel().getColumn(column).getWidth();
+                        if (component != null) // covers table > 1000 rows
+                        {
+                            FontMetrics metrics = component.getFontMetrics(component.getFont());
+                            textWidth = SwingUtilities.computeStringWidth(metrics, value);
+                        }
 
                         // will the text fit, i.e. is the ellipsis showing?
-                        textWidth += 6; // fudge factor
+                        int columnWidth = table.getColumnModel().getColumn(column).getWidth();
+                        textWidth += 10; // fudge factor
                         if (columnWidth < textWidth)
                             tip = value;
                     }

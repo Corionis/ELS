@@ -103,6 +103,10 @@ public class NavHelp extends JDialog
         }
 
         load(resourceFilename);
+
+        setVisible(true);
+        buttonFocus();
+
     }
 
     public void buttonFocus()
@@ -165,11 +169,6 @@ public class NavHelp extends JDialog
         context.preferences.setHelpYpos(location.y);
     }
 
-    private void thisWindowActivated(WindowEvent e)
-    {
-        buttonFocus();
-    }
-
     private void thisWindowClosed(WindowEvent e)
     {
         previous.requestFocus();
@@ -199,10 +198,6 @@ public class NavHelp extends JDialog
         setMinimumSize(new Dimension(100, 50));
         addWindowListener(new WindowAdapter() {
             @Override
-            public void windowActivated(WindowEvent e) {
-                thisWindowActivated(e);
-            }
-            @Override
             public void windowClosed(WindowEvent e) {
                 thisWindowClosed(e);
             }
@@ -211,7 +206,7 @@ public class NavHelp extends JDialog
                 thisWindowClosing(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========

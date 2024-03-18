@@ -113,7 +113,7 @@ public class HintsUI extends JDialog
                     tableHints.setModel(model);
                     tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
 
-                    BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(tableHints);
+                    BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context, tableHints);
                     // only the textual columns
                     for (int i = 1; i < 9; ++i)         //model.getColumnCount(); ++i)
                     {
@@ -158,11 +158,11 @@ public class HintsUI extends JDialog
                             if (pendingSubscriberHints != null)
                                 pendingSubscriber = pendingSubscriberHints.size();
                         }
-                        else
-                        {
-                            throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"),
-                                    "subscriber", context.hintKeys.getFilename()));
-                        }
+//                        else
+//                        {
+//                            throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"),
+//                                    "subscriber", context.hintKeys.getFilename()));
+//                        }
                     }
 
                     setWidths();
@@ -287,17 +287,9 @@ public class HintsUI extends JDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        if (helpDialog == null)
-        {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html");
-        }
+        helpDialog = new NavHelp(this, this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html");
         if (!helpDialog.fault)
-        {
-            if (!helpDialog.isVisible())
-                helpDialog.setVisible(true);
-            else
-                helpDialog.toFront();
-        }
+            helpDialog.buttonFocus();
     }
 
     private void actionNoneClicked(ActionEvent e)
@@ -367,6 +359,17 @@ public class HintsUI extends JDialog
                 displayName = context.subscriberRepo.getLibraryData().libraries.description;
         }
 
+        // is it in keys?
+        if (context.hintKeys.findKey(repo.getLibraryData().libraries.key) == null)
+        {
+            Object[] opts = { context.cfg.gs("Z.ok") };
+            JOptionPane.showOptionDialog(this,
+                    java.text.MessageFormat.format(context.cfg.gs("HintsUI.current.key.was.not.found.in.hint.keys"), displayName),
+                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
+                    null, opts, opts[0]);
+            return;
+        }
+
         // is it open?
         if (displayName.length() < 1)
         {
@@ -399,7 +402,7 @@ public class HintsUI extends JDialog
         }
 
         // prompt and process
-        int reply = JOptionPane.showConfirmDialog(this, java.text.MessageFormat.format(context.cfg.gs("HintsUI.run.tool.on.collection"), which),
+        int reply = JOptionPane.showConfirmDialog(this, java.text.MessageFormat.format(context.cfg.gs("HintsUI.run.tool.on.collection"), displayName),
                 context.cfg.gs("HintsUI.this.title"), JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION)
         {

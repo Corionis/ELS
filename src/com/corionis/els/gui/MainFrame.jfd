@@ -1706,9 +1706,18 @@ new FormModel {
 						name: "separator3"
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
-						name: "menuItemAutoRefresh"
-						"text": new FormMessage( null, "Navigator.menuItemAutoRefresh.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemAutoRefresh.mnemonic" )
+						name: "radioButtonAutoRefresh"
+						"text": new FormMessage( null, "Navigator.radioButtonAutoRefresh.text" )
+					} )
+					add( new FormComponent( "javax.swing.JRadioButtonMenuItem" ) {
+						name: "radioButtonBatch"
+						"text": new FormMessage( null, "Navigator.radioButtonBatch.text" )
+						"mnemonic": new FormMessage( null, "Navigator.radioButtonBatch.mnemonic" )
+						"enabled": false
+						"visible": false
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator19"
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "menuItemShowHidden"

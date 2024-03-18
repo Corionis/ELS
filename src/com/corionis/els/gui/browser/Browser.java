@@ -217,11 +217,13 @@ public class Browser
                         {
                             if (tuo.isDir)
                             {
+                                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                                 node = tuo.node;
                                 TreeSelectionEvent evt = new TreeSelectionEvent(node, node.getTreePath(), true, null, null);
                                 eventTree.setExpandsSelectedPaths(true);
                                 eventTree.setSelectionPath(node.getTreePath());
                                 eventTree.scrollPathToVisible(node.getTreePath());
+                                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                             }
                             else
                             {
@@ -285,7 +287,7 @@ public class Browser
                         }
                         else
                             return;
-                        tuo.node.loadStatus();
+                        tuo.node.loadProperties();
                     }
                 }
             }
@@ -1032,7 +1034,8 @@ public class Browser
             while (expandedDescendants.hasMoreElements())
             {
                 TreePath tp = expandedDescendants.nextElement();
-// TODO Remove?               NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+// TODO Remove?
+//                NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
 //                int type = ntn.getUserObject().type;
 //                if (ntn.getUserObject().isDir && type != NavTreeUserObject.COLLECTION && type != NavTreeUserObject.SYSTEM)
                     combinedPaths.add(tp);
@@ -1365,7 +1368,9 @@ public class Browser
                 {
                     TreePath treePath = treeExpansionEvent.getPath();
                     NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     node.loadChildren(true);
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 }
             }
         });
@@ -1379,10 +1384,12 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 navStackPush(node);
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!node.isLoaded())
                     node.loadChildren(true);
                 else
                     node.loadTable();
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         });
         context.mainFrame.treeCollectionOne.setTransferHandler(navTransferHandler);
@@ -1411,7 +1418,9 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 node.loadChildren(true);
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         });
         //
@@ -1424,10 +1433,12 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 navStackPush(node);
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!node.isLoaded())
                     node.loadChildren(true);
                 else
                     node.loadTable();
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             }
         });
         context.mainFrame.treeSystemOne.setTransferHandler(navTransferHandler);
@@ -1485,7 +1496,9 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 node.loadChildren(true);
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         });
         //
@@ -1498,10 +1511,12 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 navStackPush(node);
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!node.isLoaded())
                     node.loadChildren(true);
                 else
                     node.loadTable();
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         });
         context.mainFrame.treeCollectionTwo.setTransferHandler(navTransferHandler);
@@ -1530,7 +1545,9 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 node.loadChildren(true);
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         });
         //
@@ -1543,10 +1560,12 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 navStackPush(node);
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!node.isLoaded())
                     node.loadChildren(true);
                 else
                     node.loadTable();
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         });
         context.mainFrame.treeSystemTwo.setTransferHandler(navTransferHandler);
@@ -1592,7 +1611,7 @@ public class Browser
         {
             NavTreeModel model = (NavTreeModel) tree.getModel();
             NavTreeNode root = (NavTreeNode) model.getRoot();
-            root.loadStatus();
+            root.loadProperties();
             root.selectMe();
         }
     }
@@ -2358,7 +2377,7 @@ public class Browser
         }
         if (node == null)
             node = (NavTreeNode) model.getRoot();
-        node.loadStatus();
+        node.loadProperties();
         if (next >= 0)
             selectPanelNumber(next);
     }
@@ -2391,7 +2410,7 @@ public class Browser
         }
         if (node == null)
             node = (NavTreeNode) model.getRoot();
-        node.loadStatus();
+        node.loadProperties();
         if (next >= 0)
             selectPanelNumber(next);
     }

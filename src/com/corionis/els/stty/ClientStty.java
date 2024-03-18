@@ -171,7 +171,8 @@ public class ClientStty
             catch (Exception e)
             {
                 context.fault = true;
-                logger.error(Utils.getStackTrace(e));
+                //logger.error(Utils.getStackTrace(e));
+                logger.error(e.getMessage());
             }
 
             if (in != null && out != null)

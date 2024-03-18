@@ -109,17 +109,9 @@ public class DuplicateFinderUI extends JDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        if (helpDialog == null)
-        {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("DuplicateFinder.help"), "duplicatefinder_" + context.preferences.getLocale() + ".html");
-        }
+        helpDialog = new NavHelp(this, this, context, context.cfg.gs("DuplicateFinder.help"), "duplicatefinder_" + context.preferences.getLocale() + ".html");
         if (!helpDialog.fault)
-        {
-            if (!helpDialog.isVisible())
-                helpDialog.setVisible(true);
-            else
-                helpDialog.toFront();
-        }
+            helpDialog.buttonFocus();
     }
 
     private void actionRunClicked(ActionEvent e)

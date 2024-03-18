@@ -264,17 +264,9 @@ public class JobsUI extends AbstractToolDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        if (helpDialog == null)
-        {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("JobsUI.help"), "jobs_" + context.preferences.getLocale() + ".html");
-        }
+        helpDialog = new NavHelp(this, this, context, context.cfg.gs("JobsUI.help"), "jobs_" + context.preferences.getLocale() + ".html");
         if (!helpDialog.fault)
-        {
-            if (!helpDialog.isVisible())
-                helpDialog.setVisible(true);
-            else
-                helpDialog.toFront();
-        }
+            helpDialog.buttonFocus();
     }
 
     private void actionNewClicked(ActionEvent evt)
@@ -1455,6 +1447,7 @@ public class JobsUI extends AbstractToolDialog
             if (context.progress != null)
             {
                 context.progress.done();
+                context.progress.dispose();
                 context.progress = null;
             }
 

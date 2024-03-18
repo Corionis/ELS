@@ -254,12 +254,11 @@ public class Generator
         String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
 
         String conf = getCfgOpt();
-        String overOpt = overwriteLog ? "-F" : "-f";
 
         String cmd = "\"" + exec + "\"" +
                 (jar.length() > 0 ? " -jar " + "\"" + jar + "\" " : "");
 
-        cmd += conf + " -j \"" + tool.getConfigName() + "\"";
+        cmd += conf + (glo ? " --job \"" : " -j \"") + tool.getConfigName() + "\"";
 
         // --- hint keys
         if (context.preferences.getLastHintKeysOpenFile().length() > 0)
@@ -282,54 +281,39 @@ public class Generator
         }
 
         // Jobs use Origins and not Publisher or Subscriber arguments
+        String overOpt = overwriteLog ? (glo ? "--log-overwrite" : "-F") : (glo ? "--log-file" : "-f");
 
-        cmd += " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
+        cmd += (glo ? " --console-level " : " -c ") + consoleLevel +
+                (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
     }
 
     private String generateOperationsCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
+        boolean glo = context.preferences.isGenerateLongOptions();
         String exec = context.cfg.getExecutablePath();
         String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
         // tool has all the parameter data, use it's generate method
         String conf = getCfgOpt();
         // use context.preferences because the subscriber filename can change if requested from a remote listener
         String opts = ((OperationsTool) tool).generateCommandLine(context.preferences.getLastPublisherOpenFile(), context.preferences.getLastSubscriberOpenFile());
-        String overOpt = overwriteLog ? "-F" : "-f";
+        String overOpt = overwriteLog ? (glo ? "--log-overwrite" : "-F") : (glo ? "--log-file" : "-f");
         String cmd = "\"" + exec + "\"" +
                 (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
-                " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
+                " " + conf + " " + opts + (glo ? " --console-level " : " -c ") + consoleLevel +
+                (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
     }
 
     private String getCfgOpt()
     {
-        return "-C \"" + context.cfg.getWorkingDirectory() + "\" ";
-    }
-
-    public String getConsoleLevel()
-    {
-        return consoleLevel;
-    }
-
-    public String getDebugLevel()
-    {
-        return debugLevel;
+        boolean glo = context.preferences.isGenerateLongOptions();
+        return (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
     }
 
     public String getGenerated()
     {
         return generated;
-    }
-
-    public File getLogFile()
-    {
-        return logFile;
-    }
-
-    public String getLogOption()
-    {
-        return logOption;
     }
 
     private String getTitle(AbstractTool tool)

@@ -182,17 +182,9 @@ public class LibrariesUI
 
     private void actionHelpClicked(MouseEvent e)
     {
-        if (helpDialog == null)
-        {
-            helpDialog = new NavHelp(mf, mf, context, context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html");
-        }
+        helpDialog = new NavHelp(mf, mf, context, context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html");
         if (!helpDialog.fault)
-        {
-            if (!helpDialog.isVisible())
-                helpDialog.setVisible(true);
-            else
-                helpDialog.toFront();
-        }
+            helpDialog.buttonFocus();
     }
 
     private void actionIgnorePatternAdd(ActionEvent e)

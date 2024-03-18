@@ -30,7 +30,6 @@ public class Configuration
     public static final int BUILD_VERSION_NAME = 0;
     public static final String ELS_ICON = "els-logo-98px";
     public static final String ELS_JAR = "ELS.jar";
-    public static final String ELS_UPDATE = "__els-update__";
     public static final int JOB_PROCESS = 8;
     public static final String NAVIGATOR_NAME = "ELS Navigator";
     public static final int NOT_REMOTE = 0;
@@ -152,39 +151,12 @@ public class Configuration
     }
 
     /**
-     * Configure the working directory
-     * <br/>
-     * Sets the current working directory based on configuration.
-     */
-    public void configureWorkingDirectory() throws Exception
-    {
-        // set default working directory if not set with -C | --cfg
-        if (this.workingDirectory == null || this.workingDirectory.length() == 0)
-            setWorkingDirectory(getDefaultWorkingDirectory());
-
-        // if "current directory" as a "." then get from system
-        if (this.workingDirectory.equals("."))
-            setWorkingDirectory(System.getProperty("user.dir"));
-
-        // check & create working directory
-        File wd = new File(getWorkingDirectory());
-        if (!wd.exists())
-            wd.mkdirs();
-        else if (!wd.isDirectory())
-            throw new MungeException("Configuration directory \"" + wd.getAbsolutePath() + "\" is not a directory");
-
-        // change to working directory
-        setWorkingDirectory(wd.getAbsolutePath());
-        System.setProperty("user.dir", getWorkingDirectory());
-    }
-
-    /**
      * Configure the logging configuration
      * <br/>
      * Sets the logFullPath and logPath based on configuration.
      * This is executed BEFORE the logger is configured, so the Utils class cannot be used.
      */
-    public void configureLogger() throws Exception
+    public void configureLoggerPath() throws Exception
     {
         // setup the absolute path for the log file before configuring logging
         if (getLogFileName() != null && getLogFileName().length() > 0)
@@ -225,6 +197,33 @@ public class Configuration
             setLogFileName("ELS-Navigator.log");
             setLogFileFullPath(this.workingDirectory + System.getProperty("file.separator") + "output/ELS-Navigator.log");
         }
+    }
+
+    /**
+     * Configure the working directory
+     * <br/>
+     * Sets the current working directory based on configuration.
+     */
+    public void configureWorkingDirectory() throws Exception
+    {
+        // set default working directory if not set with -C | --cfg
+        if (this.workingDirectory == null || this.workingDirectory.length() == 0)
+            setWorkingDirectory(getDefaultWorkingDirectory());
+
+        // if "current directory" as a "." then get from system
+        if (this.workingDirectory.equals("."))
+            setWorkingDirectory(System.getProperty("user.dir"));
+
+        // check & create working directory
+        File wd = new File(getWorkingDirectory());
+        if (!wd.exists())
+            wd.mkdirs();
+        else if (!wd.isDirectory())
+            throw new MungeException("Configuration directory \"" + wd.getAbsolutePath() + "\" is not a directory");
+
+        // change to working directory
+        setWorkingDirectory(wd.getAbsolutePath());
+        System.setProperty("user.dir", getWorkingDirectory());
     }
 
     /**
@@ -376,17 +375,17 @@ public class Configuration
      */
     public String generateCurrentCommandline(String consoleLevel, String debugLevel, boolean overwriteLog, String log)
     {
+        String opts;
         String exec = context.cfg.getExecutablePath();
         String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
-
-        String conf = "-C \"" + context.cfg.getWorkingDirectory() + "\" ";
-        String opts;
 
         Configuration cc = context.cfg;
         Preferences pr = context.preferences;
         Configuration defCfg = new Configuration(context);
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
         StringBuilder sb = new StringBuilder();
+
+        String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
 
         // --- non-munging actions
         sb.append(" " + (glo ? "--navigator" : "-n"));
@@ -436,10 +435,12 @@ public class Configuration
 
         opts = sb.toString().trim();
 
-        String overOpt = overwriteLog ? "-F" : "-f";
+        String overOpt = overwriteLog ? (glo ? "--log-overwrite" : "-F") : (glo ? "--log-file" : "-f");
+
         String cmd = "\"" + exec + "\"" +
                 (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
-                " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
+                " " + conf + " " + opts + (glo ? " --console-level " : " -c ") + consoleLevel +
+                (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
     }
 

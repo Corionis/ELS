@@ -110,9 +110,9 @@ public class Progress extends JFrame
         if (isBeingUsed())
         {
             // clear the progress content
-            labelForIcon.setVisible(false);
-            setVisible(false);
             progressTextField.setText(context.cfg.gs("Progress.not.active"));
+            labelForIcon.setVisible(false);
+            //setVisible(false);
             //redraw();
         }
         beingUsed = false;
@@ -171,11 +171,6 @@ public class Progress extends JFrame
         this.setSize(currentWidth, fixedHeight);
     }
 
-    private void thisWindowActivated(WindowEvent e)
-    {
-        toFront();
-    }
-
     private void thisWindowClosed(WindowEvent e)
     {
         if (owner != null)
@@ -190,7 +185,10 @@ public class Progress extends JFrame
         beingUsed = false;
         setVisible(false);
         if (owner != null)
+        {
             owner.requestFocus();
+            owner = null;
+        }
     }
 
     private void thisWindowStateChanged(WindowEvent e)
@@ -249,10 +247,6 @@ public class Progress extends JFrame
         setName("ProgressBox");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowActivated(WindowEvent e) {
-                thisWindowActivated(e);
-            }
             @Override
             public void windowClosed(WindowEvent e) {
                 thisWindowClosed(e);

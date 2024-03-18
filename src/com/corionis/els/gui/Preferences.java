@@ -9,8 +9,6 @@ import com.google.gson.GsonBuilder;
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,11 +26,12 @@ public class Preferences implements Serializable
     private int appWidth = 1024;
     private int appXpos = -1;
     private int appYpos = 0;
-    private boolean autoRefresh = true;
+    private boolean autoRefresh = false;
+    private boolean batch = true;
     private boolean binaryScale = true; // true = 1024, false = 1000
-    private int browserBottomSize = 143;
-    private int centerDividerLocation = 512;
-    private int centerDividerOrientation = 1;
+    private int browserBottomSize = 90;
+    private int centerDividerLocation = 188;
+    private int centerDividerOrientation = 0;
     private int collectionOneDateWidth = 80;
     private int collectionOneDividerLocation = 150;
     private int collectionOneNameWidth = 128;
@@ -161,9 +160,9 @@ public class Preferences implements Serializable
     private int toolsSleepWidth = 570;
     private int toolsSleepXpos = -1;
     private int toolsSleepYpos = 0;
+    private boolean tooltipsLargeTables = true;
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
-    private transient Logger logger = LogManager.getLogger("applog");
 
     /**
      * Constructor
@@ -256,7 +255,7 @@ public class Preferences implements Serializable
     /**
      * Fix (set) the position of the Browser bottom divider
      *
-     * @param context
+     * @param context    The Context
      * @param bottomSize If < 0 use the bottomSize from Preferences
      */
     public void fixBrowserDivider(Context context, int bottomSize)
@@ -288,7 +287,7 @@ public class Preferences implements Serializable
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setWidth(getCollectionOneDateWidth());
                 setTableSort(context.mainFrame.tableCollectionOne, getCollectionOneSortColumn(), getCollectionOneSortDirection());
 
-                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context.mainFrame.tableCollectionOne);
+                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context, context.mainFrame.tableCollectionOne);
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setCellRenderer(btcr);
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setCellRenderer(btcr);
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setCellRenderer(btcr);
@@ -310,7 +309,7 @@ public class Preferences implements Serializable
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setWidth(getCollectionTwoDateWidth());
                 setTableSort(context.mainFrame.tableCollectionTwo, getCollectionTwoSortColumn(), getCollectionTwoSortDirection());
 
-                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context.mainFrame.tableCollectionTwo);
+                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context, context.mainFrame.tableCollectionTwo);
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setCellRenderer(btcr);
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setCellRenderer(btcr);
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setCellRenderer(btcr);
@@ -332,7 +331,7 @@ public class Preferences implements Serializable
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setWidth(getSystemOneDateWidth());
                 setTableSort(context.mainFrame.tableSystemOne, getSystemOneSortColumn(), getSystemOneSortDirection());
 
-                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context.mainFrame.tableSystemOne);
+                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context, context.mainFrame.tableSystemOne);
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setCellRenderer(btcr);
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setCellRenderer(btcr);
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setCellRenderer(btcr);
@@ -354,7 +353,7 @@ public class Preferences implements Serializable
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setWidth(getSystemTwoDateWidth());
                 setTableSort(context.mainFrame.tableSystemTwo, getSystemTwoSortColumn(), getSystemTwoSortDirection());
 
-                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context.mainFrame.tableSystemTwo);
+                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context, context.mainFrame.tableSystemTwo);
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setCellRenderer(btcr);
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setCellRenderer(btcr);
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setCellRenderer(btcr);
@@ -464,7 +463,7 @@ public class Preferences implements Serializable
 
     public String getDateFormat()
     {
-        if (dateFormat != null && dateFormat.length() > 0)
+        if (dateFormat != null && !dateFormat.isEmpty())
         {
             if (dateFormat.toLowerCase().endsWith("aa"))
             {
@@ -506,12 +505,11 @@ public class Preferences implements Serializable
 
     public String getFullPath(String workingDirectory)
     {
-        if (workingDirectory == null || workingDirectory.length() == 0)
+        if (workingDirectory == null || workingDirectory.isEmpty())
             workingDirectory = System.getProperty("user.dir");
 
-        String path = workingDirectory + System.getProperty("file.separator") + "local" +
+        return workingDirectory + System.getProperty("file.separator") + "local" +
                 System.getProperty("file.separator") + "preferences.json";
-        return path;
     }
 
     public int getHelpHeight()
@@ -608,7 +606,6 @@ public class Preferences implements Serializable
     {
         return jobsOriginDividerLocation;
     }
-    //private transient LookAndFeel laf = null;
 
     public int getJobsTaskDividerLocation()
     {
@@ -629,6 +626,7 @@ public class Preferences implements Serializable
     {
         return jobsYpos;
     }
+    //private transient LookAndFeel laf = null;
 
     public String getLastHintKeysOpenFile()
     {
@@ -706,7 +704,7 @@ public class Preferences implements Serializable
 
     public String getLocale()
     {
-        if (locale.length() == 0)
+        if (locale.isEmpty())
             locale = context.main.localeAbbrev;
         return locale;
     }
@@ -1075,6 +1073,11 @@ public class Preferences implements Serializable
         return autoRefresh;
     }
 
+    public boolean isBatch()
+    {
+        return batch;
+    }
+
     public boolean isBinaryScale()
     {
         return binaryScale;
@@ -1190,6 +1193,11 @@ public class Preferences implements Serializable
         return sortReverse;
     }
 
+    public boolean isTooltipsLargeTables()
+    {
+        return tooltipsLargeTables;
+    }
+
     public boolean isUseLastPublisherSubscriber()
     {
         return useLastPublisherSubscriber;
@@ -1223,6 +1231,11 @@ public class Preferences implements Serializable
     public void setAutoRefresh(boolean autoRefresh)
     {
         this.autoRefresh = autoRefresh;
+    }
+
+    public void setBatch(boolean batch)
+    {
+        this.batch = batch;
     }
 
     public void setBinaryScale(boolean binaryScale)
@@ -1892,6 +1905,11 @@ public class Preferences implements Serializable
         this.toolsSleepYpos = toolsSleepYpos;
     }
 
+    public void setTooltipsLargeTables(boolean tooltipsLargeTables)
+    {
+        this.tooltipsLargeTables = tooltipsLargeTables;
+    }
+
     public void setUseLastPublisherSubscriber(boolean useLastPublisherSubscriber)
     {
         this.useLastPublisherSubscriber = useLastPublisherSubscriber;
@@ -2001,7 +2019,7 @@ public class Preferences implements Serializable
 
     // ================================================================================================================
 
-    private class SortMeta
+    public class SortMeta
     {
         int column = -1;
         int direction = 0;
@@ -2010,22 +2028,6 @@ public class Preferences implements Serializable
         {
             this.column = column;
             this.direction = direction;
-        }
-    }
-
-    private class RowComparator implements Comparator<Object>
-    {
-
-        @Override
-        public int compare(Object o, Object t1)
-        {
-            return 0;
-        }
-
-        @Override
-        public Comparator<Object> reversed()
-        {
-            return Comparator.super.reversed();
         }
     }
 

@@ -691,7 +691,7 @@ public class NavTransferHandler extends TransferHandler
 
             boolean indicator = (reply == JOptionPane.YES_OPTION && !context.fault);
             if (traceActions)
-                logger.trace("Returning " + indicator);
+                logger.trace("NavTransferHandler returning " + indicator);
 
             reset();
             return indicator;
@@ -710,7 +710,7 @@ public class NavTransferHandler extends TransferHandler
 
     public boolean isTransferWorkerRunning()
     {
-        return isTransferWorkerRunning();
+        return transferWorkerRunning;
     }
 
     /**
@@ -811,12 +811,20 @@ public class NavTransferHandler extends TransferHandler
             transferWorker = null; // suggest clean-up
             transferWorker = new NavTransferWorker(context);
         }
-        transferWorker.add(action, count, size, transferData, targetTree, targetTuo);
-        if (!transferWorkerRunning)
+        transferWorker.addBatch(action, count, size, transferData, targetTree, targetTuo);
+
+        // use a SwingWorker thread, Batch Actions mode
+//        if (context.preferences.isBatch() && !isTransferWorkerRunning())
         {
             transferWorker.execute();
             transferWorkerRunning = true;
         }
+//        else // run methods directly without thread, Auto-Refresh mode
+//        {
+//            transferWorkerRunning = true;
+//            transferWorker.doInBackground();
+//            transferWorker.done();
+//        }
     }
 
     public synchronized boolean removeDirectory(NavTreeUserObject sourceTuo)

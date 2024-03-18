@@ -443,7 +443,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
         worker.execute();
     }
 
-    protected void loadStatus()
+    protected void loadProperties()
     {
         if (myRepo != null)
         {
@@ -484,11 +484,13 @@ public class NavTreeNode extends DefaultMutableTreeNode
             sorter.setSortKeys(sortKeys);
 
             ((BrowserTableModel) btm).setInitialized(true);
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             sorter.sort();
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
         btm.fireTableDataChanged();
 
-        loadStatus(); // set the left or right status message & properties
+        loadProperties(); // set the left or right status message & properties
     }
 
     protected List<NavTreeNode> scan(boolean recursive)

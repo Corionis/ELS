@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.9" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.10" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -31,7 +31,7 @@ new FormModel {
 						"tabPlacement": 2
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 							"$columnSpecs": "0, 0"
-							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0"
+							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0"
 							"$hGap": 5
 							"$vGap": 20
 							"$alignTop": true
@@ -39,13 +39,13 @@ new FormModel {
 						} ) {
 							name: "generalPanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "preserveFileTimestampsLabel"
-								"text": new FormMessage( null, "Settings.preserveFileTimestampsLabel.text" )
+								name: "showCcpConfirmationLabel"
+								"text": new FormMessage( null, "Settings.showCcpConfirmationLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"insets": new java.awt.Insets( 8, 8, 0, 40 )
+								"insets": new java.awt.Insets( 8, 8, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
-								name: "preserveFileTimestampsCheckBox"
+								name: "showCcpConfirmationCheckBox"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
 								"insets": new java.awt.Insets( 8, 0, 0, 0 )
@@ -54,8 +54,8 @@ new FormModel {
 								name: "showDeleteConfirmationLabel"
 								"text": new FormMessage( null, "Settings.showDeleteConfirmationLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 1
 								"insets": new java.awt.Insets( 0, 8, 0, 0 )
+								"gridy": 1
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "showDeleteConfirmationCheckBox"
@@ -64,36 +64,23 @@ new FormModel {
 								"gridy": 1
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "showCcpConfirmationLabel"
-								"text": new FormMessage( null, "Settings.showCcpConfirmationLabel.text" )
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 2
-								"insets": new java.awt.Insets( 0, 8, 0, 0 )
-							} )
-							add( new FormComponent( "javax.swing.JCheckBox" ) {
-								name: "showCcpConfirmationCheckBox"
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridx": 1
-								"gridy": 2
-							} )
-							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "showDndConfirmationLabel"
 								"text": new FormMessage( null, "Settings.showDndConfirmationLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 3
+								"gridy": 2
 								"insets": new java.awt.Insets( 0, 8, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "showDndConfirmationCheckBox"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 3
+								"gridy": 2
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "showTouchConfirmationLabel"
 								"text": new FormMessage( null, "Settings.showTouchConfirmationLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 4
+								"gridy": 3
 								"insets": &Insets0 new java.awt.Insets( 0, 8, 0, 0 )
 								"hAlign": 5
 							} )
@@ -101,13 +88,13 @@ new FormModel {
 								name: "showTouchConfirmationCheckBox"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 4
+								"gridy": 3
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "showDefaultDryrunLabel"
 								"text": new FormMessage( null, "Settings.default.dry.runLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 5
+								"gridy": 4
 								"insets": #Insets0
 								"hAlign": 5
 							} )
@@ -115,7 +102,34 @@ new FormModel {
 								name: "defaultDryrunCheckBox"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
+								"gridy": 4
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "generateLongOptionsLabel"
+								"text": new FormMessage( null, "Settings.generateLongOptionsLabel.text" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridy": 5
+								"insets": new java.awt.Insets( 0, 8, 0, 0 )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "generateLongOptionsCheckBox"
+								"toolTipText": new FormMessage( null, "Settings.generateLongOptionsCheckBox.toolTipText" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 1
+								"gridy": 5
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "preserveFileTimestampsLabel"
+								"text": new FormMessage( null, "Settings.preserveFileTimestampsLabel.text" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"insets": new java.awt.Insets( 0, 8, 0, 42 )
+								"gridy": 6
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "preserveFileTimestampsCheckBox"
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 1
+								"gridy": 6
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.generalPanel.tab.title" )
@@ -123,9 +137,9 @@ new FormModel {
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 							"$columnSpecs": "0, 0, 0, 0"
-							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0"
+							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0"
 							"$hGap": 5
-							"$vGap": 14
+							"$vGap": 20
 							"$alignTop": true
 							"$alignLeft": true
 						} ) {
@@ -135,7 +149,7 @@ new FormModel {
 								"text": new FormMessage( null, "Settings.lookFeelLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridwidth": 2
-								"insets": new java.awt.Insets( 0, 8, 0, 0 )
+								"insets": new java.awt.Insets( 8, 8, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JComboBox" ) {
 								name: "lookFeelComboBox"
@@ -153,6 +167,7 @@ new FormModel {
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 2
 								"gridwidth": 2
+								"insets": new java.awt.Insets( -6, 0, -6, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "localeLabel"
@@ -173,37 +188,22 @@ new FormModel {
 								"gridx": 2
 								"gridy": 1
 								"gridwidth": 2
+								"insets": new java.awt.Insets( -6, 0, -6, 0 )
 							} )
-							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "dateFormatLabel"
-								"text": new FormMessage( null, "Settings.dateFormatLabel.text" )
+							add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+								name: "vSpacer1"
+								"maximumSize": new java.awt.Dimension( 32767, 26 )
+								"minimumSize": new java.awt.Dimension( 12, 26 )
+								"preferredSize": new java.awt.Dimension( 10, 26 )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridy": 2
-								"insets": new java.awt.Insets( 0, 8, 0, 30 )
-							} )
-							add( new FormComponent( "javax.swing.JButton" ) {
-								name: "dateInfoButton"
-								"text": new FormMessage( null, "Settings.button.dateInfo.text" )
-								"toolTipText": new FormMessage( null, "Settings.button.dateInfo.text.tooltip" )
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridx": 1
-								"gridy": 2
-								"hAlign": 5
-							} )
-							add( new FormComponent( "javax.swing.JTextField" ) {
-								name: "dateFormatTextField"
-								"text": "yyyy-MM-dd hh:mm:ss aa"
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridx": 2
-								"gridy": 2
-								"gridwidth": 2
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "accentColorButtonLabel"
 								"text": new FormMessage( null, "Settings.accentColorLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridy": 3
-								"insets": new java.awt.Insets( 0, 8, 0, 28 )
+								"insets": new java.awt.Insets( 0, 8, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "defaultAccentButton"
@@ -214,6 +214,7 @@ new FormModel {
 								"gridy": 3
 								"hAlign": 5
 								"gridx": 1
+								"insets": new java.awt.Insets( -6, 0, -6, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JTextField" ) {
 								name: "textFieldAccentColor"
@@ -221,6 +222,7 @@ new FormModel {
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 2
 								"gridy": 3
+								"insets": new java.awt.Insets( -6, 0, -6, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonChooseColor"
@@ -230,12 +232,39 @@ new FormModel {
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 3
 								"gridy": 3
+								"insets": new java.awt.Insets( -6, 0, -6, 0 )
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "dateFormatLabel"
+								"text": new FormMessage( null, "Settings.dateFormatLabel.text" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridy": 4
+								"insets": new java.awt.Insets( 0, 8, 0, 36 )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "dateInfoButton"
+								"text": new FormMessage( null, "Settings.button.dateInfo.text" )
+								"toolTipText": new FormMessage( null, "Settings.button.dateInfo.text.tooltip" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 1
+								"gridy": 4
+								"hAlign": 5
+								"insets": new java.awt.Insets( -6, 0, -6, 0 )
+							} )
+							add( new FormComponent( "javax.swing.JTextField" ) {
+								name: "dateFormatTextField"
+								"text": "yyyy-MM-dd hh:mm:ss aa"
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 2
+								"gridy": 4
+								"gridwidth": 2
+								"insets": new java.awt.Insets( -6, 0, -6, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "scaleLabel"
 								"text": new FormMessage( null, "Settings.scaleLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 4
+								"gridy": 5
 								"gridwidth": 2
 								"insets": new java.awt.Insets( 0, 8, 0, 0 )
 							} )
@@ -244,30 +273,15 @@ new FormModel {
 								"toolTipText": new FormMessage( null, "Settings.scaleCheckBox.toolTipText" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 2
-								"gridy": 4
-								"gridwidth": 2
-							} )
-							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "showArrowseLabel"
-								"text": new FormMessage( null, "Settings.showArrowseLabel.text" )
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridy": 5
-								"insets": &Insets1 new java.awt.Insets( 0, 8, 0, 0 )
 								"gridwidth": 2
-							} )
-							add( new FormComponent( "javax.swing.JCheckBox" ) {
-								name: "showArrowsCheckBox"
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "updateLookAndFeel", true ) )
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridx": 2
-								"gridy": 5
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "showMnemonicsLabel"
 								"text": new FormMessage( null, "Settings.showMnemonicsLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridy": 6
-								"insets": #Insets1
+								"insets": &Insets1 new java.awt.Insets( 0, 8, 0, 0 )
 								"gridwidth": 2
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
@@ -277,13 +291,28 @@ new FormModel {
 								"gridx": 2
 								"gridy": 6
 							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "showArrowseLabel"
+								"text": new FormMessage( null, "Settings.showArrowseLabel.text" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridy": 7
+								"insets": #Insets1
+								"gridwidth": 2
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "showArrowsCheckBox"
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "updateLookAndFeel", true ) )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 2
+								"gridy": 7
+							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.appearance.tab.title" )
 							"mnemonic": new FormMessage( null, "Settings.appearancePanel.tab.mnemonic" )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 							"$columnSpecs": "0, 0"
-							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
+							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0"
 							"$hGap": 5
 							"$vGap": 20
 							"$alignTop": true
@@ -362,20 +391,35 @@ new FormModel {
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
 								"gridy": 4
+								"insets": new java.awt.Insets( -6, 0, -6, 0 )
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "tooltipLargeTableLabel"
+								"text": new FormMessage( null, "Settings.tooltipLargeTableLabel.text" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridy": 5
+								"insets": new java.awt.Insets( 0, 8, 0, 0 )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "tooltipLargeTableCheckBox"
+								"toolTipText": new FormMessage( null, "Settings.tooltipLargeTableCheckBox.toolTipText" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 1
+								"gridy": 5
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "useLastPubSubLabel"
 								"text": new FormMessage( null, "Settings.useLastPubSubLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 5
-								"insets": new java.awt.Insets( 0, 8, 0, 14 )
+								"gridy": 6
+								"insets": new java.awt.Insets( 0, 8, 0, 16 )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "uselastPubSubCheckBox"
 								"toolTipText": new FormMessage( null, "Settings.uselastPubSubCheckBox.toolTipText" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 5
+								"gridy": 6
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.browserPanel.tab.title" )

@@ -106,21 +106,9 @@ public class Settings extends JDialog
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (helpDialog == null)
-                {
-                    helpDialog = new NavHelp(owner, thisDialog, context, context.cfg.gs("Settings.date.format.help.title"), "formats_" + context.preferences.getLocale() + ".html");
-                }
+                helpDialog = new NavHelp(owner, thisDialog, context, context.cfg.gs("Settings.date.format.help.title"), "formats_" + context.preferences.getLocale() + ".html");
                 if (!helpDialog.fault)
-                {
-                    if (!helpDialog.isVisible())
-                    {
-                        helpDialog.setVisible(true);
-                    }
-                    else
-                    {
-                        helpDialog.toFront();
-                    }
-                }
+                    helpDialog.buttonFocus();
             }
         });
 
@@ -247,6 +235,7 @@ public class Settings extends JDialog
         showDndConfirmationCheckBox.setSelected(context.preferences.isShowDnDConfirmation());
         showTouchConfirmationCheckBox.setSelected(context.preferences.isShowTouchConfirmation());
         defaultDryrunCheckBox.setSelected(context.preferences.isDefaultDryrun());
+        generateLongOptionsCheckBox.setSelected(context.preferences.isGenerateLongOptions());
 
         // appearance
         lookFeelComboBox.setAutoscrolls(true);
@@ -277,7 +266,7 @@ public class Settings extends JDialog
             context.preferences.setAccentColor(context.preferences.DEFAULT_ACCENT_COLOR);
         }
         textFieldAccentColor.setText(context.preferences.getAccentColor());
-        scaleCheckBox.setSelected(context.preferences.isBinaryScale());
+        scaleCheckBox.setSelected(!context.preferences.isBinaryScale());
         showArrowsCheckBox.setSelected(context.preferences.isShowArrows());
         showMnemonicsCheckBox.setSelected(context.preferences.isShowMnemonics());
 
@@ -293,11 +282,8 @@ public class Settings extends JDialog
         tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.left"));
         tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.right"));
         tabPlacementComboBox.setSelectedIndex(context.preferences.getTabPlacementIndex());
+        tooltipLargeTableCheckBox.setSelected(context.preferences.isTooltipsLargeTables());
         uselastPubSubCheckBox.setSelected(context.preferences.isUseLastPublisherSubscriber());
-
-        // operationsUI
-
-        // libraries
 
     }
 
@@ -324,6 +310,7 @@ public class Settings extends JDialog
         context.preferences.setShowDnDConfirmation(showDndConfirmationCheckBox.isSelected());
         context.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
         context.preferences.setDefaultDryrun(defaultDryrunCheckBox.isSelected());
+        context.preferences.setGenerateLongOptions(generateLongOptionsCheckBox.isSelected());
 
         // appearance
         context.preferences.setLookAndFeel(lookFeelComboBox.getSelectedIndex());
@@ -345,8 +332,8 @@ public class Settings extends JDialog
         }
         else
             context.preferences.setAccentColor(textFieldAccentColor.getText());
+        context.preferences.setBinaryScale(!scaleCheckBox.isSelected());
         context.cfg.setLongScale(context.preferences.isBinaryScale());
-        context.preferences.setBinaryScale(scaleCheckBox.isSelected());
         context.preferences.setShowArrows(showArrowsCheckBox.isSelected());
         context.preferences.setShowMnemonics(showMnemonicsCheckBox.isSelected());
 
@@ -356,6 +343,7 @@ public class Settings extends JDialog
         context.preferences.setSortFoldersBeforeFiles(sortFoldersBeforeFilesCheckBox.isSelected());
         context.preferences.setSortReverse(sortReverseCheckBox.isSelected());
         context.preferences.setTabPlacement(tabPlacementComboBox.getSelectedIndex());
+        context.preferences.setTooltipsLargeTables(tooltipLargeTableCheckBox.isSelected());
         context.preferences.setUseLastPublisherSubscriber(uselastPubSubCheckBox.isSelected());
 
         context.mainFrame.labelStatusMiddle.setText("");
@@ -391,36 +379,39 @@ public class Settings extends JDialog
         settingsContentPanel = new JPanel();
         settingsTabbedPane = new JTabbedPane();
         generalPanel = new JPanel();
-        preserveFileTimestampsLabel = new JLabel();
-        preserveFileTimestampsCheckBox = new JCheckBox();
-        showDeleteConfirmationLabel = new JLabel();
-        showDeleteConfirmationCheckBox = new JCheckBox();
         showCcpConfirmationLabel = new JLabel();
         showCcpConfirmationCheckBox = new JCheckBox();
+        showDeleteConfirmationLabel = new JLabel();
+        showDeleteConfirmationCheckBox = new JCheckBox();
         showDndConfirmationLabel = new JLabel();
         showDndConfirmationCheckBox = new JCheckBox();
         showTouchConfirmationLabel = new JLabel();
         showTouchConfirmationCheckBox = new JCheckBox();
         showDefaultDryrunLabel = new JLabel();
         defaultDryrunCheckBox = new JCheckBox();
+        generateLongOptionsLabel = new JLabel();
+        generateLongOptionsCheckBox = new JCheckBox();
+        preserveFileTimestampsLabel = new JLabel();
+        preserveFileTimestampsCheckBox = new JCheckBox();
         apperancePanel = new JPanel();
         lookFeelLabel = new JLabel();
         lookFeelComboBox = new JComboBox<>();
         localeLabel = new JLabel();
         localeComboBox = new JComboBox<>();
-        dateFormatLabel = new JLabel();
-        dateInfoButton = new JButton();
-        dateFormatTextField = new JTextField();
+        vSpacer1 = new JPanel(null);
         accentColorButtonLabel = new JLabel();
         defaultAccentButton = new JButton();
         textFieldAccentColor = new JTextField();
         buttonChooseColor = new JButton();
+        dateFormatLabel = new JLabel();
+        dateInfoButton = new JButton();
+        dateFormatTextField = new JTextField();
         scaleLabel = new JLabel();
         scaleCheckBox = new JCheckBox();
-        showArrowseLabel = new JLabel();
-        showArrowsCheckBox = new JCheckBox();
         showMnemonicsLabel = new JLabel();
         showMnemonicsCheckBox = new JCheckBox();
+        showArrowseLabel = new JLabel();
+        showArrowsCheckBox = new JCheckBox();
         browserPanel = new JPanel();
         hideFilesInTreeLabel = new JLabel();
         hideFilesInTreeCheckBox = new JCheckBox();
@@ -432,6 +423,8 @@ public class Settings extends JDialog
         sortReverseCheckBox = new JCheckBox();
         tabPlacementlabel = new JLabel();
         tabPlacementComboBox = new JComboBox<>();
+        tooltipLargeTableLabel = new JLabel();
+        tooltipLargeTableCheckBox = new JCheckBox();
         useLastPubSubLabel = new JLabel();
         uselastPubSubCheckBox = new JCheckBox();
         buttonBar = new JPanel();
@@ -475,16 +468,16 @@ public class Settings extends JDialog
                     {
                         generalPanel.setLayout(new GridBagLayout());
                         ((GridBagLayout)generalPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
-                        ((GridBagLayout)generalPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)generalPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
                         ((GridBagLayout)generalPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                        ((GridBagLayout)generalPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)generalPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
-                        //---- preserveFileTimestampsLabel ----
-                        preserveFileTimestampsLabel.setText(context.cfg.gs("Settings.preserveFileTimestampsLabel.text"));
-                        generalPanel.add(preserveFileTimestampsLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                        //---- showCcpConfirmationLabel ----
+                        showCcpConfirmationLabel.setText(context.cfg.gs("Settings.showCcpConfirmationLabel.text"));
+                        generalPanel.add(showCcpConfirmationLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(8, 8, 20, 45), 0, 0));
-                        generalPanel.add(preserveFileTimestampsCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                            new Insets(8, 8, 20, 5), 0, 0));
+                        generalPanel.add(showCcpConfirmationCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(8, 0, 20, 0), 0, 0));
 
@@ -497,39 +490,51 @@ public class Settings extends JDialog
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
-                        //---- showCcpConfirmationLabel ----
-                        showCcpConfirmationLabel.setText(context.cfg.gs("Settings.showCcpConfirmationLabel.text"));
-                        generalPanel.add(showCcpConfirmationLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 5), 0, 0));
-                        generalPanel.add(showCcpConfirmationCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 20, 0), 0, 0));
-
                         //---- showDndConfirmationLabel ----
                         showDndConfirmationLabel.setText(context.cfg.gs("Settings.showDndConfirmationLabel.text"));
-                        generalPanel.add(showDndConfirmationLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showDndConfirmationLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
-                        generalPanel.add(showDndConfirmationCheckBox, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showDndConfirmationCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- showTouchConfirmationLabel ----
                         showTouchConfirmationLabel.setText(context.cfg.gs("Settings.showTouchConfirmationLabel.text"));
-                        generalPanel.add(showTouchConfirmationLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showTouchConfirmationLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
-                        generalPanel.add(showTouchConfirmationCheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showTouchConfirmationCheckBox, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- showDefaultDryrunLabel ----
                         showDefaultDryrunLabel.setText(context.cfg.gs("Settings.default.dry.runLabel.text"));
-                        generalPanel.add(showDefaultDryrunLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showDefaultDryrunLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
-                        generalPanel.add(defaultDryrunCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                        generalPanel.add(defaultDryrunCheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
+                        //---- generateLongOptionsLabel ----
+                        generateLongOptionsLabel.setText(context.cfg.gs("Settings.generateLongOptionsLabel.text"));
+                        generalPanel.add(generateLongOptionsLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+
+                        //---- generateLongOptionsCheckBox ----
+                        generateLongOptionsCheckBox.setToolTipText(context.cfg.gs("Settings.generateLongOptionsCheckBox.toolTipText"));
+                        generalPanel.add(generateLongOptionsCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
+                        //---- preserveFileTimestampsLabel ----
+                        preserveFileTimestampsLabel.setText(context.cfg.gs("Settings.preserveFileTimestampsLabel.text"));
+                        generalPanel.add(preserveFileTimestampsLabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 47), 0, 0));
+                        generalPanel.add(preserveFileTimestampsCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
                     }
@@ -540,15 +545,15 @@ public class Settings extends JDialog
                     {
                         apperancePanel.setLayout(new GridBagLayout());
                         ((GridBagLayout)apperancePanel.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0};
-                        ((GridBagLayout)apperancePanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)apperancePanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                         ((GridBagLayout)apperancePanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0E-4};
-                        ((GridBagLayout)apperancePanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)apperancePanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- lookFeelLabel ----
                         lookFeelLabel.setText(context.cfg.gs("Settings.lookFeelLabel.text"));
                         apperancePanel.add(lookFeelLabel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 14, 5), 0, 0));
+                            new Insets(8, 8, 20, 5), 0, 0));
 
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -563,13 +568,13 @@ public class Settings extends JDialog
                         lookFeelComboBox.setName("lafCombo");
                         apperancePanel.add(lookFeelComboBox, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 14, 0), 0, 0));
+                            new Insets(-6, 0, 14, 0), 0, 0));
 
                         //---- localeLabel ----
                         localeLabel.setText(context.cfg.gs("Settings.localeLabel.text"));
                         apperancePanel.add(localeLabel, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 14, 5), 0, 0));
+                            new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- localeComboBox ----
                         localeComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -578,32 +583,21 @@ public class Settings extends JDialog
                         localeComboBox.setName("localeCombo");
                         apperancePanel.add(localeComboBox, new GridBagConstraints(2, 1, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 14, 0), 0, 0));
+                            new Insets(-6, 0, 14, 0), 0, 0));
 
-                        //---- dateFormatLabel ----
-                        dateFormatLabel.setText(context.cfg.gs("Settings.dateFormatLabel.text"));
-                        apperancePanel.add(dateFormatLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                        //---- vSpacer1 ----
+                        vSpacer1.setMaximumSize(new Dimension(32767, 26));
+                        vSpacer1.setMinimumSize(new Dimension(12, 26));
+                        vSpacer1.setPreferredSize(new Dimension(10, 26));
+                        apperancePanel.add(vSpacer1, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 14, 35), 0, 0));
-
-                        //---- dateInfoButton ----
-                        dateInfoButton.setText(context.cfg.gs("Settings.button.dateInfo.text"));
-                        dateInfoButton.setToolTipText(context.cfg.gs("Settings.button.dateInfo.text.tooltip"));
-                        apperancePanel.add(dateInfoButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 14, 5), 0, 0));
-
-                        //---- dateFormatTextField ----
-                        dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
-                        apperancePanel.add(dateFormatTextField, new GridBagConstraints(2, 2, 2, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 14, 0), 0, 0));
+                            new Insets(0, 0, 20, 5), 0, 0));
 
                         //---- accentColorButtonLabel ----
                         accentColorButtonLabel.setText(context.cfg.gs("Settings.accentColorLabel.text"));
                         apperancePanel.add(accentColorButtonLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 14, 33), 0, 0));
+                            new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- defaultAccentButton ----
                         defaultAccentButton.setText(context.cfg.gs("Settings.defaultAccentButton.text"));
@@ -611,13 +605,13 @@ public class Settings extends JDialog
                         defaultAccentButton.addActionListener(e -> defaultAccentColor(e));
                         apperancePanel.add(defaultAccentButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 14, 5), 0, 0));
+                            new Insets(-6, 0, 14, 5), 0, 0));
 
                         //---- textFieldAccentColor ----
                         textFieldAccentColor.setToolTipText(context.cfg.gs("Settings.textField.HintButtonColor.toolTipText"));
                         apperancePanel.add(textFieldAccentColor, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 14, 5), 0, 0));
+                            new Insets(-6, 0, 14, 5), 0, 0));
 
                         //---- buttonChooseColor ----
                         buttonChooseColor.setText(context.cfg.gs("Settings.button.ChooseColor.text"));
@@ -625,43 +619,62 @@ public class Settings extends JDialog
                         buttonChooseColor.addActionListener(e -> chooseColor(e));
                         apperancePanel.add(buttonChooseColor, new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 14, 0), 0, 0));
+                            new Insets(-6, 0, 14, 0), 0, 0));
+
+                        //---- dateFormatLabel ----
+                        dateFormatLabel.setText(context.cfg.gs("Settings.dateFormatLabel.text"));
+                        apperancePanel.add(dateFormatLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 41), 0, 0));
+
+                        //---- dateInfoButton ----
+                        dateInfoButton.setText(context.cfg.gs("Settings.button.dateInfo.text"));
+                        dateInfoButton.setToolTipText(context.cfg.gs("Settings.button.dateInfo.text.tooltip"));
+                        apperancePanel.add(dateInfoButton, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(-6, 0, 14, 5), 0, 0));
+
+                        //---- dateFormatTextField ----
+                        dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
+                        apperancePanel.add(dateFormatTextField, new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(-6, 0, 14, 0), 0, 0));
 
                         //---- scaleLabel ----
                         scaleLabel.setText(context.cfg.gs("Settings.scaleLabel.text"));
-                        apperancePanel.add(scaleLabel, new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0,
+                        apperancePanel.add(scaleLabel, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 14, 5), 0, 0));
+                            new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- scaleCheckBox ----
                         scaleCheckBox.setToolTipText(context.cfg.gs("Settings.scaleCheckBox.toolTipText"));
-                        apperancePanel.add(scaleCheckBox, new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0,
+                        apperancePanel.add(scaleCheckBox, new GridBagConstraints(2, 5, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 14, 0), 0, 0));
-
-                        //---- showArrowseLabel ----
-                        showArrowseLabel.setText(context.cfg.gs("Settings.showArrowseLabel.text"));
-                        apperancePanel.add(showArrowseLabel, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 14, 5), 0, 0));
-
-                        //---- showArrowsCheckBox ----
-                        showArrowsCheckBox.addActionListener(e -> updateLookAndFeel(e));
-                        apperancePanel.add(showArrowsCheckBox, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 14, 5), 0, 0));
+                            new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- showMnemonicsLabel ----
                         showMnemonicsLabel.setText(context.cfg.gs("Settings.showMnemonicsLabel.text"));
                         apperancePanel.add(showMnemonicsLabel, new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 0, 5), 0, 0));
+                            new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- showMnemonicsCheckBox ----
                         showMnemonicsCheckBox.addActionListener(e -> updateLookAndFeel(e));
                         apperancePanel.add(showMnemonicsCheckBox, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 0, 5), 0, 0));
+                            new Insets(0, 0, 20, 5), 0, 0));
+
+                        //---- showArrowseLabel ----
+                        showArrowseLabel.setText(context.cfg.gs("Settings.showArrowseLabel.text"));
+                        apperancePanel.add(showArrowseLabel, new GridBagConstraints(0, 7, 2, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+
+                        //---- showArrowsCheckBox ----
+                        showArrowsCheckBox.addActionListener(e -> updateLookAndFeel(e));
+                        apperancePanel.add(showArrowsCheckBox, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 5), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.appearance.tab.title"), apperancePanel);
                     settingsTabbedPane.setMnemonicAt(1, context.cfg.gs("Settings.appearancePanel.tab.mnemonic").charAt(0));
@@ -670,9 +683,9 @@ public class Settings extends JDialog
                     {
                         browserPanel.setLayout(new GridBagLayout());
                         ((GridBagLayout)browserPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
-                        ((GridBagLayout)browserPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)browserPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
                         ((GridBagLayout)browserPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                        ((GridBagLayout)browserPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)browserPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- hideFilesInTreeLabel ----
                         hideFilesInTreeLabel.setText(context.cfg.gs("Settings.hideFilesInTreeLabel.text"));
@@ -727,17 +740,29 @@ public class Settings extends JDialog
                         tabPlacementComboBox.setName("tabPlacementCombo");
                         browserPanel.add(tabPlacementComboBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(-6, 0, 14, 0), 0, 0));
+
+                        //---- tooltipLargeTableLabel ----
+                        tooltipLargeTableLabel.setText(context.cfg.gs("Settings.tooltipLargeTableLabel.text"));
+                        browserPanel.add(tooltipLargeTableLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+
+                        //---- tooltipLargeTableCheckBox ----
+                        tooltipLargeTableCheckBox.setToolTipText(context.cfg.gs("Settings.tooltipLargeTableCheckBox.toolTipText"));
+                        browserPanel.add(tooltipLargeTableCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- useLastPubSubLabel ----
                         useLastPubSubLabel.setText(context.cfg.gs("Settings.useLastPubSubLabel.text"));
-                        browserPanel.add(useLastPubSubLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                        browserPanel.add(useLastPubSubLabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 19), 0, 0));
+                            new Insets(0, 8, 20, 21), 0, 0));
 
                         //---- uselastPubSubCheckBox ----
                         uselastPubSubCheckBox.setToolTipText(context.cfg.gs("Settings.uselastPubSubCheckBox.toolTipText"));
-                        browserPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                        browserPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
                     }
@@ -788,36 +813,39 @@ public class Settings extends JDialog
     private JPanel settingsContentPanel;
     private JTabbedPane settingsTabbedPane;
     private JPanel generalPanel;
-    private JLabel preserveFileTimestampsLabel;
-    private JCheckBox preserveFileTimestampsCheckBox;
-    private JLabel showDeleteConfirmationLabel;
-    private JCheckBox showDeleteConfirmationCheckBox;
     private JLabel showCcpConfirmationLabel;
     private JCheckBox showCcpConfirmationCheckBox;
+    private JLabel showDeleteConfirmationLabel;
+    private JCheckBox showDeleteConfirmationCheckBox;
     private JLabel showDndConfirmationLabel;
     private JCheckBox showDndConfirmationCheckBox;
     private JLabel showTouchConfirmationLabel;
     private JCheckBox showTouchConfirmationCheckBox;
     private JLabel showDefaultDryrunLabel;
     private JCheckBox defaultDryrunCheckBox;
+    private JLabel generateLongOptionsLabel;
+    private JCheckBox generateLongOptionsCheckBox;
+    private JLabel preserveFileTimestampsLabel;
+    private JCheckBox preserveFileTimestampsCheckBox;
     private JPanel apperancePanel;
     private JLabel lookFeelLabel;
     private JComboBox<String> lookFeelComboBox;
     private JLabel localeLabel;
     private JComboBox<String> localeComboBox;
-    private JLabel dateFormatLabel;
-    private JButton dateInfoButton;
-    private JTextField dateFormatTextField;
+    private JPanel vSpacer1;
     private JLabel accentColorButtonLabel;
     private JButton defaultAccentButton;
     private JTextField textFieldAccentColor;
     private JButton buttonChooseColor;
+    private JLabel dateFormatLabel;
+    private JButton dateInfoButton;
+    private JTextField dateFormatTextField;
     private JLabel scaleLabel;
     private JCheckBox scaleCheckBox;
-    private JLabel showArrowseLabel;
-    private JCheckBox showArrowsCheckBox;
     private JLabel showMnemonicsLabel;
     private JCheckBox showMnemonicsCheckBox;
+    private JLabel showArrowseLabel;
+    private JCheckBox showArrowsCheckBox;
     private JPanel browserPanel;
     private JLabel hideFilesInTreeLabel;
     private JCheckBox hideFilesInTreeCheckBox;
@@ -829,6 +857,8 @@ public class Settings extends JDialog
     private JCheckBox sortReverseCheckBox;
     private JLabel tabPlacementlabel;
     private JComboBox<String> tabPlacementComboBox;
+    private JLabel tooltipLargeTableLabel;
+    private JCheckBox tooltipLargeTableCheckBox;
     private JLabel useLastPubSubLabel;
     private JCheckBox uselastPubSubCheckBox;
     private JPanel buttonBar;

@@ -62,6 +62,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             return false;
         }
 
+        fileNumber = 0;
         for (int i = 0; i < queue.size(); ++i)
         {
             if (isCancelled())
@@ -149,32 +150,24 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         filesToCopy = 0;
         filesSize = 0L;
 
-/*
+        if (context.progress != null)
+        {
+            context.progress.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            context.progress.done();
+            context.progress.dispose();
+            context.progress = null;
+        }
+
         if (context.preferences.isAutoRefresh())
         {
-            try
-            {
-                // give other threads a moment to catch-up before refreshing
-                Thread.sleep(500);
-            }
-            catch (Exception e)
-            {
-            }
             context.browser.refreshTree(sourceTree);
             if (sourceTree != targetTree)
                 context.browser.refreshTree(targetTree);
         }
-*/
-
-        if (context.progress != null)
-        {
-            context.progress.done();
-            context.progress = null;
-        }
 
     }
 
-    public void add(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)
+    public void addBatch(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)
     {
         Batch batch = new Batch(action, transferData, target, tuo, size);
         queue.add(batch);
@@ -275,7 +268,12 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
         if (!error && !context.fault && context.preferences.isAutoRefresh())
         {
+/*
+        // TODO
+        //   * Move "remove" code to an EDT listener and dispatch event
 
+            sourceTuo.node.getMyTable().dispatchEvent(CUSTOM EVENT);
+ */
             BrowserTableModel btm = (BrowserTableModel) sourceTuo.node.getMyTable().getModel();
             int tableIndex = btm.findNavTreeUserObjectIndex(sourceTuo.node);
             if (tableIndex >= 0)
@@ -285,40 +283,6 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 sorter.rowsDeleted(tableIndex, tableIndex);
             }
             btm.getDataVector().removeAllElements();
-
-
-/*
-    // Leaving this mess of different attempts to solve the intermittent
-    // exception "index out of bounds" when removing items. May want to
-    // come back to this for ideas.
-
-    // Use threads for deletes??
-
-            JTable table = sourceTuo.node.getMyTable();
-            int row = btm.findNavTreeUserObjectIndex(sourceTuo.node);
-            row = table.convertRowIndexToModel(row);
-            btm.removeRow(row);
-
-            NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
-            btm = (BrowserTableModel) parent.getMyTable().getModel();
-            btm.setNode(parent);
-            parent.remove(sourceTuo.node);
-
-            {
-                context.browser.refreshTree(sourceTree);
-                if (sourceTree != targetTree)
-                    context.browser.refreshTree(targetTree);
-            }
-*/
-
-//            NavTreeNode node = (NavTreeNode) sourceTuo.node.getParent();
-//            BrowserTableModel btm = (BrowserTableModel) node.getMyTable().getModel();
-//            if (btm.getNode() == sourceTuo.node)
-
-//            {
-//                context.browser.rescanByTreeOrTable(sourceTuo.node.getMyTable());
-//            }
-
             RowSorter drs = sourceTuo.node.getMyTable().getRowSorter();
             sourceTuo.node.getMyTable().setRowSorter(null);
 
@@ -327,6 +291,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             sourceTuo.node.getMyTable().setRowSorter(drs);
             logger.trace("Removal complete");
         }
+
         return error;
     }
 
