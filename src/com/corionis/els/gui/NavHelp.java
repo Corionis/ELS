@@ -179,6 +179,7 @@ public class NavHelp extends JDialog
         previous.requestFocus();
     }
 
+    // <editor-fold desc="Generated">
     private void initComponents()
     {
         // <editor-fold desc="Generated component code (Fold)">
@@ -270,4 +271,7 @@ public class NavHelp extends JDialog
     //
     // @formatter:on
     // </editor-fold>
+
+    // </editor-fold>
+
 }

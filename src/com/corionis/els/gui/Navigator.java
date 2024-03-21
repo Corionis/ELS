@@ -3299,7 +3299,7 @@ public class Navigator
 
     public int run() throws Exception
     {
-        javax.swing.SwingUtilities.invokeLater(new Runnable()
+        SwingUtilities.invokeLater(new Runnable()
         {
             @Override
             public void run()

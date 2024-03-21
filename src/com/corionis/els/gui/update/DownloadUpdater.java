@@ -101,7 +101,7 @@ public class DownloadUpdater extends JFrame
             if (download() && !requestStop)
             {
                 // give the download a chance to flush buffers and close the file
-                Thread.sleep(10000);
+                Thread.sleep(5000);
 
                 if (unpack() && !requestStop)
                 {
@@ -493,7 +493,7 @@ public class DownloadUpdater extends JFrame
                 actionWindowClosed(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== panelTopSpacer ========

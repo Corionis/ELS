@@ -97,16 +97,7 @@ public class ClientStty
                             if (cmdSplit[i].equals("RequestCollection"))
                             {
                                 hasCommands = true;
-                                context.cfg.setRequestCollection(true);
-                                String location;
-                                if (context.cfg.getSubscriberCollectionFilename().length() > 0)
-                                    location = context.cfg.getSubscriberCollectionFilename();
-                                else
-                                    location = context.cfg.getSubscriberLibrariesFileName();
-
-                                // change cfg -S to -s so -s handling in Transfer.initialize retrieves the data
-                                context.cfg.setSubscriberLibrariesFileName(location);
-                                context.cfg.setSubscriberCollectionFilename("");
+                                setupCollectionRequest();
                             }
                             else if (cmdSplit[i].equals("RequestTargets"))
                             {
@@ -119,6 +110,14 @@ public class ClientStty
                 else
                 {
                     throw new MungeException("Unknown banner receive");
+                }
+
+                // if no content (a Library) and a request is not set then set it
+                // fixes logical problem if neither publisher or subscriber ask or force sending collection
+                if (!context.subscriberRepo.hasContent() && !context.cfg.isRequestCollection())
+                {
+                    logger.info(context.cfg.gs("ClientStty.forcing.request.of.collection.with.s"));
+                    setupCollectionRequest();
                 }
             }
         }
@@ -537,6 +536,20 @@ public class ClientStty
 
         if (!message.equalsIgnoreCase("ping"))
             enableHeartBeat();
+    }
+
+    private void setupCollectionRequest()
+    {
+        context.cfg.setRequestCollection(true);
+        String location;
+        if (context.cfg.getSubscriberCollectionFilename().length() > 0)
+            location = context.cfg.getSubscriberCollectionFilename();
+        else
+            location = context.cfg.getSubscriberLibrariesFileName();
+
+        // change cfg -S to -s so -s handling in Transfer.initialize retrieves the data
+        context.cfg.setSubscriberLibrariesFileName(location);
+        context.cfg.setSubscriberCollectionFilename("");
     }
 
     private void stopClient(String errorMessage, String exceptionMessage)

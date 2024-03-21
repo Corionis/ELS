@@ -304,6 +304,21 @@ public class Repository
     }
 
     /**
+     * Does this repository have any items?
+     *
+     * @return true = repository not empty, a collection not library; otherwise false
+     */
+    public boolean hasContent()
+    {
+        for (Library lib : getLibraryData().libraries.bibliography)
+        {
+            if (lib.items != null && lib.items.size() > 0)
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Has directory true/false.
      * <p>
      * String itemPath is expected to have been converted to pipe character file separators using Utils.pipe().

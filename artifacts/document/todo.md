@@ -3,14 +3,14 @@
 
 ## Current Short-List
 
- * ...
+ * Thread handling and NavTransferHandler
 
 ### Hints Reengineering
 
 #### Short List
  * Error handling
  * Statistics
- * Test script, and match run profiles to o/s scripts
+ * Test scripts, and match run profiles to o/s scripts
 
 #### Thoughts
  * Opens possibility of the Hint Status Server optionally auto-pushing new Hints to systems in Hint Keys.
@@ -22,11 +22,8 @@
     * Subscriber - by definition is a Collection - is read-only
 
 
-
 ## To Do
  1. Go through ClientSftp and ClientStty for handling subscriber disconnects in Navigator.
- 2. Logic problem when both publisher and subscriber use -S where the subscriber
-    does not scan it's collection so operations fail with no items. 
 
 ## Operations Tool
 
@@ -34,17 +31,7 @@
 
 * In-GUI execution of multiple (background) operations and managing those threads & tasks
 * How to handle -p|-P library or (edited) collection options, -s|-S same problem
-
-### Hint Processing Sequence
-
-The problem: If manual changes are made on a subscriber, such as a rename, the
-publisher will think the original file is missing and send it. Should processing
-be changed so publisher receives Hints from Subscriber before the munge operation?
-
-### Hint Use Issues
-
- 1. Multiple operations on the same item :: A rename, then move may not be
-    executed in the correct order.
+  * Add a check if edited Library is loaded. Prompt to reload, or just do it automatically. 
 
 
 ## Red Flags

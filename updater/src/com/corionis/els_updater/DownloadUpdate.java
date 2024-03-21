@@ -110,7 +110,7 @@ public class DownloadUpdate extends JFrame
                     if (download() && !requestStop)
                     {
                         // give the download a chance to flush buffers and close the file
-                        Thread.sleep(10000);
+                        Thread.sleep(5000);
 
                         if (unpack() && !requestStop)
                         {
@@ -627,7 +627,7 @@ public class DownloadUpdate extends JFrame
         buttonCancel = new JButton();
 
         //======== this ========
-        setTitle(bundle.getString("Z.downloading"));
+        setTitle(bundle.getString("Updater.downloading"));
         setPreferredSize(new Dimension(400, 134));
         setMinimumSize(new Dimension(400, 134));
         setMaximumSize(new Dimension(400, 134));
@@ -643,7 +643,7 @@ public class DownloadUpdate extends JFrame
                 actionWindowClosed(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== panelTopSpacer ========

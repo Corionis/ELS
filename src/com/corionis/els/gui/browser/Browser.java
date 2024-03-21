@@ -2500,6 +2500,7 @@ public class Browser
             computerNode = hiddenRoot.findChildName(context.cfg.gs("Browser.computer"));
             computerNode.removeAllChildren();
             tuo = computerNode.getUserObject();
+            tuo.isRemote = remote;
         }
 
         NavTreeNode driveNode;
