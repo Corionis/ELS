@@ -103,7 +103,6 @@ public class NavTransferHandler extends TransferHandler
     private JTable targetTable;
     private JTree targetTree;
     public static NavTransferWorker transferWorker = null; // singleton
-    private boolean transferWorkerRunning = false;
 
     public NavTransferHandler(Context context)
     {
@@ -710,7 +709,7 @@ public class NavTransferHandler extends TransferHandler
 
     public boolean isTransferWorkerRunning()
     {
-        return transferWorkerRunning;
+        return (transferWorker != null ? transferWorker.isRunning() : false);
     }
 
     /**
@@ -805,26 +804,19 @@ public class NavTransferHandler extends TransferHandler
      */
     private void process(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree targetTree, NavTreeUserObject targetTuo) throws Exception
     {
-        // make a new NavTransferWorker
+        // create a NavTransferWorker
         if (transferWorker == null || transferWorker.isDone())
         {
             transferWorker = null; // suggest clean-up
             transferWorker = new NavTransferWorker(context);
         }
+
+        // add this batch
         transferWorker.addBatch(action, count, size, transferData, targetTree, targetTuo);
 
-        // use a SwingWorker thread, Batch Actions mode
-//        if (context.preferences.isBatch() && !isTransferWorkerRunning())
-        {
+        // execute if not running
+        if (!isTransferWorkerRunning())
             transferWorker.execute();
-            transferWorkerRunning = true;
-        }
-//        else // run methods directly without thread, Auto-Refresh mode
-//        {
-//            transferWorkerRunning = true;
-//            transferWorker.doInBackground();
-//            transferWorker.done();
-//        }
     }
 
     public synchronized boolean removeDirectory(NavTreeUserObject sourceTuo)
@@ -945,7 +937,6 @@ public class NavTransferHandler extends TransferHandler
         sourceTable = null;
         targetTree = null;
         targetTable = null;
-        transferWorkerRunning = false;
     }
 
     // ==========================================

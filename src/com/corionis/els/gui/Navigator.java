@@ -345,9 +345,11 @@ public class Navigator
                         {
                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context,
-                                    context.cfg.gs("Navigator.recent.changes"), version.get(Configuration.BUILD_CHANGES_URL));
+                                    context.cfg.gs("Navigator.recent.changes"), version.get(Configuration.BUILD_CHANGES_URL), true);
                             if (!helpDialog.fault)
+                            {
                                 helpDialog.buttonFocus();
+                            }
                         }
                         else
                         {
@@ -1503,8 +1505,7 @@ public class Navigator
                 Generator generator = new Generator(context);
                 String configName = Configuration.NAVIGATOR_NAME;
                 JDialog dialog = new JDialog(context.mainFrame);
-                //dialog.setAlwaysOnTop(true);
-                dialog.setLocation(context.mainFrame.getX() + 42, context.mainFrame.getY() + 42);
+                dialog.setLocation(context.mainFrame.getX(), context.mainFrame.getY());
                 generator.showDialog(dialog, null, configName);
             }
         };
@@ -2111,7 +2112,6 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 context.preferences.setAutoRefresh(!context.preferences.isAutoRefresh());
-                context.preferences.setBatch(!context.preferences.isAutoRefresh());
                 if (context.preferences.isAutoRefresh())
                 {
                     context.mainFrame.radioButtonAutoRefresh.setSelected(true);
@@ -2129,33 +2129,6 @@ public class Navigator
             context.mainFrame.radioButtonAutoRefresh.setSelected(true);
         else
             context.mainFrame.radioButtonAutoRefresh.setSelected(false);
-        context.preferences.setBatch(!context.preferences.isAutoRefresh());
-
-        // --- Batch Actions
-        context.mainFrame.radioButtonBatch.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                context.preferences.setBatch(!context.preferences.isBatch());
-                context.preferences.setAutoRefresh(!context.preferences.isBatch());
-                if (context.preferences.isBatch())
-                {
-                    context.mainFrame.radioButtonBatch.setSelected(true);
-                    context.mainFrame.radioButtonAutoRefresh.setSelected(false);
-                }
-                else
-                {
-                    context.mainFrame.radioButtonBatch.setSelected(false);
-                    context.mainFrame.radioButtonAutoRefresh.setSelected(true);
-                }
-            }
-        });
-        // set initial state of Batch radioButton
-        if (context.preferences.isBatch())
-            context.mainFrame.radioButtonBatch.setSelected(true);
-        else
-            context.mainFrame.radioButtonBatch.setSelected(false);
 
         // --- Show Hidden
         context.mainFrame.menuItemShowHidden.addActionListener(new AbstractAction()
@@ -2644,7 +2617,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.controls.help.title"), "controls_" + context.preferences.getLocale() + ".html");
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.controls.help.title"), "controls_" + context.preferences.getLocale() + ".html", false);
                 if (!dialog.fault)
                     dialog.buttonFocus();
             }
@@ -2656,7 +2629,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html");
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html", false);
                 if (!dialog.fault)
                     dialog.buttonFocus();
             }
@@ -2758,7 +2731,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.changes.help.title"), "changes_" + context.preferences.getLocale() + ".html");
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.changes.help.title"), "changes_" + context.preferences.getLocale() + ".html", false);
                 if (!dialog.fault)
                     dialog.buttonFocus();
             }
@@ -2770,7 +2743,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html");
+                NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html", false);
                 if (!helpDialog.fault)
                     helpDialog.buttonFocus();
             }

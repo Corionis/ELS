@@ -389,12 +389,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
         return shown;
     }
 
-    public void loadChildren(boolean doLoadTable)
+    public SwingWorker<List<NavTreeNode>, Void> loadChildren(boolean doLoadTable)
     {
         // return if items exist and refresh is not needed (it's already been scanned), or
         // if a fault occurred (to avoid cascading exceptions)
         if (context.fault || !isRefresh())
-            return;
+            return null;
 
         SwingWorker<List<NavTreeNode>, Void> worker = new SwingWorker<List<NavTreeNode>, Void>()
         {
@@ -420,7 +420,9 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     }
                     NavTreeModel model = (NavTreeModel) myTree.getModel();
                     model.nodeStructureChanged(NavTreeNode.this);
-                }
+
+                    myTable.updateUI();
+                 }
                 catch (Exception e)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTreeNode.swing.worker.fault.during.get.of") +
@@ -441,6 +443,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
 
         };
         worker.execute();
+        return worker;
     }
 
     protected void loadProperties()

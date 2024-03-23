@@ -30,6 +30,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     private int filesToCopy = 0;
     private long filesSize = 0L;
     private ArrayList<Batch> queue;
+    private boolean running = false;
     private Repository sourceRepo;
     private JTree sourceTree;
     private boolean targetIsPublisher = false;
@@ -49,11 +50,18 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         queue = new ArrayList<Batch>();
     }
 
+    /**
+     * Perform heavy-lifting on this thread outside the EDT
+     *
+     * @return false = cancelled, or null
+     * @throws Exception
+     */
     @Override
     protected Object doInBackground() throws Exception
     {
         depth = 0;
         boolean error = false;
+        running = true;
 
         // create a fresh dialog
         if (context.progress != null && context.progress.isBeingUsed())
@@ -88,7 +96,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                                 !context.browser.navTransferHandler.getTransferWorker().isDone())
                         {
                             logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
-                            context.browser.navTransferHandler.getTransferWorker().cancel(true);
+                            running = false;
+                            cancel(true);
                         }
                     }
                 };
@@ -121,14 +130,23 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                         break;
                     }
                 }
+
+                if (action == TransferHandler.MOVE)
+                {
+                    error = false;
+                    if (sourceTuo.isDir)
+                        error = context.browser.navTransferHandler.removeDirectory(sourceTuo);
+                    else
+                        error = context.browser.navTransferHandler.removeFile(sourceTuo);
+                    if (error)
+                        break;
+                }
             }
 
             if (!error && !isCancelled())
             {
                 if (context.browser.isHintTrackingButtonEnabled())
                     exportHints(transferData, targetTuo);
-
-                removeTransferData(transferData);
             }
             else
             {
@@ -140,9 +158,14 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         return null;
     }
 
+    /**
+     * Thread done on the EDT
+     */
     @Override
     protected void done()
     {
+        removeTransferData(transferData); // update GUI on the EDT
+
         context.mainFrame.labelStatusMiddle.setText(MessageFormat.format(context.cfg.gs("Transfer.of.complete"), filesToCopy));
 
         // reset the queue
@@ -165,6 +188,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 context.browser.refreshTree(targetTree);
         }
 
+        running = false;
     }
 
     public void addBatch(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)
@@ -198,6 +222,11 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 context.browser.navTransferHandler.exportHint("mv", sourceTuo, targetTuo);
             }
         }
+    }
+
+    public boolean isRunning()
+    {
+        return running;
     }
 
     private String makeToPath(NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
@@ -258,54 +287,23 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         return path;
     }
 
-    private boolean removeItem(NavTreeUserObject sourceTuo)
-    {
-        boolean error = false;
-        if (sourceTuo.isDir)
-            error = context.browser.navTransferHandler.removeDirectory(sourceTuo);
-        else
-            error = context.browser.navTransferHandler.removeFile(sourceTuo);
-
-        if (!error && !context.fault && context.preferences.isAutoRefresh())
-        {
-/*
-        // TODO
-        //   * Move "remove" code to an EDT listener and dispatch event
-
-            sourceTuo.node.getMyTable().dispatchEvent(CUSTOM EVENT);
- */
-            BrowserTableModel btm = (BrowserTableModel) sourceTuo.node.getMyTable().getModel();
-            int tableIndex = btm.findNavTreeUserObjectIndex(sourceTuo.node);
-            if (tableIndex >= 0)
-            {
-                JTable table = sourceTuo.node.getMyTable();
-                RowSorter sorter = table.getRowSorter();
-                sorter.rowsDeleted(tableIndex, tableIndex);
-            }
-            btm.getDataVector().removeAllElements();
-            RowSorter drs = sourceTuo.node.getMyTable().getRowSorter();
-            sourceTuo.node.getMyTable().setRowSorter(null);
-
-            context.browser.rescanByNode((NavTreeNode) sourceTuo.node.getParent());
-
-            sourceTuo.node.getMyTable().setRowSorter(drs);
-            logger.trace("Removal complete");
-        }
-
-        return error;
-    }
-
     private void removeTransferData(ArrayList<NavTreeUserObject> transferData)
     {
         if (action == TransferHandler.MOVE)
         {
-            boolean error = false;
-
-            // iterate the selected source row's user object
+            // iterate the selected source user objects
             for (int i = transferData.size() - 1; i > -1; --i)
             {
                 NavTreeUserObject sourceTuo = transferData.get(i);
-                error = removeItem(sourceTuo);
+
+                // refresh GUI data
+                if (!context.fault && context.preferences.isAutoRefresh())
+                {
+                    NavTreeNode ntn = (NavTreeNode) sourceTuo.node.getParent();
+                    if (ntn != null)
+                        context.browser.rescanByNode(ntn);
+                    logger.trace("rescanByNode complete");
+                }
             }
         }
     }

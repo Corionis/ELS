@@ -28,6 +28,17 @@ public class BrowserTableModel extends DefaultTableModel
         return -1;
     }
 
+    public int findNodeIndexInTable(NavTreeNode find)
+    {
+        int size = getRowCount();
+        for (int i = 0; i < size; ++i)
+        {
+            if ((NavTreeNode) getValueAt(1, i) == find)
+                return i;
+        }
+        return -1;
+    }
+
     @Override
     public Class getColumnClass(int column)
     {

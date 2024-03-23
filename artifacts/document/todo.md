@@ -4,6 +4,7 @@
 ## Current Short-List
 
  * Thread handling and NavTransferHandler
+   * CountDownLatch  for loadChildren() ?
 
 ### Hints Reengineering
 

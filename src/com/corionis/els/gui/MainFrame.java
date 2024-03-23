@@ -299,8 +299,9 @@ public class MainFrame extends JFrame
             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
                 return false;
         }
+
         if (context.browser.navTransferHandler.getTransferWorker() != null &&
-                !context.browser.navTransferHandler.isTransferWorkerRunning())
+                context.browser.navTransferHandler.isTransferWorkerRunning())
         {
             logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
             context.browser.navTransferHandler.getTransferWorker().cancel(true);
@@ -865,7 +866,6 @@ public class MainFrame extends JFrame
                 radioButtonBatch.setEnabled(false);
                 radioButtonBatch.setVisible(false);
                 menuView.add(radioButtonBatch);
-                menuView.addSeparator();
 
                 //---- menuItemShowHidden ----
                 menuItemShowHidden.setText(context.cfg.gs("Navigator.menu.ShowHidden.text"));

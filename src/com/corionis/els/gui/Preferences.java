@@ -27,7 +27,6 @@ public class Preferences implements Serializable
     private int appXpos = -1;
     private int appYpos = 0;
     private boolean autoRefresh = false;
-    private boolean batch = true;
     private boolean binaryScale = true; // true = 1024, false = 1000
     private int browserBottomSize = 90;
     private int centerDividerLocation = 188;
@@ -1073,11 +1072,6 @@ public class Preferences implements Serializable
         return autoRefresh;
     }
 
-    public boolean isBatch()
-    {
-        return batch;
-    }
-
     public boolean isBinaryScale()
     {
         return binaryScale;
@@ -1231,11 +1225,6 @@ public class Preferences implements Serializable
     public void setAutoRefresh(boolean autoRefresh)
     {
         this.autoRefresh = autoRefresh;
-    }
-
-    public void setBatch(boolean batch)
-    {
-        this.batch = batch;
     }
 
     public void setBinaryScale(boolean binaryScale)

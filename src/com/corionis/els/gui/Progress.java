@@ -282,6 +282,7 @@ public class Progress extends JFrame
             labelForIcon.setMaximumSize(new Dimension(32, 32));
             labelForIcon.setHorizontalTextPosition(SwingConstants.LEFT);
             labelForIcon.setHorizontalAlignment(SwingConstants.LEFT);
+            labelForIcon.setIcon(new ImageIcon(getClass().getResource("/running.gif")));
             panelWidget.add(labelForIcon);
         }
         contentPane.add(panelWidget, BorderLayout.WEST);
@@ -295,6 +296,7 @@ public class Progress extends JFrame
         progressTextField.setHorizontalAlignment(SwingConstants.LEFT);
         progressTextField.setBorder(null);
         progressTextField.setMargin(new Insets(2, 0, 2, 8));
+        progressTextField.setText(context.cfg.gs("Progress.not.active"));
         contentPane.add(progressTextField, BorderLayout.CENTER);
 
         //======== panel1 ========

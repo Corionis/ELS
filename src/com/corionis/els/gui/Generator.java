@@ -82,7 +82,10 @@ public class Generator
 
         final JDialog dialog = new JDialog(owner);
         dialog.setAlwaysOnTop(true);
-        dialog.setLocationRelativeTo(owner);
+        if (owner == null)
+            dialog.setLocation(Utils.getRelativePosition(context.mainFrame.menuBarMain));
+        else
+            dialog.setLocationRelativeTo(owner);
         Object[] params = {panelName, panelComment, panelTerminal, panelWarning};
         int resp = JOptionPane.showConfirmDialog(dialog, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
         if (resp == JOptionPane.OK_OPTION)

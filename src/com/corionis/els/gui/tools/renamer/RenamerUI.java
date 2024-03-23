@@ -297,7 +297,7 @@ public class RenamerUI extends AbstractToolDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("Renamer.help"), "renamer_" + context.preferences.getLocale() + ".html");
+        helpDialog = new NavHelp(this, this, context, context.cfg.gs("Renamer.help"), "renamer_" + context.preferences.getLocale() + ".html", false);
         if (!helpDialog.fault)
             helpDialog.buttonFocus();
     }

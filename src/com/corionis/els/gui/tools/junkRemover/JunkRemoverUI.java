@@ -246,7 +246,7 @@ public class JunkRemoverUI extends AbstractToolDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("JunkRemover.help"), "junkremover_" + context.preferences.getLocale() + ".html");
+        helpDialog = new NavHelp(this, this, context, context.cfg.gs("JunkRemover.help"), "junkremover_" + context.preferences.getLocale() + ".html", false);
         if (!helpDialog.fault)
             helpDialog.buttonFocus();
     }

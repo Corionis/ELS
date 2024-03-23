@@ -1716,9 +1716,6 @@ new FormModel {
 						"enabled": false
 						"visible": false
 					} )
-					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separator19"
-					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "menuItemShowHidden"
 						"text": new FormMessage( null, "Navigator.menu.ShowHidden.text" )

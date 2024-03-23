@@ -42,6 +42,7 @@ new FormModel {
 					"maximumSize": new java.awt.Dimension( 32, 32 )
 					"horizontalTextPosition": 2
 					"horizontalAlignment": 2
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/running.gif" )
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "West"
@@ -56,6 +57,7 @@ new FormModel {
 				"horizontalAlignment": 2
 				"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 				"margin": new java.awt.Insets( 2, 0, 2, 8 )
+				"text": new FormMessage( null, "Progress.not.active" )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "Center"
 			} )

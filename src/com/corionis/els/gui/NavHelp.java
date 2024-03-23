@@ -29,7 +29,7 @@ public class NavHelp extends JDialog
     public boolean fault = false;
     private Component previous;
 
-    public NavHelp()
+    private NavHelp()
     {
     }
 
@@ -42,7 +42,7 @@ public class NavHelp extends JDialog
      * @param title Title for dialog
      * @param resourceFilename Internal resource filename or Internet URL
      */
-    public NavHelp(Window owner, Component prev, Context context, String title, String resourceFilename)
+    public NavHelp(Window owner, Component prev, Context context, String title, String resourceFilename, boolean modal)
     {
         super(owner);
         previous = prev;
@@ -104,9 +104,9 @@ public class NavHelp extends JDialog
 
         load(resourceFilename);
 
+        setModal(modal);
         setVisible(true);
         buttonFocus();
-
     }
 
     public void buttonFocus()
@@ -143,12 +143,13 @@ public class NavHelp extends JDialog
             helpText.setText(text);
 
             // scroll to the top
-            javax.swing.SwingUtilities.invokeLater(new Runnable()
+            SwingUtilities.invokeLater(new Runnable()
             {
                 public void run()
                 {
                     JScrollBar bar = scrollPane.getVerticalScrollBar();
                     bar.setValue(bar.getMinimum());
+                    buttonFocus();
                 }
             });
         }
