@@ -387,7 +387,7 @@ public class Daemon extends AbstractDaemon
                                     {
                                         valid = true;
                                         File f = new File(from);
-                                        context.transfer.copyFile(from, Files.getLastModifiedTime(f.toPath(), LinkOption.NOFOLLOW_LINKS), to, false, true);
+                                        context.transfer.copyFile(context.clientSftp, from, Files.getLastModifiedTime(f.toPath(), LinkOption.NOFOLLOW_LINKS), to, false, true);
                                     }
                                     catch (Exception e)
                                     {

@@ -11,7 +11,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
-import com.corionis.els.gui.Progress;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
@@ -21,8 +20,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -399,7 +396,7 @@ public class JunkRemoverTool extends AbstractTool
                                         context.mainFrame.labelStatusMiddle.updateUI();
                                     }
                                     if (!isDryRun)
-                                        getContext().transfer.remove(fullpath, attrs.isDir(), isRemote());
+                                        getContext().transfer.remove(context.clientSftp, fullpath, attrs.isDir(), isRemote());
                                     logDeletion(fullpath);
                                 }
                             }
@@ -463,7 +460,7 @@ public class JunkRemoverTool extends AbstractTool
                                 if (context.mainFrame != null)
                                     context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.count") + deleteCount);
                                 if (!isDryRun)
-                                    getContext().transfer.remove(fullpath, entry.isDirectory(), isRemote());
+                                    getContext().transfer.remove(context.clientSftp, fullpath, entry.isDirectory(), isRemote());
                                 logDeletion(fullpath);
                                 break;
                             }

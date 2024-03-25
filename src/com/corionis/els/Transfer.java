@@ -6,6 +6,7 @@ import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Location;
 import com.corionis.els.repository.Repository;
+import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.storage.Storage;
 import com.corionis.els.storage.Target;
 import org.apache.commons.lang3.SerializationUtils;
@@ -58,13 +59,13 @@ public class Transfer
      * @param isRemote  true/false
      * @param overwrite true/false
      */
-    public synchronized void copyFile(String from, FileTime filetime, String to, boolean isRemote, boolean overwrite) throws Exception
+    public synchronized void copyFile(ClientSftp sftp, String from, FileTime filetime, String to, boolean isRemote, boolean overwrite) throws Exception
     {
         if (isRemote)
         {
-            context.clientSftp.transmitFile(from, to, overwrite);
+            sftp.transmitFile(from, to, overwrite);
             if (context.cfg.isPreserveDates() && filetime != null)
-                context.clientSftp.setDate(to, (int) filetime.to(TimeUnit.SECONDS));
+                sftp.setDate(to, (int) filetime.to(TimeUnit.SECONDS));
         }
         else
         {
@@ -111,6 +112,8 @@ public class Transfer
      * <p>
      * The overwrite parameter is false for normal Process munge operationsUI, and
      * true for Subscriber terminal (-r T) to Publisher listener (-r L) operationsUI.
+     * <p>
+     * Only used in Process() and publisher Daemon.
      *
      * @param group     the group
      * @param totalSize the total size
@@ -154,7 +157,8 @@ public class Transfer
                         logger.info(msg);
                         response += (msg + "\r\n");
 
-                        copyFile(groupItem.getFullPath(), groupItem.getModifiedDate(), to, context.cfg.isRemoteOperation(), overwrite);
+                        // only used in Process() and publisher Daemon
+                        copyFile(context.clientSftp, groupItem.getFullPath(), groupItem.getModifiedDate(), to, context.cfg.isRemoteOperation(), overwrite);
 
                         grandTotalItems = grandTotalItems + 1;
                         grandTotalSize = grandTotalSize + groupItem.getSize();
@@ -564,7 +568,7 @@ public class Transfer
         String create = (isDir) ? path : Utils.getLeftPath(path, null);
         if (isRemote)
         {
-            context.clientSftp.makeDirectory(create);
+            context.clientSftp.makeDirectory(create); // only used in Navigator
         }
         else
         {
@@ -794,15 +798,16 @@ public class Transfer
     /**
      * Remove a file, local or remote
      *
+     * @param sftp
      * @param path     the full from path
      * @param isDir    if this specific path is a directory
      * @param isRemote if this specific path is remote
      */
-    public void remove(String path, boolean isDir, boolean isRemote) throws Exception
+    public void remove(ClientSftp sftp, String path, boolean isDir, boolean isRemote) throws Exception
     {
         if (isRemote)
         {
-            context.clientSftp.remove(path, isDir);
+            sftp.remove(path, isDir);
         }
         else
         {
@@ -899,6 +904,7 @@ public class Transfer
     /**
      * Rename a file or directory, local or remote
      *
+     * @param sftp
      * @param from     the full from path
      * @param to       the full to path
      * @param isRemote if this specific path is remote
@@ -907,7 +913,7 @@ public class Transfer
     {
         if (isRemote)
         {
-            context.clientSftp.rename(from, to);
+            context.clientSftp.rename(from, to); // only used in Navigator
         }
         else
         {

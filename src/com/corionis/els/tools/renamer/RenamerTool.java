@@ -9,7 +9,6 @@ import com.google.gson.GsonBuilder;
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
-import com.corionis.els.gui.Progress;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
 import com.jcraft.jsch.ChannelSftp;
@@ -21,8 +20,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

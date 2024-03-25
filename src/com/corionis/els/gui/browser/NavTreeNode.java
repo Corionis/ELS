@@ -585,7 +585,6 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     context.subscriberRepo.getLibraryData().libraries.description;
             logger.error(msg);
             context.fault = true;
-            nodeArray = null;
             JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
         return nodeArray;

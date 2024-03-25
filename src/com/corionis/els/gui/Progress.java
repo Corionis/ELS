@@ -164,6 +164,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
     @Override
     public boolean count(long count)
     {
+        // LEFTOFF
+        //  * Fails with tree-based actions. WTF??
+        //  -
+        //  Add a --procSig option that is ignored but can be found in a process list - for scripting
+
+
         progressCurrent += count;
         totalBytesCopied += count;
 
@@ -318,8 +324,10 @@ public class Progress extends JFrame implements SftpProgressMonitor
         labelForIcon = new JLabel();
         progressTextField = new JTextField();
         panelButton = new JPanel();
+        hSpacer3 = new JPanel(null);
         buttonCancel = new JButton();
         hSpacer2 = new JPanel(null);
+        hSpacer4 = new JPanel(null);
         panelProgress = new JPanel();
         progressBarFile = new JProgressBar();
         progressBarTotal = new JProgressBar();
@@ -397,6 +405,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
             panelButton.setMaximumSize(new Dimension(88, 20));
             panelButton.setLayout(new BorderLayout());
 
+            //---- hSpacer3 ----
+            hSpacer3.setMinimumSize(new Dimension(10, 3));
+            hSpacer3.setMaximumSize(new Dimension(32767, 3));
+            hSpacer3.setPreferredSize(new Dimension(10, 3));
+            panelButton.add(hSpacer3, BorderLayout.NORTH);
+
             //---- buttonCancel ----
             buttonCancel.setText(context.cfg.gs("Progress.buttonCancel.text_2"));
             buttonCancel.setMaximumSize(new Dimension(78, 20));
@@ -410,6 +424,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
             hSpacer2.setMinimumSize(new Dimension(4, 10));
             hSpacer2.setMaximumSize(new Dimension(4, 10));
             panelButton.add(hSpacer2, BorderLayout.EAST);
+
+            //---- hSpacer4 ----
+            hSpacer4.setMinimumSize(new Dimension(10, 3));
+            hSpacer4.setMaximumSize(new Dimension(32767, 3));
+            hSpacer4.setPreferredSize(new Dimension(10, 3));
+            panelButton.add(hSpacer4, BorderLayout.SOUTH);
         }
         contentPane.add(panelButton, BorderLayout.EAST);
 
@@ -467,8 +487,10 @@ public class Progress extends JFrame implements SftpProgressMonitor
     public JLabel labelForIcon;
     public JTextField progressTextField;
     public JPanel panelButton;
+    public JPanel hSpacer3;
     public JButton buttonCancel;
     public JPanel hSpacer2;
+    public JPanel hSpacer4;
     public JPanel panelProgress;
     public JProgressBar progressBarFile;
     public JProgressBar progressBarTotal;

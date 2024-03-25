@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.File;
 import java.io.IOException;
@@ -593,6 +594,7 @@ public class NavTransferHandler extends TransferHandler
             }
 
             // iterate source tuo objects for statistics
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             for (NavTreeUserObject sourceTuo : actionList)
             {
                 NavTreeNode sourceNode = sourceTuo.node;
@@ -633,6 +635,7 @@ public class NavTransferHandler extends TransferHandler
                     return false;
                 }
             }
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
             // Check for Hint conflicts after deep scan
             for (NavTreeUserObject tuo : actionList)
@@ -862,7 +865,7 @@ public class NavTransferHandler extends TransferHandler
                 // remove directory itself
                 if (!context.cfg.isDryRun())
                 {
-                    context.transfer.remove(sourceTuo.path, true, sourceTuo.isRemote);
+                    context.transfer.remove(context.clientSftpTransfer, sourceTuo.path, true, sourceTuo.isRemote);
                 }
             }
         }
@@ -896,7 +899,7 @@ public class NavTransferHandler extends TransferHandler
 
             if (!context.cfg.isDryRun())
             {
-                context.transfer.remove(sourceTuo.path, false, sourceTuo.isRemote);
+                context.transfer.remove(context.clientSftpTransfer, sourceTuo.path, false, sourceTuo.isRemote);
                 logger.info(msg); // not printed if file is missing
             }
         }

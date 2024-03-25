@@ -1030,7 +1030,6 @@ public class Navigator
 
                         if (context.preferences.isLastSubscriberIsRemote())
                         {
-                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Transfer.requesting.subscriber.library"));
                             context.mainFrame.repaint();
                             context.mainFrame.labelStatusMiddle.repaint();
@@ -3128,6 +3127,8 @@ public class Navigator
                 closure = true;
                 if (context.clientSftp != null)
                     context.clientSftp.stopClient();
+                if (context.clientSftpTransfer != null)
+                    context.clientSftpTransfer.stopClient();
 
                 if (context.clientStty != null && context.clientStty.isConnected())
                 {

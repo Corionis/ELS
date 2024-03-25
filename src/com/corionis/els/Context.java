@@ -24,6 +24,7 @@ public class Context
     // ELS core
     public HintKeys authKeys = null;
     public ClientSftp clientSftp = null;
+    public ClientSftp clientSftpTransfer = null;
     public ClientStty clientStty = null;
     public Configuration cfg = null;
     public Datastore datastore = null;

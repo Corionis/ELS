@@ -567,6 +567,13 @@ public class Main
                         // handle -n|--navigator to display the Navigator
                         if (context.cfg.isNavigator())
                         {
+                            // start the serveSftp client
+                            context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+                            if (!context.clientSftpTransfer.startClient())
+                            {
+                                throw new MungeException("Subscriber sftp transfer to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                            }
+
                             context.navigator = new Navigator(main, context);
                             if (!context.fault)
                             {
@@ -1173,6 +1180,13 @@ public class Main
                 logger.trace("  sftp client");
                 context.clientSftp.stopClient();
                 context.clientSftp = null;
+                Thread.sleep(3000L);
+            }
+            if (context.clientSftpTransfer != null)
+            {
+                logger.trace("  sftp client transfer");
+                context.clientSftpTransfer.stopClient();
+                context.clientSftpTransfer = null;
                 Thread.sleep(3000L);
             }
             if (context.serveSftp != null)

@@ -177,7 +177,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     {
         removeTransferData(transferData); // update GUI on the EDT
 
-        context.mainFrame.labelStatusMiddle.setText(MessageFormat.format(context.cfg.gs("Transfer.of.complete"), filesToCopy));
+        String msg = (running) ? context.cfg.gs("Transfer.of.complete") : context.cfg.gs("Transfer.of.cancelled");
+        context.mainFrame.labelStatusMiddle.setText(MessageFormat.format(msg, filesToCopy));
 
         // reset the queue
         queue = new ArrayList<Batch>();
@@ -453,7 +454,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                     }
                     else
                     {
-                        context.transfer.copyFile(sourceTuo.path, sourceTuo.fileTime, path, false, true);
+                        context.transfer.copyFile(context.clientSftpTransfer, sourceTuo.path, sourceTuo.fileTime, path, false, true);
                     }
                     setupToNode(sourceTuo, targetTuo, path);
                 }
@@ -464,7 +465,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 logger.info(context.cfg.gs("NavTransferHandler.put") + msg);
                 if (!context.cfg.isDryRun())
                 {
-                    context.transfer.copyFile(sourceTuo.path, sourceTuo.fileTime, path, true, false);
+                    context.transfer.copyFile(context.clientSftpTransfer, sourceTuo.path, sourceTuo.fileTime, path, true, false);
                     setupToNode(sourceTuo, targetTuo, path);
                 }
             }
@@ -476,7 +477,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 {
                     String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
                     Files.createDirectories(Paths.get(dir));
-                    context.clientSftp.get(sourceTuo.path, path);
+                    context.clientSftpTransfer.get(sourceTuo.path, path);
+
                     setupToNode(sourceTuo, targetTuo, path);
                     if (context.preferences.isPreserveFileTimes())
                         Files.setLastModifiedTime(Paths.get(path), sourceTuo.fileTime);

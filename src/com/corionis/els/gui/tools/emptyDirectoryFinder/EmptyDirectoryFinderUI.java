@@ -3,7 +3,6 @@ package com.corionis.els.gui.tools.emptyDirectoryFinder;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
-import com.corionis.els.gui.util.*;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
@@ -129,7 +128,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                         {
                             String path = Utils.makeLinuxPath(empty.path);
                             logger.info(context.cfg.gs("EmptyDirectoryFinder.removing") + path);
-                            context.transfer.remove(path, true, !isPublisher && context.cfg.isRemoteOperation());
+                            context.transfer.remove(context.clientSftp, path, true, !isPublisher && context.cfg.isRemoteOperation());
                         }
                         catch (Exception ex)
                         {
