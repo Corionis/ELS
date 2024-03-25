@@ -13,6 +13,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
@@ -68,17 +70,39 @@ public class Transfer
         {
             if (to.matches("^\\\\[a-zA-Z]:.*"))
                 to = to.substring(1);
-            Path fromPath = Paths.get(from).toRealPath();
-            Path toPath = Paths.get(to);
             File f = new File(to);
             if (f != null)
             {
                 f.getParentFile().mkdirs();
             }
+
+            File fileIn  = new File(from);
+            File fileOut = new File(to);
+            long size  = fileIn.length();
+            byte[] buffer = new byte[32755];
+            int received = 0;
+            if (context.progress != null)
+                context.progress.init(2, from, to, size);
+
+            FileInputStream fin  = new FileInputStream(fileIn);
+            FileOutputStream fout = new FileOutputStream(fileOut);
+            while ((received = fin.read(buffer)) != -1)
+            {
+                if (context.progress != null)
+                {
+                    if (!context.progress.count(received))
+                        break;
+                }
+                fout.write(buffer, 0, received);
+            }
+            fin.close();
+            fout.close();
+
+            if (context.progress != null)
+                context.progress.end();
+
             if (context.cfg.isPreserveDates() && filetime != null)
-                Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
-            else
-                Files.copy(fromPath, toPath, REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
+                fileOut.setLastModified(filetime.toMillis());
         }
     }
 

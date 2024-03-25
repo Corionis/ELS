@@ -48,7 +48,30 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     {
         this.context = context;
         queue = new ArrayList<Batch>();
-    }
+
+        // create a fresh dialog - don't flash it on the screen if the file is too small
+        ActionListener cancelAction = new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (context.browser.navTransferHandler.getTransferWorker() != null &&
+                        !context.browser.navTransferHandler.getTransferWorker().isDone())
+                {
+//                            try
+//                            {
+//                                Thread.sleep(2000);
+//                            }
+//                            catch (Exception e)
+//                            {}
+                    logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
+                    running = false;
+                    cancel(true);
+                }
+            }
+        };
+        context.progress = new Progress(context, context.mainFrame, cancelAction, context.cfg.isDryRun());
+}
 
     /**
      * Perform heavy-lifting on this thread outside the EDT
@@ -63,17 +86,19 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         boolean error = false;
         running = true;
 
-        // create a fresh dialog
-        if (context.progress != null && context.progress.isBeingUsed())
+        // check for other blocking processes
+        if (context.navigator.isBlockingProcessRunning())
         {
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             return false;
         }
+        else
+            context.navigator.setBlockingProcessRunning(true);
 
         fileNumber = 0;
         for (int i = 0; i < queue.size(); ++i)
         {
-            if (isCancelled())
+            if (!isRunning())
                 break;
 
             Batch batch = queue.get(i);
@@ -84,31 +109,17 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             batchSize = batch.batchSize;
             targetIsPublisher = targetTree.getName().toLowerCase().endsWith("one");
 
-            // create a fresh dialog - don't flash it on the screen if the file is too small
-            if (batchSize > 524288L && (context.progress == null || !context.progress.isBeingUsed()))
+//            if (batchSize > 512000)
             {
-                ActionListener cancelAction = new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent)
-                    {
-                        if (context.browser.navTransferHandler.getTransferWorker() != null &&
-                                !context.browser.navTransferHandler.getTransferWorker().isDone())
-                        {
-                            logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
-                            running = false;
-                            cancel(true);
-                        }
-                    }
-                };
-                context.progress = new Progress(context, context.mainFrame, cancelAction, context.cfg.isDryRun());
                 context.progress.display();
             }
+//            else
+//                context.progress = null;
 
-            // iterate the selected source row's user object
+        // iterate the selected source row's user object
             for (NavTreeUserObject sourceTuo : transferData)
             {
-                if (isCancelled())
+                if (!isRunning())
                     break;
 
                 NavTreeNode sourceNode = sourceTuo.node;
@@ -154,7 +165,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             }
         }
         if (isCancelled())
-            logger.warn(context.cfg.gs("NavTransferWorker.cancelled"));
+            logger.trace(context.cfg.gs("NavTransferWorker.cancelled"));
         return null;
     }
 
@@ -188,6 +199,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 context.browser.refreshTree(targetTree);
         }
 
+        context.navigator.setBlockingProcessRunning(false);
         running = false;
     }
 
@@ -197,6 +209,10 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         queue.add(batch);
         filesToCopy += count;
         filesSize += size;
+        if (context.progress != null)
+        {
+            context.progress.setCountAndBytes(filesToCopy, filesSize);
+        }
         logger.info(java.text.MessageFormat.format(context.cfg.gs("NavTransferWorker.added.batch.0.items"), count) +
                 Utils.formatLong(size, false, context.cfg.getLongScale()));
     }
@@ -308,6 +324,11 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         }
     }
 
+    public void setIsRunning(boolean state)
+    {
+        running = state;
+    }
+
     private NavTreeUserObject setupToNode(NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo, String path)
     {
         boolean exists = false;
@@ -356,7 +377,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
             for (int i = 0; i < childCount; ++i)
             {
-                if (isCancelled())
+                if (!isRunning())
                     break;
 
                 NavTreeNode child = (NavTreeNode) sourceTuo.node.getChildAt(i, false, false);
@@ -413,9 +434,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             ++fileNumber;
             if (context.progress != null)
             {
-                String status = " " + fileNumber + context.cfg.gs("NavTransferHandler.progress.of") + filesToCopy +
-                        ", " + Utils.formatLong(sourceTuo.size, false, context.cfg.getLongScale()) + ", " + sourceTuo.name + " ";
-                context.progress.update(status);
+                context.progress.update(fileNumber, sourceTuo.size, sourceTuo.name);
             }
 
             path = makeToPath(sourceTuo, targetTuo);

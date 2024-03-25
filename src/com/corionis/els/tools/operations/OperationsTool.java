@@ -567,8 +567,8 @@ public class OperationsTool extends AbstractTool
     @Override
     public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
     {
-        // create a fresh dialog
-        if (context.progress == null || !context.progress.isBeingUsed())
+        // check for other blocking processes
+        if (!context.navigator.isBlockingProcessRunning())
         {
 /*
             ActionListener cancel = new ActionListener()
@@ -582,6 +582,7 @@ public class OperationsTool extends AbstractTool
             context.progress = new Progress(context, context.mainFrame.panelOperationTop, cancel, ((dryRun) ? dryRun : optDryRun));
             context.progress.display();
 */
+            context.navigator.setBlockingProcessRunning(true);
         }
         else
         {
@@ -608,6 +609,12 @@ public class OperationsTool extends AbstractTool
                         JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("Operations.displayName"), JOptionPane.ERROR_MESSAGE);
                 }
                 return null;
+            }
+
+            @Override
+            protected void done()
+            {
+                context.navigator.setBlockingProcessRunning(false);
             }
         };
         return worker;

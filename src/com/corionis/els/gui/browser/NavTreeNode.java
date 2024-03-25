@@ -422,6 +422,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     model.nodeStructureChanged(NavTreeNode.this);
 
                     myTable.updateUI();
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                  }
                 catch (Exception e)
                 {

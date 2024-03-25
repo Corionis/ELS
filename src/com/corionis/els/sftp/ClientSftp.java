@@ -89,7 +89,10 @@ public class ClientSftp
         source = Utils.unpipe(source, "/");
         dest = Utils.pipe(dest);
         dest = Utils.unpipe(dest, "/");
-        jSftp.get(source, dest);
+        if (context.progress != null)
+            jSftp.get(source, dest, context.progress);
+        else
+            jSftp.get(source, dest);
         jSftp.disconnect();
     }
 
@@ -330,7 +333,10 @@ public class ClientSftp
         }
 
         // copy the .els-part file
-        jSftp.put(src, copyDest, mode);
+        if (context.progress != null)
+            jSftp.put(src, copyDest, context.progress, mode);
+        else
+            jSftp.put(src, copyDest, mode);
 
         // delete any old original file
         try

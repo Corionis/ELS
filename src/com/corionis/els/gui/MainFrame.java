@@ -291,7 +291,7 @@ public class MainFrame extends JFrame
             }
         }
 
-        if (context.progress != null && context.progress.isBeingUsed())
+        if (context.progress != null)
         {
             int r = JOptionPane.showConfirmDialog(context.mainFrame,
                     context.cfg.gs("MainFrame.transfers.are.active.are.you.sure"),

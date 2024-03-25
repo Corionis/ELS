@@ -227,18 +227,21 @@ public class Job extends AbstractTool
      */
     public SwingWorker<Void, Void> process(Context context, Component comp, String title, Job job, boolean isDryRun)
     {
-        if (context.progress != null && context.progress.isBeingUsed())
-        {
-            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
-            return null;
-        }
-
         if (willDisconnect(context))
         {
             int reply = JOptionPane.showConfirmDialog(comp, context.cfg.gs("Job.this.job.contains.remote.subscriber"), title, JOptionPane.YES_NO_OPTION);
             if (reply != JOptionPane.YES_OPTION)
                 return null;
         }
+
+        // check for other blocking processes
+        if (context.navigator.isBlockingProcessRunning())
+        {
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+        else
+            context.navigator.setBlockingProcessRunning(true);
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
         {
@@ -258,6 +261,12 @@ public class Job extends AbstractTool
 
                 }
                 return null;
+            }
+
+            @Override
+            protected void done()
+            {
+                context.navigator.setBlockingProcessRunning(false);
             }
         };
         return worker;

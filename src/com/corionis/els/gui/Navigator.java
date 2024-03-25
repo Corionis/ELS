@@ -74,6 +74,7 @@ public class Navigator
     public Job[] jobs;
     public SwingWorker<Void, Void> worker;
     boolean mockMode = false; // instead of downloading version.info get from mock/bin/
+    private boolean blockingProcessRunning = false;
     private int bottomSizeBrowser;
     private Settings dialogSettings = null;
     private int lastFindPosition = 0;
@@ -86,7 +87,6 @@ public class Navigator
     private String updaterJar = null;
     private boolean updaterProcess = false;
     private transient Logger logger = LogManager.getLogger("applog");
-
     public Navigator(Main main, Context context)
     {
         this.context = context;
@@ -2073,7 +2073,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (context.progress == null || !context.progress.isBeingUsed())
+                if (context.progress == null)
                 {
                     ActionListener cancel = new ActionListener()
                     {
@@ -2848,6 +2848,11 @@ public class Navigator
 
     }
 
+    public boolean isBlockingProcessRunning()
+    {
+        return blockingProcessRunning;
+    }
+
     public boolean isUpdaterProcess()
     {
         return updaterProcess;
@@ -3401,6 +3406,11 @@ public class Navigator
             }
         }
         return path;
+    }
+
+    public void setBlockingProcessRunning(boolean blockingProcessRunning)
+    {
+        this.blockingProcessRunning = blockingProcessRunning;
     }
 
     private void setQuitTerminateVisibility()
