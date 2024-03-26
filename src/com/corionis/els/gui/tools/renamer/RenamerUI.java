@@ -1,6 +1,5 @@
 package com.corionis.els.gui.tools.renamer;
 
-import javax.swing.table.*;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
@@ -84,7 +83,7 @@ public class RenamerUI extends AbstractToolDialog
        }
         else
         {
-            this.setLocation(Utils.getRelativePosition(this));
+            this.setLocation(Utils.getRelativePosition(context.mainFrame, this));
         }
 
         this.splitPaneContent.setDividerLocation(context.preferences.getToolsRenamerDividerLocation());

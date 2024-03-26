@@ -6,12 +6,6 @@ import com.corionis.els.repository.Libraries;
 import com.corionis.els.repository.Repository;
 import com.google.gson.Gson;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -658,13 +652,14 @@ public class Utils
      * Get a Point to position component centered on it's parent
      *
      * @param component
+     * @param parent
      * @return Point
      */
-    public static Point getRelativePosition(Component component)
+    public static Point getRelativePosition(Window parent, Window window)
     {
-        Point parentPos = component.getParent().getLocation();
-        Dimension parentSize = component.getParent().getSize();
-        Dimension mySize = component.getSize();
+        Point parentPos = parent.getLocation();
+        Dimension parentSize = parent.getSize();
+        Dimension mySize = window.getSize();
         Point center = new Point(parentPos.x + parentSize.width / 2, parentPos.y + parentSize.height / 2);
         int x = center.x - mySize.width / 2;
         int y = center.y - mySize.height / 2;

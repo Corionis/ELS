@@ -187,9 +187,9 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
         if (context.progress != null)
         {
-            context.progress.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+//            context.progress.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             context.progress.done();
-            context.progress.dispose();
+//            context.progress.dispose();
             context.progress = null;
         }
 

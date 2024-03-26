@@ -4,7 +4,6 @@ import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
 import com.corionis.els.gui.bookmarks.Bookmark;
-import com.corionis.els.gui.util.*;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
@@ -61,7 +60,7 @@ public class DuplicateFinderUI extends JDialog
         }
         else
         {
-            this.setLocation(Utils.getRelativePosition(this));
+            this.setLocation(Utils.getRelativePosition(context.mainFrame, this));
         }
 
         // Escape key

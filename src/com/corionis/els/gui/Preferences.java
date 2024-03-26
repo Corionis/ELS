@@ -105,7 +105,7 @@ public class Preferences implements Serializable
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
     private int progressWidth = -1;
-    private int progressXpos = 0;
+    private int progressXpos = -1;
     private int progressYpos = 0;
     private int schema = 1;
     private boolean showArrows = true;

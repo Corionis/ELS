@@ -183,7 +183,7 @@ public class DirectoryPicker
         }
         else
         {
-            dialog.setLocation(Utils.getRelativePosition(dialog));
+            dialog.setLocation(Utils.getRelativePosition(context.mainFrame, dialog));
         }
 
         dialog.addWindowListener(new WindowListener()

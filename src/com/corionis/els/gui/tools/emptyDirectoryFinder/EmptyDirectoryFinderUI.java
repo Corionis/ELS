@@ -60,7 +60,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         }
         else
         {
-            this.setLocation(Utils.getRelativePosition(this));
+            this.setLocation(Utils.getRelativePosition(context.mainFrame, this));
         }
 
         // Escape key

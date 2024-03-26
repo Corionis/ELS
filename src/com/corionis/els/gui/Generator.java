@@ -83,7 +83,7 @@ public class Generator
         final JDialog dialog = new JDialog(owner);
         dialog.setAlwaysOnTop(true);
         if (owner == null)
-            dialog.setLocation(Utils.getRelativePosition(context.mainFrame.menuBarMain));
+            dialog.setLocation(Utils.getRelativePosition(context.mainFrame, dialog));
         else
             dialog.setLocationRelativeTo(owner);
         Object[] params = {panelName, panelComment, panelTerminal, panelWarning};

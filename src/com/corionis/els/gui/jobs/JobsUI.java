@@ -111,7 +111,7 @@ public class JobsUI extends AbstractToolDialog
         }
         else
         {
-            this.setLocation(Utils.getRelativePosition(this));
+            this.setLocation(Utils.getRelativePosition(context.mainFrame, this));
         }
 
         this.splitPaneContent.setDividerLocation(context.preferences.getJobsTaskDividerLocation());

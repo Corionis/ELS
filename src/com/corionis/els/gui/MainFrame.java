@@ -291,18 +291,15 @@ public class MainFrame extends JFrame
             }
         }
 
-        if (context.progress != null)
+        if (context.browser.navTransferHandler.getTransferWorker() != null &&
+                context.browser.navTransferHandler.getTransferWorker().isRunning())
         {
             int r = JOptionPane.showConfirmDialog(context.mainFrame,
                     context.cfg.gs("MainFrame.transfers.are.active.are.you.sure"),
                     context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
                 return false;
-        }
 
-        if (context.browser.navTransferHandler.getTransferWorker() != null &&
-                context.browser.navTransferHandler.isTransferWorkerRunning())
-        {
             logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
             context.browser.navTransferHandler.getTransferWorker().cancel(true);
             context.fault = true;
@@ -310,8 +307,8 @@ public class MainFrame extends JFrame
         return true;
     }
 
-   private void cardShown(ComponentEvent e)
-   {
+    private void cardShown(ComponentEvent e)
+    {
         context.libraries.cardShown(e);
     }
 

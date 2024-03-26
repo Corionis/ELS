@@ -30,13 +30,13 @@ public class Progress extends JFrame implements SftpProgressMonitor
     private long progressMax = 0L;
     private long progressMaxDivisor = 0L;
     private boolean noIcon = false;
-    private Component owner;
+    private Window owner;
     private long totalBytesCopied = 0L;
     private long totalBytesDivisor = 0L;
     private int totalFilesToCopy = 0;
     private long totalFilesBytes = 0L;
 
-    public Progress(Context context, Component owner, ActionListener cancelAction, boolean dryRun)
+    public Progress(Context context, Window owner, ActionListener cancelAction, boolean dryRun)
     {
         this.context = context;
         this.owner = owner;
@@ -74,28 +74,32 @@ public class Progress extends JFrame implements SftpProgressMonitor
 
     private void cancelClicked(ActionEvent e)
     {
-        Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
-        int r = JOptionPane.showOptionDialog(this,
-                context.cfg.gs("Z.cancel.the.current.operation"),
-                getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
-                null, opts, opts[1]);
-        if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
-            return;
-
-        // cancel sftp action
-        context.browser.navTransferHandler.getTransferWorker().setIsRunning(false);
-        cancelled = true;
-
-        // give sftp a moment to stop
-        try
+        if (context.browser.navTransferHandler.getTransferWorker() != null &&
+                context.browser.navTransferHandler.getTransferWorker().isRunning())
         {
-            Thread.sleep(1000);
-        }
-        catch (Exception e1)
-        {}
+            Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
+            int r = JOptionPane.showOptionDialog(this,
+                    context.cfg.gs("Z.cancel.the.current.operation"),
+                    getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
+                    null, opts, opts[1]);
+            if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+                return;
 
-        // proceed
-        this.cancelAction.actionPerformed(e);
+            // cancel sftp action
+            context.browser.navTransferHandler.getTransferWorker().setIsRunning(false);
+            cancelled = true;
+
+            // give sftp a moment to stop
+            try
+            {
+                Thread.sleep(1000);
+            }
+            catch (Exception e1)
+            {}
+
+            // proceed
+            this.cancelAction.actionPerformed(e);
+        }
 
         done();
     }
@@ -108,7 +112,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
         }
         else
         {
-            this.setLocation(Utils.getRelativePosition(context.mainFrame));
+            this.setLocation(Utils.getRelativePosition(context.mainFrame, context.mainFrame));
         }
 
         if (context.preferences.getProgressWidth() > 0)
@@ -165,10 +169,8 @@ public class Progress extends JFrame implements SftpProgressMonitor
     public boolean count(long count)
     {
         // LEFTOFF
-        //  * Fails with tree-based actions. WTF??
-        //  -
-        //  Add a --procSig option that is ignored but can be found in a process list - for scripting
-
+        //  + Add a --procSig option that is ignored but can be found in a process list - for scripting
+        //  + Pre-create all known directories so emailed files can be dropped-in
 
         progressCurrent += count;
         totalBytesCopied += count;
@@ -255,7 +257,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
     {
         if (!prefSaved)
             storePreferences();
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+//        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setVisible(false);
         if (owner != null)
         {
@@ -338,7 +340,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
         setMinimumSize(new Dimension(184, 128));
         setTitle(context.cfg.gs("Progress.title"));
         setName("ProgressBox");
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(10, 128));
         setMaximumSize(new Dimension(2147483647, 128));
         addWindowListener(new WindowAdapter() {

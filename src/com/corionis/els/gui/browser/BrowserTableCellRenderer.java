@@ -26,6 +26,7 @@ public class BrowserTableCellRenderer extends DefaultTableCellRenderer
                 column >= 0 && column < table.getModel().getColumnCount())
         {
             // get the object
+            row = table.getRowSorter().convertRowIndexToModel(row);
             Object object = table.getModel().getValueAt(row, column);
             if (object != null)
             {

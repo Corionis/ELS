@@ -740,7 +740,7 @@ public class OperationsUI extends AbstractToolDialog
         }
         else
         {
-            this.setLocation(Utils.getRelativePosition(this));
+            this.setLocation(Utils.getRelativePosition(context.mainFrame, this));
         }
 
         splitPaneOperationContent.setDividerLocation(context.preferences.getToolOperationsDividerConfigLocation());
