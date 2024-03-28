@@ -154,18 +154,20 @@ public class Progress extends JFrame implements SftpProgressMonitor
     }
 
     @Override
-    public void init(int op, String src, String dest, long max)
+    public void init(int op, String src, String dest, long size)
     {
         progressCurrent = 0L;
-        progressMax = max;
+        progressMax = size;
         progressBarFile.setValue(0);
-        progressMaxDivisor = max / 100;
+        progressMaxDivisor = progressMax / 100;
+        if (progressMaxDivisor <= 0)
+            progressMaxDivisor = 1;
         time = System.currentTimeMillis();
 
         String[] actions = {"put", "get", "copy"};
         String action = actions[op];
 
-        logger.trace(action + " " + src + " " + dest + " " + max);
+        logger.trace(action + " " + src + " " + dest + " " + size);
     }
 
     @Override
@@ -255,6 +257,8 @@ public class Progress extends JFrame implements SftpProgressMonitor
         this.totalFilesToCopy = filesToCopy;
         this.totalFilesBytes = totalFilesBytes;
         this.totalBytesDivisor = totalFilesBytes / 100L;
+        if (this.totalBytesDivisor <= 0)
+            this.totalBytesDivisor = 1;
         update(fileNumber, progressMax, name);
     }
 
