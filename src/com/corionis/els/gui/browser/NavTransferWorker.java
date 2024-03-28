@@ -178,7 +178,18 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         removeTransferData(transferData); // update GUI on the EDT
 
         String msg = (running) ? context.cfg.gs("Transfer.of.complete") : context.cfg.gs("Transfer.of.cancelled");
-        context.mainFrame.labelStatusMiddle.setText(MessageFormat.format(msg, filesToCopy));
+        msg = MessageFormat.format(msg, filesToCopy);
+        long now = System.currentTimeMillis();
+        long diff = now - context.progress.getStartTime() ;
+        diff = diff / 1000; // convert to seconds
+        if (diff > 0)
+        {
+            String duration = Utils.formatDuration(diff);
+            msg += ": " + Utils.formatLong(context.progress.getTotalBytesCopied(), false, context.cfg.getLongScale()) + "; " +
+                    duration + "; " + Utils.formatLong(context.progress.getAverageBps(), false, context.cfg.getLongScale()) + " per second";
+        }
+        context.mainFrame.labelStatusMiddle.setText(msg);
+        logger.info(msg);
 
         // reset the queue
         queue = new ArrayList<Batch>();
@@ -187,9 +198,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
         if (context.progress != null)
         {
-//            context.progress.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             context.progress.done();
-//            context.progress.dispose();
             context.progress = null;
         }
 

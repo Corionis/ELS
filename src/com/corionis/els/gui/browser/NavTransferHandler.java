@@ -700,6 +700,7 @@ public class NavTransferHandler extends TransferHandler
         }
         catch (Exception e)
         {
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             logger.error(Utils.getStackTrace(e));
             context.mainFrame.labelStatusMiddle.setText("");
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Browser.error") + e.getMessage(),
@@ -871,6 +872,7 @@ public class NavTransferHandler extends TransferHandler
         }
         catch (Exception e)
         {
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             logger.error(Utils.getStackTrace(e));
             context.mainFrame.labelStatusMiddle.setText("");
             int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.delete.directory.error") +
@@ -914,7 +916,7 @@ public class NavTransferHandler extends TransferHandler
                 skip = true;
             if (!skip)
             {
-                //context.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 logger.error(Utils.getStackTrace(e), true);
                 context.mainFrame.labelStatusMiddle.setText("");
                 int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.delete.file.error") +

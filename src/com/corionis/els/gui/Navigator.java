@@ -2085,6 +2085,8 @@ public class Navigator
                     context.progress = new Progress(context, context.mainFrame, cancel, false);
                 }
                 context.progress.view();
+                context.progress.requestFocus();
+                context.progress.toFront();
             }
         });
 

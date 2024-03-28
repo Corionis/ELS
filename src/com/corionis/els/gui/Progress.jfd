@@ -83,10 +83,12 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "buttonCancel"
-					"text": new FormMessage( null, "Progress.buttonCancel.text_2" )
+					"text": new FormMessage( null, "Progress.buttonCancel.text" )
 					"maximumSize": new java.awt.Dimension( 78, 20 )
 					"minimumSize": new java.awt.Dimension( 78, 20 )
 					"preferredSize": new java.awt.Dimension( 78, 20 )
+					"actionCommand": new FormMessage( null, "Progress.buttonCancel.text" )
+					"toolTipText": new FormMessage( null, "Z.cancel.current.operation" )
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelClicked", true ) )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"

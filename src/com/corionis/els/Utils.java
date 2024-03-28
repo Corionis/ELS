@@ -25,6 +25,7 @@ import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.Key;
 import java.text.DecimalFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -299,6 +300,22 @@ public class Utils
     {
         return socket.getInetAddress().toString() + ":" + socket.getPort() +
                 ", local " + socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
+    }
+
+    /**
+     * Format seconds to the greatest of hours, minutes and seconds
+     *
+     * @param seconds
+     * @return Formatted String
+     */
+    public static String formatDuration(long seconds)
+    {
+        Duration duration = Duration.ofSeconds(seconds);
+        int hours = duration.toHoursPart();
+        int mins = duration.toMinutesPart();
+        int secs = duration.toSecondsPart();
+        String fd = ((hours > 0) ? hours + "h " : "") + ((mins > 0) ? mins + "m " : "") + ((secs > 0) ? secs + "s" : "");
+        return fd;
     }
 
     /**

@@ -792,6 +792,7 @@ public class Browser
             }
             if (reply == JOptionPane.YES_OPTION)
             {
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 for (int i = 0; i < rows.length; ++i)
                 {
                     NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
@@ -821,6 +822,7 @@ public class Browser
                             }
                             catch (Exception e)
                             {
+                                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                 logger.error(Utils.getStackTrace(e));
                                 JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.writing.hint") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
@@ -831,6 +833,7 @@ public class Browser
                         logger.info(context.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 if (!error)
                 {
                     NavTreeNode parent = null;
@@ -913,6 +916,7 @@ public class Browser
             boolean error = false;
             if (reply == JOptionPane.YES_OPTION)
             {
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 for (TreePath path : paths)
                 {
                     NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
@@ -943,6 +947,7 @@ public class Browser
                             }
                             catch (Exception e)
                             {
+                                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                 logger.error(Utils.getStackTrace(e));
                                 JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.writing.hint") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
@@ -953,6 +958,7 @@ public class Browser
                         logger.info(context.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 if (!error)
                 {
                     NavTreeNode parent = null;
@@ -1384,12 +1390,19 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 navStackPush(node);
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!node.isLoaded())
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     node.loadChildren(true);
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
                 else
+                {
+                    if (node.getChildCount() > 3000)
+                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     node.loadTable();
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
             }
         });
         context.mainFrame.treeCollectionOne.setTransferHandler(navTransferHandler);
@@ -1433,12 +1446,19 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 navStackPush(node);
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!node.isLoaded())
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     node.loadChildren(true);
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                }
                 else
+                {
+                    if (node.getChildCount() > 3000)
+                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     node.loadTable();
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
             }
         });
         context.mainFrame.treeSystemOne.setTransferHandler(navTransferHandler);
@@ -1511,12 +1531,19 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 navStackPush(node);
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!node.isLoaded())
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     node.loadChildren(true);
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
                 else
+                {
+                    if (node.getChildCount() > 3000)
+                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     node.loadTable();
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
             }
         });
         context.mainFrame.treeCollectionTwo.setTransferHandler(navTransferHandler);
@@ -1560,12 +1587,19 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 navStackPush(node);
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!node.isLoaded())
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     node.loadChildren(true);
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
                 else
+                {
+                    if (node.getChildCount() > 3000)
+                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     node.loadTable();
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
             }
         });
         context.mainFrame.treeSystemTwo.setTransferHandler(navTransferHandler);

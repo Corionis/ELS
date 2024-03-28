@@ -10,13 +10,14 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
+import java.time.Duration;
 import javax.swing.*;
 
 public class Progress extends JFrame implements SftpProgressMonitor
 {
+    private long averageBps = 0l;
     private ActionListener cancelAction;
     private boolean cancelled = false;
-    private int currentWidth;
     private boolean dryRun;
     private int fileNumber = 0;
     private int fixedHeight;
@@ -31,6 +32,8 @@ public class Progress extends JFrame implements SftpProgressMonitor
     private long progressMaxDivisor = 0L;
     private boolean noIcon = false;
     private Window owner;
+    private long start = 0L;
+    private long time = 0L;
     private long totalBytesCopied = 0L;
     private long totalBytesDivisor = 0L;
     private int totalFilesToCopy = 0;
@@ -70,6 +73,8 @@ public class Progress extends JFrame implements SftpProgressMonitor
         progressBarTotal.setMinimum(0);
         progressBarTotal.setMaximum(100);
         progressBarTotal.setValue(0);
+
+        start = System.currentTimeMillis();
     }
 
     private void cancelClicked(ActionEvent e)
@@ -129,14 +134,11 @@ public class Progress extends JFrame implements SftpProgressMonitor
             this.labelForIcon.setVisible(true);
 
         setVisible(true);
-
         setState(JFrame.NORMAL);
-        context.progress.toFront();
-
         update(context.cfg.gs("Progress.not.active"));
 
         fixedHeight = this.getHeight();
-        currentWidth = this.getWidth();
+        toFront();
     }
 
     public void done()
@@ -158,6 +160,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
         progressMax = max;
         progressBarFile.setValue(0);
         progressMaxDivisor = max / 100;
+        time = System.currentTimeMillis();
 
         String[] actions = {"put", "get", "copy"};
         String action = actions[op];
@@ -189,7 +192,36 @@ public class Progress extends JFrame implements SftpProgressMonitor
     @Override
     public void end()
     {
-        logger.trace("transfer " + (cancelled ? "cancelled" : "complete"));
+        long now = System.currentTimeMillis();
+        long diff = now - time;
+        diff = diff / 1000; // convert to seconds
+        if (diff > 0)
+        {
+            long rate = progressMax / diff;
+            String duration = Utils.formatDuration(diff);
+            logger.info("Transfer " + (cancelled ? "cancelled" : "complete: " +
+                    Utils.formatLong(progressMax, false, context.cfg.getLongScale()) + "; " +
+                    duration + "; " + Utils.formatLong(rate, false, context.cfg.getLongScale()) + " per second"));
+            if (averageBps > 0)
+                averageBps = (averageBps + rate) / 2;
+            else
+                averageBps = rate;
+        }
+    }
+
+    public long getAverageBps()
+    {
+        return averageBps;
+    }
+
+    public long getStartTime()
+    {
+        return start;
+    }
+
+    public long getTotalBytesCopied()
+    {
+        return totalBytesCopied;
     }
 
     private void loadIcon()
@@ -239,12 +271,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
     {
         if (!forcedState)
         {
-            currentWidth = getWidth();
+            context.preferences.setProgressWidth(getWidth());
             update(lastStatus);
         }
         else
             forcedState = false;
-        this.setSize(currentWidth, fixedHeight);
+        this.setSize(context.preferences.getProgressWidth(), fixedHeight);
     }
 
     private void thisWindowClosed(WindowEvent e)
@@ -273,7 +305,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
             forcedState = true;
             setState(JFrame.NORMAL);
             setExtendedState(JFrame.NORMAL);
-            setSize(currentWidth, fixedHeight);
+            setSize(context.preferences.getProgressWidth(), fixedHeight);
         }
     }
 
@@ -314,6 +346,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
         {
             labelForIcon.setVisible(false);
         }
+        toFront();
     }
 
     // <editor-fold desc="Generated code (Fold)">
@@ -414,10 +447,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
             panelButton.add(hSpacer3, BorderLayout.NORTH);
 
             //---- buttonCancel ----
-            buttonCancel.setText(context.cfg.gs("Progress.buttonCancel.text_2"));
+            buttonCancel.setText(context.cfg.gs("Progress.buttonCancel.text"));
             buttonCancel.setMaximumSize(new Dimension(78, 20));
             buttonCancel.setMinimumSize(new Dimension(78, 20));
             buttonCancel.setPreferredSize(new Dimension(78, 20));
+            buttonCancel.setActionCommand(context.cfg.gs("Progress.buttonCancel.text"));
+            buttonCancel.setToolTipText(context.cfg.gs("Z.cancel.current.operation"));
             buttonCancel.addActionListener(e -> cancelClicked(e));
             panelButton.add(buttonCancel, BorderLayout.CENTER);
 
