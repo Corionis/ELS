@@ -1085,6 +1085,13 @@ public class Navigator
                                         }
                                     }
 
+                                    // start the serveSftp transfer client
+                                    context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+                                    if (!context.clientSftpTransfer.startClient())
+                                    {
+                                        throw new MungeException("Subscriber sftp transfer to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                                    }
+
                                     // load the subscriber library
                                     setQuitTerminateVisibility();
                                     context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());

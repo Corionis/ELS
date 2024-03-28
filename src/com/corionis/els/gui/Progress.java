@@ -135,7 +135,6 @@ public class Progress extends JFrame implements SftpProgressMonitor
 
         setVisible(true);
         setState(JFrame.NORMAL);
-        update(context.cfg.gs("Progress.not.active"));
 
         fixedHeight = this.getHeight();
         toFront();
@@ -145,11 +144,6 @@ public class Progress extends JFrame implements SftpProgressMonitor
     {
         // always store Progress preferences so the dialog can be viewed and moved/resized when not active
         storePreferences();
-
-        // clear the progress content
-        progressTextField.setText(context.cfg.gs("Progress.not.active"));
-        labelForIcon.setVisible(false);
-
         setVisible(false);
     }
 
@@ -199,7 +193,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
             String duration = Utils.formatDuration(diff);
             logger.info("Transfer " + (cancelled ? "cancelled" : "complete: " +
                     Utils.formatLong(progressMax, false, context.cfg.getLongScale()) + "; " +
-                    duration + "; " + Utils.formatLong(rate, false, context.cfg.getLongScale()) + " per second"));
+                    duration + "; " + Utils.formatRate(rate,  context.cfg.getLongScale())));
             if (averageBps > 0)
                 averageBps = (averageBps + rate) / 2;
             else
@@ -344,7 +338,8 @@ public class Progress extends JFrame implements SftpProgressMonitor
         }
         else
         {
-            labelForIcon.setVisible(false);
+            this.labelForIcon.setVisible(false);
+            update(context.cfg.gs("Progress.not.active"));
         }
         toFront();
     }

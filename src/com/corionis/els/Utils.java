@@ -388,6 +388,38 @@ public class Utils
     }
 
     /**
+     * Format a long number with bps, Mbps, Gbps and Tbps as applicable
+     *
+     * @param value  Long value to format
+     * @param scale  Binary (1024) or decimal (1000) scale
+     * @return String Formatting text
+     */
+    public static synchronized String formatRate(long value, double scale)
+    {
+        String result;
+        DecimalFormat form = new DecimalFormat("###,###,###,###,###,###,###,###.##");
+
+        result = form.format(value) + " bps";
+        if (value >= (scale))
+        {
+            result = form.format(value / scale) + " Kbs";
+        }
+        if (value >= (scale * scale))
+        {
+            result = form.format(value / (scale * scale)) + " Mbps";
+        }
+        if (value >= (scale * scale * scale))
+        {
+            result = form.format(value / (scale * scale * scale)) + " Gbps";
+        }
+        if (value >= (scale * scale * scale * scale))
+        {
+            result = form.format(value / (scale * scale * scale * scale)) + " Tbps";
+        }
+        return result;
+    }
+
+    /**
      * Get the duration string
      *
      * @param millis

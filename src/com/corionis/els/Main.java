@@ -594,7 +594,7 @@ public class Main
                         // handle -n|--navigator to display the Navigator
                         if (context.cfg.isNavigator())
                         {
-                            // start the serveSftp client
+                            // start the serveSftp transfer client
                             context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                             if (!context.clientSftpTransfer.startClient())
                             {
