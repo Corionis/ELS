@@ -143,7 +143,7 @@ public class LibrariesUI
                 else
                 {
                     mf.tabbedPaneLibrarySpaces.setSelectedIndex(0);
-                    ((CardLayout) mf.generalTab.getLayout()).show(mf.generalTab, "cardGettingStarted");
+                    ((CardLayout) mf.generalOptions.getLayout()).show(mf.generalOptions, "cardGettingStarted");
 
                     mf.labelLibaryType.setText("");
                     mf.buttonCopy.setEnabled(false);
@@ -2026,7 +2026,7 @@ public class LibrariesUI
         {
             loading = true;
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
-            ((CardLayout) mf.generalTab.getLayout()).show(mf.generalTab, libMeta.card.name());
+            ((CardLayout) mf.generalOptions.getLayout()).show(mf.generalOptions, libMeta.card.name());
 
             Repository repo = libMeta.repo;
             Libraries libraries = repo.getLibraryData().libraries;
@@ -2222,7 +2222,7 @@ public class LibrariesUI
     {
         if (lastTab == 0)
         {
-            mf.generalTab.requestFocus();
+            mf.generalOptions.requestFocus();
         }
         else if (lastTab == 1)
         {
@@ -2252,7 +2252,7 @@ public class LibrariesUI
         lastTab = index;
         if (index == 0)
         {
-            mf.generalTab.requestFocus();
+            mf.generalOptions.requestFocus();
             mf.textFieldKey.select(0, 0); // fixes odd problem of the field being highlighted when it's not selected
         }
         else if (index == 1)

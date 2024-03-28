@@ -173,10 +173,6 @@ public class Progress extends JFrame implements SftpProgressMonitor
     @Override
     public boolean count(long count)
     {
-        // LEFTOFF
-        //  + Add a --procSig option that is ignored but can be found in a process list - for scripting
-        //  + Pre-create all known directories so emailed files can be dropped-in
-
         progressCurrent += count;
         totalBytesCopied += count;
 

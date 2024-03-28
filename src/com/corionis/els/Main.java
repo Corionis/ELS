@@ -25,6 +25,9 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.corionis.els.Configuration.*;
@@ -161,6 +164,29 @@ public class Main
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Check for the basic directory structure, create as needed
+     * <p>
+     * Call -after- context.cfg.configureWorkingDirectory
+     */
+    public void checkWorkingDirectories() throws Exception
+    {
+        String[] stdDirs = { "jobs", "libraries", "local", "system", "tools"};
+        String working = context.cfg.getWorkingDirectory();
+        for (int i = 0; i < stdDirs.length; ++i)
+        {
+            Path dir = Paths.get(working, stdDirs[i]);
+            Files.createDirectories(dir);
+        }
+
+        String[] toolDirs = { "JunkRemover", "Operations", "Renamer", "Sleep" };
+        for (int i = 0; i < toolDirs.length; ++i)
+        {
+            Path dir = Paths.get(working, "tools", toolDirs[i]);
+            Files.createDirectories(dir);
         }
     }
 
@@ -359,6 +385,7 @@ public class Main
                 appender.setContext(context);
 
                 loggerContext.updateLoggers();
+                checkWorkingDirectories(); // pre-create working directory structure
             }
             else // carry-over selected previous Context values
             {

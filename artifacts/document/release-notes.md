@@ -140,6 +140,9 @@ upgrading for changes, additions and enhancements.
 17. Added -C | --config to set the location of the ELS configuration directory. Use
     "-C ." for the current directory.
 
+18. Added --marker "arg" to aid in identifying a running process. Any "arg" is ignored.
+    This option has no effect on ELS and is intended to help with scripting if needed.    
+
 
 ### Other Changes
 

@@ -1963,6 +1963,10 @@ public class Configuration
                         throw new MungeException("Error: -m requires a mismatches output filename");
                     }
                     break;
+                case "--marker":                                        // marker
+                    if (index <= args.length - 2)                       // ignore any value
+                        ++index;
+                    break;
                 case "-n":                                              // Navigator
                 case "--navigator":
                     setNavigator(true);
