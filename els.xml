@@ -344,14 +344,14 @@
         </copy>
         <copy file="build/update.info" todir="deploy" preservelastmodified="true"/>
         <copy file="build/version.info" todir="deploy" preservelastmodified="true"/>
-        <copy file="build/changes.html" tofile="docs/_includes/changes.html" preservelastmodified="true"/>
     </target>
 
     <!-- Configure the GitHub Pages _config.yml YAML file for deployment -->
     <target name="deploy-website">
-        <delete file="docs/_config.yml"/>
+        <!-- copy the changelist for this build -->
+        <copy file="build/changes.html" tofile="docs/_includes/changes.html" preservelastmodified="true"/>
         <!-- copy the template and append this build's information -->
-        <copy file="artifacts/stage/_config.yml" todir="docs"/>
+        <copy file="artifacts/stage/_config.yml" todir="docs" overwrite="true"/>
         <echo file="docs/_config.yml" append="true">version: ${els.version.name}${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">build: ${STRINGNOW}${line.separator}</echo>
         <echo file="docs/_config.yml" append="true">github:${line.separator}</echo>

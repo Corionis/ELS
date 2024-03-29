@@ -731,7 +731,7 @@ public class OperationsUI extends AbstractToolDialog
         labelOperationHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsOperationsXpos() >= 0 && Utils.isOnScreen(context.preferences.getToolsOperationsXpos(),
+        if (context.preferences.getToolsOperationsXpos() != -1 && Utils.isOnScreen(context.preferences.getToolsOperationsXpos(),
                 context.preferences.getToolsOperationsYpos()))
         {
             this.setLocation(context.preferences.getToolsOperationsXpos(), context.preferences.getToolsOperationsYpos());

@@ -28,6 +28,8 @@ rm -rf ./tools
 
 cp -rpv ./copy-only_config-base/* .
 cp -rpv ./copy-only_linux-base/* .
+
+mkdir ./output
 echo ""
 
 echo -e "Reset configuration done"

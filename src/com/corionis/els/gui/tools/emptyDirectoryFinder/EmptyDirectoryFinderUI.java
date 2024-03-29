@@ -51,7 +51,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsEmptyDirectoryFinderXpos() >= 0 && Utils.isOnScreen(context.preferences.getToolsEmptyDirectoryFinderXpos(),
+        if (context.preferences.getToolsEmptyDirectoryFinderXpos() != -1 && Utils.isOnScreen(context.preferences.getToolsEmptyDirectoryFinderXpos(),
                 context.preferences.getToolsEmptyDirectoryFinderYpos()))
         {
             this.setLocation(context.preferences.getToolsEmptyDirectoryFinderXpos(), context.preferences.getToolsEmptyDirectoryFinderYpos());

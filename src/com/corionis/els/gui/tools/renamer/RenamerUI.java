@@ -74,7 +74,7 @@ public class RenamerUI extends AbstractToolDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsRenamerXpos() >= 0 && Utils.isOnScreen(context.preferences.getToolsRenamerXpos(),
+        if (context.preferences.getToolsRenamerXpos() != -1 && Utils.isOnScreen(context.preferences.getToolsRenamerXpos(),
                 context.preferences.getToolsRenamerYpos()))
         {
             this.setLocation(context.preferences.getToolsRenamerXpos(), context.preferences.getToolsRenamerYpos());

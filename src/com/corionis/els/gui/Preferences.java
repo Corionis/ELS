@@ -227,11 +227,7 @@ public class Preferences implements Serializable
         {
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             int x = screenSize.width / 2 - getAppWidth() / 2;
-            if (x < 0)
-                x = 1;
             int y = screenSize.height / 2 - getAppHeight() / 2;
-            if (y < 0)
-                y = 1;
             setAppXpos(x);
             setAppYpos(y);
         }

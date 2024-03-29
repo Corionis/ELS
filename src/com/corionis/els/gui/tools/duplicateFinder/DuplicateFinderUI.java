@@ -51,7 +51,7 @@ public class DuplicateFinderUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsDuplicateFinderXpos() >= 0 && Utils.isOnScreen(context.preferences.getToolsDuplicateFinderXpos(),
+        if (context.preferences.getToolsDuplicateFinderXpos() != -1 && Utils.isOnScreen(context.preferences.getToolsDuplicateFinderXpos(),
                 context.preferences.getToolsDuplicateFinderYpos()))
         {
             this.setLocation(context.preferences.getToolsDuplicateFinderXpos(), context.preferences.getToolsDuplicateFinderYpos());

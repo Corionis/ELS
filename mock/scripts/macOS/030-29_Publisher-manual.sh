@@ -6,14 +6,7 @@ if [ "$base" = "." ]; then
 fi
 cd "$base"
 
-name=`basename $0 .sh`
-
 cd ../..
-
-
-if [ ! -d output ]; then
-    mkdir output
-fi
 
 rt/Contents/Home/bin/java -jar bin/ELS.jar -C . -c debug -d debug --remote M -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/030-29_Publisher-manual.log
 

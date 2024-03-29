@@ -348,7 +348,7 @@ public class FileEditor extends JDialog
         labelSystemHelp.setIcon(replacement);
 
         // position, size & dividers
-        if (context.preferences.getFileEditorXpos() >= 0 && Utils.isOnScreen(context.preferences.getFileEditorXpos(), context.preferences.getFileEditorYpos()))
+        if (context.preferences.getFileEditorXpos() != -1 && Utils.isOnScreen(context.preferences.getFileEditorXpos(), context.preferences.getFileEditorYpos()))
         {
             this.setLocation(context.preferences.getFileEditorXpos(), context.preferences.getFileEditorYpos());
             Dimension dim = new Dimension(context.preferences.getFileEditorWidth(), context.preferences.getFileEditorHeight());

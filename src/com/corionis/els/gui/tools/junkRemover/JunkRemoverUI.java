@@ -55,7 +55,7 @@ public class JunkRemoverUI extends AbstractToolDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsJunkRemoverXpos() >= 0 && Utils.isOnScreen(context.preferences.getToolsJunkRemoverXpos(),
+        if (context.preferences.getToolsJunkRemoverXpos() != -1 && Utils.isOnScreen(context.preferences.getToolsJunkRemoverXpos(),
                 context.preferences.getToolsJunkRemoverYpos()))
         {
             this.setLocation(context.preferences.getToolsJunkRemoverXpos(), context.preferences.getToolsJunkRemoverYpos());

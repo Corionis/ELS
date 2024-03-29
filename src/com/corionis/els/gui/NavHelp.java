@@ -29,6 +29,7 @@ public class NavHelp extends JDialog
     public boolean fault = false;
     private Component previous;
 
+    // hide constructor
     private NavHelp()
     {
     }
@@ -84,7 +85,7 @@ public class NavHelp extends JDialog
             }
         });
 
-        if (context.preferences.getHelpXpos() >= 0 && Utils.isOnScreen(context.preferences.getHelpXpos(), context.preferences.getHelpYpos()))
+        if (context.preferences.getHelpXpos() != -1 && Utils.isOnScreen(context.preferences.getHelpXpos(), context.preferences.getHelpYpos()))
         {
             setLocation(context.preferences.getHelpXpos(), context.preferences.getHelpYpos());
             if (context.preferences.getHelpWidth() > 0)

@@ -49,7 +49,7 @@ public class SleepUI extends AbstractToolDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (context.preferences.getToolsSleepXpos() >= 0 && Utils.isOnScreen(context.preferences.getToolsSleepXpos(),
+        if (context.preferences.getToolsSleepXpos() != -1 && Utils.isOnScreen(context.preferences.getToolsSleepXpos(),
                 context.preferences.getToolsSleepYpos()))
         {
             this.setLocation(context.preferences.getToolsSleepXpos(), context.preferences.getToolsSleepYpos());

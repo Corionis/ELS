@@ -177,7 +177,7 @@ public class DirectoryPicker
         dialog = pane.createDialog(context.mainFrame, displayName);
         dialog.setModal(false);
 
-        if (context.preferences.getDirectoryPickerXpos() >= 0 && Utils.isOnScreen(context.preferences.getDirectoryPickerXpos(), context.preferences.getDirectoryPickerYpos()))
+        if (context.preferences.getDirectoryPickerXpos() != -1 && Utils.isOnScreen(context.preferences.getDirectoryPickerXpos(), context.preferences.getDirectoryPickerYpos()))
         {
             dialog.setLocation(context.preferences.getDirectoryPickerXpos(), context.preferences.getDirectoryPickerYpos());
         }

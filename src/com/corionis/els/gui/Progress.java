@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
-import java.time.Duration;
 import javax.swing.*;
 
 public class Progress extends JFrame implements SftpProgressMonitor
@@ -39,6 +38,14 @@ public class Progress extends JFrame implements SftpProgressMonitor
     private int totalFilesToCopy = 0;
     private long totalFilesBytes = 0L;
 
+    /**
+     * Progress dialog with progress bars
+     *
+     * @param context The ELS Context
+     * @param owner The window that owns this dialog
+     * @param cancelAction The cancel action listener
+     * @param dryRun True if in dryrun mode, otherwise false
+     */
     public Progress(Context context, Window owner, ActionListener cancelAction, boolean dryRun)
     {
         this.context = context;
@@ -77,6 +84,13 @@ public class Progress extends JFrame implements SftpProgressMonitor
         start = System.currentTimeMillis();
     }
 
+    /**
+     * Cancel has been clicked. Check if NavTransferWorker is running and prompt "Are you sure?".
+     * <p>
+     * Calls the define Cancel action listener if confirmed.
+     *
+     * @param e ActionEvent
+     */
     private void cancelClicked(ActionEvent e)
     {
         if (context.browser.navTransferHandler.getTransferWorker() != null &&
@@ -109,9 +123,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
         done();
     }
 
+    /**
+     * Position & size Progress dialog and display
+     */
     public void display()
     {
-        if (context.preferences.getProgressXpos() >= 0 && Utils.isOnScreen(context.preferences.getProgressXpos(), context.preferences.getProgressYpos()))
+        if (context.preferences.getProgressXpos() != -1 && Utils.isOnScreen(context.preferences.getProgressXpos(), context.preferences.getProgressYpos()))
         {
             setLocation(context.preferences.getProgressXpos(), context.preferences.getProgressYpos());
         }
@@ -140,6 +157,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
         toFront();
     }
 
+    /**
+     * Progress updating is done, save Preferences and close.
+     * <p>
+     * Used by sftp client SftpProgressMonitor interface, and called directly
+     * by other processes.
+     */
     public void done()
     {
         // always store Progress preferences so the dialog can be viewed and moved/resized when not active
@@ -147,6 +170,17 @@ public class Progress extends JFrame implements SftpProgressMonitor
         setVisible(false);
     }
 
+    /**
+     * Initialize a file transfer, set start time and progress parameters
+     *
+     * @param op The operation. 0=put, 1=get, 2=copy
+     * @param src The source filename
+     * @param dest The destination filename
+     * @param size The size of the file
+     * <p>
+     * Used by sftp client SftpProgressMonitor interface, and called directly
+     * by other processes.
+     */
     @Override
     public void init(int op, String src, String dest, long size)
     {
@@ -164,6 +198,15 @@ public class Progress extends JFrame implements SftpProgressMonitor
         logger.trace(action + " " + src + " " + dest + " " + size);
     }
 
+    /**
+     * Update progress bars with new values.
+     * <p>
+     * Used by sftp client SftpProgressMonitor interface, and called directly
+     * by other processes.
+     *
+     * @param count Progress count, incremental
+     * @return true to keep running, otherwise false to cancel
+     */
     @Override
     public boolean count(long count)
     {
@@ -181,6 +224,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
         return !cancelled;
     }
 
+    /**
+     * Transfer is complete, report statistics
+     * <p>
+     * Used by sftp client SftpProgressMonitor interface, and called directly
+     * by other processes.
+     */
     @Override
     public void end()
     {
@@ -242,6 +291,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
         repaint();
     }
 
+    /**
+     * Set the counts when a new Batch is added.
+     *
+     * @param filesToCopy Total number of files to copy
+     * @param totalFilesBytes Total number of bytes to copy
+     */
     public void setCountAndBytes(int filesToCopy, long totalFilesBytes)
     {
         this.totalFilesToCopy = filesToCopy;
@@ -283,7 +338,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
     {
         if (!prefSaved)
             storePreferences();
-//        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
         setVisible(false);
         if (owner != null)
         {
@@ -303,6 +358,10 @@ public class Progress extends JFrame implements SftpProgressMonitor
         }
     }
 
+    /**
+     * Update the status String. Ellipse if needed.
+     * @param status String
+     */
     public synchronized void update(String status)
     {
         lastStatus = status;
@@ -311,6 +370,12 @@ public class Progress extends JFrame implements SftpProgressMonitor
         redraw();
     }
 
+    /**
+     * Update the status String with new file number, size and name.
+     * @param fileNumber The counter for the file number
+     * @param size The size of the file
+     * @param name The name of the name
+     */
     public synchronized void update(int fileNumber, long size, String name)
     {
         this.fileNumber = fileNumber;
@@ -328,6 +393,11 @@ public class Progress extends JFrame implements SftpProgressMonitor
         update(status);
     }
 
+    /**
+     * For the View, Progress menu item.
+     * <p>
+     * Progress may be closed, this reopens and updates the dialog accordingly.
+     */
     public void view()
     {
         String ls = lastStatus;

@@ -28,6 +28,8 @@ rmdir /s /q .\tools
 :NoDir
 xcopy /I /E .\copy-only_config-base .
 xcopy /I /E .\copy-only_windows-base .
+
+mkdir .\output
 echo Done
 goto JXT
 

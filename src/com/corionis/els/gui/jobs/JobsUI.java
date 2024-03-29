@@ -103,7 +103,7 @@ public class JobsUI extends AbstractToolDialog
         buttonOriginDown.setIcon(r1);
 
         // position, size & dividers
-        if (context.preferences.getJobsXpos() >= 0 && Utils.isOnScreen(context.preferences.getJobsXpos(), context.preferences.getJobsYpos()))
+        if (context.preferences.getJobsXpos() != -1 && Utils.isOnScreen(context.preferences.getJobsXpos(), context.preferences.getJobsYpos()))
         {
             this.setLocation(context.preferences.getJobsXpos(), context.preferences.getJobsYpos());
             Dimension dim = new Dimension(context.preferences.getJobsWidth(), context.preferences.getJobsHeight());

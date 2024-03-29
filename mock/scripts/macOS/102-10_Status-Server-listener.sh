@@ -6,13 +6,7 @@ if [ "$base" = "." ]; then
 fi
 cd "$base"
 
-name=`basename $0 .sh`
-
 cd ../..
 
-
-if [ ! -d output ]; then
-    mkdir output
-fi
-
 rt/Contents/Home/bin/java -jar bin/ELS.jar -C . -c debug -d debug --hint-server libraries/hint-server.json -K system/hint.keys -A system/authentication.keys -F output/102-10_Status-Server-listener.log
+

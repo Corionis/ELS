@@ -79,7 +79,7 @@ public class HintsUI extends JDialog
             labelHelp.setIcon(replacement);
 
             // restore window & column preferences
-            if (context.preferences.getHintsXpos() >= 0 && Utils.isOnScreen(context.preferences.getHintsXpos(),
+            if (context.preferences.getHintsXpos() != -1 && Utils.isOnScreen(context.preferences.getHintsXpos(),
                     context.preferences.getHintsYpos()))
             {
                 this.setLocation(context.preferences.getHintsXpos(), context.preferences.getHintsYpos());

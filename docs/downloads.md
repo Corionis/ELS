@@ -27,7 +27,7 @@ Use the buttons at the top of this page <img style="vertical-align:middle" src="
 
 ## &bull; Installation
 
- * Using the ELS jar requires a Java 11+ JRE.
+ * Using the ELS jar requires a Java 19+ JRE.
  * Using remote connections may require adjustments to network settings, firewalls, etc.
    which is beyond the scope of this document.
 
@@ -42,7 +42,7 @@ The following downloads contain an embedded JRE for that platform.
 
  * Unpack the .tar.gz anywhere you have write permissions.<br/>
    Run ``` ELS-Navigator.sh ``` script in the root of that directory.
- * If you see an error dialog saying it cannot be validated in a terminal try from the installed directory:<br/>
+ * If you see an error dialog saying it cannot be validated open a terminal, change to the installed directory:<br/>
    ``xattr -d com.apple.quarantine ELS/rt/Contents/Home/bin/java``
 
 ### &nbsp;&nbsp;&nbsp; Windows installer
@@ -64,18 +64,18 @@ Use Help, Check for Updates ... to see if a new build is available.
 ### &nbsp;&nbsp;&nbsp; Linux and Windows
 
  * A dialog is displayed with Yes, No, and Changelist that will display the list of the latest changes.
-   A matching auto-updater is downloaded and run from the GitHub project.
+   Yes abd the latest auto-updater is downloaded and run from the GitHub project.
 
 ### &nbsp;&nbsp;&nbsp; macOS
 
  * A dialog is displayed with Changelist, No, and ELS website. Due to constraints there is no
    auto-updater for macOS. Mac users may download the latest ELS Jar or update ELS entirely 
-   using the .tar.gz.
- * If you see an error dialog saying it cannot be validated in a terminal try from the installed directory:<br/>
+   using the .mac.tar.gz.
+ * If you see an error dialog saying it cannot be validated open a terminal, change to the installed directory:<br/>
    ``xattr -d com.apple.quarantine ELS/rt/Contents/Home/bin/java``
 
 ## &bull; Configuration
 
  * By default ELS data files are store in your home directory in the **.els** subdirectory.
    * That may be changed with the -C \| \--config option.
- * If ELS is installed in a separate directory that folder may be replaced with a matching update.
+ * If ELS is installed in a separate directory that folder may be replaced with an  update.
