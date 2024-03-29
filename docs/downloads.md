@@ -25,7 +25,6 @@ on the GitHub Project.
 
 Use the buttons at the top of this page <img style="vertical-align:middle" src="assets/images/swoop-up-arrow.png" border="0"/> for your platform.
 
-
 ## &bull; Installation
 
  * Using the ELS jar requires a Java 11+ JRE.
