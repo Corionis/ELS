@@ -192,8 +192,8 @@ public class Progress extends JFrame implements SftpProgressMonitor
             long rate = progressMax / diff;
             String duration = Utils.formatDuration(diff);
             logger.info("Transfer " + (cancelled ? "cancelled" : "complete: " +
-                    Utils.formatLong(progressMax, false, context.cfg.getLongScale()) + "; " +
-                    duration + "; " + Utils.formatRate(rate,  context.cfg.getLongScale())));
+                    Utils.formatLong(progressMax, false, context.cfg.getLongScale()) + ", " +
+                    duration + ", " + Utils.formatRate(rate,  context.cfg.getLongScale())));
             if (averageBps > 0)
                 averageBps = (averageBps + rate) / 2;
             else

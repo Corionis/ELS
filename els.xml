@@ -344,6 +344,7 @@
         </copy>
         <copy file="build/update.info" todir="deploy" preservelastmodified="true"/>
         <copy file="build/version.info" todir="deploy" preservelastmodified="true"/>
+        <copy file="build/changes.html" tofile="docs/_includes/changes.html" preservelastmodified="true"/>
     </target>
 
     <!-- Configure the GitHub Pages _config.yml YAML file for deployment -->

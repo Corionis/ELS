@@ -185,8 +185,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         if (diff > 0)
         {
             String duration = Utils.formatDuration(diff);
-            msg += ": " + Utils.formatLong(context.progress.getTotalBytesCopied(), false, context.cfg.getLongScale()) + "; " +
-                    duration + "; " + Utils.formatRate(context.progress.getAverageBps(), context.cfg.getLongScale());
+            msg += ": " + Utils.formatLong(context.progress.getTotalBytesCopied(), false, context.cfg.getLongScale()) + ", " +
+                    duration + ", " + Utils.formatRate(context.progress.getAverageBps(), context.cfg.getLongScale());
         }
         context.mainFrame.labelStatusMiddle.setText(msg);
         logger.info(msg);
