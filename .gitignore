@@ -44,4 +44,5 @@ hs_err_pid*
 /out
 /build/build-stamp.properties
 /deploy-previous/
+/flatmac.json
 /src/META-INF/services/javax.annotation.processing.Processor

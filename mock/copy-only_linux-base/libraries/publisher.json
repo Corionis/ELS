@@ -12,6 +12,7 @@
         "terminal_allowed": true,
         "ignore_patterns": [
             "(?i)desktop\\.ini",
+            "\\.DS_Store",
             ".*\\.fuse.*",
             ".*\\.srt",
             "Thumbs\\.db"
