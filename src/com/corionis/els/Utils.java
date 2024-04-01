@@ -1091,6 +1091,8 @@ public class Utils
     {
         if (!path.equals(workingDirectory) && path.startsWith(workingDirectory))
             path = path.substring(workingDirectory.length() + 1);
+        path = pipe(path);
+        path = unpipe(path, System.getProperty("file.separator"));
         return path;
     }
 
