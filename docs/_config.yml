@@ -9,6 +9,7 @@ plugins:
   - jekyll-remote-theme
 
 # --- Base URLs --- #
+branch_url: https://github.com/Corionis/ELS/tree/Version-4.0.0
 discussions_url: https://github.com/Corionis/ELS/discussions
 documentation_url: https://github.com/Corionis/ELS/wiki
 download_url: https://github.com/Corionis/ELS/wiki/Downloads
