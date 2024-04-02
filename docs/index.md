@@ -34,8 +34,10 @@ ELS is a tool with both graphical and command line interfaces and a wide variety
 
  * See [<b>Features</b>](features.md) for more information.
 
-The <a href="{{ site.github.repository_url }}" target="_blank"><b>ELS Project <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a>.<br/>
-ELS Version 4 is in development: <a href="{{ site.milestones4_url }}" target="_blank"><b>Version 4.0 Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a>.
-ELS long-term planning through Version 7: <a href="{{ site.milestones_url }}" target="_blank"><b>Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a> .<br/>
+| <b>More information:</b>||
+| The ELS project on GitHub | <a ref="{{ site.github.repository_url }}" target="_blank"><b>ELS Project <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
+| ELS Version 4 is in development | <a href="{{ site.milestones4_url }}" target="_blank"><b>Version 4.0 Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
+| ELS planning through Version 7 | <a href="{{ site.milestones_url }}" target="_blank"><b>Project Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
+| The components of ELS and more | <a href="{{ site.home_url }}" target="_blank"><b>Corionis <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
 
-_ELS is Open Source and free._
+_ELS and all Corionis projects are Open Source and free._
