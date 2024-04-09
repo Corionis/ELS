@@ -77,6 +77,7 @@ public class Configuration
     private String logFilePath = "";
     private int logOverwrite = -1;
     private double longScale = 1024L;
+    private String marker = "";
     private String mismatchFilename = "";
     private int navigator = -1;
     private int noBackFill = -1;
@@ -320,6 +321,10 @@ public class Configuration
         if (getMismatchFilename().length() > 0)
         {
             logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
+        }
+        if (marker.length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -m Marker = " + marker);
         }
         indicator(logger, SHORT, "  cfg: -n Navigator = ", navigator);
         indicator(logger, SHORT, "  cfg: -N Ignored files reported = ", ignoredReported);
@@ -1965,7 +1970,12 @@ public class Configuration
                     break;
                 case "--marker":                                        // marker
                     if (index <= args.length - 2)                       // ignore any value
+                    {
+                        marker = args[index + 1].trim();
                         ++index;
+                    }
+                    else
+                        marker = "Enabled";
                     break;
                 case "-n":                                              // Navigator
                 case "--navigator":

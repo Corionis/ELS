@@ -135,7 +135,21 @@ public class Task implements Comparable, Serializable
 
         // start the serveSftp client
         context.clientSftp = new ClientSftp(context, publisherRepo, subscriberRepo, true);
-        if (!context.clientSftp.startClient())
+        if (!context.clientSftp.startClient("metadata"))
+        {
+            context.cfg.setRemoteType("-");
+            if (context.navigator != null)
+            {
+                JOptionPane.showMessageDialog(context.mainFrame,
+                        context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
+                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            }
+            return false;
+        }
+
+        // start the serveSftp transfer client
+        context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+        if (!context.clientSftpTransfer.startClient("transfer"))
         {
             context.cfg.setRemoteType("-");
             if (context.navigator != null)

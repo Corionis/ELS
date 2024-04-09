@@ -237,7 +237,7 @@ public class ClientStty
                 stopClient(errorMessage, exceptionMessage);
             }
         };
-        logger.trace("starting heartbeat");
+        logger.trace("starting heartbeat for " + Utils.formatAddresses(this.socket));
         heartBeat.start();
     }
 
@@ -556,10 +556,15 @@ public class ClientStty
     {
         if (context.fault)
         {
-            disconnect();
+            logger.error(context.cfg.gs("Z.fault"));
+
+            if (errorMessage.length() > 0)
+                logger.error(context.cfg.gs("Z.fault") + errorMessage);
 
             if (exceptionMessage.length() > 0)
                 logger.error(context.cfg.gs("Z.fault") + exceptionMessage);
+
+            disconnect();
 
             if (context.mainFrame != null && errorMessage.length() > 0)
             {
@@ -582,7 +587,7 @@ public class ClientStty
     {
         if (heartBeat != null && heartBeat.isAlive())
         {
-            logger.trace("stopping heartbeat thread");
+            logger.trace("stopping heartbeat thread for "  + Utils.formatAddresses(this.socket));
             heartBeat.interrupt();
         }
     }

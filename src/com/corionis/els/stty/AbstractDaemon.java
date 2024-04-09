@@ -26,6 +26,7 @@ public abstract class AbstractDaemon
 
     protected InetAddress address;
     protected boolean authorized = false;
+    protected int commandCount = 0;
     protected boolean connected = false;
     protected Context context;
     protected boolean fault = false;
@@ -85,12 +86,14 @@ public abstract class AbstractDaemon
                 }
                 catch (Exception e)
                 {
-                    context.fault = true;
+                    if (!context.cfg.isKeepGoing())
+                        context.fault = true;
                     errorMessage = e.getMessage();
                     exceptionMessage = Utils.getStackTrace(e);
-                    heartBeat.interrupt();
+                    heartBeat.interrupt(); // stop this connection-related thread
                 }
-                stopDaemon(errorMessage, exceptionMessage);
+                if (commandCount == 1 || !context.cfg.isKeepGoing())
+                    stopDaemon(errorMessage, exceptionMessage);
             }
         };
         logger.trace("starting heartbeat");

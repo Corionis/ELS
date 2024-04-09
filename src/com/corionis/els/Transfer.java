@@ -904,7 +904,6 @@ public class Transfer
     /**
      * Rename a file or directory, local or remote
      *
-     * @param sftp
      * @param from     the full from path
      * @param to       the full to path
      * @param isRemote if this specific path is remote

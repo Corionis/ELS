@@ -224,11 +224,11 @@ public class ClientSftp
     /**
      * Start this sftp client
      */
-    public boolean startClient()
+    public boolean startClient(String purpose)
     {
         try
         {
-            logger.info("Opening sftp connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
+            logger.info("Opening sftp " + purpose + " connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
             jsch = new JSch();
             jSession = jsch.getSession(user, hostname, hostport);
             jSession.setConfig("StrictHostKeyChecking", "no");

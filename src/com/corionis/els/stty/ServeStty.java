@@ -352,6 +352,9 @@ public class ServeStty extends Thread
      */
     public void stopServer()
     {
+
+        // TODO If this happens it should exit the program - or restart the listeners !!
+
         if (allSessions != null)
         {
             logger.debug("stopping all stty listener threads");

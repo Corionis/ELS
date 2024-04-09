@@ -552,9 +552,9 @@ public class Main
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                        if (!context.clientSftp.startClient())
+                        if (!context.clientSftp.startClient("metadata"))
                         {
-                            throw new MungeException("Publisher sftp client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                            throw new MungeException("Publisher sftp metadata client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                         }
                     }
                     break;
@@ -586,9 +586,9 @@ public class Main
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                        if (!context.clientSftp.startClient())
+                        if (!context.clientSftp.startClient("metadata"))
                         {
-                            throw new MungeException("Subscriber sftp to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                            throw new MungeException("Subscriber sftp metadata to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                         }
 
                         // handle -n|--navigator to display the Navigator
@@ -596,7 +596,7 @@ public class Main
                         {
                             // start the serveSftp transfer client
                             context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                            if (!context.clientSftpTransfer.startClient())
+                            if (!context.clientSftpTransfer.startClient("transfer"))
                             {
                                 throw new MungeException("Subscriber sftp transfer to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                             }
@@ -681,9 +681,9 @@ public class Main
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(context, context.subscriberRepo, context.publisherRepo, true);
-                        if (!context.clientSftp.startClient())
+                        if (!context.clientSftp.startClient("metadata"))
                         {
-                            throw new MungeException("Publisher sftp to " + context.publisherRepo.getLibraryData().libraries.description + " failed to connect");
+                            throw new MungeException("Publisher sftp metadata to " + context.publisherRepo.getLibraryData().libraries.description + " failed to connect");
                         }
 
                         // start serveStty server

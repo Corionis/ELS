@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="082-41+26 Subscriber Listener + Navigator Remote" type="Multirun" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="3.0">
+    <runConfiguration name="082-41 Subscriber listener keep going" type="Application" />
+    <runConfiguration name="082-26 Navigator remote" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>

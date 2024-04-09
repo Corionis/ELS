@@ -36,7 +36,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
@@ -1072,7 +1075,7 @@ public class Navigator
 
                                         // start the serveSftp client
                                         context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                                        if (!context.clientSftp.startClient())
+                                        if (!context.clientSftp.startClient("metadata"))
                                         {
                                             context.mainFrame.labelStatusMiddle.setText("");
                                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1087,9 +1090,16 @@ public class Navigator
 
                                     // start the serveSftp transfer client
                                     context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                                    if (!context.clientSftpTransfer.startClient())
+                                    if (!context.clientSftpTransfer.startClient("transfer"))
                                     {
-                                        throw new MungeException("Subscriber sftp transfer to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                                        context.mainFrame.labelStatusMiddle.setText("");
+                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                        disconnectSubscriber();
+                                        JOptionPane.showMessageDialog(context.mainFrame,
+                                                context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
+                                                context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                        context.fault = false;
+                                        return;
                                     }
 
                                     // load the subscriber library
@@ -3270,7 +3280,21 @@ public class Navigator
 
             // start the serveSftp client
             context.clientSftp = new ClientSftp(context, publisherRepo, subscriberRepo, true);
-            if (!context.clientSftp.startClient())
+            if (!context.clientSftp.startClient("metadata"))
+            {
+                context.cfg.setRemoteType("-");
+                if (context.navigator != null)
+                {
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+                return false;
+            }
+
+            // start the serveSftp transfer client
+            context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+            if (!context.clientSftpTransfer.startClient("transfer"))
             {
                 context.cfg.setRemoteType("-");
                 if (context.navigator != null)
@@ -3282,6 +3306,7 @@ public class Navigator
                 return false;
             }
         }
+
         return true;
     }
 

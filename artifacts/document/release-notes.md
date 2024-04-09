@@ -105,7 +105,7 @@ upgrading for changes, additions and enhancements.
 
  7. Added option -g | --listener-keep-going. For a Publisher the "keep going" option skips
     sending the quit command to the subscriber when the backup operation is complete. For a
-    subscriber it skips ending with a fault on an unexpected disconnect (EOL) and ignores
+    subscriber listener it skips ending with a fault on an unexpected disconnect (EOL) and ignores
     quit commands. To stop a subscriber in this mode use the --listener-quit option.
 
  8. Added option -G | --listener-quit that only sends the quit command to a remote

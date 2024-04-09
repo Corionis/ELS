@@ -169,7 +169,6 @@ public class Daemon extends AbstractDaemon
     public boolean process() throws Exception
     {
         int attempts = 0;
-        int commandCount = 0;
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
@@ -254,7 +253,7 @@ public class Daemon extends AbstractDaemon
                     try
                     {
                         // prompt the user for a command
-                        if (context.fault || context.timeout)
+                        if (context.fault || (context.cfg.isKeepGoing() ? context.timeout : false))
                         {
                             fault = true;
                             stop = true;
@@ -649,28 +648,37 @@ public class Daemon extends AbstractDaemon
                     catch (SocketTimeoutException toe)
                     {
                         context.timeout = true;
-                        fault = true;
                         connected = false;
-                        stop = true;
                         logger.error("SocketTimeoutException: " + Utils.getStackTrace(toe));
+                        if (!context.cfg.isKeepGoing())
+                        {
+                            fault = true;
+                            stop = true;
+                        }
+                        else
+                            logger.info("--listener-keep-going enabled");
                         break;
                     }
                     catch (SocketException se)
                     {
                         if (se.toString().contains("timed out"))
                             context.timeout = true;
-                        fault = true;
                         connected = false;
-                        stop = true;
                         logger.debug("SocketException, timeout is: " + context.timeout);
                         logger.error(Utils.getStackTrace(se));
+                        if (!context.cfg.isKeepGoing())
+                        {
+                            fault = true;
+                            stop = true;
+                        }
+                        else
+                            logger.info("--listener-keep-going enabled");
                         break;
                     }
                     catch (Exception e)
                     {
-                        fault = true;
                         connected = false;
-                        stop = true;
+                        logger.error("Subscriber Listener exception");
                         logger.error(Utils.getStackTrace(e));
                         try
                         {
@@ -682,6 +690,11 @@ public class Daemon extends AbstractDaemon
                         }
                         catch (Exception ex)
                         {
+                        }
+                        if (!context.cfg.isKeepGoing())
+                        {
+                            fault = true;
+                            stop = true;
                         }
                         break;
                     }
