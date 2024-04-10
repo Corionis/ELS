@@ -463,7 +463,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                     }
                     else
                     {
-                        context.transfer.copyFile(context.clientSftpTransfer, sourceTuo.path, sourceTuo.fileTime, path, false, true);
+                        context.transfer.copyFile(context.clientSftpMetadata, sourceTuo.path, sourceTuo.fileTime, path, false, true);
                     }
                     setupToNode(sourceTuo, targetTuo, path);
                 }
@@ -474,7 +474,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 logger.info(context.cfg.gs("NavTransferHandler.put") + msg);
                 if (!context.cfg.isDryRun())
                 {
-                    context.transfer.copyFile(context.clientSftpTransfer, sourceTuo.path, sourceTuo.fileTime, path, true, false);
+                    context.transfer.copyFile(context.clientSftpMetadata, sourceTuo.path, sourceTuo.fileTime, path, true, false);
                     setupToNode(sourceTuo, targetTuo, path);
                 }
             }
@@ -486,7 +486,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 {
                     String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
                     Files.createDirectories(Paths.get(dir));
-                    context.clientSftpTransfer.get(sourceTuo.path, path);
+                    context.clientSftpMetadata.get(sourceTuo.path, path);
 
                     setupToNode(sourceTuo, targetTuo, path);
                     if (context.preferences.isPreserveFileTimes())

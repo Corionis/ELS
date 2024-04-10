@@ -22,9 +22,6 @@
     * Subscriber - by definition is a Collection - is read-only
 
 
-## To Do
- 1. Go through ClientSftp and ClientStty for handling subscriber disconnects in Navigator.
-
 ## Operations Tool
 
 ### Issues

@@ -276,7 +276,7 @@ public class Daemon extends AbstractDaemon
                                 logger.warn("EOF line. Process ended prematurely");
                             }
                             else
-                                logger.info("EOF line. --listener-keep-going enabled");
+                                logger.info("EOF line, --listener-keep-going enabled");
                             break; // break read loop and let the connection be closed
                         }
 
@@ -445,11 +445,16 @@ public class Daemon extends AbstractDaemon
                         // -------------- fault ----------------------------------
                         if (theCommand.equalsIgnoreCase("fault"))
                         {
-                            fault = true;
-                            stop = true;
+                            if (!context.cfg.isKeepGoing())
+                            {
+                                fault = true;
+                                stop = true;
+                            }
                             if (!context.timeout)
                                 send("End-Execution", trace ? "send End-Execution" : "");
                             Thread.sleep(3000);
+                            if (!context.cfg.isKeepGoing())
+                                throw new MungeException("Ignoring Fault command, --listener-keep-going enabled");
                         }
 
                         // -------------- return library file --------------------
@@ -656,7 +661,7 @@ public class Daemon extends AbstractDaemon
                             stop = true;
                         }
                         else
-                            logger.info("--listener-keep-going enabled");
+                            logger.info("Ignoring exception, --listener-keep-going enabled");
                         break;
                     }
                     catch (SocketException se)
@@ -672,7 +677,7 @@ public class Daemon extends AbstractDaemon
                             stop = true;
                         }
                         else
-                            logger.info("--listener-keep-going enabled");
+                            logger.info("Ignoring exception, --listener-keep-going enabled");
                         break;
                     }
                     catch (Exception e)

@@ -866,7 +866,7 @@ public class NavTransferHandler extends TransferHandler
                 // remove directory itself
                 if (!context.cfg.isDryRun())
                 {
-                    context.transfer.remove(context.clientSftpTransfer, sourceTuo.path, true, sourceTuo.isRemote);
+                    context.transfer.remove(context.clientSftpMetadata, sourceTuo.path, true, sourceTuo.isRemote);
                 }
             }
         }
@@ -901,7 +901,7 @@ public class NavTransferHandler extends TransferHandler
 
             if (!context.cfg.isDryRun())
             {
-                context.transfer.remove(context.clientSftpTransfer, sourceTuo.path, false, sourceTuo.isRemote);
+                context.transfer.remove(context.clientSftpMetadata, sourceTuo.path, false, sourceTuo.isRemote);
                 logger.info(msg); // not printed if file is missing
             }
         }

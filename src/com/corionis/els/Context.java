@@ -24,10 +24,10 @@ public class Context
     // ELS core
     public HintKeys authKeys = null;
     public ClientSftp clientSftp = null;
-    public ClientSftp clientSftpTransfer = null;
+    public ClientSftp clientSftpMetadata = null;
     public ClientStty clientStty = null;
     public Configuration cfg = null;
-    public Datastore datastore = null;
+    public Datastore datastore = null; // Hints datastore
     public boolean fault = false; // process fault indicator
     public Hints hints = null;
     public HintKeys hintKeys = null;

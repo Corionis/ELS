@@ -29,6 +29,7 @@ public class ClientSftp
     private transient Logger logger = LogManager.getLogger("applog");
     private Repository myRepo;
     private String password;
+    private String purpose = "";
     private Repository theirRepo;
     private String user;
 
@@ -226,6 +227,7 @@ public class ClientSftp
      */
     public boolean startClient(String purpose)
     {
+        this.purpose = purpose;
         try
         {
             logger.info("Opening sftp " + purpose + " connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
@@ -269,7 +271,7 @@ public class ClientSftp
      */
     public void stopClient()
     {
-        logger.debug("Disconnecting sftp: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
+        logger.debug(java.text.MessageFormat.format(context.cfg.gs("ClientStty.disconnecting.sftp"), purpose, (hostname == null ? "localhost" : hostname)) + hostport);
         if (jChannel != null)
             jChannel.disconnect();
 

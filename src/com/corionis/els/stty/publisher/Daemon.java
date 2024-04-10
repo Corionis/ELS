@@ -447,19 +447,12 @@ public class Daemon extends AbstractDaemon
                                     {
                                         if (context.clientStty == null)
                                         {
-                                            // start the serveSftp client
+                                            // start the serveSftp transfer client
                                             context.clientSftp = new ClientSftp(context, myRepo, theirRepo, false);
-                                            if (!context.clientSftp.startClient("metadata"))
-                                            {
-                                                throw new MungeException("Publisher sftp metadata client failed to connect");
-                                            }
-
-                                            context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                                            if (!context.clientSftpTransfer.startClient("transfer"))
+                                            if (!context.clientSftp.startClient("transfer"))
                                             {
                                                 throw new MungeException("Publisher sftp transfer client failed to connect");
                                             }
-
 
                                             // start the serveStty client for automation
                                             context.clientStty = new ClientStty(context, false, false);

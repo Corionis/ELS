@@ -1073,9 +1073,9 @@ public class Navigator
                                         }
                                         context.transfer.requestLibrary();
 
-                                        // start the serveSftp client
+                                        // start the serveSftp transfer client
                                         context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                                        if (!context.clientSftp.startClient("metadata"))
+                                        if (!context.clientSftp.startClient("transfer"))
                                         {
                                             context.mainFrame.labelStatusMiddle.setText("");
                                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1086,20 +1086,20 @@ public class Navigator
                                             context.fault = false;
                                             return;
                                         }
-                                    }
 
-                                    // start the serveSftp transfer client
-                                    context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                                    if (!context.clientSftpTransfer.startClient("transfer"))
-                                    {
-                                        context.mainFrame.labelStatusMiddle.setText("");
-                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                                        disconnectSubscriber();
-                                        JOptionPane.showMessageDialog(context.mainFrame,
-                                                context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
-                                                context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                        context.fault = false;
-                                        return;
+                                        // start the serveSftp metadata client
+                                        context.clientSftpMetadata = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+                                        if (!context.clientSftpMetadata.startClient("metadata"))
+                                        {
+                                            context.mainFrame.labelStatusMiddle.setText("");
+                                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                            disconnectSubscriber();
+                                            JOptionPane.showMessageDialog(context.mainFrame,
+                                                    context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
+                                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                            context.fault = false;
+                                            return;
+                                        }
                                     }
 
                                     // load the subscriber library
@@ -3145,9 +3145,13 @@ public class Navigator
             {
                 closure = true;
                 if (context.clientSftp != null)
+                {
                     context.clientSftp.stopClient();
-                if (context.clientSftpTransfer != null)
-                    context.clientSftpTransfer.stopClient();
+                }
+                if (context.clientSftpMetadata != null)
+                {
+                    context.clientSftpMetadata.stopClient();
+                }
 
                 if (context.clientStty != null && context.clientStty.isConnected())
                 {
@@ -3170,6 +3174,8 @@ public class Navigator
                             context.clientStty.send("quit", "Sending quit command to remote subscriber");
                         else
                             context.clientStty.send("bye", "Sending bye command to remote subscriber");
+
+                        context.clientStty.disconnect();
                     }
                 }
                 context.clientStty = null;
@@ -3193,6 +3199,8 @@ public class Navigator
                     context.statusStty.send("quit", "Sending quit command to remote Hint Status Server");
                 else
                     context.statusStty.send("bye", "Sending bye command to remote Hint Status Server");
+
+                context.statusStty.disconnect();
                 context.statusStty = null;
             }
             catch (Exception e)
@@ -3278,9 +3286,9 @@ public class Navigator
                 logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
             }
 
-            // start the serveSftp client
+            // start the serveSftp transfer client
             context.clientSftp = new ClientSftp(context, publisherRepo, subscriberRepo, true);
-            if (!context.clientSftp.startClient("metadata"))
+            if (!context.clientSftp.startClient("transfer"))
             {
                 context.cfg.setRemoteType("-");
                 if (context.navigator != null)
@@ -3292,11 +3300,10 @@ public class Navigator
                 return false;
             }
 
-            // start the serveSftp transfer client
-            context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-            if (!context.clientSftpTransfer.startClient("transfer"))
+            // start the serveSftp metadata client
+            context.clientSftpMetadata = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+            if (!context.clientSftpMetadata.startClient("metadata"))
             {
-                context.cfg.setRemoteType("-");
                 if (context.navigator != null)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame,

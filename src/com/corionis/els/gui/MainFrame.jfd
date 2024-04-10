@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.10" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.2.0.382" Java: "17.0.10" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -1034,7 +1034,7 @@ new FormModel {
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelTerminalAllosed"
-													"text": new FormMessage( null, "Navigator.labelTerminalAllosed.text" )
+													"text": new FormMessage( null, "Navigator.labelTerminalAllowed.text" )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridy": 9
 												} )

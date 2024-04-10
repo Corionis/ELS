@@ -32,6 +32,7 @@ import java.awt.event.*;
  * <br/>
  * Uses free components from FormDev: <br/>
  *  - FlatLaf, https://www.formdev.com/flatlaf/ <br/>
+ *  - FlatLaf GitHub:  https://github.com/JFormDesigner/FlatLaf
  *  - FlatLaf Themes: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes <br/>
  *  - FlatLaf Extras: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-extras <br/>
  * <br/>
@@ -2168,7 +2169,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 0), 0, 0));
 
                                             //---- labelTerminalAllosed ----
-                                            labelTerminalAllosed.setText(context.cfg.gs("Navigator.labelTerminalAllosed.text"));
+                                            labelTerminalAllosed.setText(context.cfg.gs("Navigator.labelTerminalAllowed.text"));
                                             panelLibraryCard.add(labelTerminalAllosed, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));

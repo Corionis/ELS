@@ -27,6 +27,7 @@ public class ClientStty
     private Thread heartBeat = null;
     private boolean heartBeatEnabled = true;
     protected DataInputStream in = null;
+    private ClientStty instance = null;
     private boolean isConnected = false;
     private boolean isTerminal = false;
     private String myKey;
@@ -47,6 +48,7 @@ public class ClientStty
     public ClientStty(Context context, boolean isManualTerminal, boolean primaryServers)
     {
         this.context = context;
+        this.instance = this;
         this.isTerminal = isManualTerminal;
         this.primaryServers = primaryServers;
     }
@@ -202,39 +204,56 @@ public class ClientStty
     {
         heartBeat = new Thread()
         {
+            boolean stopped = false;
             public void run()
             {
-                String exceptionMessage = "";
-                String errorMessage = "";
-                try
+                while (true)
                 {
-                    sleep(40 * 1000); // offset this heartbeat timing
-                    String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
-                    while (true)
+                    String exceptionMessage = "";
+                    String errorMessage = "";
+                    try
                     {
-                        sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
-                        if (heartBeatEnabled)
+                        sleep(40 * 1000); // offset this heartbeat timing
+                        String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
+                        while (true)
                         {
-                            send("ping", context.trace ? "heartbeat sent" + desc : "");
+                            sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
+                            if (heartBeatEnabled)
+                            {
+                                send("ping", context.trace ? "heartbeat sent" + desc : "");
+                            }
                         }
                     }
+                    catch (InterruptedException e)
+                    {
+                        errorMessage = "heartbeat interrupted";
+                        logger.trace(errorMessage);
+                    }
+                    catch (Exception e)
+                    {
+                        errorMessage = e.getMessage();
+                        if (this.isAlive())
+                        {
+                            logger.trace(errorMessage);
+                            logger.trace("Connection is alive, continuing");
+                            continue;
+                        }
+                        context.fault = true;
+                        if (instance == context.statusStty && context.cfg.isNavigator())
+                        {
+                            context.browser.toggleHintTracking(false);
+                            context.mainFrame.buttonHintTracking.setEnabled(false);
+                        }
+                        exceptionMessage = Utils.getStackTrace(e);
+                        heartBeat.interrupt();
+                    }
+                    stopped = true;
+                    stopClient(errorMessage, exceptionMessage);
+                    break;
                 }
-                catch (InterruptedException e)
-                {
-                    logger.trace("heartbeat interrupted");
-                }
-                catch (Exception e)
-                {
-                    context.fault = true;
-                    if (context.browser != null)
-                        context.browser.toggleHintTracking(false);
-                    if (context.mainFrame != null)
-                        context.mainFrame.buttonHintTracking.setEnabled(false);
-                    errorMessage = "(Hint Server) " + e.getMessage();
-                    exceptionMessage = Utils.getStackTrace(e);
-                    heartBeat.interrupt();
-                }
-                stopClient(errorMessage, exceptionMessage);
+                heartBeat.interrupt();
+                if (!stopped)
+                    stopClient("Error count exceeded", "");
             }
         };
         logger.trace("starting heartbeat for " + Utils.formatAddresses(this.socket));
@@ -267,7 +286,7 @@ public class ClientStty
             if (isConnected)
             {
                 isConnected = false;
-                logger.debug("disconnecting stty: " + Utils.formatAddresses(socket));
+                logger.debug("Disconnecting stty: " + Utils.formatAddresses(socket));
                 if (gui != null)
                     gui.stop();
                 out.flush();
@@ -556,13 +575,10 @@ public class ClientStty
     {
         if (context.fault)
         {
-            logger.error(context.cfg.gs("Z.fault"));
-
-            if (errorMessage.length() > 0)
-                logger.error(context.cfg.gs("Z.fault") + errorMessage);
-
-            if (exceptionMessage.length() > 0)
-                logger.error(context.cfg.gs("Z.fault") + exceptionMessage);
+            if (errorMessage.length() == 0 && exceptionMessage.length() == 0)
+                logger.error(context.cfg.gs("Z.fault"));
+            else
+                logger.error(context.cfg.gs("Z.fault") + errorMessage + "\n" + exceptionMessage);
 
             disconnect();
 
@@ -587,7 +603,7 @@ public class ClientStty
     {
         if (heartBeat != null && heartBeat.isAlive())
         {
-            logger.trace("stopping heartbeat thread for "  + Utils.formatAddresses(this.socket));
+            logger.trace("Stopping heartbeat thread for "  + Utils.formatAddresses(this.socket));
             heartBeat.interrupt();
         }
     }

@@ -133,9 +133,9 @@ public class Task implements Comparable, Serializable
             context.clientSftp.stopClient();
         }
 
-        // start the serveSftp client
+        // start the serveSftp transfer client
         context.clientSftp = new ClientSftp(context, publisherRepo, subscriberRepo, true);
-        if (!context.clientSftp.startClient("metadata"))
+        if (!context.clientSftp.startClient("transfer"))
         {
             context.cfg.setRemoteType("-");
             if (context.navigator != null)
@@ -147,18 +147,20 @@ public class Task implements Comparable, Serializable
             return false;
         }
 
-        // start the serveSftp transfer client
-        context.clientSftpTransfer = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-        if (!context.clientSftpTransfer.startClient("transfer"))
+        if (context.cfg.isNavigator())
         {
-            context.cfg.setRemoteType("-");
-            if (context.navigator != null)
+            // start the serveSftp metadata client
+            context.clientSftpMetadata = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+            if (!context.clientSftpMetadata.startClient("metadata"))
             {
-                JOptionPane.showMessageDialog(context.mainFrame,
-                        context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
-                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                if (context.navigator != null)
+                {
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+                return false;
             }
-            return false;
         }
 
         return true;

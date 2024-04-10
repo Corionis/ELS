@@ -92,6 +92,7 @@ public abstract class AbstractDaemon
                     exceptionMessage = Utils.getStackTrace(e);
                     heartBeat.interrupt(); // stop this connection-related thread
                 }
+                // if only a Quit command, or if not Keep Going, then stop the daemon
                 if (commandCount == 1 || !context.cfg.isKeepGoing())
                     stopDaemon(errorMessage, exceptionMessage);
             }
