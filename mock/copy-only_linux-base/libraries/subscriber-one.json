@@ -19,6 +19,10 @@
 		],
         "locations": [
             {
+                "location": "test/subscriber-one/more-media",
+                "minimum": "42GB"
+            },
+            {
                 "location": "test/subscriber-one/media",
                 "minimum": "42GB"
             }
@@ -27,6 +31,7 @@
 			{
 				"name": "Movies",
 				"sources": [
+                    "test/subscriber-one/more-media/Movies",
                     "test/subscriber-one/media/Movies"
 				]
 			},

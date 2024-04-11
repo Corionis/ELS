@@ -6,6 +6,7 @@
 				"name": "Movies",
                 "minimum": "30GB",
 				"locations": [
+                    "test/subscriber-one/more-media/Movies",
                     "test/subscriber-one/media/Movies"
 				]
 			},

@@ -869,20 +869,26 @@ public class Navigator
                             break;
                         }
 
-                        if (context.cfg.isRemoteSubscriber())
+                        if (context.cfg.isRemoteSubscriber() || (context.cfg.isHintTrackingEnabled() && context.cfg.isRemoteStatusServer()))
                         {
-                            for (ActionListener listener : context.mainFrame.menuItemCloseSubscriber.getActionListeners())
-                            {
-                                listener.actionPerformed(new ActionEvent(context.mainFrame.menuItemCloseSubscriber, ActionEvent.ACTION_PERFORMED, null));
-                            }
-                        }
+                            int r = JOptionPane.showConfirmDialog(context.mainFrame,
+                                    context.cfg.gs(("Navigator.remote.connections.must.be.closed")),
+                                    context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                            if (r != JOptionPane.YES_OPTION)
+                                break;
 
-                        if (context.cfg.isHintTrackingEnabled() && context.cfg.isRemoteStatusServer())
-                        {
-                            for (ActionListener listener : context.mainFrame.menuItemCloseHintTracking.getActionListeners())
-                            {
-                                listener.actionPerformed(new ActionEvent(context.mainFrame.menuItemCloseHintTracking, ActionEvent.ACTION_PERFORMED, null));
-                            }
+                            context.preferences.setLastSubscriberIsOpen(false);
+                            disconnectSubscriber();
+
+                            quitByeRemotes(false, true);
+                            context.hints = null;
+                            context.hintKeys = null;
+                            context.cfg.setHintKeysFile("");
+                            context.statusRepo = null;
+                            context.cfg.setHintTrackerFilename("");
+                            context.cfg.setHintsDaemonFilename("");
+                            context.preferences.setLastHintKeysIsOpen(false);
+                            context.browser.setupHintTrackingButton();
                         }
 
                         try

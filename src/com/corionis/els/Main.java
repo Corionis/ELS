@@ -179,14 +179,16 @@ public class Main
         for (int i = 0; i < stdDirs.length; ++i)
         {
             Path dir = Paths.get(working, stdDirs[i]);
-            Files.createDirectories(dir);
+            if (!Files.exists(dir))
+                Files.createDirectories(dir);
         }
 
         String[] toolDirs = { "JunkRemover", "Operations", "Renamer", "Sleep" };
         for (int i = 0; i < toolDirs.length; ++i)
         {
             Path dir = Paths.get(working, "tools", toolDirs[i]);
-            Files.createDirectories(dir);
+            if (!Files.exists(dir))
+                Files.createDirectories(dir);
         }
     }
 
@@ -385,7 +387,6 @@ public class Main
                 appender.setContext(context);
 
                 loggerContext.updateLoggers();
-                checkWorkingDirectories(); // pre-create working directory structure
             }
             else // carry-over selected previous Context values
             {
@@ -432,6 +433,8 @@ public class Main
             {
                 context.preferences.initLookAndFeel(context.cfg.APPLICATION_NAME, true);
             }
+
+            checkWorkingDirectories(); // pre-create working directory structure
 
             //
             // an execution of this program can only be configured as one of these operations
