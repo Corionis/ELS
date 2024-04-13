@@ -3520,8 +3520,7 @@ public class Navigator
                 {
                     String[] args;
                     String cmd = "";
-                    String[] parms = {Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                            "ELS_Updater" + System.getProperty("file.separator") +
+                    String[] parms = {Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") +
                             "rt" + System.getProperty("file.separator") +
                             "bin" + System.getProperty("file.separator") +
                             "java" + (Utils.isOsWindows() ? ".exe" : ""),

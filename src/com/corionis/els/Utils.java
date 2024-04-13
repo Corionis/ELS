@@ -854,13 +854,13 @@ public class Utils
     }
 
     /**
-     * Get the local system temporary files directory
+     * Get the local system temporary files directory + ELS_Updater_ + user name
      *
-     * @return String path to temp directory, no trailing separator
+     * @return String path to directory, no trailing separator
      */
-    public static String getSystemTempDirectory()
+    public static String getTempUpdaterDirectory()
     {
-        String path = System.getProperty("java.io.tmpdir");
+        String path = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "ELS_Updater_" + System.getProperty("user.name");
         if (path.endsWith(System.getProperty("file.separator")))
         {
             path = path.substring(0, path.length() - 1);

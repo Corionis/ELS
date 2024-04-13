@@ -948,9 +948,6 @@ public class Main
         // is this a restarted Navigator instance after being updated?
         if (context.cfg.isNavigator() && (context.cfg.isUpdateSuccessful() || context.cfg.isUpdateFailed()))
         {
-            String outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater" +
-                    System.getProperty("file.separator") + "ELS_Updater";
-
             try
             {
                 // give the GUI time to come up
@@ -960,7 +957,10 @@ public class Main
             {
             }
 
-            String logFilename = outPath + System.getProperty("file.separator") + "ELS-Updater.log";
+// TODO if update is successful delete update directory
+//    ? Change semantics -- If a collection is not specified, and it's a remote connection, ALWAYS request the library/collection
+
+            String logFilename = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS-Updater.log";
             String message = context.cfg.isUpdateSuccessful() ?
                     Configuration.PROGRAM_NAME + " " + context.cfg.gs("Navigator.updated") :
                     java.text.MessageFormat.format(context.cfg.gs("Navigator.update.failed"), logFilename);

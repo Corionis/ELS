@@ -96,7 +96,11 @@ public class DownloadUpdater extends JFrame
             progressBar.setMinimum(0);
 
             installedPath = context.cfg.getInstalledPath();
-            outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater";
+            outPath = Utils.getTempUpdaterDirectory();
+            File out = new File(outPath);
+            if (out.exists())
+                FileUtils.deleteDirectory(out);
+            out.mkdirs();
 
             if (download() && !requestStop)
             {
@@ -141,7 +145,7 @@ public class DownloadUpdater extends JFrame
                     File els = new File(jar);
                     if (!els.exists())
                     {
-                        message = context.cfg.gs("Navigator.cannot.find.executable") + jar;
+                        message = context.cfg.gs("Navigator.cannot.find.executable") + outPath;
                         Object[] opts = {context.cfg.gs("Z.ok")};
                         JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                                 JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
@@ -163,9 +167,7 @@ public class DownloadUpdater extends JFrame
                 String ext = Utils.isOsWindows() ? ".zip" : ".tar.gz";
                 updateFile = version.get(Configuration.BUILD_UPDATER_DISTRO) + ext;
 
-                //updateFile = "ELS_Updater-4.0.0-development-2312131000.dmg";
-
-                updateArchive = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + updateFile;
+                updateArchive = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + updateFile;
                 labelStatus.setText(context.cfg.gs("Z.update") + version.get(Configuration.BUILD_DATE));
 
                 if (!mockMode) // && 0 == 1)
@@ -288,11 +290,10 @@ public class DownloadUpdater extends JFrame
             setTitle(context.cfg.gs("Navigator.unpacking"));;
             buttonCancel.setEnabled(false);
 
-            removeDirectory(outPath);
             if (Utils.isOsWindows())
                 success = unpackZip(updateArchive, outPath); // Windows
             else
-                    success = unpackTar(updateArchive, outPath); // Linux
+                success = unpackTar(updateArchive, outPath); // Linux
 
             buttonCancel.setEnabled(true);
             return success;
@@ -424,12 +425,16 @@ public class DownloadUpdater extends JFrame
             return false;
         }
 
+        /**
+         * Write
+         *
+         * @return
+         */
         private boolean writeUpdaterInfo()
         {
             try
             {
-                String infoPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                        "ELS_Updater" + System.getProperty("file.separator") + "ELS_Updater.info";
+                String infoPath = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS_Updater.info";
 
                 // use current values
                 String consoleLevel = context.cfg.getConsoleLevel();

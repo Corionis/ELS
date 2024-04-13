@@ -166,8 +166,7 @@ public class Main
                 System.setProperty("apple.awt.application.appearance", "system");
             }
 
-            String logFilename = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
-                    "ELS_Updater" + System.getProperty("file.separator") + "ELS-Updater.log";
+            String logFilename = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS-Updater.log";
             File delLog = new File(logFilename);
             if (delLog.exists())
                 delLog.delete();
@@ -281,8 +280,7 @@ public class Main
     {
         try
         {
-            updaterInfoFile = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                    "ELS_Updater" + System.getProperty("file.separator") + "ELS_Updater.info";
+            updaterInfoFile = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS_Updater.info";
             BufferedReader br = new BufferedReader(new FileReader(updaterInfoFile));
             installedPath = br.readLine();
             configPath = br.readLine();
@@ -344,9 +342,7 @@ public class Main
     {
         try
         {
-            infoFile = Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
-                    "ELS_Updater" + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") +
-                    "update.info";
+            infoFile = Utils.getTempUpdaterDirectory() + "bin" + System.getProperty("file.separator") + "update.info";
             File updateInfo = new File(infoFile);
             if (updateInfo.exists())
             {

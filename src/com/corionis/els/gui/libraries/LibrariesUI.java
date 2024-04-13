@@ -2095,11 +2095,10 @@ public class LibrariesUI
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
             Location[] locations = libMeta.repo.getLibraryData().libraries.locations;
 
-            locationsTableModel.setLocations(locations);
-
             if (locations.length > 0)
                 Arrays.sort(locations);
 
+            locationsTableModel.setLocations(locations);
             locationsTableModel.fireTableDataChanged();
 
             if (locationsTableModel.getRowCount() == 0)

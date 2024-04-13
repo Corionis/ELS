@@ -264,7 +264,7 @@ public class Generator
         cmd += conf + (glo ? " --job \"" : " -j \"") + tool.getConfigName() + "\"";
 
         // --- hint keys
-        if (context.preferences.getLastHintKeysOpenFile().length() > 0)
+        if (context.preferences.getLastHintKeysOpenFile().length() > 0 && context.preferences.isLastHintKeysIsOpen())
         {
             if (context.cfg.isHintSkipMainProcess())
                 cmd += " " + (glo ? "--keys-only" : "-K");
@@ -274,7 +274,7 @@ public class Generator
         }
 
         // --- hints & hint server
-        if (context.preferences.getLastHintTrackingOpenFile().length() > 0)
+        if (context.preferences.getLastHintTrackingOpenFile().length() > 0 && context.preferences.isLastHintTrackingIsOpen())
         {
             String hf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.preferences.getLastHintTrackingOpenFile());
             if (context.preferences.isLastHintTrackingIsRemote())

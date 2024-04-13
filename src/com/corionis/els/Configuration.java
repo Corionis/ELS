@@ -399,15 +399,15 @@ public class Configuration
             sb.append(" " + (glo ? "--dry-run" : "-D"));
 
         // --- hint keys
-        if (!cc.isHintSkipMainProcess() && pr.getLastHintKeysOpenFile().length() > 0)
+        if (!cc.isHintSkipMainProcess() && pr.getLastHintKeysOpenFile().length() > 0 && pr.isLastHintKeysIsOpen())
             sb.append(" " + (glo ? "--keys" : "-k") + " \"" +
             Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
-        if (cc.isHintSkipMainProcess() && pr.getLastHintKeysOpenFile().length() > 0)
+        if (cc.isHintSkipMainProcess() && pr.getLastHintKeysOpenFile().length() > 0 && pr.isLastHintKeysIsOpen())
             sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" +
             Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
 
         // --- hints & hint server
-        if (pr.getLastHintTrackingOpenFile().length() > 0)
+        if (pr.getLastHintTrackingOpenFile().length() > 0 && pr.isLastHintTrackingIsOpen())
         {
             String hf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintTrackingOpenFile());
             if (pr.isLastHintTrackingIsRemote())
@@ -421,10 +421,10 @@ public class Configuration
             sb.append(" " + (glo ? "--remote" : "-r") + " P");
 
         // --- libraries
-        if (pr.getLastPublisherOpenFile().length() > 0)
+        if (pr.getLastPublisherOpenFile().length() > 0 && pr.isLastPublisherIsOpen())
             sb.append(" " + (glo ? "--publisher-libraries" : (context.preferences.isLastPublisherIsWorkstation() ? "-p" : "-P")) + " \"" +
             Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastPublisherOpenFile()) + "\"");
-        if (pr.getLastSubscriberOpenFile().length() > 0)
+        if (pr.getLastSubscriberOpenFile().length() > 0 && pr.isLastHintTrackingIsOpen())
             sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
             Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");
 
@@ -716,7 +716,7 @@ public class Configuration
                 if (jarPath.endsWith(dev))
                 {
                     jarPath = jarPath.substring(0, jarPath.length() - dev.length());
-                    jarPath += "build";
+                    jarPath += "mock/bin";
                 }
             }
         }

@@ -16,7 +16,7 @@ import java.nio.file.Paths;
  */
 public class Storage
 {
-    public static final long MINIMUM_BYTES = 1073741824L;      // minimum minimum bytes
+    public static final long MINIMUM_BYTES = 10737418240L; // minimum minimum bytes, 10 GB binary
     private String jsonFilename = "";
     private transient Logger logger = LogManager.getLogger("applog");
     private TargetData targetData = null;
