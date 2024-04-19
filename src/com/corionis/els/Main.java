@@ -795,7 +795,7 @@ public class Main
                         }
                         try
                         {
-                            main.context.clientStty.roundTrip("quit", "Sending remote quit command", 5000);
+                            context.clientStty.roundTrip("quit", "Sending remote quit command", 5000);
                             Thread.sleep(3000);
                         }
                         catch (Exception e)
@@ -845,7 +845,7 @@ public class Main
         }
         catch (Exception e)
         {
-            if (context.navigator == null) // if not running as an Operation
+            if (!secondaryInvocation) // if not running as an Operation
                 context.fault = true;
 
             if (catchExceptions)
@@ -877,13 +877,13 @@ public class Main
             if (!isListening && !context.cfg.isNavigator() && !context.nestedProcesses) // clients
             {
                 // if a fault occurred tell any listener
-                if (main.context.fault && main.context.clientStty != null && main.context.clientStty.isConnected())
+                if (context.fault && context.clientStty != null && context.clientStty.isConnected())
                 {
-                    if (!main.context.timeout)
+                    if (!context.timeout)
                     {
                         try
                         {
-                            main.context.clientStty.roundTrip("fault", "Sending remote fault command (1)", 5000);
+                            context.clientStty.roundTrip("fault", "Sending remote fault command (1)", 5000);
                         }
                         catch (Exception e)
                         {
@@ -917,18 +917,18 @@ public class Main
                             logger.info(context.cfg.gs("Main.disconnecting"));
 
                             // optionally command status server to quit
-                            if (main.context.statusStty != null)
-                                main.context.statusStty.quitStatusServer(context);  // do before stopping the services
+                            if (context.statusStty != null)
+                                context.statusStty.quitStatusServer(context);  // do before stopping the services
 
                             main.stopVerbiage();
                             main.stopServices(); // must be AFTER stopVerbiage()
 
                             // halt kills the remaining threads
-                            if (main.context.fault)
+                            if (context.fault)
                                 logger.error("Exiting with error code");
                             if (!secondaryInvocation)
                             {
-                                Runtime.getRuntime().halt(main.context.fault ? 1 : 0);
+                                Runtime.getRuntime().halt(context.fault ? 1 : 0);
                             }
                         }
                         catch (Exception e)
@@ -946,33 +946,33 @@ public class Main
         }
 
         // is this a restarted Navigator instance after being updated?
-        if (context.cfg.isNavigator() && (context.cfg.isUpdateSuccessful() || context.cfg.isUpdateFailed()))
+        if (!context.fault)
         {
-            try
+            if (context.cfg.isNavigator() && (context.cfg.isUpdateSuccessful() || context.cfg.isUpdateFailed()))
             {
-                // give the GUI time to come up
-                Thread.sleep(5000);
+                try
+                {
+                    // give the GUI time to come up
+                    Thread.sleep(5000);
+                }
+                catch (Exception e)
+                {
+                }
+
+                String logFilename = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS-Updater.log";
+                String message = context.cfg.isUpdateSuccessful() ?
+                        Configuration.PROGRAM_NAME + " " + context.cfg.gs("Navigator.updated") :
+                        java.text.MessageFormat.format(context.cfg.gs("Navigator.update.failed"), logFilename);
+                logger.info(message);
+
+                Object[] opts = {context.cfg.gs("Z.ok")};
+                JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update.status"),
+                        JOptionPane.PLAIN_MESSAGE, context.cfg.isUpdateSuccessful() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE,
+                        null, opts, opts[0]);
             }
-            catch (Exception e)
-            {
-            }
-
-// TODO if update is successful delete update directory
-//    ? Change semantics -- If a collection is not specified, and it's a remote connection, ALWAYS request the library/collection
-
-            String logFilename = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS-Updater.log";
-            String message = context.cfg.isUpdateSuccessful() ?
-                    Configuration.PROGRAM_NAME + " " + context.cfg.gs("Navigator.updated") :
-                    java.text.MessageFormat.format(context.cfg.gs("Navigator.update.failed"), logFilename);
-            logger.info(message);
-
-            Object[] opts = {context.cfg.gs("Z.ok")};
-            JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update.status"),
-                    JOptionPane.PLAIN_MESSAGE, context.cfg.isUpdateSuccessful() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE,
-                    null, opts, opts[0]);
         }
 
-        if (main.context.fault)
+        if (context.fault)
         {
             logger.error("Exiting with error code");
             Runtime.getRuntime().halt(1);
@@ -1087,6 +1087,7 @@ public class Main
                         msg = "Exception while reading Hint Keys: ";
                         context.hintKeys.read(context.cfg.getHintKeysFile());
                         context.hints = new Hints(context, context.hintKeys);
+                        context.preferences.setLastHintKeysIsOpen(true);
                     }
                 }
                 else
@@ -1124,6 +1125,9 @@ public class Main
                                 msg = "";
                                 throw new MungeException("Bad initial response from Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
                             }
+
+                            context.preferences.setLastHintTrackingIsRemote(true);
+                            context.preferences.setLastHintTrackingIsOpen(true);
                         }
                         else
                         {
@@ -1147,6 +1151,9 @@ public class Main
                             {
                                 throw new MungeException("Error initializing from hint status server JSON file");
                             }
+
+                            context.preferences.setLastHintTrackingIsRemote(false);
+                            context.preferences.setLastHintTrackingIsOpen(true);
                         }
                         else
                         {
@@ -1155,6 +1162,11 @@ public class Main
                         }
                     }
                 }
+            }
+            else
+            {
+                context.preferences.setLastHintKeysIsOpen(false);
+                context.preferences.setLastHintTrackingIsOpen(false);
             }
         }
         catch (Exception e)
@@ -1249,14 +1261,14 @@ public class Main
      */
     public void stopVerbiage()
     {
-        if (!main.context.cfg.getConsoleLevel().equalsIgnoreCase(context.cfg.getDebugLevel()))
+        if (!context.cfg.getConsoleLevel().equalsIgnoreCase(context.cfg.getDebugLevel()))
             main.logger.info("log file has more details: " + context.cfg.getLogFileName());
 
         Date done = new Date();
         long millis = Math.abs(done.getTime() - stamp.getTime());
         main.logger.fatal("Runtime: " + Utils.getDuration(millis));
 
-        if (!main.context.fault)
+        if (!context.fault)
             main.logger.fatal("Process completed normally");
         else
             main.logger.fatal("Process failed");

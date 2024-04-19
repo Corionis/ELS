@@ -46,10 +46,12 @@ public class Main
     public Logger logger = null; // log4j2 logger singleton
     private Main main;
     private boolean mockMode = false; // local mock without downloading version.info, get from /bin/version.info
+    private boolean pathFault = false;
     private Preferences preferences = null;
     private String prefix;
     private Marker SHORT = MarkerManager.getMarker("SHORT");
     private String updaterInfoFile = "";
+    private String updaterPath = "";
     private ArrayList<String> version = new ArrayList<>();
     private String versionFile = "";
 
@@ -145,6 +147,26 @@ public class Main
         return false;
     }
 
+    public String getUpdaterPath()
+    {
+        if (updaterPath.length() == 0)
+        {
+            updaterPath = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "ELS_Updater_" + System.getProperty("user.name");
+            File up = new File(updaterPath);
+            if (!up.exists())
+            {
+                String old = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "ELS_Updater";
+                up = new File(old);
+                if (!up.exists())
+                {
+                    pathFault = true;
+                }
+                updaterPath = old;
+            }
+        }
+        return updaterPath;
+    }
+
     private void init(String[] args)
     {
         try
@@ -166,7 +188,7 @@ public class Main
                 System.setProperty("apple.awt.application.appearance", "system");
             }
 
-            String logFilename = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS-Updater.log";
+            String logFilename = getUpdaterPath() + System.getProperty("file.separator") + "ELS-Updater.log";
             File delLog = new File(logFilename);
             if (delLog.exists())
                 delLog.delete();
@@ -204,7 +226,7 @@ public class Main
 
                     if (!readElsUpdaterInfo())
                     {
-                        message = "Missing or malformed ELS_Updater.info file, cannot continue:\n\r" + updaterInfoFile;
+                        message = "Missing or malformed ELS_Updater.info file, cannot continue: " + updaterInfoFile;
                         fault = true;
                     }
                     else
@@ -280,7 +302,7 @@ public class Main
     {
         try
         {
-            updaterInfoFile = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS_Updater.info";
+            updaterInfoFile = getUpdaterPath() + System.getProperty("file.separator") + "ELS_Updater.info";
             BufferedReader br = new BufferedReader(new FileReader(updaterInfoFile));
             installedPath = br.readLine();
             configPath = br.readLine();
@@ -342,7 +364,7 @@ public class Main
     {
         try
         {
-            infoFile = Utils.getTempUpdaterDirectory() + "bin" + System.getProperty("file.separator") + "update.info";
+            infoFile = getUpdaterPath() + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "update.info";
             File updateInfo = new File(infoFile);
             if (updateInfo.exists())
             {

@@ -107,7 +107,7 @@
                 <include name="**/*.jar"/>
             </fileset>
         </unzip>
-        <!-- Copy merged Log4j2Plugins.dat back -->
+        <!-- Copy merged Log4j2Plugins.dat after unpacking Jars -->
         <copy file="out/Log4j2Plugins.dat" tofile="out/els/jar/META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" overwrite="true" preservelastmodified="true"/>
     </target>
 
@@ -254,6 +254,8 @@
                 <include name="**/sshd-common-2.10.0.jar"/>
             </fileset>
         </unzip>
+        <!-- Copy merged Log4j2Plugins.dat after unpacking Jars -->
+        <copy file="out/Log4j2Plugins.dat" tofile="out/updater/jar/META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" overwrite="true" preservelastmodified="true"/>
     </target>
 
     <!-- Build ELS-Updater.jar -->

@@ -185,7 +185,7 @@ public class DownloadUpdate extends JFrame
                 String ext = Utils.isOsWindows() ? ".zip" : ".tar.gz";
                 updateFile = version.get(Configuration.BUILD_ELS_DISTRO) + ext;
 
-                outFile = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + updateFile;
+                outFile = main.getUpdaterPath() + System.getProperty("file.separator") + updateFile;
 
                 labelStatus.setText(main.cfg.gs("Z.update") + version.get(Configuration.BUILD_DATE));
 
@@ -193,7 +193,7 @@ public class DownloadUpdate extends JFrame
                 {
                     // download the ELS Updater
                     String downloadUrl = prefix + "/" + updateFile;
-                    logger.info(SHORT, main.cfg.gs("Updater.downloading") + downloadUrl);
+                    logger.info(SHORT, main.cfg.gs("Updater.downloading") + " " + downloadUrl);
 
                     url = new URL(downloadUrl);
                     URLConnection connection = url.openConnection();
@@ -421,7 +421,7 @@ public class DownloadUpdate extends JFrame
             boolean success = false;
             progressBar.setMaximum(4);
             progressBar.setValue(0);
-            String outPath = Utils.getTempUpdaterDirectory();
+            String outPath = main.getUpdaterPath();
 
             try
             {

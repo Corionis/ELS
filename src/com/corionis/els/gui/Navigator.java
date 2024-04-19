@@ -3518,7 +3518,6 @@ public class Navigator
             {
                 try
                 {
-                    String[] args;
                     String cmd = "";
                     String[] parms = {Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") +
                             "rt" + System.getProperty("file.separator") +
@@ -3526,12 +3525,14 @@ public class Navigator
                             "java" + (Utils.isOsWindows() ? ".exe" : ""),
                             "-jar",
                             updaterJar};
-                    args = parms;
-                    cmd = parms.toString();
+                    for (int i = 0; i < parms.length; ++i)
+                    {
+                        cmd += parms[i] + " ";
+                    }
 
                     logger.info(context.cfg.gs("Navigator.starting.els.updater") + cmd);
 
-                    Process proc = Runtime.getRuntime().exec(args);
+                    Process proc = Runtime.getRuntime().exec(parms);
                 }
                 catch (Exception e)
                 {

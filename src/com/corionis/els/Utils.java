@@ -861,10 +861,6 @@ public class Utils
     public static String getTempUpdaterDirectory()
     {
         String path = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "ELS_Updater_" + System.getProperty("user.name");
-        if (path.endsWith(System.getProperty("file.separator")))
-        {
-            path = path.substring(0, path.length() - 1);
-        }
         return path;
     }
 
