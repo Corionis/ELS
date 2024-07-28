@@ -47,6 +47,17 @@
         "TV Shows",
         "M4 D4 Renamer Tests"
       ]
+    },
+    {
+      "name": "ELS",
+      "panel": "treeSystemOne",
+      "pathElements": [
+        "System",
+        "Home",
+        "Work",
+        "corionis",
+        "ELS"
+      ]
     }
   ]
 }

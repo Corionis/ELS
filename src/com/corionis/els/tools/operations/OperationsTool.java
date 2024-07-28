@@ -1,9 +1,7 @@
 package com.corionis.els.tools.operations;
 
 import com.corionis.els.*;
-import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Task;
-import com.corionis.els.repository.Repository;
 import com.corionis.els.tools.AbstractTool;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,11 +9,9 @@ import com.corionis.els.gui.util.ArgumentTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 public class OperationsTool extends AbstractTool
@@ -23,7 +19,7 @@ public class OperationsTool extends AbstractTool
     // @formatter:off
 
     // Elements match card names in lowercase
-    // Jobs PubSub handling. Origin paths always disabled for Operations
+    // Jobs PubSub handling and Origins always disabled for Operations
     //  * Publisher & Subscriber
     //     + Publisher
     //     + Listener
@@ -35,7 +31,8 @@ public class OperationsTool extends AbstractTool
     //     + HintServer
     //
     // @see JobsUI.getOriginWant()
-    public static enum Cards { Publisher, Listener, HintServer, Terminal, SubscriberQuit, StatusQuit }
+    
+    public enum Cards { Publisher, Listener, HintServer, Terminal, SubscriberQuit, StatusQuit }
 
     public static final String INTERNAL_NAME = "Operations";
     public static final String SUBSYSTEM = "tools";
@@ -46,35 +43,34 @@ public class OperationsTool extends AbstractTool
     private Cards card = Cards.Publisher;
     private char[] optAuthorize = null; // -a | --authorize
     private String optAuthKeys = ""; // -A | --auth-keys
-    private boolean optNoBackFill = false; // -b | --no-back-fill
     private String optBlacklist = ""; // -B | --blacklist
-    private boolean optDryRun = false; // -D --dry-run
-    private String optExportText = ""; // -e | --export-text
+    private boolean optCrossCheck = false; // -x | --cross-check
+    private boolean optDecimalScale = false; // -z | --decimal-scale
+    private boolean optDuplicates = false; // -u | --duplicates
     private boolean optEmptyDirectories = false; // -E | --empty-directories
-    private boolean optListenerKeepGoing = false; // -g | --listener-keep-going
-    private boolean optListenerQuit = false; // -G | --listener-quit
-    private String optHints = ""; // -h | --hints
-    private String optHintServer = ""; // -H | --hint-server
+    private String[] optExclude; // -L | --exclude
     private String optExportItems = ""; // -i | --export-items
+    private String optExportText = ""; // -e | --export-text
+    private boolean optForceQuit = false; // -Q | --force-quit
+    private String optHintServer = ""; // -H | --hint-server
+    private String optHintTracker = ""; // -h | --hints
+    private boolean optIgnored = false; // -N | --ignored
     private String optIpWhitelist = ""; // -I | --ip-whitelist
     private String optKeys = ""; // -k | --keys (Hint keys)
     private String optKeysOnly = ""; // -K | --key-only
     private String[] optLibrary; // -l | --library
-    private String[] optExclude; // -L | --exclude
+    private boolean optListenerKeepGoing = false; // -g | --listener-keep-going
+    private boolean optListenerQuit = false; // -G | --listener-quit
     private String optMismatches = ""; // -m | --mismatches
     private boolean optNavigator = false; // -n | --navigator
-    private boolean optIgnored = false; // -N | --ignored
+    private boolean optNoBackFill = false; // -b | --no-back-fill
     private boolean optOverwrite = false; // -o | --overwrite
+    private boolean optPreserveDates = false; // -y | --preserve-dates
     private boolean optQuitStatus = false; // -q | --quit-status
-    private boolean optForceQuit = false; // -Q | --force-quit
     private String optTargets = ""; // -t | --targets
-    private boolean optDuplicates = false; // -u | --duplicates
     private boolean optValidate = false; // -v | --validate
     private String optWhatsNew = ""; // -w | --whatsnew
     private String optWhatsNewAll = ""; // -W | --whatsnew-all
-    private boolean optCrossCheck = false; // -x | --cross-check
-    private boolean optPreserveDates = false; // -y | --preserve-dates
-    private boolean optDecimalScale = false; // -z | --decimal-scale
 
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private Logger logger = LogManager.getLogger("applog");
@@ -87,7 +83,6 @@ public class OperationsTool extends AbstractTool
     {
         super(context);
         setDisplayName(getCfg().gs("Operations.displayName"));
-        this.originPathsAllowed = false;
     }
 
     public OperationsTool clone()
@@ -100,12 +95,11 @@ public class OperationsTool extends AbstractTool
         tool.setOptAuthKeys(getOptAuthKeys());
         tool.setOptNoBackFill(isOptNoBackFill());
         tool.setOptBlacklist(getOptBlacklist());
-        tool.setOptDryRun(isOptDryRun());
         tool.setOptExportText(getOptExportText());
         tool.setOptEmptyDirectories(isOptEmptyDirectories());
         tool.setOptListenerKeepGoing(isOptListenerKeepGoing());
         tool.setOptListenerQuit(isOptListenerQuit());
-        tool.setOptHints(getOptHints());
+        tool.setOptHintTracker(getOptHintTracker());
         tool.setOptHintServer(getOptHintServer());
         tool.setOptExportItems(getOptExportItems());
         tool.setOptIpWhitelist(getOptIpWhitelist());
@@ -127,16 +121,20 @@ public class OperationsTool extends AbstractTool
         tool.setOptCrossCheck(isOptCrossCheck());
         tool.setOptPreserveDates(isOptPreserveDates());
         tool.setOptDecimalScale(isOptDecimalScale());
-
-        tool.setIncludeInToolsList(isIncludeInToolsList());
         return tool;
     }
 
-    public String generateCommandLine()
+    private String generateCommandLine(boolean dryRun)
     {
         Configuration defCfg = new Configuration(context);
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
         StringBuilder sb = new StringBuilder();
+
+        String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
+        sb.append(" " + conf);
+
+        if (dryRun)
+            sb.append(" " + (glo ? "--dry-run" : "-D"));
 
         // --- non-munging actions
         if (isOptNavigator() != defCfg.isNavigator())
@@ -146,9 +144,6 @@ public class OperationsTool extends AbstractTool
         if (isOptQuitStatus())
             sb.append(" " + (glo ? "--quit-status" : "-q"));
 
-        if (isOptDryRun() != defCfg.isDryRun())
-            sb.append(" " + (glo ? "--dry-run" : "-D"));
-
         // --- hint keys
         if (getOptKeys().length() > 0)
             sb.append(" " + (glo ? "--keys" : "-k") + " \"" + getOptKeys() + "\"");
@@ -156,10 +151,14 @@ public class OperationsTool extends AbstractTool
             sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" + getOptKeysOnly() + "\"");
 
         // --- hints & hint server
-        if (getOptHints().length() > 0)
-            sb.append(" " + (glo ? "--hints" : "-h") + " \"" + getOptHints() + "\"");
+        if (getOptHintTracker().length() > 0)
+            sb.append(" " + (glo ? "--hints" : "-h") + " \"" + getOptHintTracker() + "\"");
         if (getOptHintServer().length() > 0)
+        {
+            if (context.cfg.isOverrideHintsHost() && operation != Configuration.Operations.StatusServer)
+                sb.append((" " + (glo ? "--override-hints-host" : "-J")));
             sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + getOptHintServer() + "\"");
+        }
 
         // --- remote mode
         switch (operation)
@@ -200,7 +199,11 @@ public class OperationsTool extends AbstractTool
             {
                 subPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), subPath);
                 if (subPath != null && subPath.length() > 0)
+                {
+                    if (context.cfg.isOverrideSubscriberHost() && operation != Configuration.Operations.SubscriberListener)
+                        sb.append((" " + (glo ? "--override-host" : "-O")));
                     sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subPath + "\"");
+                }
             }
         }
 
@@ -292,11 +295,11 @@ public class OperationsTool extends AbstractTool
         return sb.toString().trim();
     }
 
-    public String generateCommandLine(String pubPath, String subPath)
+    public String generateCommandLine(String pubPath, String subPath, boolean dryRun)
     {
         this.pubPath = pubPath;
         this.subPath = subPath;
-        return generateCommandLine();
+        return generateCommandLine(dryRun);
     }
 
     @Override
@@ -314,6 +317,15 @@ public class OperationsTool extends AbstractTool
     public Cards getCard()
     {
         return card;
+    }
+
+    public String getHintsPath()
+    {
+        if (getOptHintTracker().length() > 0)
+            return getOptHintTracker();
+        if (getOptHintServer().length() > 0)
+            return getOptHintServer();
+        return "";
     }
 
     @Override
@@ -362,9 +374,9 @@ public class OperationsTool extends AbstractTool
         return optExportText;
     }
 
-    public String getOptHints()
+    public String getOptHintTracker()
     {
-        return optHints;
+        return optHintTracker;
     }
 
     public String getOptHintServer()
@@ -418,21 +430,9 @@ public class OperationsTool extends AbstractTool
         return SUBSYSTEM;
     }
 
-    @Override
-    public boolean isCachedLastTask()
-    {
-        return false;
-    }
-
     public boolean isDataChanged()
     {
         return dataHasChanged; // used by the GUI
-    }
-
-    @Override
-    public boolean isDualRepositories()
-    {
-        return true;
     }
 
     public boolean isOptCrossCheck()
@@ -443,11 +443,6 @@ public class OperationsTool extends AbstractTool
     public boolean isOptDecimalScale()
     {
         return optDecimalScale;
-    }
-
-    public boolean isOptDryRun()
-    {
-        return optDryRun;
     }
 
     public boolean isOptDuplicates()
@@ -511,120 +506,43 @@ public class OperationsTool extends AbstractTool
     }
 
     @Override
-    public boolean isRealOnly()
+    public boolean isToolHintServer()
     {
+        if (card.equals(Cards.HintServer) || card.equals(Cards.StatusQuit))
+            return true;
         return false;
     }
 
-    /**
-     * Process an Operations tool
-     * <br/>
-     * Used by by a Job when executing an Operations task
-     *
-     * @param context The runtime Context
-     * @param publisherPath Repository of the publisher or null
-     * @param subscriberPath Repository of the subscriber or null
-     * @throws Exception
-     */
     @Override
-    public void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
+    public boolean isToolPublisher()
     {
-        pubPath = publisherPath;
-        subPath = subscriberPath;
+        if (card.equals(Cards.HintServer))
+            return false;
+        return true;
+    }
+
+    @Override
+    public boolean isToolSubscriber()
+    {
+        if (card.equals(Cards.HintServer) || card.equals(Cards.StatusQuit))
+            return false;
+        return true;
+    }
+
+    @Override
+    public void processTool(Task task)
+    {
+        pubPath = task.publisherPath;
+        subPath = task.subscriberPath;
 
         // construct the arguments
-        String cmd = generateCommandLine();
-        if (dryRun && !cmd.contains(" -D") && !cmd.contains(" --dry-run"))
-        {
-            boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
-            cmd += (" " + (glo ? "--dry-run" : "-D"));
-        }
+        String cmd = generateCommandLine(task.dryRun);
         List<String> list = ArgumentTokenizer.tokenize(cmd);
         String[] args = list.toArray(new String[0]);
 
         // run the Operation
-        logger.info(context.cfg.gs("Operations.launching") + getConfigName());
+        logger.info(context.cfg.gs("Z.launching") + getConfigName());
         Main main = new Main(args, context, getConfigName());
-        logger.info(getConfigName() + context.cfg.gs("Z.completed"));
-    }
-
-    @Override
-    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
-    {
-        // to satisfy AbstractTool, not used
-    }
-
-    /**
-     * Process an Operations tool on a SwingWorker thread
-     * <br/>
-     * Used by the Run button of the tool
-     *
-     * @param context The runtime Context
-     * @param publisherPath Repository of the publisher or null
-     * @param subscriberPath Repository of the subscriber or null
-     * @return SwingWorker<Void, Void> of thread
-     */
-    @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
-    {
-        // check for other blocking processes
-        if (!context.navigator.isBlockingProcessRunning())
-        {
-/*
-            ActionListener cancel = new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent)
-                {
-                    requestStop();
-                }
-            };
-            context.progress = new Progress(context, context.mainFrame.panelOperationTop, cancel, ((dryRun) ? dryRun : optDryRun));
-            context.progress.display();
-*/
-            context.navigator.setBlockingProcessRunning(true);
-        }
-        else
-        {
-            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.gs("Operations.displayName"), JOptionPane.WARNING_MESSAGE);
-            return null;
-        }
-
-        // using currently-loaded repositories means there is no change in connection
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-        {
-            @Override
-            protected Void doInBackground() throws Exception
-            {
-                try
-                {
-                    processTool(context, publisherPath, subscriberPath, ((dryRun) ? dryRun : optDryRun));
-                }
-                catch (Exception e)
-                {
-                    String msg = context.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
-                    logger.error(msg);
-                    if (context.navigator != null)
-                        JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("Operations.displayName"), JOptionPane.ERROR_MESSAGE);
-                }
-                return null;
-            }
-
-            @Override
-            protected void done()
-            {
-                context.navigator.setBlockingProcessRunning(false);
-            }
-        };
-        return worker;
-    }
-
-    @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
-    {
-        // to satisfy AbstractTool, not used
-        return null;
     }
 
     public void requestStop()
@@ -683,11 +601,6 @@ public class OperationsTool extends AbstractTool
         this.optDecimalScale = optDecimalScale;
     }
 
-    public void setOptDryRun(boolean optDryRun)
-    {
-        this.optDryRun = optDryRun;
-    }
-
     public void setOptDuplicates(boolean optDuplicates)
     {
         this.optDuplicates = optDuplicates;
@@ -723,9 +636,9 @@ public class OperationsTool extends AbstractTool
         this.optHintServer = optHintServer;
     }
 
-    public void setOptHints(String optHints)
+    public void setOptHintTracker(String optHintTracker)
     {
-        this.optHints = optHints;
+        this.optHintTracker = optHintTracker;
     }
 
     public void setOptIgnored(boolean optIgnored)
@@ -824,7 +737,7 @@ public class OperationsTool extends AbstractTool
         setOptBlacklist(context.main.makeRelativeWorkingPath(getOptBlacklist()));
         setOptExportItems(context.main.makeRelativeWorkingPath(getOptExportItems()));
         setOptExportText(context.main.makeRelativeWorkingPath(getOptExportText()));
-        setOptHints(context.main.makeRelativeWorkingPath(getOptHints()));
+        setOptHintTracker(context.main.makeRelativeWorkingPath(getOptHintTracker()));
         setOptHintServer(context.main.makeRelativeWorkingPath(getOptHintServer()));
         setOptIpWhitelist(context.main.makeRelativeWorkingPath(getOptIpWhitelist()));
         setOptKeys(context.main.makeRelativeWorkingPath(getOptKeys()));

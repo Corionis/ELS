@@ -100,7 +100,7 @@
 <pre>public final class <span class="strong">Configurator</span>
 extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
 <div class="block">Initializes and configure the Logging system. This class provides several ways to construct a LoggerContext using
- the location of a configuration file, a context name, and various optional parameters.</div>
+ the location of a configuration file, a localContext name, and various optional parameters.</div>
 </li>
 </ul>
 </div>
@@ -232,7 +232,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/config/Configurator.html#shutdown(org.apache.logging.log4j.core.LoggerContext)">shutdown</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;ctx)</code>
-<div class="block">Shuts down the given logger context.</div>
+<div class="block">Shuts down the given logger localContext.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -240,7 +240,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/config/Configurator.html#shutdown(org.apache.logging.log4j.core.LoggerContext,%20long,%20java.util.concurrent.TimeUnit)">shutdown</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;ctx,
         long&nbsp;timeout,
         <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/TimeUnit.html?is-external=true" title="class or interface in java.util.concurrent">TimeUnit</a>&nbsp;timeUnit)</code>
-<div class="block">Shuts down the given logger context.</div>
+<div class="block">Shuts down the given logger localContext.</div>
 </td>
 </tr>
 </table>
@@ -288,7 +288,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
                        <a href="../../../../../../org/apache/logging/log4j/core/config/ConfigurationSource.html" title="class in org.apache.logging.log4j.core.config">ConfigurationSource</a>&nbsp;source,
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext)</pre>
 <div class="block">Initializes the Logging Context.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>source</code> - The InputSource for the configuration.</dd><dd><code>externalContext</code> - The external context to be attached to the LoggerContext.</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>source</code> - The InputSource for the configuration.</dd><dd><code>externalContext</code> - The external localContext to be attached to the LoggerContext.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext.</dd></dl>
 </li>
 </ul>
@@ -302,7 +302,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/ClassLoader.html?is-external=true" title="class or interface in java.lang">ClassLoader</a>&nbsp;loader,
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;configLocation)</pre>
 <div class="block">Initializes the Logging Context.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>configLocation</code> - The configuration for the logging context.</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>configLocation</code> - The configuration for the logging localContext.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext or null if an error occurred (check the status logger).</dd></dl>
 </li>
 </ul>
@@ -317,7 +317,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;configLocation,
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext)</pre>
 <div class="block">Initializes the Logging Context.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>configLocation</code> - The configuration for the logging context (or null, or blank).</dd><dd><code>externalContext</code> - The external context to be attached to the LoggerContext</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>configLocation</code> - The configuration for the logging localContext (or null, or blank).</dd><dd><code>externalContext</code> - The external localContext to be attached to the LoggerContext</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext or null if an error occurred (check the status logger).</dd></dl>
 </li>
 </ul>
@@ -331,7 +331,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/ClassLoader.html?is-external=true" title="class or interface in java.lang">ClassLoader</a>&nbsp;loader,
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/net/URI.html?is-external=true" title="class or interface in java.net">URI</a>&nbsp;configLocation)</pre>
 <div class="block">Initializes the Logging Context.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>configLocation</code> - The configuration for the logging context.</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>configLocation</code> - The configuration for the logging localContext.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext.</dd></dl>
 </li>
 </ul>
@@ -346,7 +346,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/net/URI.html?is-external=true" title="class or interface in java.net">URI</a>&nbsp;configLocation,
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext)</pre>
 <div class="block">Initializes the Logging Context.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>configLocation</code> - The configuration for the logging context (or null).</dd><dd><code>externalContext</code> - The external context to be attached to the LoggerContext</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>loader</code> - The ClassLoader for the Context (or null).</dd><dd><code>configLocation</code> - The configuration for the logging localContext (or null).</dd><dd><code>externalContext</code> - The external localContext to be attached to the LoggerContext</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext.</dd></dl>
 </li>
 </ul>
@@ -371,7 +371,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <pre>public static&nbsp;<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;initialize(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;configLocation)</pre>
 <div class="block">Initializes the Logging Context.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>configLocation</code> - The configuration for the logging context.</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The Context name.</dd><dd><code>configLocation</code> - The configuration for the logging localContext.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext or null if an error occurred (check the status logger).</dd></dl>
 </li>
 </ul>
@@ -410,7 +410,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
                        <a href="../../../../../../org/apache/logging/log4j/core/config/Configuration.html" title="interface in org.apache.logging.log4j.core.config">Configuration</a>&nbsp;configuration,
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext)</pre>
 <div class="block">Initializes the Logging Context.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loader</code> - The ClassLoader.</dd><dd><code>configuration</code> - The Configuration.</dd><dd><code>externalContext</code> - - The external context to be attached to the LoggerContext.</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loader</code> - The ClassLoader.</dd><dd><code>configuration</code> - The Configuration.</dd><dd><code>externalContext</code> - - The external localContext to be attached to the LoggerContext.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext.</dd></dl>
 </li>
 </ul>
@@ -468,13 +468,13 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>shutdown</h4>
 <pre>public static&nbsp;void&nbsp;shutdown(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;ctx)</pre>
-<div class="block">Shuts down the given logger context. This request does not wait for Log4j tasks to complete.
+<div class="block">Shuts down the given logger localContext. This request does not wait for Log4j tasks to complete.
  <p>
  Log4j starts threads to perform certain actions like file rollovers; calling this method will not wait until the
  rollover thread is done. When this method returns, these tasks' status are undefined, the tasks may be done or
  not.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ctx</code> - the logger context to shut down, may be null.</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ctx</code> - the logger localContext to shut down, may be null.</dd></dl>
 </li>
 </ul>
 <a name="shutdown(org.apache.logging.log4j.core.LoggerContext, long, java.util.concurrent.TimeUnit)">
@@ -486,13 +486,13 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <pre>public static&nbsp;boolean&nbsp;shutdown(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;ctx,
                long&nbsp;timeout,
                <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/TimeUnit.html?is-external=true" title="class or interface in java.util.concurrent">TimeUnit</a>&nbsp;timeUnit)</pre>
-<div class="block">Shuts down the given logger context.
+<div class="block">Shuts down the given logger localContext.
  <p>
  Log4j can origin threads to perform certain actions like file rollovers; calling this method with a positive
  timeout will block until the rollover thread is done.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ctx</code> - the logger context to shut down, may be null.</dd><dd><code>timeout</code> - the maximum time to wait</dd><dd><code>timeUnit</code> - the time unit of the timeout argument</dd>
-<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the logger context terminated and <code>false</code> if the timeout elapsed before
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ctx</code> - the logger localContext to shut down, may be null.</dd><dd><code>timeout</code> - the maximum time to wait</dd><dd><code>timeUnit</code> - the time unit of the timeout argument</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the logger localContext terminated and <code>false</code> if the timeout elapsed before
          termination.</dd><dt><span class="strong">Since:</span></dt>
   <dd>2.7</dd>
 <dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html#stop(long,%20java.util.concurrent.TimeUnit)"><code>LoggerContext.stop(long, TimeUnit)</code></a></dd></dl>

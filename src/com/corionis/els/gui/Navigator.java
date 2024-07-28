@@ -86,13 +86,22 @@ public class Navigator
     private ArrayList<ArrayList<Origin>> originsArray = null;
     private boolean quitRemoteHintStatusServer = false;
     private boolean quitRemoteSubscriber = false;
-    private boolean remoteJobRunning = false;
+    private boolean secondaryNavigator = false;
     private String updaterJar = null;
     private boolean updaterProcess = false;
+    private boolean workerRunning = false;
     private transient Logger logger = LogManager.getLogger("applog");
-    public Navigator(Main main, Context context)
+
+    /**
+     * Constructor
+     *
+     * @param context The Context
+     */
+    public Navigator(Context context)
     {
         this.context = context;
+        if (this.context.navigator != null)
+            this.secondaryNavigator = true;
         this.context.navigator = this;
     }
 
@@ -144,7 +153,6 @@ public class Navigator
                 HintKey hk = context.hints.findHintKey(context.publisherRepo);
                 if (hk != null)
                     count = context.hints.getCount(hk.system);
-
                 if (count > 0)
                 {
                     String text = "" + count + " " + context.cfg.gs("Navigator.hints.available");
@@ -419,7 +427,6 @@ public class Navigator
 
         context.mainFrame.menuItemRefresh.setEnabled(enable);
         context.mainFrame.radioButtonAutoRefresh.setEnabled(enable);
-//        context.mainFrame.radioButtonBatch.setEnabled(enable);
         context.mainFrame.menuItemShowHidden.setEnabled(enable);
         context.mainFrame.menuItemWordWrap.setEnabled(enable);
 
@@ -460,15 +467,20 @@ public class Navigator
 
     public void disconnectSubscriber()
     {
+        disconnectSubscriber(true);
+        context.subscriberRepo = null;
+        context.cfg.setSubscriberCollectionFilename("");
+        context.cfg.setSubscriberLibrariesFileName("");
+        context.cfg.setRemoteType("-");
+    }
+
+    public void disconnectSubscriber(boolean clear)
+    {
         quitByeRemotes(true, false);
         NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
         root.loadTable();
         root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
         root.loadTable();
-        context.subscriberRepo = null;
-        context.cfg.setSubscriberCollectionFilename("");
-        context.cfg.setSubscriberLibrariesFileName("");
-        context.cfg.setRemoteType("-");
         setQuitTerminateVisibility();
     }
 
@@ -665,6 +677,7 @@ public class Navigator
         if (context.cfg.getSubscriberCollectionFilename().length() > 0)
         {
             context.preferences.setLastSubscriberIsRemote(true);
+            context.preferences.setLastOverrideSubscriberHost(context.cfg.isOverrideSubscriberHost());
             context.preferences.setLastSubscriberOpenFile(context.cfg.getSubscriberCollectionFilename());
             context.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(context.cfg.getSubscriberCollectionFilename(),
                     Utils.getSeparatorFromPath(context.cfg.getSubscriberCollectionFilename())));
@@ -672,48 +685,54 @@ public class Navigator
         else if (context.cfg.getSubscriberLibrariesFileName().length() > 0)
         {
             context.preferences.setLastSubscriberIsRemote(false);
+            context.preferences.setLastOverrideSubscriberHost(context.cfg.isOverrideSubscriberHost());
             context.preferences.setLastSubscriberOpenFile(context.cfg.getSubscriberLibrariesFileName());
             context.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(context.cfg.getSubscriberLibrariesFileName(),
                     Utils.getSeparatorFromPath(context.cfg.getSubscriberLibrariesFileName())));
         }
         if (context.preferences.getLastSubscriberOpenPath().equals(context.preferences.getLastSubscriberOpenFile()))
-            context.preferences.setLastSubscriberOpenPath(""); //context.cfg.getWorkingDirectory());
+            context.preferences.setLastSubscriberOpenPath(""); //localContext.cfg.getWorkingDirectory());
 
         if (context.cfg.isHintTrackingEnabled())
         {
             context.preferences.setLastHintTrackingIsRemote(context.cfg.getHintsDaemonFilename().length() > 0);
+            context.preferences.setLastOverrideHintHost(context.cfg.isOverrideHintsHost());
             context.preferences.setLastHintTrackingOpenFile(context.cfg.getHintHandlerFilename());
             context.preferences.setLastHintTrackingOpenPath(Utils.getLeftPath(context.cfg.getHintHandlerFilename(),
                     Utils.getSeparatorFromPath(context.cfg.getHintHandlerFilename())));
             if (context.preferences.getLastHintKeysOpenPath().equals(context.preferences.getLastHintKeysOpenFile()))
                 context.preferences.setLastHintTrackingOpenPath(context.cfg.getWorkingDirectory());
         }
-        else
+        else if (context.cfg.getHintHandlerFilename().length() > 0)
         {
             // might be null in existing preferences.json
+            context.preferences.setLastOverrideHintHost(context.cfg.isOverrideHintsHost());
             if (context.preferences.getLastHintTrackingOpenFile() == null)
                 context.preferences.setLastHintTrackingOpenFile("");
             if (context.preferences.getLastHintTrackingOpenPath() == null)
                 context.preferences.setLastHintTrackingOpenPath(context.cfg.getWorkingDirectory());
         }
 
-        // setup the needed tools
-        context.transfer = new Transfer(context);
-        try
+        if (!isLogger())
         {
-            context.transfer.initialize();
-
-            if (context.cfg.getHintKeysFile() != null && context.cfg.getHintKeysFile().length() > 0)
+            // setup the needed tools
+            context.transfer = new Transfer(context);
+            try
             {
-                context.preferences.setLastHintKeysOpenFile(context.cfg.getHintKeysFile());
-                context.preferences.setLastHintKeysOpenPath(FilenameUtils.getFullPathNoEndSeparator(context.cfg.getHintKeysFile()));
+                context.transfer.initialize();
+
+                if (context.cfg.getHintKeysFile() != null && context.cfg.getHintKeysFile().length() > 0)
+                {
+                    context.preferences.setLastHintKeysOpenFile(context.cfg.getHintKeysFile());
+                    context.preferences.setLastHintKeysOpenPath(FilenameUtils.getFullPathNoEndSeparator(context.cfg.getHintKeysFile()));
+                }
             }
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-            context.fault = true;
-            return false;
+            catch (Exception e)
+            {
+                logger.error(Utils.getStackTrace(e));
+                context.fault = true;
+                return false;
+            }
         }
 
         // setup the GUI
@@ -733,13 +752,13 @@ public class Navigator
             context.browser = new Browser(context);
             context.libraries = new LibrariesUI(context);
 
-            // set the GuiLogAppender context for a second invocation
-            if (context.main.secondaryInvocation)
+            // set the GuiLogAppender localContext for a second invocation
+            if (context.main.primaryExecution)
             {
                 GuiLogAppender appender = context.main.getGuiLogAppender();
                 appender.setContext(context);
                 // this causes the preBuffer to be appended to the Navigator Log panels
-                logger.info(context.cfg.gs("Navigator.secondary,context"));
+                logger.info(context.cfg.gs("Navigator.appender.updated"));
             }
 
             // disable back-fill because we never know what combination of items might be selected
@@ -749,18 +768,21 @@ public class Navigator
 
             setQuitTerminateVisibility();
 
-            // add any defined bookmarks to the menu
-            bookmarks = new Bookmarks();
-            loadBookmarksMenu();
+            if (!context.cfg.isLoggerView())
+            {
+                // add any defined bookmarks to the menu
+                bookmarks = new Bookmarks();
+                loadBookmarksMenu();
 
-            // add any defined jobs to the menu
-            loadJobsMenu();
+                // add any defined jobs to the menu
+                loadJobsMenu();
+            }
 
             context.cfg.setNavigator(true);
         }
 
-        context.savedEnvironment = new SavedEnvironment(context);
-        context.savedEnvironment.save();
+        if (!secondaryNavigator)
+            context.main.saveEnvironment();
 
         return !context.fault;
     }
@@ -884,7 +906,7 @@ public class Navigator
                             context.hints = null;
                             context.hintKeys = null;
                             context.cfg.setHintKeysFile("");
-                            context.statusRepo = null;
+                            context.hintsRepo = null;
                             context.cfg.setHintTrackerFilename("");
                             context.cfg.setHintsDaemonFilename("");
                             context.preferences.setLastHintKeysIsOpen(false);
@@ -912,6 +934,7 @@ public class Navigator
                             context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
                             context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
                             setQuitTerminateVisibility();
+                            context.libraries.loadConfigurations();
                         }
                         catch (Exception e)
                         {
@@ -993,6 +1016,7 @@ public class Navigator
                             return;
                         }
 
+                        // verify file
                         File last = fc.getCurrentDirectory();
                         File file = fc.getSelectedFile();
                         if (!file.exists())
@@ -1010,7 +1034,54 @@ public class Navigator
                             break;
                         }
 
-                        if (context.cfg.isRemoteSubscriber())
+                        context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
+                        context.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
+                        context.preferences.setLastSubscriberIsRemote(cbIsRemote.isSelected());
+                        context.preferences.setLastSubscriberIsOpen(true);
+                        boolean closeRemote = context.cfg.isRemoteSubscriber();
+
+                        // read the selected local repository
+                        try
+                        {
+                            context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
+                            context.cfg.setSubscriberCollectionFilename("");
+                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+
+                            // this defines the value returned by localContext.cfg.isRemoteSession()
+                            if (cbIsRemote.isSelected())
+                                context.cfg.setRemoteType("P"); // publisher to remote subscriber
+                            else
+                                context.cfg.setRemoteType("-"); // not remote
+
+                            context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, !context.preferences.isLastSubscriberIsRemote());
+                        }
+                        catch (Exception e)
+                        {
+                            context.mainFrame.labelStatusMiddle.setText("");
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
+                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            context.fault = false;
+                            return;
+                        }
+
+                        // prompt for a host or listen remote connection
+                        if (cbIsRemote.isSelected())
+                        {
+                            // if listen is defined and not equal to host
+                            String listen = context.subscriberRepo.getLibraryData().libraries.listen;
+                            if (listen != null && !listen.isEmpty() &&
+                                    !listen.equalsIgnoreCase(context.subscriberRepo.getLibraryData().libraries.host))
+                            {
+                                int hostListen = promptHostOrListen(context.subscriberRepo, true);
+                                if (hostListen < 0) // was it cancelled?
+                                    return;
+                                context.cfg.setOverrideSubscriberHost(hostListen == 0);
+                                context.preferences.setLastOverrideSubscriberHost(hostListen == 0);
+                            }
+                        }
+
+                        if (closeRemote)
                         {
                             int r = JOptionPane.showConfirmDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
@@ -1019,23 +1090,15 @@ public class Navigator
                             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
                                 return;
 
-                            disconnectSubscriber();
+                            disconnectSubscriber(false);
+                            try
+                            {
+                                Thread.sleep(1000); // give the communications a moment to close
+                            }
+                            catch (Exception e)
+                            {
+                            }
                         }
-
-                        context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
-                        context.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
-                        context.preferences.setLastSubscriberIsRemote(cbIsRemote.isSelected());
-                        context.preferences.setLastSubscriberIsOpen(true);
-
-                        // this defines the value returned by context.cfg.isRemoteSession()
-                        if (context.preferences.isLastSubscriberIsRemote())
-                            context.cfg.setRemoteType("P"); // publisher to remote subscriber
-                        else
-                            context.cfg.setRemoteType("-"); // not remote
-
-                        context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
-                        context.cfg.setSubscriberCollectionFilename("");
-                        context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
 
                         if (context.preferences.isLastSubscriberIsRemote())
                         {
@@ -1054,12 +1117,12 @@ public class Navigator
                                     context.mainFrame.repaint();
                                     context.mainFrame.labelStatusMiddle.repaint();
 
-                                    context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, !context.preferences.isLastSubscriberIsRemote());
-
                                     if (context.preferences.isLastSubscriberIsRemote())
                                     {
                                         // start the serveStty client for automation
                                         context.mainFrame.labelStatusMiddle.setText("");
+                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
                                         context.clientStty = new ClientStty(context, false, true);
                                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                                         {
@@ -1073,6 +1136,7 @@ public class Navigator
                                             return;
                                         }
 
+                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                                         if (context.clientStty.checkBannerCommands())
                                         {
                                             logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
@@ -1110,6 +1174,7 @@ public class Navigator
 
                                     // load the subscriber library
                                     setQuitTerminateVisibility();
+                                    context.libraries.loadConfigurations();
                                     context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
                                     context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
                                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1204,7 +1269,7 @@ public class Navigator
                             context.preferences.setLastHintKeysIsOpen(true);
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
                             context.main.setupHints(context.publisherRepo);
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                            //context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                         }
                         catch (Exception e)
                         {
@@ -1312,29 +1377,44 @@ public class Navigator
                             break;
                         }
 
-                        if (context.cfg.isHintTrackingEnabled() && context.cfg.isRemoteStatusServer())
-                        {
-                            int r = JOptionPane.showConfirmDialog(context.mainFrame,
-                                    context.cfg.gs("Navigator.menu.Open.hint.tracking.close.current.status.server"),
-                                    context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
-
-                            if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
-                                return;
-
-                            quitByeRemotes(false, true);
-                        }
-
                         try
                         {
                             context.preferences.setLastHintTrackingOpenFile(file.getAbsolutePath());
                             context.preferences.setLastHintTrackingOpenPath(last.getAbsolutePath());
                             context.preferences.setLastHintTrackingIsRemote(cbIsRemote.isSelected());
                             context.preferences.setLastHintTrackingIsOpen(true);
+                            context.cfg.setHintsDaemonFilename(file.getAbsolutePath());
+                            context.cfg.setHintTrackerFilename("");
 
                             if (context.preferences.isLastHintTrackingIsRemote())
                             {
-                                context.cfg.setHintsDaemonFilename(file.getAbsolutePath());
-                                context.cfg.setHintTrackerFilename("");
+                                // read the selected Hint Server repository
+                                try
+                                {
+                                    context.hintsRepo = new Repository(context, Repository.HINT_SERVER);
+                                    context.hintsRepo.read(context.cfg.getHintsDaemonFilename(), context.cfg.gs("Libraries.hint.server"), false);
+                                }
+                                catch (Exception e)
+                                {
+                                    context.mainFrame.labelStatusMiddle.setText("");
+                                    JOptionPane.showMessageDialog(context.mainFrame,
+                                            context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.hint.library") + e.getMessage(),
+                                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    context.fault = false;
+                                    return;
+                                }
+
+                                // if listen is defined and not equal to host
+                                String listen = context.hintsRepo.getLibraryData().libraries.listen;
+                                if (listen != null && !listen.isEmpty() &&
+                                        !listen.equalsIgnoreCase(context.hintsRepo.getLibraryData().libraries.host))
+                                {
+                                    int hostListen = promptHostOrListen(context.hintsRepo, false);
+                                    if (hostListen < 0) // was it cancelled?
+                                        return;
+                                    context.cfg.setOverrideHintsHost(hostListen == 0);
+                                    context.preferences.setLastOverrideHintHost(hostListen == 0);
+                                }
                             }
                             else
                             {
@@ -1342,11 +1422,24 @@ public class Navigator
                                 context.cfg.setHintTrackerFilename(file.getAbsolutePath());
                             }
 
+                            if (context.cfg.isHintTrackingEnabled() && context.cfg.isRemoteStatusServer())
+                            {
+                                int r = JOptionPane.showConfirmDialog(context.mainFrame,
+                                        context.cfg.gs("Navigator.menu.Open.hint.tracking.close.current.status.server"),
+                                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+
+                                if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+                                    return;
+
+                                quitByeRemotes(false, true);
+                            }
+
                             // connect to the hint tracker or status server
                             context.main.setupHints(context.publisherRepo);
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                            //context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.browser.setupHintTrackingButton();
                             setQuitTerminateVisibility();
+                            context.libraries.loadConfigurations();
                         }
                         catch (Exception e)
                         {
@@ -1394,7 +1487,7 @@ public class Navigator
                 else
                     context.mainFrame.menuItemClosePublisher.setVisible(false);
 
-                if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
+                if (context.subscriberRepo != null && context.cfg.getSubscriberFilename().length() > 0)
                     context.mainFrame.menuItemCloseSubscriber.setVisible(true);
                 else
                     context.mainFrame.menuItemCloseSubscriber.setVisible(false);
@@ -1404,7 +1497,7 @@ public class Navigator
                 else
                     context.mainFrame.menuItemCloseHintKeys.setVisible(false);
 
-                if (context.statusRepo != null && context.statusRepo.isInitialized())
+                if (context.hintsRepo != null && context.cfg.getHintHandlerFilename().length() > 0)
                 {
                     if (context.cfg.isRemoteStatusServer())
                         context.mainFrame.menuItemCloseHintTracking.setText(context.cfg.gs("Z.hint.server") + " ...");
@@ -1437,6 +1530,7 @@ public class Navigator
                     context.cfg.setPublisherLibrariesFileName("");
                     context.preferences.setLastPublisherIsOpen(false);
                     setQuitTerminateVisibility();
+                    context.libraries.loadConfigurations();
                 }
             }
         });
@@ -1454,6 +1548,7 @@ public class Navigator
                 {
                     context.preferences.setLastSubscriberIsOpen(false);
                     disconnectSubscriber();
+                    context.libraries.loadConfigurations();
                 }
             }
         });
@@ -1465,7 +1560,7 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 int r;
-                if (context.statusRepo != null && context.statusRepo.isInitialized())
+                if (context.hintsRepo != null && context.hintsRepo.isInitialized())
                 {
                     r = JOptionPane.showConfirmDialog(context.mainFrame,
                             context.cfg.gs("Z.are.you.sure.you.want.to.quit.and.close") + context.cfg.gs("Z.hint.key"),
@@ -1484,11 +1579,12 @@ public class Navigator
                     context.hints = null;
                     context.hintKeys = null;
                     context.cfg.setHintKeysFile("");
-                    context.statusRepo = null;
+                    context.hintsRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
                     context.preferences.setLastHintKeysIsOpen(false);
                     context.browser.setupHintTrackingButton();
+                    context.libraries.loadConfigurations();
                 }
             }
         });
@@ -1508,7 +1604,7 @@ public class Navigator
                 {
                     // close Hint Tracker/Server
                     quitByeRemotes(false, true);
-                    context.statusRepo = null;
+                    context.hintsRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
                     context.preferences.setLastHintTrackingIsOpen(false);
@@ -1524,11 +1620,8 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                Generator generator = new Generator(context);
-                String configName = Configuration.NAVIGATOR_NAME;
-                JDialog dialog = new JDialog(context.mainFrame);
-                dialog.setLocation(context.mainFrame.getX(), context.mainFrame.getY());
-                generator.showDialog(dialog, null, configName);
+                Generator generator = new Generator(context, true);
+                generator.showDialog(null, null, Configuration.NAVIGATOR_NAME);
             }
         };
         context.mainFrame.menuItemGenerate.addActionListener(generateAction);
@@ -1552,7 +1645,7 @@ public class Navigator
                             quitRemoteSubscriber = true;
                     }
 
-                    if (context.statusStty != null)
+                    if (context.hintsStty != null)
                     {
                         int r = JOptionPane.showConfirmDialog(context.mainFrame,
                                 context.cfg.gs("Navigator.menu.QuitTerminate.stop.hint.status.server"),
@@ -2139,12 +2232,10 @@ public class Navigator
                 if (context.preferences.isAutoRefresh())
                 {
                     context.mainFrame.radioButtonAutoRefresh.setSelected(true);
-//                    context.mainFrame.radioButtonBatch.setSelected(false);
                 }
                 else
                 {
                     context.mainFrame.radioButtonAutoRefresh.setSelected(false);
-//                    context.mainFrame.radioButtonBatch.setSelected(true);
                 }
             }
         });
@@ -2181,13 +2272,15 @@ public class Navigator
                 context.preferences.setShowToolbar(context.mainFrame.menuItemShowToolbar.isSelected());
                 if (context.mainFrame.menuItemShowToolbar.isSelected())
                 {
+                    context.preferences.setShowToolbar(true);
                     context.mainFrame.panelAlertsMenu.setVisible(false);
                     context.mainFrame.panelToolbar.setVisible(true);
                 }
                 else
                 {
-                    context.mainFrame.panelToolbar.setVisible(false);
+                    context.preferences.setShowToolbar(false);
                     context.mainFrame.panelAlertsMenu.setVisible(true);
+                    context.mainFrame.panelToolbar.setVisible(false);
                 }
             }
         });
@@ -2416,7 +2509,7 @@ public class Navigator
         // -- Jobs Menu
         // --------------------------------------------------------
 
-        // --- Manage
+        // --- Jobs Manage
         context.mainFrame.menuItemJobsManage.addActionListener(new AbstractAction()
         {
             @Override
@@ -2429,6 +2522,7 @@ public class Navigator
                 }
                 else
                 {
+                    dialogJobs.setVisible(true);
                     dialogJobs.toFront();
                     dialogJobs.requestFocus();
                 }
@@ -2877,9 +2971,19 @@ public class Navigator
         return blockingProcessRunning;
     }
 
+    public boolean isLogger()
+    {
+        return context.cfg.isLoggerView();
+    }
+
     public boolean isUpdaterProcess()
     {
         return updaterProcess;
+    }
+
+    public boolean isWorkerRunning()
+    {
+        return workerRunning;
     }
 
     public void loadBookmarksMenu()
@@ -3020,7 +3124,7 @@ public class Navigator
         }
     }
 
-    public void processJob(Job job)
+    private void processJob(Job job)
     {
         // validate job tasks and origins
         String status = job.validate(context.cfg);
@@ -3038,10 +3142,6 @@ public class Navigator
             boolean isDryRun = checkbox.isSelected();
             if (reply == JOptionPane.YES_OPTION)
             {
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                context.navigator.disableComponent(false, context.mainFrame.getContentPane());
-                context.mainFrame.menuItemFileQuit.setEnabled(true);
-
                 // capture current selections
                 try
                 {
@@ -3065,8 +3165,14 @@ public class Navigator
                 worker = job.process(context, context.mainFrame, context.cfg.getNavigatorName(), job, isDryRun);
                 if (worker != null)
                 {
-                    remoteJobRunning = true;
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    disableComponent(false, context.mainFrame.getContentPane());
+                    context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                    context.mainFrame.menuItemFileQuit.setEnabled(true);
+                    setBlockingProcessRunning(true);
+                    setWorkerRunning(true);
                     disableGui(true);
+
                     worker.addPropertyChangeListener(new PropertyChangeListener()
                     {
                         @Override
@@ -3080,6 +3186,9 @@ public class Navigator
                         }
                     });
                     worker.execute();
+
+                    JScrollBar vertical = context.mainFrame.scrollPaneLog.getVerticalScrollBar();
+                    vertical.setValue(vertical.getMaximum());
                 }
                 else
                     processTerminated(job, isDryRun);
@@ -3089,6 +3198,86 @@ public class Navigator
             JOptionPane.showMessageDialog(context.mainFrame, status, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
     }
 
+    private void processLoggerJob()
+    {
+        try
+        {
+            Job tmpJob = new Job(context, "temp");
+            Job job = tmpJob.load(context.cfg.getJobName());
+            if (job == null)
+                logger.error("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
+            else
+            {
+                worker = job.process(context, context.mainFrame, context.cfg.getNavigatorName(), job, context.cfg.isDryRun());
+                if (worker != null)
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    disableComponent(false, context.mainFrame.getContentPane());
+                    disableGui(true);
+
+                    context.mainFrame.labelAlertHintsMenu.setVisible(false);
+                    context.mainFrame.labelAlertUpdateMenu.setVisible(false);
+
+                    context.mainFrame.tabbedPaneMain.setTitleAt(0, job.getConfigName());
+                    context.mainFrame.tabbedPaneMain.remove(1);
+                    context.mainFrame.tabbedPaneMain.repaint();
+
+                    context.mainFrame.tabbedPaneNavigatorBottom.setEnabledAt(1, false);
+                    context.mainFrame.tabbedPaneNavigatorBottom.remove(1);
+                    context.mainFrame.tabbedPaneNavigatorBottom.repaint();
+
+                    context.mainFrame.menuFile.removeAll();
+                    context.mainFrame.menuFile.add(context.mainFrame.menuItemFileQuit);
+                    context.mainFrame.menuItemFileQuit.setEnabled(true);
+
+                    context.mainFrame.menuEdit.removeAll();
+                    context.mainFrame.menuEdit.add(context.mainFrame.menuItemFind);
+                    context.mainFrame.menuItemFind.setEnabled(true);
+                    context.mainFrame.menuEdit.add(context.mainFrame.menuItemFindNext);
+                    context.mainFrame.menuItemFindNext.setEnabled(true);
+
+                    context.mainFrame.menuView.removeAll();
+                    context.mainFrame.menuView.add(context.mainFrame.menuItemWordWrap);
+                    context.mainFrame.menuItemWordWrap.setEnabled(true);
+
+                    context.mainFrame.menuBookmarks.setVisible(false);
+                    context.mainFrame.menuTools.setVisible(false);
+                    context.mainFrame.menuJobs.setVisible(false);
+                    context.mainFrame.menuSystem.setVisible(false);
+                    context.mainFrame.menuWindows.setVisible(false);
+
+                    context.mainFrame.menuItemUpdates.setVisible(false);
+
+                    setBlockingProcessRunning(true);
+                    setWorkerRunning(true);
+
+                    worker.addPropertyChangeListener(new PropertyChangeListener()
+                    {
+                        @Override
+                        public void propertyChange(PropertyChangeEvent e)
+                        {
+                            if (e.getPropertyName().equals("state"))
+                            {
+                                if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                    processTerminated(job, context.cfg.isDryRun());
+                            }
+                        }
+                    });
+                    worker.execute();
+
+                    JScrollBar vertical = context.mainFrame.scrollPaneLog.getVerticalScrollBar();
+                    vertical.setValue(vertical.getMaximum());
+                }
+                else
+                    processTerminated(job, context.cfg.isDryRun());
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+        }
+    }
+
     private void processTerminated(Job job, boolean isDryRun)
     {
         try
@@ -3096,7 +3285,7 @@ public class Navigator
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
             // reset and reload relevant trees
-            if (!isDryRun)
+            if (!isDryRun && !isLogger())
             {
                 if (job.usesPublisher())
                 {
@@ -3121,13 +3310,16 @@ public class Navigator
                 context.progress = null;
             }
 
-            remoteJobRunning = false;
-            disableGui(false);
+            setBlockingProcessRunning(false);
+
+            if (!isLogger())
+                disableGui(false);
 
             if (originsArray != null && originsArray.size() == 8)
                 Origins.setAllOrigins(context, context.mainFrame, originsArray);
 
-            reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
+            if (!isLogger())
+                reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
         }
         catch (Exception e)
         {
@@ -3138,8 +3330,79 @@ public class Navigator
             logger.info(job.getConfigName() + context.cfg.gs("Z.cancelled"));
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
-        else
-            context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.completed"));
+
+        setWorkerRunning(false);
+    }
+
+    /**
+     * Prompt user whether to use the host or listen address for a remote connection
+     * @param repo The related Repository
+     * @param forSubscriber If for a subscriber then true, else false for Hint Server
+     * @return -1 = cancelled, 0 = listen, 1 = host
+     */
+    public int promptHostOrListen(Repository repo, boolean forSubscriber)
+    {
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagLayout layout = (GridBagLayout) panel.getLayout();
+
+        JLabel prompt = new JLabel(java.text.MessageFormat.format(context.cfg.gs("Navigator.connect.to.using"), repo.getLibraryData().libraries.description));
+
+        JLabel hostLabel = new JLabel(context.cfg.gs("Navigator.labelHostInternet.text"));
+
+        JRadioButton hostButton = new JRadioButton(" " + repo.getLibraryData().libraries.host);
+        boolean b = forSubscriber ? !context.preferences.isLastOverrideSubscriberHost() : !context.preferences.isLastOverrideHintHost();
+        hostButton.setSelected(b);
+
+        JLabel listenLabel = new JLabel(context.cfg.gs("Navigator.labelListenLan.text"));
+
+        JRadioButton listenButton = new JRadioButton(" " + repo.getLibraryData().libraries.listen);
+        b = forSubscriber ? context.preferences.isLastOverrideSubscriberHost() : context.preferences.isLastOverrideHintHost();
+        listenButton.setSelected(b);
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(hostButton);
+        group.add(listenButton);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(4, 8, 4, 8);
+        gbc.anchor = GridBagConstraints.EAST;
+        layout.setConstraints(hostLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.insets = new Insets(4, 0, 4, 8);
+        gbc.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(hostButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(4, 8, 4, 8);
+        gbc.anchor = GridBagConstraints.EAST;
+        layout.setConstraints(listenLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.insets = new Insets(4, 0, 4, 8);
+        gbc.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(listenButton, gbc);
+
+        panel.add(hostLabel);
+        panel.add(hostButton);
+        panel.add(listenLabel);
+        panel.add(listenButton);
+
+        Object[] params = {prompt, panel};
+
+        // prompt user
+        int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.gs("Navigator.HostOrListen.title"), JOptionPane.OK_CANCEL_OPTION);
+        if (opt == JOptionPane.YES_OPTION)
+        {
+            if (hostButton.isSelected())
+                return 1;
+            if (listenButton.isSelected())
+                return 0;
+        }
+        return -1;
     }
 
     public void quitByeRemotes(boolean elsListener, boolean hintStatusServer)
@@ -3202,12 +3465,12 @@ public class Navigator
                 closure = true;
                 logger.info(context.cfg.gs("Main.disconnecting.status.server"));
                 if (quitRemoteHintStatusServer)
-                    context.statusStty.send("quit", "Sending quit command to remote Hint Status Server");
+                    context.hintsStty.send("quit", "Sending quit command to remote Hint Status Server");
                 else
-                    context.statusStty.send("bye", "Sending bye command to remote Hint Status Server");
+                    context.hintsStty.send("bye", "Sending bye command to remote Hint Status Server");
 
-                context.statusStty.disconnect();
-                context.statusStty = null;
+                context.hintsStty.disconnect();
+                context.hintsStty = null;
             }
             catch (Exception e)
             {
@@ -3330,10 +3593,9 @@ public class Navigator
             @Override
             public void run()
             {
-                // TODO Add as needed: Set command line overrides on Navigator Preferences
+                // TODO EXTEND+ Add as needed: Set command line overrides on Navigator Preferences
 
                 // preserve file times
-                String o = context.cfg.getOriginalCommandline();
                 if (context.cfg.getOriginalCommandline().contains("-y"))
                     context.preferences.setPreserveFileTimes(context.cfg.isPreserveDates());
                 else
@@ -3359,37 +3621,46 @@ public class Navigator
                     String os = Utils.getOS();
                     logger.debug(context.cfg.gs("Navigator.detected.local.system.as") + os);
 
-                    if (checkForUpdates(true))
+                    if (!isLogger())
                     {
-                        logger.info(context.cfg.gs("Navigator.update.available"));
-                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.update.available"));
-                        context.mainFrame.labelAlertUpdateMenu.setVisible(true);
-                        context.mainFrame.labelAlertUpdateToolbar.setVisible(true);
-                    }
-                    else
-                    {
-                        logger.info(context.cfg.gs("Navigator.installed.up.to.date"));
-                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.installed.up.to.date"));
-                        context.mainFrame.labelAlertUpdateMenu.setVisible(false);
-                        context.mainFrame.labelAlertUpdateToolbar.setVisible(false);
+                        if (checkForUpdates(true))
+                        {
+                            logger.info(context.cfg.gs("Navigator.update.available"));
+                            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.update.available"));
+                            context.mainFrame.labelAlertUpdateMenu.setVisible(true);
+                            context.mainFrame.labelAlertUpdateToolbar.setVisible(true);
+                        }
+                        else
+                        {
+                            logger.info(context.cfg.gs("Navigator.installed.up.to.date"));
+                            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.installed.up.to.date"));
+                            context.mainFrame.labelAlertUpdateMenu.setVisible(false);
+                            context.mainFrame.labelAlertUpdateToolbar.setVisible(false);
+                        }
+
+                        checkForHints(true);
                     }
 
-                    checkForHints(true);
-
-                    if (context.preferences.isShowToolbar())
+                    if (context.preferences.isShowToolbar() && !isLogger())
                     {
                         context.mainFrame.panelAlertsMenu.setVisible(false);
+                        context.mainFrame.panelToolbar.setVisible(true);
                     }
                     else
                     {
-                        context.mainFrame.menuToolbar.setVisible(false);
                         context.mainFrame.panelAlertsMenu.setVisible(true);
+                        context.mainFrame.panelToolbar.setVisible(false);
                     }
 
                     context.mainFrame.setVisible(true);
 
                     context.preferences.fixBrowserDivider(context, -1);
                     context.mainFrame.treeCollectionOne.requestFocus();
+
+                    if (context.cfg.isLoggerView())
+                    {
+                        context.navigator.processLoggerJob();
+                    }
                 }
                 else
                 {
@@ -3487,29 +3758,43 @@ public class Navigator
         this.updaterProcess = true;
     }
 
+    public void setWorkerRunning(boolean sense)
+    {
+        workerRunning = sense;
+    }
+
     public void stop()
     {
+        //if (context.cfg.isRemoteActive())
+        //    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Main.disconnecting"));
+
         quitByeRemotes(true, true);
+
         if (context.mainFrame != null)
         {
-            try
+            if (!context.main.secondaryNavigator && !isLogger())
             {
-                // save the settings
-                context.libraries.savePreferences();
-                context.preferences.write(context);
+                try
+                {
+                    // save the settings
+                    context.libraries.savePreferences();
+                    context.preferences.write(context);
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Z.exception") + e.getMessage(),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
             }
-            catch (Exception e)
-            {
-                logger.error(Utils.getStackTrace(e));
-                JOptionPane.showMessageDialog(context.mainFrame,
-                        context.cfg.gs("Z.exception") + e.getMessage(),
-                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-            }
+
             context.mainFrame.setVisible(false);
             context.mainFrame.dispose();
         }
 
-        context.main.stopVerbiage();
+        if (context.main.primaryExecution)
+            context.main.stopVerbiage();
 
         // end the Navigator Swing thread
         if (!context.main.secondaryNavigator)

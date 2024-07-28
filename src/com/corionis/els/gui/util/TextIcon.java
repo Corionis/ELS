@@ -267,7 +267,7 @@ public class TextIcon implements Icon, PropertyChangeListener
      *  Paint the icons of this compound icon at the specified location
      *
      *  @param c The component to which the icon is added
-     *  @param g the graphics context
+     *  @param g the graphics localContext
      *  @param x the X coordinate of the icon's top-left corner
      *  @param y the Y coordinate of the icon's top-left corner
      */

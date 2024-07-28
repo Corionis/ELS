@@ -1,0 +1,20 @@
+{
+  "configName": "552 Navigator Sub One Remote",
+  "tasks": [
+    {
+      "configName": "Navigator Remote",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "internalName": "Operations",
+      "origins": [],
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherPath": "/home/trh/Work/corionis/ELS/mock/libraries/publisher.json",
+      "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+      "subscriberOverrideHost": true,
+      "subscriberPath": "/home/trh/Work/corionis/ELS/mock/libraries/subscriber-one.json",
+      "subscriberRemote": true
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package com.corionis.els;
 
 import com.corionis.els.gui.Navigator;
 import com.corionis.els.gui.Preferences;
+import com.corionis.els.gui.Environment;
 import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.hints.HintKeys;
@@ -13,6 +14,7 @@ import com.corionis.els.stty.ClientStty;
 import com.corionis.els.stty.ServeStty;
 import com.corionis.els.stty.hintServer.Datastore;
 
+import com.corionis.els.tools.Tools;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -43,13 +45,12 @@ import static com.corionis.els.Configuration.*;
  */
 public class Main
 {
-    public Context context = new Context();
+    public Context context;
     public String localeAbbrev; // abbreviation of locale, e.g. en_US
     public Logger logger = null; // log4j2 logger singleton
-    public Main main;
-    public String operationName = ""; // secondaryInvocation name
-    public Context previousContext = null; // the previous Context during a secondaryInvocation
-    public boolean secondaryInvocation = false;
+    public String operationName = ""; // secondary invocation name
+    public Context previousContext = null; // the previous Context during a secondary invocation
+    public boolean primaryExecution = true;
     public boolean secondaryNavigator = false;
     public Date stamp = new Date(); // runtime stamp for this invocation
     private GuiLogAppender appender = null;
@@ -68,23 +69,27 @@ public class Main
      */
     public Main(String[] args)
     {
-        main = this;
+        this.context = new Context();
         this.context.main = this;
-        this.secondaryInvocation = false;
-        main.process(args);          // ELS Processor
+        this.primaryExecution = true;
+        this.previousContext = null;
+        process(args);          // ELS Processor
+
+        if (this.context.mainFrame == null && !this.context.cfg.isNavigator())
+            System.exit(this.context.fault ? 1 : 0);
     }
 
     /**
-     * Main application Job for Operations task constructor
+     * Main application constructor for Jobs and Operations
      */
     public Main(String[] args, Context context, String operationName)
     {
-        main = this;
+        this.context = (Context) context.clone();
         this.context.main = this;
-        this.secondaryInvocation = true;
+        this.primaryExecution = false;
         this.previousContext = context;
         this.operationName = operationName;
-        main.process(args);          // ELS Processor
+        process(args);          // ELS Processor
     }
 
     /**
@@ -104,7 +109,7 @@ public class Main
      * have been specified; if "Use Last Pubisher/Subscriber" is enabled;
      * then set default arguments from the previous session.
      */
-    public void checkEmptyArguments()
+    private void checkEmptyArguments()
     {
         if (context.cfg.getPublisherFilename().length() == 0 &&
                 context.cfg.getSubscriberFilename().length() == 0 &&
@@ -112,55 +117,60 @@ public class Main
                 !context.cfg.isStatusServer())
             context.cfg.setDefaultNavigator(true);
 
-        // operating as the Navigator desktop application?
-        if (context.cfg.isNavigator() && context.preferences.isUseLastPublisherSubscriber() &&
-                (context.cfg.getOperation() == NOT_REMOTE || context.cfg.getOperation() == PUBLISH_REMOTE))
+        if (context.cfg.getOperation() != JOB_PROCESS)
         {
-            // no pub and sub?
-            if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
+            // operating as the Navigator desktop application?
+            if (context.cfg.isNavigator() && context.preferences.isUseLastPublisherSubscriber() &&
+                    (context.cfg.getOperation() == NOT_REMOTE || context.cfg.getOperation() == PUBLISH_REMOTE))
             {
-                // use saved publisher?
-                if (context.preferences.isLastPublisherIsOpen() && context.preferences.getLastPublisherOpenPath().length() > 0)
+                // no pub and sub?
+                if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
                 {
-                    if (context.preferences.isLastPublisherIsWorkstation())
+                    // use saved publisher?
+                    if (context.preferences.isLastPublisherIsOpen() && context.preferences.getLastPublisherOpenPath().length() > 0)
                     {
-                        context.cfg.setPublisherCollectionFilename("");
-                        context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
-                    }
-                    else
-                    {
-                        context.cfg.setPublisherCollectionFilename(context.preferences.getLastPublisherOpenFile());
-                        context.cfg.setPublisherLibrariesFileName("");
-                    }
-                }
-
-                // use saved subscriber?
-                if (context.preferences.isLastSubscriberIsOpen() && context.preferences.getLastSubscriberOpenFile().length() > 0)
-                {
-                    context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
-                    if (context.preferences.isLastSubscriberIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
-                    {
-                        context.cfg.setRemoteType("P");
-                    }
-                }
-
-                // use last hint keys?
-                if (context.preferences.isLastHintKeysIsOpen() &&
-                        context.cfg.getHintKeysFile().length() == 0 &&
-                        context.preferences.getLastHintKeysOpenFile().length() > 0)
-                {
-                    context.cfg.setHintKeysFile(context.preferences.getLastHintKeysOpenFile());
-
-                    // hint tracking, must have hint keys
-                    if (context.preferences.isLastHintTrackingIsOpen() &&
-                            context.cfg.getHintHandlerFilename().length() == 0 &&
-                            context.preferences.getLastHintTrackingOpenFile().length() > 0)
-                    {
-                        // hint daemon or tracker?
-                        if (context.preferences.isLastHintTrackingIsRemote())
-                            context.cfg.setHintsDaemonFilename(context.preferences.getLastHintTrackingOpenFile());
+                        if (context.preferences.isLastPublisherIsWorkstation())
+                        {
+                            context.cfg.setPublisherCollectionFilename("");
+                            context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
+                        }
                         else
-                            context.cfg.setHintTrackerFilename(context.preferences.getLastHintTrackingOpenFile());
+                        {
+                            context.cfg.setPublisherCollectionFilename(context.preferences.getLastPublisherOpenFile());
+                            context.cfg.setPublisherLibrariesFileName("");
+                        }
+                    }
+
+                    // use saved subscriber?
+                    if (context.preferences.isLastSubscriberIsOpen() && context.preferences.getLastSubscriberOpenFile().length() > 0)
+                    {
+                        context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
+                        if (context.preferences.isLastSubscriberIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
+                            context.cfg.setRemoteType("P");
+                        context.cfg.setOverrideSubscriberHost(context.preferences.isLastOverrideSubscriberHost());
+                    }
+
+                    // use last hint keys?
+                    if (context.preferences.isLastHintKeysIsOpen() &&
+                            context.cfg.getHintKeysFile().length() == 0 &&
+                            context.preferences.getLastHintKeysOpenFile().length() > 0)
+                    {
+                        context.cfg.setHintKeysFile(context.preferences.getLastHintKeysOpenFile());
+
+                        // hint tracking, must have hint keys
+                        if (context.preferences.isLastHintTrackingIsOpen() &&
+                                context.cfg.getHintHandlerFilename().length() == 0 &&
+                                context.preferences.getLastHintTrackingOpenFile().length() > 0)
+                        {
+                            // hint daemon or tracker?
+                            if (context.preferences.isLastHintTrackingIsRemote())
+                            {
+                                context.cfg.setHintsDaemonFilename(context.preferences.getLastHintTrackingOpenFile());
+                                context.cfg.setOverrideHintsHost(context.preferences.isLastOverrideHintHost());
+                            }
+                            else
+                                context.cfg.setHintTrackerFilename(context.preferences.getLastHintTrackingOpenFile());
+                        }
                     }
                 }
             }
@@ -170,7 +180,7 @@ public class Main
     /**
      * Check for the basic directory structure, create as needed
      * <p>
-     * Call -after- context.cfg.configureWorkingDirectory
+     * Call -after- localContext.cfg.configureWorkingDirectory
      */
     public void checkWorkingDirectories() throws Exception
     {
@@ -339,12 +349,11 @@ public class Main
 
             try
             {
-                if (secondaryInvocation)
-                {
-                    context.cfg.setWorkingDirectory(previousContext.cfg.getWorkingDirectory());
-                    //context.cfg.configureWorkingDirectory();
-                }
                 context.cfg.parseCommandLine(args);
+                if (primaryExecution)
+                    context.cfg.configureWorkingDirectory();
+                else
+                    context.cfg.setWorkingDirectory(previousContext.cfg.getWorkingDirectory());
             }
             catch (MungeException e)
             {
@@ -352,7 +361,7 @@ public class Main
             }
 
             // setup the working directory & logger - once
-            if (!secondaryInvocation)
+            if (primaryExecution)
             {
                 System.setProperty("jdk.lang.Process.launchMechanism", "POSIX_SPAWN");
 
@@ -363,8 +372,6 @@ public class Main
                     System.setProperty("apple.awt.application.name", APPLICATION_NAME);
                     System.setProperty("apple.awt.application.appearance", "system");
                 }
-
-                context.cfg.configureWorkingDirectory();
 
                 // configure logger based on Configuration
                 context.cfg.configureLoggerPath();
@@ -380,12 +387,10 @@ public class Main
                 System.setProperty("debugLevel", context.cfg.getDebugLevel());
                 System.setProperty("pattern", context.cfg.getPattern());
 
-                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false); //context.navigator == null ? true : false);
+                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(!primaryExecution ? true : false);
                 loggerContext.reconfigure();
-
                 appender = getGuiLogAppender();
                 appender.setContext(context);
-
                 loggerContext.updateLoggers();
             }
             else // carry-over selected previous Context values
@@ -396,6 +401,11 @@ public class Main
                 context.cfg.setLogFilePath(previousContext.cfg.getLogFilePath());
                 context.cfg.setLogFileFullPath(previousContext.cfg.getLogFileFullPath());
                 context.cfg.setLogOverwrite(previousContext.cfg.isLogOverwrite());
+
+                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(!primaryExecution ? true : false);
+                appender = getGuiLogAppender();
+                appender.setContext(context);
+                loggerContext.updateLoggers();
             }
 
             // get the named logger
@@ -429,10 +439,12 @@ public class Main
                 throw cfgException;
 
             // if running a Navigator in a secondary invocation initialize the LaF
-            if (secondaryInvocation && (context.cfg.isNavigator() || context.cfg.isDefaultNavigator()))
-            {
-                context.preferences.initLookAndFeel(context.cfg.APPLICATION_NAME, true);
-            }
+//logger.info("primary: " + primaryServers + ", isNav: " + localContext.cfg.isNavigator() + ", isdef: " + localContext.cfg.isDefaultNavigator());
+//            if (!primaryServers && (localContext.cfg.isNavigator() || localContext.cfg.isDefaultNavigator()))
+//            {
+//logger.info("initLookAndFeel");
+//                localContext.preferences.initLookAndFeel(localContext.cfg.APPLICATION_NAME, true);
+//            }
 
             checkWorkingDirectories(); // pre-create working directory structure
 
@@ -460,13 +472,16 @@ public class Main
                             context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
 
+                        context.tools = new Tools();
+                        context.tools.loadAllTools(context, null);
+
                         // setup the hint status server if defined
                         setupHints(context.publisherRepo);
 
-                        context.navigator = new Navigator(main, context);
+                        context.navigator = new Navigator(context);
                         if (!context.fault)
                         {
-                            context.navigator.run();
+                            context.navigator.run(); // environment saved again in Navigator
                         }
                     }
                     else
@@ -492,6 +507,7 @@ public class Main
                         setupHints(context.publisherRepo);
 
                         // the Process class handles the ELS process
+                        saveEnvironment();
                         process = new Process(context);
                         process.process();
                     }
@@ -520,6 +536,8 @@ public class Main
                         // start serveSftp server
                         context.serveSftp = new ServeSftp(context, context.publisherRepo, context.subscriberRepo, true);
                         context.serveSftp.startServer();
+
+                        saveEnvironment();
                     }
                     else
                     {
@@ -559,10 +577,12 @@ public class Main
                         {
                             throw new MungeException("Publisher sftp transfer client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                         }
+
+                        saveEnvironment();
                     }
                     break;
 
-                // --- -r P execute the operation process to remote subscriber -r S
+                // --- -r P execute the backup process to remote subscriber -r S
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
                     if (context.cfg.isNavigator())
@@ -597,6 +617,9 @@ public class Main
                         // handle -n|--navigator to display the Navigator
                         if (context.cfg.isNavigator())
                         {
+                            context.tools = new Tools();
+                            context.tools.loadAllTools(context, null);
+
                             // start the serveSftp metadata client
                             context.clientSftpMetadata = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                             if (!context.clientSftpMetadata.startClient("metadata"))
@@ -604,15 +627,17 @@ public class Main
                                 throw new MungeException("Subscriber sftp metadata to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                             }
 
-                            context.navigator = new Navigator(main, context);
+                            context.navigator = new Navigator(context);
                             if (!context.fault)
                             {
+                                saveEnvironment();
                                 context.navigator.run();
                             }
                         }
                         else
                         {
                             // the Process class handles the ELS process
+                            saveEnvironment();
                             process = new Process(context);
                             process.process();
                         }
@@ -631,7 +656,18 @@ public class Main
                     if (!context.cfg.isTargetsEnabled())
                         throw new MungeException("Targets -t|-T required");
 
-                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
+                    if (context.cfg.getPublisherFilename().length() > 0)
+                    {
+                        context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
+                    }
+                    else
+                    {
+                        if (context.cfg.getAuthKeysFile() == null || context.cfg.getAuthKeysFile().isEmpty())
+                        {
+                            throw new MungeException(context.cfg.gs(("Main.either.a.publisher.or.authentication.keys.file.is.required")));
+                        }
+
+                    }
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.VALIDATE);
 
                     // start servers
@@ -649,6 +685,8 @@ public class Main
                         // start serveSftp server
                         context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, true);
                         context.serveSftp.startServer();
+
+                        saveEnvironment();
                     }
                     else
                     {
@@ -698,6 +736,8 @@ public class Main
                         // start serveSftp server
                         context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, false);
                         context.serveSftp.startServer();
+
+                        saveEnvironment();
                     }
                     else
                     {
@@ -734,21 +774,22 @@ public class Main
                     context.hints = new Hints(context, context.hintKeys);
 
                     // Get the Hint Status Server repository
-                    context.statusRepo = new Repository(context, Repository.HINT_SERVER);
-                    context.statusRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true);
+                    context.hintsRepo = new Repository(context, Repository.HINT_SERVER);
+                    context.hintsRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true);
 
                     // Setup the Hint Status Server datastore, single instance
                     context.datastore = new Datastore(context);
                     boolean valid = context.datastore.initialize();
 
                     // start server
-                    if (valid && context.statusRepo.isInitialized())
+                    if (valid && context.hintsRepo.isInitialized())
                     {
                         // start serveStty server
                         sessionThreads = new ThreadGroup("hint.status.server");
                         context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, true);
-                        context.serveStty.startListening(context.statusRepo);
+                        context.serveStty.startListening(context.hintsRepo);
                         isListening = true;
+                        saveEnvironment();
                     }
                     else
                     {
@@ -764,6 +805,9 @@ public class Main
                     if (context.cfg.getHintHandlerFilename() == null || context.cfg.getHintHandlerFilename().length() == 0)
                         throw new MungeException("-Q|--force-quit requires a either -h|--hints or -H|--hint-server");
 
+                    if (context.cfg.getPublisherFilename() == null || context.cfg.getPublisherFilename().length() == 0)
+                        throw new MungeException("-Q|--force-quit requires a -p|-P publisher to connect from");
+
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
 
                     setupHints(context.publisherRepo);
@@ -771,6 +815,8 @@ public class Main
                     // force the cfg setting & let this process end normally
                     // that will send the quit command to the hint status server
                     context.cfg.setQuitStatusServer(true);
+
+                    saveEnvironment();
                     break;
 
                 // --- -G|--listener-quit the remote subscriber
@@ -795,6 +841,7 @@ public class Main
                         }
                         try
                         {
+                            saveEnvironment();
                             context.clientStty.roundTrip("quit", "Sending remote quit command", 5000);
                             Thread.sleep(3000);
                         }
@@ -811,9 +858,6 @@ public class Main
 
                     context.cfg.dump();
 
-                    if (context.cfg.isNavigator())
-                        throw new MungeException("-j|--job and -n|--navigator are not used together");
-
                     // optional arguments for support of Any Publisher/Subscriber
                     if (context.cfg.getPublisherFilename().length() > 0)
                     {
@@ -825,18 +869,33 @@ public class Main
                         context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                     }
 
-                    // setup the hint status server if defined
-                    setupHints(context.publisherRepo);
+                    if (context.cfg.isLoggerView())
+                    {
+                        context.navigator = new Navigator(context);
+                        if (!context.fault)
+                        {
+                            context.navigator.run(); // environment saved again in Navigator
+                        }
+                    }
+                    else
+                    {
+                        context.tools = new Tools();
+                        context.tools.loadAllTools(context, null);
 
-                    context.transfer = new Transfer(context);
-                    context.transfer.initialize();
+                        // setup the hint status server if defined
+                        setupHints(context.publisherRepo);
 
-                    // run the Job
-                    Job tmpJob = new Job(context, "temp");
-                    Job job = tmpJob.load(context.cfg.getJobName());
-                    if (job == null)
-                        throw new MungeException("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
-                    job.process(context);
+                        context.transfer = new Transfer(context);
+                        context.transfer.initialize();
+
+                        // run the Job
+                        Job tmpJob = new Job(context, "temp");
+                        Job job = tmpJob.load(context.cfg.getJobName());
+                        if (job == null)
+                            throw new MungeException("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
+                        saveEnvironment();
+                        job.process(context);
+                    }
                     break;
 
                 default:
@@ -845,7 +904,7 @@ public class Main
         }
         catch (Exception e)
         {
-            if (!secondaryInvocation) // if not running as an Operation
+            if (primaryExecution) // if not running as an Operation
                 context.fault = true;
 
             if (catchExceptions)
@@ -874,7 +933,7 @@ public class Main
         finally
         {
             // stop stuff
-            if (!isListening && !context.cfg.isNavigator() && !context.nestedProcesses) // clients
+            if (!isListening && !context.cfg.isNavigator()) // clients
             {
                 // if a fault occurred tell any listener
                 if (context.fault && context.clientStty != null && context.clientStty.isConnected())
@@ -893,12 +952,35 @@ public class Main
                 }
 
                 // optionally command status server to quit
-                if (context.statusStty != null)
-                    context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
+                if (context.hintsStty != null)
+                    context.hintsStty.quitStatusServer(context);  // do before stopping the necessary services
 
                 // stop any remaining services
-                main.stopServices();
-                main.stopVerbiage();
+                if (primaryExecution)
+                {
+                    stopServices();
+                    stopVerbiage();
+                }
+                else
+                    restoreEnvironment();
+            }
+            else if (!primaryExecution && !isListening && context.cfg.isNavigator())
+            {
+                Runtime.getRuntime().addShutdownHook(new Thread()
+                {
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            logger.info("NAVIGATOR SHUTDOWN HOOK");
+                        }
+                        catch (Exception e)
+                        {
+                            logger.error(Utils.getStackTrace(e));
+                        }
+                    }
+                });
             }
             else if (isListening) // daemons
             {
@@ -914,19 +996,24 @@ public class Main
                     {
                         try // also done in Connection.run()
                         {
-                            logger.info(context.cfg.gs("Main.disconnecting"));
+                            //logger.info(context.cfg.gs("Main.disconnecting"));
 
                             // optionally command status server to quit
-                            if (context.statusStty != null)
-                                context.statusStty.quitStatusServer(context);  // do before stopping the services
+                            if (context.hintsStty != null)
+                                context.hintsStty.quitStatusServer(context);  // do before stopping the services
 
-                            main.stopVerbiage();
-                            main.stopServices(); // must be AFTER stopVerbiage()
+                            if (primaryExecution)
+                            {
+                                stopVerbiage();
+                                stopServices(); // must be called AFTER stopVerbiage()
+                            }
+                            else
+                                restoreEnvironment();
 
                             // halt kills the remaining threads
                             if (context.fault)
                                 logger.error("Exiting with error code");
-                            if (!secondaryInvocation)
+                            if (primaryExecution)
                             {
                                 Runtime.getRuntime().halt(context.fault ? 1 : 0);
                             }
@@ -934,7 +1021,7 @@ public class Main
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
-                            if (!secondaryInvocation)
+                            if (primaryExecution)
                             {
                                 Runtime.getRuntime().halt(1);
                             }
@@ -972,7 +1059,7 @@ public class Main
             }
         }
 
-        if (context.fault)
+        if (primaryExecution && context.fault)
         {
             logger.error("Exiting with error code");
             Runtime.getRuntime().halt(1);
@@ -1044,8 +1131,6 @@ public class Main
                         return null;
                     }
                 }
-                else
-                    return null;
             }
 
             // get Subscriber data
@@ -1059,6 +1144,35 @@ public class Main
         }
 
         return repo;
+    }
+
+    public void restoreEnvironment()
+    {
+        try
+        {
+            context.environment.switchConnections();
+        }
+        catch (Exception e)
+        {
+            logger.error(context.cfg.gs("Z.exception") + System.getProperty("line.separator") + Utils.getStackTrace(e));
+            if (context.cfg.isNavigator())
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.exception") + Utils.getStackTrace(e),
+                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Save original environment
+     */
+    public void saveEnvironment()
+    {
+        if (primaryExecution && !secondaryNavigator)
+        {
+            if (context.environment != null)
+                context.environment = null; // suggest clean-up
+
+            context.environment = new Environment(context); // the initial environment only
+        }
     }
 
     /**
@@ -1080,15 +1194,12 @@ public class Main
             {
                 if (context.cfg.getHintKeysFile().length() > 0)
                 {
-                    if (context.hints == null)
-                    {
-                        // Hints Keys
-                        context.hintKeys = new HintKeys(context);
-                        msg = "Exception while reading Hint Keys: ";
-                        context.hintKeys.read(context.cfg.getHintKeysFile());
-                        context.hints = new Hints(context, context.hintKeys);
-                        context.preferences.setLastHintKeysIsOpen(true);
-                    }
+                    // Hints Keys
+                    context.hintKeys = new HintKeys(context);
+                    msg = "Exception while reading Hint Keys: ";
+                    context.hintKeys.read(context.cfg.getHintKeysFile());
+                    context.hints = new Hints(context, context.hintKeys);
+                    context.preferences.setLastHintKeysIsOpen(true);
                 }
                 else
                 {
@@ -1098,7 +1209,7 @@ public class Main
 
                 if (context.cfg.isHintTrackingEnabled())
                 {
-                    context.statusRepo = new Repository(context, Repository.HINT_SERVER);
+                    context.hintsRepo = new Repository(context, Repository.HINT_SERVER);
 
                     // Remote Hint Status Server
                     if (context.cfg.getHintsDaemonFilename().length() > 0 && repo != null)
@@ -1107,23 +1218,23 @@ public class Main
                         catchExceptions = false;
                         msg = "Exception while reading Hint Server: ";
 
-                        if (context.statusRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true))
+                        if (context.hintsRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true))
                         {
                             catchExceptions = true;
 
                             // start the serveStty client connection the Hint Status Server
-                            context.statusStty = new ClientStty(context, false, true);
-                            if (!context.statusStty.connect(repo, context.statusRepo))
+                            context.hintsStty = new ClientStty(context, false, true); //primaryServers);
+                            if (!context.hintsStty.connect(repo, context.hintsRepo))
                             {
                                 msg = "";
-                                throw new MungeException("Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description + " failed to connect");
+                                throw new MungeException("Hint Status Server: " + context.hintsRepo.getLibraryData().libraries.description + " failed to connect");
                             }
 
-                            String response = context.statusStty.receive("", 5000); // check the initial prompt
+                            String response = context.hintsStty.receive("", 5000); // check the initial prompt
                             if (!response.startsWith("CMD"))
                             {
                                 msg = "";
-                                throw new MungeException("Bad initial response from Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
+                                throw new MungeException("Bad initial response from Hint Status Server: " + context.hintsRepo.getLibraryData().libraries.description);
                             }
 
                             context.preferences.setLastHintTrackingIsRemote(true);
@@ -1141,7 +1252,7 @@ public class Main
                         catchExceptions = false;
                         msg = "Exception while reading Hint Tracker: ";
 
-                        if (context.statusRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
+                        if (context.hintsRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
                         {
                             // Setup the Hint Tracker datastore, single instance
                             catchExceptions = true;
@@ -1176,9 +1287,9 @@ public class Main
                 msg += " " + e.toString();
                 logger.error(msg);
 
+                context.cfg.setHintKeysFile("");
                 context.cfg.setHintsDaemonFilename("");
                 context.cfg.setHintTrackerFilename("");
-                context.cfg.setHintKeysFile("");
 
                 if (isStartupActive())
                 {
@@ -1207,15 +1318,15 @@ public class Main
         try
         {
             // logout from any hint status server if not shutting it down
-            if (context.statusStty != null)
+            if (context.hintsStty != null)
             {
-                if (!context.cfg.isQuitStatusServer() && context.statusStty.isConnected())
+                if (!context.cfg.isQuitStatusServer() && context.hintsStty.isConnected())
                 {
-                    context.statusStty.send("bye", "Sending bye command to remote Hint Status Server");
+                    context.hintsStty.send("bye", "Sending bye command to remote Hint Status Server");
                     Thread.sleep(3000);
                 }
-                context.statusStty.disconnect();
-                context.statusStty = null;
+                context.hintsStty.disconnect();
+                context.hintsStty = null;
             }
             if (context.clientSftp != null)
             {
@@ -1262,16 +1373,16 @@ public class Main
     public void stopVerbiage()
     {
         if (!context.cfg.getConsoleLevel().equalsIgnoreCase(context.cfg.getDebugLevel()))
-            main.logger.info("log file has more details: " + context.cfg.getLogFileName());
+            logger.info("log file has more details: " + context.cfg.getLogFileName());
 
         Date done = new Date();
         long millis = Math.abs(done.getTime() - stamp.getTime());
-        main.logger.fatal("Runtime: " + Utils.getDuration(millis));
+        logger.fatal("Runtime: " + Utils.getDuration(millis));
 
         if (!context.fault)
-            main.logger.fatal("Process completed normally");
+            logger.fatal("Process completed normally");
         else
-            main.logger.fatal("Process failed");
+            logger.fatal("Process failed");
     }
 
 }

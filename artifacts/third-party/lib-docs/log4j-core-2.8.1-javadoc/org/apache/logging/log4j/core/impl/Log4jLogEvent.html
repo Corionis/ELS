@@ -268,7 +268,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/LogEvent.htm
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/impl/Log4jLogEvent.html#getContextData()">getContextData</a></strong>()</code>
-<div class="block">Returns the <code>ReadOnlyStringMap</code> containing context data key-value pairs.</div>
+<div class="block">Returns the <code>ReadOnlyStringMap</code> containing localContext data key-value pairs.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -539,7 +539,7 @@ public&nbsp;Log4jLogEvent(<a href="http://docs.oracle.com/javase/7/docs/api/java
                         long&nbsp;timestampMillis)</pre>
 <div class="block"><span class="strong">Deprecated.</span>&nbsp;<i>use <a href="../../../../../../org/apache/logging/log4j/core/impl/Log4jLogEvent.Builder.html" title="class in org.apache.logging.log4j.core.impl"><code>Log4jLogEvent.Builder</code></a> instead. This constructor will be removed in an upcoming release.</i></div>
 <div class="block">Constructor.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loggerName</code> - The name of the Logger.</dd><dd><code>marker</code> - The Marker or null.</dd><dd><code>loggerFQCN</code> - The fully qualified class name of the caller.</dd><dd><code>level</code> - The logging Level.</dd><dd><code>message</code> - The Message.</dd><dd><code>t</code> - A Throwable or null.</dd><dd><code>mdc</code> - The mapped diagnostic context.</dd><dd><code>ndc</code> - the nested diagnostic context.</dd><dd><code>threadName</code> - The name of the thread.</dd><dd><code>location</code> - The locations of the caller.</dd><dd><code>timestampMillis</code> - The timestamp of the event.</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loggerName</code> - The name of the Logger.</dd><dd><code>marker</code> - The Marker or null.</dd><dd><code>loggerFQCN</code> - The fully qualified class name of the caller.</dd><dd><code>level</code> - The logging Level.</dd><dd><code>message</code> - The Message.</dd><dd><code>t</code> - A Throwable or null.</dd><dd><code>mdc</code> - The mapped diagnostic localContext.</dd><dd><code>ndc</code> - the nested diagnostic localContext.</dd><dd><code>threadName</code> - The name of the thread.</dd><dd><code>location</code> - The locations of the caller.</dd><dd><code>timestampMillis</code> - The timestamp of the event.</dd></dl>
 </li>
 </ul>
 </li>
@@ -582,7 +582,7 @@ public static&nbsp;<a href="../../../../../../org/apache/logging/log4j/core/impl
                                    long&nbsp;timestamp)</pre>
 <div class="block"><span class="strong">Deprecated.</span>&nbsp;<i>use <a href="../../../../../../org/apache/logging/log4j/core/impl/Log4jLogEvent.Builder.html" title="class in org.apache.logging.log4j.core.impl"><code>Log4jLogEvent.Builder</code></a> instead. This method will be removed in an upcoming release.</i></div>
 <div class="block">Create a new LogEvent.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loggerName</code> - The name of the Logger.</dd><dd><code>marker</code> - The Marker or null.</dd><dd><code>loggerFQCN</code> - The fully qualified class name of the caller.</dd><dd><code>level</code> - The logging Level.</dd><dd><code>message</code> - The Message.</dd><dd><code>thrown</code> - A Throwable or null.</dd><dd><code>thrownProxy</code> - A ThrowableProxy or null.</dd><dd><code>mdc</code> - The mapped diagnostic context.</dd><dd><code>ndc</code> - the nested diagnostic context.</dd><dd><code>threadName</code> - The name of the thread.</dd><dd><code>location</code> - The locations of the caller.</dd><dd><code>timestamp</code> - The timestamp of the event.</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loggerName</code> - The name of the Logger.</dd><dd><code>marker</code> - The Marker or null.</dd><dd><code>loggerFQCN</code> - The fully qualified class name of the caller.</dd><dd><code>level</code> - The logging Level.</dd><dd><code>message</code> - The Message.</dd><dd><code>thrown</code> - A Throwable or null.</dd><dd><code>thrownProxy</code> - A ThrowableProxy or null.</dd><dd><code>mdc</code> - The mapped diagnostic localContext.</dd><dd><code>ndc</code> - the nested diagnostic localContext.</dd><dd><code>threadName</code> - The name of the thread.</dd><dd><code>location</code> - The locations of the caller.</dd><dd><code>timestamp</code> - The timestamp of the event.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>a new LogEvent</dd></dl>
 </li>
 </ul>
@@ -809,11 +809,11 @@ public static&nbsp;<a href="../../../../../../org/apache/logging/log4j/core/impl
 <li class="blockList">
 <h4>getContextData</h4>
 <pre>public&nbsp;<a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a>&nbsp;getContextData()</pre>
-<div class="block">Returns the <code>ReadOnlyStringMap</code> containing context data key-value pairs.</div>
+<div class="block">Returns the <code>ReadOnlyStringMap</code> containing localContext data key-value pairs.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextData()">getContextData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>the <code>ReadOnlyStringMap</code> containing context data key-value pairs</dd><dt><span class="strong">Since:</span></dt>
+<dt><span class="strong">Returns:</span></dt><dd>the <code>ReadOnlyStringMap</code> containing localContext data key-value pairs</dd><dt><span class="strong">Since:</span></dt>
   <dd>2.7</dd>
 <dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core"><code>ContextDataInjector</code></a>, 
 <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/ThreadContext.html?is-external=true" title="class or interface in org.apache.logging.log4j"><code>ThreadContext</code></a></dd></dl>
@@ -830,7 +830,7 @@ public static&nbsp;<a href="../../../../../../org/apache/logging/log4j/core/impl
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextMap()">getContextMap</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>The context Map.</dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>The localContext Map.</dd></dl>
 </li>
 </ul>
 <a name="getContextStack()">
@@ -844,7 +844,7 @@ public static&nbsp;<a href="../../../../../../org/apache/logging/log4j/core/impl
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextStack()">getContextStack</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>The context Stack.</dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>The localContext Stack.</dd></dl>
 </li>
 </ul>
 <a name="getSource()">

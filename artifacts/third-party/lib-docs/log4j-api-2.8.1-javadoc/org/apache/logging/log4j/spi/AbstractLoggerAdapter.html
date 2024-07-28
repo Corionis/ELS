@@ -188,14 +188,14 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/LoggerAdapter.ht
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentMap.html?is-external=true" title="class or interface in java.util.concurrent">ConcurrentMap</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html" title="type parameter in AbstractLoggerAdapter">L</a>&gt;</code></td>
-<td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html#getLoggersInContext(org.apache.logging.log4j.spi.LoggerContext)">getLoggersInContext</a></strong>(<a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</code>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html#getLoggersInContext(org.apache.logging.log4j.spi.LoggerContext)">getLoggersInContext</a></strong>(<a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Gets or creates the ConcurrentMap of named loggers for a given LoggerContext.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected abstract <a href="../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html" title="type parameter in AbstractLoggerAdapter">L</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html#newLogger(java.lang.String,%20org.apache.logging.log4j.spi.LoggerContext)">newLogger</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
-         <a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</code>
+         <a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Creates a new named logger for a given <a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi"><code>LoggerContext</code></a>.</div>
 </td>
 </tr>
@@ -278,9 +278,9 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/LoggerAdapter.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>getLoggersInContext</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentMap.html?is-external=true" title="class or interface in java.util.concurrent">ConcurrentMap</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html" title="type parameter in AbstractLoggerAdapter">L</a>&gt;&nbsp;getLoggersInContext(<a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentMap.html?is-external=true" title="class or interface in java.util.concurrent">ConcurrentMap</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html" title="type parameter in AbstractLoggerAdapter">L</a>&gt;&nbsp;getLoggersInContext(<a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</pre>
 <div class="block">Gets or creates the ConcurrentMap of named loggers for a given LoggerContext.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>context</code> - the LoggerContext to get loggers for</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>localContext</code> - the LoggerContext to get loggers for</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the map of loggers for the given LoggerContext</dd></dl>
 </li>
 </ul>
@@ -291,9 +291,9 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/LoggerAdapter.ht
 <li class="blockList">
 <h4>newLogger</h4>
 <pre>protected abstract&nbsp;<a href="../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html" title="type parameter in AbstractLoggerAdapter">L</a>&nbsp;newLogger(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
-          <a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</pre>
+          <a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</pre>
 <div class="block">Creates a new named logger for a given <a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi"><code>LoggerContext</code></a>.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - the name of the logger to create</dd><dd><code>context</code> - the LoggerContext this logger will be associated with</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - the name of the logger to create</dd><dd><code>localContext</code> - the LoggerContext this logger will be associated with</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the new named logger</dd></dl>
 </li>
 </ul>

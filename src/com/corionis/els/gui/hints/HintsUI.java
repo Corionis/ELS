@@ -91,6 +91,19 @@ public class HintsUI extends JDialog
                 this.setLocation(Utils.getRelativePosition(context.mainFrame, this));
             }
 
+            this.addComponentListener(new ComponentAdapter()
+            {
+                @Override
+                public void componentResized(ComponentEvent e)
+                {
+                    super.componentResized(e);
+                    Dimension d = labelStatus.getSize();
+                    labelStatus.setPreferredSize(d);
+                }
+            });
+            Dimension d = labelStatus.getSize();
+            labelStatus.setPreferredSize(d);
+
             // Escape key
             ActionListener escListener = new AbstractAction()
             {
@@ -143,8 +156,8 @@ public class HintsUI extends JDialog
                             if (context.preferences.isLastPublisherIsWorkstation())
                                 hintPublisherName = publisherDisplayName + "*";
                             else
-                                throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"),
-                                        "publisher", context.hintKeys.getFilename()));
+                                hintPublisherName = java.text.MessageFormat.format(context.cfg.gs("HintsUI.not.in.hint.keys"),
+                                    context.publisherRepo.getLibraryData().libraries.description);
                         }
                     }
                     if (context.subscriberRepo != null)
@@ -158,16 +171,15 @@ public class HintsUI extends JDialog
                             if (pendingSubscriberHints != null)
                                 pendingSubscriber = pendingSubscriberHints.size();
                         }
-//                        else
-//                        {
-//                            throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Hints.the.current.key.was.not.found.in.hint.keys.file"),
-//                                    "subscriber", context.hintKeys.getFilename()));
-//                        }
+                        else
+                            subscriberDisplayName = java.text.MessageFormat.format(context.cfg.gs("HintsUI.not.in.hint.keys"),
+                                    context.subscriberRepo.getLibraryData().libraries.description);
                     }
 
                     setWidths();
 
-                    String msg = java.text.MessageFormat.format(context.cfg.gs("HintsUI.hints.for"),
+                    String msg;
+                    msg = java.text.MessageFormat.format(context.cfg.gs("HintsUI.hints.for"),
                             count, context.hintKeys.size(), pendingPublisher, publisherDisplayName, pendingSubscriber, subscriberDisplayName);
 
                     labelStatus.setText(msg);
@@ -253,8 +265,11 @@ public class HintsUI extends JDialog
     {
         if (changesMade)
         {
-            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.cancel.all.changes"),
-                    context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+            Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
+            int reply = JOptionPane.showOptionDialog(this,
+                    context.cfg.gs("Z.cancel.all.changes"),
+                    getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                    null, opts, opts[1]);
             if (reply != JOptionPane.YES_OPTION)
             {
                 return;
@@ -413,7 +428,7 @@ public class HintsUI extends JDialog
                 {
                     if (context.preferences.isAutoRefresh())
                         context.browser.deepScanCollectionTree(currentTree, repo, context.cfg.isRemoteSubscriber(), false);
-                        //context.browser.rescan ByTreeOrTable(currentTree);
+                        //localContext.browser.rescan ByTreeOrTable(currentTree);
                     logger.info(context.cfg.gs(("HintsUI.hints.run.complete")) + result);
                 }
                 model.hints = context.hints.getAll();
@@ -692,7 +707,7 @@ public class HintsUI extends JDialog
                         panelTopButtons.add(hSpace42);
 
                         //---- buttonRun ----
-                        buttonRun.setText(context.cfg.gs("HintsUI.buttonRun.text"));
+                        buttonRun.setText(context.cfg.gs("Z.run.ellipsis"));
                         buttonRun.setMnemonic(context.cfg.gs("HintsUI.buttonRun.mnemonic").charAt(0));
                         buttonRun.setToolTipText(context.cfg.gs("HintsUI.buttonRun.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));
@@ -728,6 +743,7 @@ public class HintsUI extends JDialog
 
                 //======== scrollPaneHints ========
                 {
+
                     //---- tableHints ----
                     tableHints.setFillsViewportHeight(true);
                     tableHints.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -774,6 +790,9 @@ public class HintsUI extends JDialog
             //======== panelBottom ========
             {
                 panelBottom.setLayout(new BorderLayout());
+
+                //---- labelStatus ----
+                labelStatus.setMaximumSize(new Dimension(32768, 0));
                 panelBottom.add(labelStatus, BorderLayout.CENTER);
 
                 //======== buttonBar ========

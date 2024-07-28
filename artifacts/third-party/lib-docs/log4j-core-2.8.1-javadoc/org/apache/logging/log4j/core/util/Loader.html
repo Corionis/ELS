@@ -263,7 +263,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <ol>
 
- <li>Search for <code>resource</code> using the thread context
+ <li>Search for <code>resource</code> using the thread localContext
  class loader under Java2. If that fails, search for
  <code>resource</code> using the class loader that loaded this
  class (<code>Loader</code>). Under JDK 1.1, only the the class
@@ -289,7 +289,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  places. The search order is as follows:
 
  <ol>
- <li>Search for <code>resource</code> using the thread context
+ <li>Search for <code>resource</code> using the thread localContext
  class loader under Java2. If that fails, search for
  <code>resource</code> using the class loader that loaded this
  class (<code>Loader</code>). Under JDK 1.1, only the the class

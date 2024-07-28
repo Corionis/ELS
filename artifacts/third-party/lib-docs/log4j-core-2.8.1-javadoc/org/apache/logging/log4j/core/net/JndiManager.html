@@ -170,7 +170,7 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/appender/Abstra
 <tr class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/net/JndiManager.html#lookup(java.lang.String)">lookup</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
-<div class="block">Looks up a named object through this JNDI context.</div>
+<div class="block">Looks up a named object through this JNDI localContext.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -248,7 +248,7 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/appender/Abstra
 <div class="block">Gets a JndiManager with the provided configuration information.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>initialContextFactoryName</code> - Fully qualified class name of an implementation of
                                   <a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/spi/InitialContextFactory.html?is-external=true" title="class or interface in javax.naming.spi"><code>InitialContextFactory</code></a>.</dd><dd><code>providerURL</code> - The provider URL to use for the JNDI connection (specific to the above factory).</dd><dd><code>urlPkgPrefixes</code> - A colon-separated list of package prefixes for the class name of the factory
-                                  class that will create a URL context factory</dd><dd><code>securityPrincipal</code> - The name of the identity of the Principal.</dd><dd><code>securityCredentials</code> - The security credentials of the Principal.</dd><dd><code>additionalProperties</code> - Any additional JNDI environment properties to set or <code>null</code> for none.</dd>
+                                  class that will create a URL localContext factory</dd><dd><code>securityPrincipal</code> - The name of the identity of the Principal.</dd><dd><code>securityCredentials</code> - The security credentials of the Principal.</dd><dd><code>additionalProperties</code> - Any additional JNDI environment properties to set or <code>null</code> for none.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the JndiManager for the provided parameters.</dd></dl>
 </li>
 </ul>
@@ -278,7 +278,7 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/appender/Abstra
 <h4>lookup</h4>
 <pre>public&nbsp;&lt;T&gt;&nbsp;T&nbsp;lookup(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)
          throws <a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/NamingException.html?is-external=true" title="class or interface in javax.naming">NamingException</a></pre>
-<div class="block">Looks up a named object through this JNDI context.</div>
+<div class="block">Looks up a named object through this JNDI localContext.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - the type of the object.</dd><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - name of the object to look up.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the named object if it could be located.</dd>
 <dt><span class="strong">Throws:</span></dt>

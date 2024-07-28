@@ -2,17 +2,28 @@
   "configName": "002 Specific publisher",
   "tasks": [
     {
-      "configName": "Archive junk",
+      "configName": "Download junk",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "JunkRemover",
-      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
-      "subscriberKey": "",
-      "subscriberRemote": false,
       "origins": [
         {
-          "location": "Media Publisher",
-          "type": 1
+          "location": "Movies",
+          "type": 5
+        },
+        {
+          "location": "TV Shows",
+          "type": 5
         }
-      ]
+      ],
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherPath": "/home/trh/Work/corionis/ELS/mock/libraries/publisher.json",
+      "subscriberKey": "",
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     }
   ]
 }

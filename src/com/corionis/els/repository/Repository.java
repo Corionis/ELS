@@ -25,7 +25,7 @@ import java.util.regex.PatternSyntaxException;
 /**
  * The type Repository
  */
-public class Repository
+public class Repository implements Comparable
 {
     public static final boolean NO_VALIDATE = false;
     public static final int PUBLISHER = 1;
@@ -39,6 +39,7 @@ public class Repository
     private int purpose = -1;
 
     private transient Context context;
+    private transient boolean dynamic = false;
     private transient Logger logger = LogManager.getLogger("applog");
 
     /**
@@ -89,6 +90,12 @@ public class Repository
             noItems.libraryData.libraries.bibliography[i] = lib;
         }
         return noItems;
+    }
+
+    @Override
+    public int compareTo(Object o)
+    {
+        return this.getLibraryData().libraries.description.compareTo(((Repository) o).getLibraryData().libraries.description);
     }
 
     public void createLibrary(String name)
@@ -534,6 +541,16 @@ public class Repository
     }
 
     /**
+     * Was this Repository loaded dynamically?
+     *
+     * @return true if dynamic
+     */
+    public boolean isDynamic()
+    {
+        return dynamic;
+    }
+
+    /**
      * Is Initialized indicator
      *
      * @returns boolean true/false
@@ -692,12 +709,12 @@ public class Repository
             if (getLibraryData() != null)
                 libraryData = null;
             Gson gson = new Gson();
-            if (printLog)
-                logger.info("Reading Library file " + filename);
             if (Utils.isRelativePath(filename))
             {
                 filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + filename;
             }
+            if (printLog)
+                logger.info("Reading Library file " + filename);
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
@@ -851,6 +868,16 @@ public class Repository
             logger.info("  src: " + src);
             scanDirectory(lib, src, src);
         }
+    }
+
+    /**
+     * Set this Repository as dynamically loaded
+     *
+     * @param sense
+     */
+    public void setDynamic(boolean sense)
+    {
+        this.dynamic = sense;
     }
 
     /**

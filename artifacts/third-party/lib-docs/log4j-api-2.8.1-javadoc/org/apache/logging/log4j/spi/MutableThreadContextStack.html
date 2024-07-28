@@ -194,7 +194,7 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/ThreadContextSta
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/MutableThreadContextStack.html#freeze()">freeze</a></strong>()</code>
-<div class="block">"Freezes" this context stack so it becomes immutable: all mutator methods will throw an exception from now on.</div>
+<div class="block">"Freezes" this localContext stack so it becomes immutable: all mutator methods will throw an exception from now on.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -220,7 +220,7 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/ThreadContextSta
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/MutableThreadContextStack.html#isFrozen()">isFrozen</a></strong>()</code>
-<div class="block">Returns whether this context stack is frozen.</div>
+<div class="block">Returns whether this localContext stack is frozen.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -690,7 +690,7 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/ThreadContextSta
 <li class="blockList">
 <h4>freeze</h4>
 <pre>public&nbsp;void&nbsp;freeze()</pre>
-<div class="block">"Freezes" this context stack so it becomes immutable: all mutator methods will throw an exception from now on.</div>
+<div class="block">"Freezes" this localContext stack so it becomes immutable: all mutator methods will throw an exception from now on.</div>
 </li>
 </ul>
 <a name="isFrozen()">
@@ -700,8 +700,8 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/ThreadContextSta
 <li class="blockList">
 <h4>isFrozen</h4>
 <pre>public&nbsp;boolean&nbsp;isFrozen()</pre>
-<div class="block">Returns whether this context stack is frozen.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>whether this context stack is frozen.</dd></dl>
+<div class="block">Returns whether this localContext stack is frozen.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>whether this localContext stack is frozen.</dd></dl>
 </li>
 </ul>
 </li>

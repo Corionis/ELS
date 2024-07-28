@@ -190,7 +190,7 @@ implements <a href="../../../../../../../../org/apache/logging/log4j/core/LogEve
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/AbstractLogEventWrapperEntity.html#getContextData()">getContextData</a></strong>()</code>
-<div class="block">Gets the context map.</div>
+<div class="block">Gets the localContext map.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -644,11 +644,11 @@ implements <a href="../../../../../../../../org/apache/logging/log4j/core/LogEve
 <li class="blockList">
 <h4>getContextData</h4>
 <pre>public&nbsp;<a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a>&nbsp;getContextData()</pre>
-<div class="block">Gets the context map. Transient, since the String version of the data is obtained via ReadOnlyStringMap.</div>
+<div class="block">Gets the localContext map. Transient, since the String version of the data is obtained via ReadOnlyStringMap.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextData()">getContextData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../../org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>the context data.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/converter/ContextDataAttributeConverter.html" title="class in org.apache.logging.log4j.core.appender.db.jpa.converter"><code>ContextDataAttributeConverter</code></a>, 
+<dt><span class="strong">Returns:</span></dt><dd>the localContext data.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/converter/ContextDataAttributeConverter.html" title="class in org.apache.logging.log4j.core.appender.db.jpa.converter"><code>ContextDataAttributeConverter</code></a>,
 <a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/converter/ContextDataAttributeConverter.html" title="class in org.apache.logging.log4j.core.appender.db.jpa.converter"><code>ContextDataAttributeConverter</code></a></dd></dl>
 </li>
 </ul>

@@ -1,12 +1,9 @@
 package com.corionis.els.jobs;
 
+import com.corionis.els.*;
+import com.corionis.els.gui.util.ArgumentTokenizer;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
-import com.corionis.els.Configuration;
-import com.corionis.els.Context;
-import com.corionis.els.MungeException;
-import com.corionis.els.Utils;
-import com.corionis.els.repository.Repository;
 import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.operations.OperationsTool;
 import com.corionis.els.tools.sleep.SleepTool;
@@ -21,6 +18,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Job extends AbstractTool
 {
@@ -33,7 +31,6 @@ public class Job extends AbstractTool
     transient Task currentTask = null;
     transient private Logger logger = LogManager.getLogger("applog");
     transient private Task previousTask = null;
-    transient private final boolean realOnly = false;
     transient private boolean stop = false;
 
     public Job(Context context, String name)
@@ -53,7 +50,6 @@ public class Job extends AbstractTool
             tasks.add(task.clone());
         }
         job.setTasks(tasks);
-
         return job;
     }
 
@@ -61,6 +57,14 @@ public class Job extends AbstractTool
     public int compareTo(Object o)
     {
         return getConfigName().compareTo(((Job) o).getConfigName());
+    }
+
+    public String generateCommandline(boolean isDryRun)
+    {
+        boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
+        String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
+        String cmd = conf + (isDryRun ? (glo ? " --dry-run" : " -D") : "") + (glo ? " --job \"" : " -j \"") + getConfigName() + "\"";
+        return cmd;
     }
 
     public String getConfigName()
@@ -92,17 +96,6 @@ public class Job extends AbstractTool
         return ""; // jobs are not a subsystem
     }
 
-    public boolean isCachedLastTask()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean isDualRepositories()
-    {
-        return false;
-    }
-
     public String getListName()
     {
         return getDisplayName() + ": " + getConfigName();
@@ -124,35 +117,28 @@ public class Job extends AbstractTool
     }
 
     @Override
-    public void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
+    public boolean isToolCachedOrigins()
     {
-        // to satisfy AbstractTool, not used
+        return true;
     }
 
     @Override
-    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task previousTask) throws Exception
+    public boolean isToolPublisher()
     {
-        // to satisfy AbstractTool, not used
+        return false;
     }
 
     @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
+    public boolean isToolSubscriber()
     {
-        // to satisfy AbstractTool, not used
-        return null;
+        return false;
     }
 
     @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
+    public void processTool(Task task) throws Exception
     {
         // to satisfy AbstractTool, not used
-        return null;
-    }
-
-    @Override
-    public boolean isRealOnly()
-    {
-        return realOnly;
+        logger.error("SHOULD NOT BE HERE");
     }
 
     public Job load(String jobName) throws Exception
@@ -216,7 +202,7 @@ public class Job extends AbstractTool
     /**
      * Process Job on a SwingWorker thread
      * <br/>
-     * Used by the Jobs GUI run button and Navigator Jobs menu
+     * Used by the Jobs Run button and Jobs menu
      *
      * @param context The Context
      * @param comp       The owning component
@@ -227,22 +213,14 @@ public class Job extends AbstractTool
      */
     public SwingWorker<Void, Void> process(Context context, Component comp, String title, Job job, boolean isDryRun)
     {
-        if (willDisconnect(context))
-        {
-            int reply = JOptionPane.showConfirmDialog(comp, context.cfg.gs("Job.this.job.contains.remote.subscriber"), title, JOptionPane.YES_NO_OPTION);
-            if (reply != JOptionPane.YES_OPTION)
-                return null;
-        }
-
         // check for other blocking processes
         if (context.navigator.isBlockingProcessRunning())
         {
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             return null;
         }
-        else
-            context.navigator.setBlockingProcessRunning(true);
 
+        // the SwingWorker is here instead of JobsUI so it may be used by the Jobs menu items
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
         {
             @Override
@@ -250,7 +228,12 @@ public class Job extends AbstractTool
             {
                 try
                 {
-                    processJob(context, job, isDryRun);
+                    String cmd = generateCommandline(isDryRun);
+                    List<String> list = ArgumentTokenizer.tokenize(cmd);
+                    String[] args = list.toArray(new String[0]);
+
+                    logger.info(context.cfg.gs("Z.launching.job") + getConfigName());
+                    Main main = new Main(args, context, getConfigName());
                 }
                 catch (Exception e)
                 {
@@ -258,7 +241,6 @@ public class Job extends AbstractTool
                     logger.error(msg);
                     JOptionPane.showMessageDialog(context.mainFrame, msg,
                             context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
-
                 }
                 return null;
             }
@@ -266,7 +248,7 @@ public class Job extends AbstractTool
             @Override
             protected void done()
             {
-                context.navigator.setBlockingProcessRunning(false);
+                // everything should be ok at this point
             }
         };
         return worker;
@@ -274,18 +256,20 @@ public class Job extends AbstractTool
 
     private void processJob(Context context, Job job, boolean isDryRun) throws Exception
     {
-        int result = 0;
         stop = false;
 
         if (job.getTasks() != null && job.getTasks().size() > 0)
         {
             logger.info(context.cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
+
             for (Task task : job.getTasks())
             {
                 if (isRequestStop())
                     break;
 
                 currentTask = task;
+                currentTask.setContext(context);
+                currentTask.setDryRun(isDryRun);
 
                 // is the task a Job?
                 if (currentTask.isJob())
@@ -302,27 +286,40 @@ public class Job extends AbstractTool
                 else // regular task
                 {
                     // publisher key (only) is used to indicate cached last task
-                    if (previousTask != null && currentTask.isCachedLastTask(context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
+                    if (previousTask != null && currentTask.isToolCachedOrigins(context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
                         currentTask.setPreviousTask(previousTask);
 
                     // run it
-                    if (!currentTask.process(context, isDryRun))
+                    // the Operations Tool runs a new Main
+                    if (!currentTask.process(context))
                         requestStop();
 
-                    if (currentTask.isCachedLastTask(context))
+                    if (currentTask.isToolCachedOrigins(context))
                         previousTask = currentTask;
                 }
+
+                if (context.fault)
+                    break;
             }
 
             if (context.mainFrame != null)
-            {
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                context.savedEnvironment.restore(currentTask);
-            }
 
-            logger.info(context.cfg.gs("Job.completed.job") +
-                    job.getConfigName()+ ((isDryRun) ? context.cfg.gs("Z.dry.run") : "") +
-                    context.cfg.gs("Z.completed"));
+            if (context.fault)
+            {
+                String msg = java.text.MessageFormat.format(context.cfg.gs("Job.ended.with.error"), job.getConfigName());
+                logger.error(msg);
+                if (context.mainFrame != null)
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+            }
+            else
+            {
+                String msg = java.text.MessageFormat.format(context.cfg.gs("Job.completed.job"),
+                        job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
+                logger.info(msg);
+                if (context.mainFrame != null)
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+            }
         }
         else
             throw new MungeException(context.cfg.gs("JobsUI.job.has.no.tasks") + job.getConfigName());
@@ -373,6 +370,8 @@ public class Job extends AbstractTool
         {
             for (Task task : job.getTasks())
             {
+                task.setContext(context);
+
                 // if not a Job or using cached task
                 if (!task.getInternalName().equals(Job.INTERNAL_NAME) &&
                         !task.getInternalName().equals(SleepTool.INTERNAL_NAME) &&
@@ -417,23 +416,6 @@ public class Job extends AbstractTool
             status = cfg.gs("JobsUI.job.has.no.tasks") + job.getConfigName();
         }
         return status;
-    }
-
-    private boolean willDisconnect(Context context)
-    {
-        if (context.cfg.isRemoteOperation())
-        {
-            for (Task task : getTasks())
-            {
-                // publisher key (only) is used to indicate cached last task
-                if (task.isSubscriberRemote() &&
-                        !task.getPublisherKey().equals(Task.ANY_SERVER) &&
-                        !task.getPublisherKey().equals(Task.CACHEDLASTTASK) &&
-                        !context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))
-                    return true;
-            }
-        }
-        return false;
     }
 
 }

@@ -3,11 +3,18 @@
   "tasks": [
     {
       "configName": "Subscriber listener",
+      "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
+      "hintsOverrideHost": true,
+      "hintsPath": "/home/trh/Work/corionis/ELS/mock/libraries/hint-server.json",
+      "hintsRemote": true,
       "internalName": "Operations",
-      "publisherKey": "_ANY_SERVER_",
+      "origins": [],
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherPath": "/home/trh/Work/corionis/ELS/mock/libraries/publisher.json",
       "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": true,
+      "subscriberPath": "/home/trh/Work/corionis/ELS/mock/libraries/subscriber-one.json",
+      "subscriberRemote": true
     }
   ]
 }

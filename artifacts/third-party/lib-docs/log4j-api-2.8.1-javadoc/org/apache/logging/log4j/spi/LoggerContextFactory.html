@@ -135,7 +135,7 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html#removeContext(org.apache.logging.log4j.spi.LoggerContext)">removeContext</a></strong>(<a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</code>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html#removeContext(org.apache.logging.log4j.spi.LoggerContext)">removeContext</a></strong>(<a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Removes knowledge of a LoggerContext.</div>
 </td>
 </tr>
@@ -166,7 +166,7 @@
                        boolean&nbsp;currentContext)</pre>
 <div class="block">Creates a <a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi"><code>LoggerContext</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>fqcn</code> - The fully qualified class name of the caller.</dd><dd><code>loader</code> - The ClassLoader to use or null.</dd><dd><code>currentContext</code> - If true returns the current Context, if false returns the Context appropriate
- for the caller if a more appropriate Context can be determined.</dd><dd><code>externalContext</code> - An external context (such as a ServletContext) to be associated with the LoggerContext.</dd>
+ for the caller if a more appropriate Context can be determined.</dd><dd><code>externalContext</code> - An external localContext (such as a ServletContext) to be associated with the LoggerContext.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext.</dd></dl>
 </li>
 </ul>
@@ -184,7 +184,7 @@
                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
 <div class="block">Creates a <a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi"><code>LoggerContext</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>fqcn</code> - The fully qualified class name of the caller.</dd><dd><code>loader</code> - The ClassLoader to use or null.</dd><dd><code>currentContext</code> - If true returns the current Context, if false returns the Context appropriate
- for the caller if a more appropriate Context can be determined.</dd><dd><code>configLocation</code> - The location of the configuration for the LoggerContext.</dd><dd><code>externalContext</code> - An external context (such as a ServletContext) to be associated with the LoggerContext.</dd><dd><code>name</code> - The name of the context or null.</dd>
+ for the caller if a more appropriate Context can be determined.</dd><dd><code>configLocation</code> - The location of the configuration for the LoggerContext.</dd><dd><code>externalContext</code> - An external localContext (such as a ServletContext) to be associated with the LoggerContext.</dd><dd><code>name</code> - The name of the localContext or null.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext.</dd></dl>
 </li>
 </ul>
@@ -194,9 +194,9 @@
 <ul class="blockListLast">
 <li class="blockList">
 <h4>removeContext</h4>
-<pre>void&nbsp;removeContext(<a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</pre>
+<pre>void&nbsp;removeContext(<a href="../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</pre>
 <div class="block">Removes knowledge of a LoggerContext.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>context</code> - The context to remove.</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>localContext</code> - The localContext to remove.</dd></dl>
 </li>
 </ul>
 </li>

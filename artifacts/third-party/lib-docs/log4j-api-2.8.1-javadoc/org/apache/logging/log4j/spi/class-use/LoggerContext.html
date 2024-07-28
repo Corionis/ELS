@@ -191,7 +191,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><span class="strong">LogManager.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/LogManager.html#shutdown(org.apache.logging.log4j.spi.LoggerContext)">shutdown</a></strong>(<a href="../../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</code>
+<td class="colLast"><span class="strong">LogManager.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/LogManager.html#shutdown(org.apache.logging.log4j.spi.LoggerContext)">shutdown</a></strong>(<a href="../../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Shutdown the logging system if the logging system supports it.</div>
 </td>
 </tr>
@@ -323,20 +323,20 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentMap.html?is-external=true" title="class or interface in java.util.concurrent">ConcurrentMap</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html" title="type parameter in AbstractLoggerAdapter">L</a>&gt;</code></td>
-<td class="colLast"><span class="strong">AbstractLoggerAdapter.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html#getLoggersInContext(org.apache.logging.log4j.spi.LoggerContext)">getLoggersInContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</code>
+<td class="colLast"><span class="strong">AbstractLoggerAdapter.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html#getLoggersInContext(org.apache.logging.log4j.spi.LoggerContext)">getLoggersInContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Gets or creates the ConcurrentMap of named loggers for a given LoggerContext.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected abstract <a href="../../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html" title="type parameter in AbstractLoggerAdapter">L</a></code></td>
 <td class="colLast"><span class="strong">AbstractLoggerAdapter.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/spi/AbstractLoggerAdapter.html#newLogger(java.lang.String,%20org.apache.logging.log4j.spi.LoggerContext)">newLogger</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
-         <a href="../../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</code>
+         <a href="../../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Creates a new named logger for a given <a href="../../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi"><code>LoggerContext</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">LoggerContextFactory.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html#removeContext(org.apache.logging.log4j.spi.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;context)</code>
+<td class="colLast"><span class="strong">LoggerContextFactory.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html#removeContext(org.apache.logging.log4j.spi.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Removes knowledge of a LoggerContext.</div>
 </td>
 </tr>

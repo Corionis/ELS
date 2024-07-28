@@ -31,6 +31,7 @@ public class Configuration
     public static final String ELS_ICON = "els-logo-98px";
     public static final String ELS_JAR = "ELS.jar";
     public static final int JOB_PROCESS = 8;
+    public static final String LOGGER_NAME = "ELS Logger";
     public static final String NAVIGATOR_NAME = "ELS Navigator";
     public static final int NOT_REMOTE = 0;
     public static final int NOT_SET = -1;
@@ -43,7 +44,7 @@ public class Configuration
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_LISTENER_FORCE_QUIT = 9;
     public static final int SUBSCRIBER_TERMINAL = 5;
-    public static final String URL_PREFIX = "https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy"; // TODO +Maintenance Adjust as needed
+    public static final String URL_PREFIX = "https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy"; // TODO MAINTENANCE+ Adjust as needed
     public static final int VERSION_SIZE = 6; // number of lines required in version.info
     public static final String[] availableLocales = {"en_US"}; // TODO EXTEND+ Add new locales here; Potentially refactor to include files from a locales directory
     public boolean defaultNavigator = false;
@@ -75,7 +76,8 @@ public class Configuration
     private String logFileFullPath = "";
     private String logFileName = "";
     private String logFilePath = "";
-    private int logOverwrite = -1;
+    private int logOverwrite = 1;
+    private boolean loggerView = false;
     private double longScale = 1024L;
     private String marker = "";
     private String mismatchFilename = "";
@@ -83,6 +85,8 @@ public class Configuration
     private int noBackFill = -1;
     private int operation = NOT_SET;
     private String[] originalArgs;
+    private int overrideHintHost = -1;
+    private int overrideSubscriberHost = -1;
     private int overwrite = -1;
     private int preserveDates = -1;
     private int publishOperation = -1;
@@ -106,13 +110,11 @@ public class Configuration
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
     private String workingDirectory = "";
-
     public static enum Operations
     {
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
         SubscriberTerminal, StatusServer, StatusServerQuit, SubscriberListenerQuit
     }
-
     /**
      * Constructor
      */
@@ -149,6 +151,152 @@ public class Configuration
     public ResourceBundle bundle()
     {
         return currentBundle;
+    }
+
+    /**
+     * Clone Configuration
+     *
+     * @return Configuration Object
+     */
+    @Override
+    public Object clone()
+    {
+        Configuration clone = new Configuration(context);
+        clone.defaultNavigator = defaultNavigator;
+        clone.authKeysFile = authKeysFile;
+        clone.authorizedPassword = authorizedPassword;
+        clone.blacklist = blacklist;
+        clone.consoleLevel = consoleLevel;
+        clone.consoleSet = consoleSet;
+        clone.context = context;
+        clone.crossCheck = crossCheck;
+        clone.currentBundle = currentBundle;
+        clone.debugLevel = debugLevel;
+        clone.debugSet = debugSet;
+        clone.dryRun = dryRun;
+        clone.duplicateCheck = duplicateCheck;
+        clone.emptyDirectoryCheck = emptyDirectoryCheck;
+        clone.exportCollectionFilename = exportCollectionFilename;
+        clone.exportTextFilename = exportTextFilename;
+        clone.forceCollection = forceCollection;
+        clone.forceTargets = forceTargets;
+        clone.hintKeysFile = hintKeysFile;
+        clone.hintSkipMainProcess = hintSkipMainProcess;
+        clone.hintTrackerFilename = hintTrackerFilename;
+        clone.hintsDaemonFilename = hintsDaemonFilename;
+        clone.ignoredReported = ignoredReported;
+        clone.iplist = iplist;
+        clone.jobName = jobName;
+        clone.keepGoing = keepGoing;
+        clone.logFileFullPath = logFileFullPath;
+        clone.logFileName = logFileName;
+        clone.logFilePath = logFilePath;
+        clone.logOverwrite = logOverwrite;
+        clone.longScale = longScale;
+        clone.marker = marker;
+        clone.mismatchFilename = mismatchFilename;
+        clone.navigator = navigator;
+        clone.noBackFill = noBackFill;
+        clone.operation = operation;
+        clone.originalArgs = originalArgs;
+        clone.overrideHintHost = overrideHintHost;
+        clone.overrideSubscriberHost = overrideSubscriberHost;
+        clone.overwrite = overwrite;
+        clone.preserveDates = preserveDates;
+        clone.publishOperation = publishOperation;
+        clone.publisherCollectionFilename = publisherCollectionFilename;
+        clone.publisherLibrariesFileName = publisherLibrariesFileName;
+        clone.quitStatusServer = quitStatusServer;
+        clone.quitSubscriberListener = quitSubscriberListener;
+        clone.requestCollection = requestCollection;
+        clone.requestTargets = requestTargets;
+        clone.selectedLibraryExcludes = (ArrayList<String>) selectedLibraryExcludes.clone();
+        clone.selectedLibraryNames = (ArrayList<String>) selectedLibraryNames.clone();
+        clone.specificExclude = specificExclude;
+        clone.specificLibrary = specificLibrary;
+        clone.subscriberCollectionFilename = subscriberCollectionFilename;
+        clone.subscriberLibrariesFileName = subscriberLibrariesFileName;
+        clone.targetsEnabled = targetsEnabled;
+        clone.targetsFilename = targetsFilename;
+        clone.updateFailed = updateFailed;
+        clone.updateSuccessful = updateSuccessful;
+        clone.validation = validation;
+        clone.whatsNewAll = whatsNewAll;
+        clone.whatsNewFilename = whatsNewFilename;
+        clone.workingDirectory = workingDirectory;
+        return clone;
+    }
+
+    /**
+     * Restore Configuration from saved clone
+     *
+     * @return "this" Configuration Object
+     */
+    public Configuration cloneRestore(Configuration clone)
+    {
+        defaultNavigator = clone.defaultNavigator;
+        authKeysFile = clone.authKeysFile;
+        authorizedPassword = clone.authorizedPassword;
+        blacklist = clone.blacklist;
+        consoleLevel = clone.consoleLevel;
+        consoleSet = clone.consoleSet;
+        context = clone.context;
+        crossCheck = clone.crossCheck;
+        currentBundle = clone.currentBundle;
+        debugLevel = clone.debugLevel;
+        debugSet = clone.debugSet;
+        dryRun = clone.dryRun;
+        duplicateCheck = clone.duplicateCheck;
+        emptyDirectoryCheck = clone.emptyDirectoryCheck;
+        exportCollectionFilename = clone.exportCollectionFilename;
+        exportTextFilename = clone.exportTextFilename;
+        forceCollection = clone.forceCollection;
+        forceTargets = clone.forceTargets;
+        hintKeysFile = clone.hintKeysFile;
+        hintSkipMainProcess = clone.hintSkipMainProcess;
+        hintTrackerFilename = clone.hintTrackerFilename;
+        hintsDaemonFilename = clone.hintsDaemonFilename;
+        ignoredReported = clone.ignoredReported;
+        iplist = clone.iplist;
+        jobName = clone.jobName;
+        keepGoing = clone.keepGoing;
+        logFileFullPath = clone.logFileFullPath;
+        logFileName = clone.logFileName;
+        logFilePath = clone.logFilePath;
+        logOverwrite = clone.logOverwrite;
+        longScale = clone.longScale;
+        marker = clone.marker;
+        mismatchFilename = clone.mismatchFilename;
+        navigator = clone.navigator;
+        noBackFill = clone.noBackFill;
+        operation = clone.operation;
+        originalArgs = clone.originalArgs;
+        overrideHintHost = clone.overrideHintHost;
+        overrideSubscriberHost = clone.overrideSubscriberHost;
+        overwrite = clone.overwrite;
+        preserveDates = clone.preserveDates;
+        publishOperation = clone.publishOperation;
+        publisherCollectionFilename = clone.publisherCollectionFilename;
+        publisherLibrariesFileName = clone.publisherLibrariesFileName;
+        quitStatusServer = clone.quitStatusServer;
+        quitSubscriberListener = clone.quitSubscriberListener;
+        requestCollection = clone.requestCollection;
+        requestTargets = clone.requestTargets;
+        selectedLibraryExcludes = (ArrayList<String>) clone.selectedLibraryExcludes.clone();
+        selectedLibraryNames = (ArrayList<String>) clone.selectedLibraryNames.clone();
+        specificExclude = clone.specificExclude;
+        specificLibrary = clone.specificLibrary;
+        subscriberCollectionFilename = clone.subscriberCollectionFilename;
+        subscriberLibrariesFileName = clone.subscriberLibrariesFileName;
+        targetsEnabled = clone.targetsEnabled;
+        targetsFilename = clone.targetsFilename;
+        updateFailed = clone.updateFailed;
+        updateSuccessful = clone.updateSuccessful;
+        validation = clone.validation;
+        whatsNewAll = clone.whatsNewAll;
+        whatsNewFilename = clone.whatsNewFilename;
+        workingDirectory = clone.workingDirectory;
+        return this;
     }
 
     /**
@@ -298,6 +446,7 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -j job: " + getJobName());
         }
+        indicator(logger, SHORT, "  cfg: -J Override Hint host = ", overrideHintHost);
         if (getHintKeysFile().length() > 0)
         {
             logger.info(SHORT, "  cfg: -" + (isHintSkipMainProcess() ? "K" : "k") + " Hint Keys filename = " + getHintKeysFile());
@@ -329,6 +478,7 @@ public class Configuration
         indicator(logger, SHORT, "  cfg: -n Navigator = ", navigator);
         indicator(logger, SHORT, "  cfg: -N Ignored files reported = ", ignoredReported);
         indicator(logger, SHORT, "  cfg: -o Overwrite = ", overwrite);
+        indicator(logger, SHORT, "  cfg: -O Override Subscriber host = ", overrideSubscriberHost);
         if (getPublisherLibrariesFileName().length() > 0)
         {
             logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
@@ -381,7 +531,7 @@ public class Configuration
     public String generateCurrentCommandline(String consoleLevel, String debugLevel, boolean overwriteLog, String log)
     {
         String opts;
-        String exec = context.cfg.getExecutablePath();
+        String exec = exec = "\"" + context.cfg.getExecutablePath() + "\"";
         String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
 
         Configuration cc = context.cfg;
@@ -401,17 +551,21 @@ public class Configuration
         // --- hint keys
         if (!cc.isHintSkipMainProcess() && pr.getLastHintKeysOpenFile().length() > 0 && pr.isLastHintKeysIsOpen())
             sb.append(" " + (glo ? "--keys" : "-k") + " \"" +
-            Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
+                    Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
         if (cc.isHintSkipMainProcess() && pr.getLastHintKeysOpenFile().length() > 0 && pr.isLastHintKeysIsOpen())
             sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" +
-            Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
+                    Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
 
         // --- hints & hint server
         if (pr.getLastHintTrackingOpenFile().length() > 0 && pr.isLastHintTrackingIsOpen())
         {
             String hf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintTrackingOpenFile());
             if (pr.isLastHintTrackingIsRemote())
+            {
+                if (pr.isLastOverrideHintHost())
+                    sb.append(" " + (glo ? "--override-hints-host" : "-J"));
                 sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + hf + "\"");
+            }
             else
                 sb.append(" " + (glo ? "--hints" : "-h") + " \"" + hf + "\"");
         }
@@ -420,13 +574,19 @@ public class Configuration
         if (cc.isRemoteOperation())
             sb.append(" " + (glo ? "--remote" : "-r") + " P");
 
-        // --- libraries
+        // --- Publisher
         if (pr.getLastPublisherOpenFile().length() > 0 && pr.isLastPublisherIsOpen())
             sb.append(" " + (glo ? "--publisher-libraries" : (context.preferences.isLastPublisherIsWorkstation() ? "-p" : "-P")) + " \"" +
-            Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastPublisherOpenFile()) + "\"");
-        if (pr.getLastSubscriberOpenFile().length() > 0 && pr.isLastHintTrackingIsOpen())
+                    Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastPublisherOpenFile()) + "\"");
+
+        // -- Subscriber
+        if (pr.getLastSubscriberOpenFile().length() > 0 && pr.isLastSubscriberIsOpen())
+        {
+            if (pr.isLastOverrideSubscriberHost())
+                sb.append(" " + (glo ? "--override-host" : "-O"));
             sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
-            Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");
+                    Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");
+        }
 
         // --- options
         if (!cc.isBinaryScale() != !defCfg.isBinaryScale())
@@ -442,8 +602,7 @@ public class Configuration
 
         String overOpt = overwriteLog ? (glo ? "--log-overwrite" : "-F") : (glo ? "--log-file" : "-f");
 
-        String cmd = "\"" + exec + "\"" +
-                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
+        String cmd = exec + (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
                 " " + conf + " " + opts + (glo ? " --console-level " : " -c ") + consoleLevel +
                 (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
@@ -658,6 +817,16 @@ public class Configuration
     }
 
     /**
+     * Get the original configured Context
+     *
+     * @return Context
+     */
+    public Context getContext()
+    {
+        return context;
+    }
+
+    /**
      * Gets debug level
      *
      * @return the debug level
@@ -740,9 +909,9 @@ public class Configuration
     public String getExecutablePath()
     {
         String exePath = getInstalledPath() + System.getProperty("file.separator") +
-                    (Utils.isOsWindows() ? "ELS-Navigator.exe" :
-                            (Utils.isOsMac() ? "rt/Contents/Home/bin/java" :
-                            "rt/bin/java"));
+                (Utils.isOsWindows() ? "ELS-Navigator.exe" :
+                        (Utils.isOsMac() ? "rt/Contents/Home/bin/java" :
+                                "rt/bin/java"));
         return exePath;
     }
 
@@ -1310,7 +1479,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "forced collection" operationsUI?
+     * Is this a "forced collection" operation?
      *
      * @return true/false
      */
@@ -1320,7 +1489,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "forced targets" operationsUI
+     * Is this a "forced targets" operation?
      *
      * @return true/false
      */
@@ -1361,7 +1530,7 @@ public class Configuration
 
     /**
      * For a Publisher a true "keep going" flag skips sending
-     * the quit command to the subscriber when the operationsUI is
+     * the quit command to the subscriber when the operation is
      * complete. For a subscriber it skips ending with a fault
      * on an unexpected disconnect (EOL).
      *
@@ -1380,6 +1549,11 @@ public class Configuration
     public boolean isLogOverwrite()
     {
         return logOverwrite == 1 ? true : false;
+    }
+
+    public boolean isLoggerView()
+    {
+        return loggerView;
     }
 
     /**
@@ -1401,6 +1575,21 @@ public class Configuration
     public boolean isNoBackFill()
     {
         return noBackFill == 1 ? true : false;
+    }
+
+    public boolean isOverrideHintsHost()
+    {
+        return overrideHintHost == 1 ? true : false;
+    }
+
+    /**
+     * Returns true if -O | --override-host is enabled, otherwise false
+     *
+     * @return
+     */
+    public boolean isOverrideSubscriberHost()
+    {
+        return overrideSubscriberHost == 1 ? true : false;
     }
 
     /**
@@ -1426,7 +1615,7 @@ public class Configuration
     }
 
     /**
-     * Is this a publish operationsUI?
+     * Is this a publish operation?
      *
      * @return true/false
      */
@@ -1475,6 +1664,25 @@ public class Configuration
         return quitSubscriberListener == 1 ? true : false;
     }
 
+    public boolean isRemoteActive()
+    {
+        if (isRemoteStatusServer())
+            return true;
+        if (isRemoteSubscriber())
+            return true;
+        return false;
+    }
+
+    /**
+     * Returns true if this is any type of remote session
+     *
+     * @return true/false
+     */
+    public boolean isRemoteOperation()
+    {
+        return (getOperation() != NOT_REMOTE && getOperation() != JOB_PROCESS);
+    }
+
     /**
      * Returns true if this is a publisher process, automatically execute the process
      *
@@ -1485,28 +1693,9 @@ public class Configuration
         return (getOperation() == PUBLISH_REMOTE);
     }
 
-    /**
-     * Returns true if this is any type of remote session
-     *
-     * @return true/false
-     */
-    public boolean isRemoteOperation()
-    {
-        return (getOperation() != NOT_REMOTE);
-    }
-
-    public boolean isRemoteActive()
-    {
-        if (isRemoteStatusServer())
-            return true;
-        if (isRemoteSubscriber())
-            return true;
-        return false;
-    }
-
     public boolean isRemoteStatusServer()
     {
-        if (context.statusStty != null && context.statusStty.isConnected())
+        if (context.hintsStty != null && context.hintsStty.isConnected())
             return true;
         return false;
     }
@@ -1519,7 +1708,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "request collection" operationsUI?
+     * Is this a "request collection" operation?
      *
      * @return true/false
      */
@@ -1529,7 +1718,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "request targets" operationsUI?
+     * Is this a "request targets" operation?
      *
      * @return true/false
      */
@@ -1684,12 +1873,11 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // Available: O J
         // Reserved:
         //   M match dates
         //   R restrict Hint processing, i.e. do not execute
-        //   U check for update without GUI
-        //   V user authentication & authorization
+        //   U user authentication & authorization
+        //   V check for update without GUI
         //   X execute Hints only. -X -R checks for Hints but does not execute
         //   Y install update without GUI
         //   Z verify connectivity (only)
@@ -1903,6 +2091,10 @@ public class Configuration
                         throw new MungeException("Error: -j requires a job name");
                     }
                     break;
+                case "-J":                                              // override Hint Server host (use listen)
+                case "--override-hints-host":
+                    setOverrideHintsHost(true);
+                    break;
                 case "-k":                                             // ELS keys file
                 case "--keys":
                     if (index <= args.length - 2)
@@ -1956,6 +2148,10 @@ public class Configuration
                         throw new MungeException("Error: -L requires a publisher library name to exclude");
                     }
                     break;
+                case "--logger":
+                    setLoggerView(true);
+                    setNavigator(true);
+                    break;
                 case "-m":                                             // Mismatch output filename
                 case "--mismatches":
                     if (index <= args.length - 2)
@@ -1988,6 +2184,10 @@ public class Configuration
                 case "-o":                                              // overwrite
                 case "--overwrite":
                     setOverwrite(true);
+                    break;
+                case "-O":                                              // override Subscriber host (use listen)
+                case "--override-subscriber-host":
+                    setOverrideSubscriberHost(true);
                     break;
                 case "-p":                                              // publisher JSON libraries file
                 case "--publisher-libraries":
@@ -2283,7 +2483,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "forced collection" operationsUI
+     * Set if this is a "forced collection" operation
      *
      * @param forceCollection true/false
      */
@@ -2293,7 +2493,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "forced targets" operationsUI
+     * Set if this is a "forced targets" operation
      *
      * @param forceTargets true/false
      */
@@ -2374,7 +2574,7 @@ public class Configuration
 
     /**
      * For a Publisher the "keep going" flag skips sending
-     * the quit command to the subscriber when the operationsUI is
+     * the quit command to the subscriber when the operation is
      * complete. For a subscriber it skips ending with a fault
      * on an unexpected disconnect (EOL).
      *
@@ -2425,6 +2625,11 @@ public class Configuration
         this.logOverwrite = logOverwrite == true ? 1 : 0;
     }
 
+    public void setLoggerView(boolean loggerView)
+    {
+        this.loggerView = loggerView;
+    }
+
     /**
      * Sets the scale factor for formatting long values, 1024 or 1000
      *
@@ -2465,6 +2670,16 @@ public class Configuration
         this.noBackFill = noBackFill == true ? 1 : 0;
     }
 
+    public void setOverrideHintsHost(boolean overrideHintHost)
+    {
+        this.overrideHintHost = overrideHintHost == true ? 1 : 0;
+    }
+
+    public void setOverrideSubscriberHost(boolean overrideSubscriberHost)
+    {
+        this.overrideSubscriberHost = overrideSubscriberHost == true ? 1 : 0;
+    }
+
     /**
      * Sets overwrite mode
      */
@@ -2484,7 +2699,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a publish operationsUI
+     * Set if this is a publish operation
      *
      * @param publishOperation true/false
      */
@@ -2524,7 +2739,7 @@ public class Configuration
     }
 
     /**
-     * Sets the flag for the operationsUI to force the subscriber to quit, then end
+     * Sets the flag for the operation to force the subscriber to quit, then end
      *
      * @param quitSubscriberListener
      */
@@ -2558,7 +2773,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "request collection" operationsUI
+     * Set if this is a "request collection" operation
      *
      * @param requestCollection true/false
      */
@@ -2568,7 +2783,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "request targets" operationsUI
+     * Set if this is a "request targets" operation
      *
      * @param requestTargets true/false
      */

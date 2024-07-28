@@ -3,96 +3,173 @@
   "tasks": [
     {
       "configName": "Case change",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
-      "publisherKey": "_ANY_SERVER_",
-      "subscriberKey": "",
-      "subscriberRemote": false,
       "origins": [
         {
           "location": "test\\publisher\\media\\TV Shows\\M4 D4 Renamer Tests",
           "type": 6
         }
-      ]
+      ],
+      "publisherKey": "_ANY_SERVER_",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Replace Amzn",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Replace SxxEyy",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Replace Webrip",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Replace [eztv.re]",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Replace double dashs",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Replace double dots",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Replace dot w/ space",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Replace multi-spaces",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Insert -S01E",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Numbering",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "Renamer",
+      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
       "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     }
   ]
 }

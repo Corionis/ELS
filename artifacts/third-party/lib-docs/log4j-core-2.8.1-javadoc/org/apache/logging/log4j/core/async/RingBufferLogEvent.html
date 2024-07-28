@@ -192,19 +192,19 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/LogEvent.htm
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/RingBufferLogEvent.html#getContextData()">getContextData</a></strong>()</code>
-<div class="block">Returns the <code>ReadOnlyStringMap</code> object holding context data key-value pairs.</div>
+<div class="block">Returns the <code>ReadOnlyStringMap</code> object holding localContext data key-value pairs.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/RingBufferLogEvent.html#getContextMap()">getContextMap</a></strong>()</code>
-<div class="block">Gets the context map (also know as Mapped Diagnostic Context or MDC).</div>
+<div class="block">Gets the localContext map (also know as Mapped Diagnostic Context or MDC).</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/ThreadContext.ContextStack.html?is-external=true" title="class or interface in org.apache.logging.log4j">ThreadContext.ContextStack</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/RingBufferLogEvent.html#getContextStack()">getContextStack</a></strong>()</code>
-<div class="block">Gets the context stack (also known as Nested Diagnostic Context or NDC).</div>
+<div class="block">Gets the localContext stack (also known as Nested Diagnostic Context or NDC).</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -819,17 +819,17 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/LogEvent.htm
 <h4>getContextData</h4>
 <pre>public&nbsp;<a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a>&nbsp;getContextData()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextData()">LogEvent</a></code></strong></div>
-<div class="block">Returns the <code>ReadOnlyStringMap</code> object holding context data key-value pairs.
+<div class="block">Returns the <code>ReadOnlyStringMap</code> object holding localContext data key-value pairs.
  <p>
  Context data (also known as Mapped Diagnostic Context or MDC) is data that is set by the application to be
- included in all subsequent log events. The default source for context data is the <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/ThreadContext.html?is-external=true" title="class or interface in org.apache.logging.log4j"><code>ThreadContext</code></a> (and
+ included in all subsequent log events. The default source for localContext data is the <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/ThreadContext.html?is-external=true" title="class or interface in org.apache.logging.log4j"><code>ThreadContext</code></a> (and
  <a href="https://logging.apache.org/log4j/2.x/manual/configuration.html#PropertySubstitution">properties</a>
  configured on the Logger that logged the event), but users can configure a custom <a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core"><code>ContextDataInjector</code></a>
  to inject key-value pairs from any arbitrary source.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextData()">getContextData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>the <code>ReadOnlyStringMap</code> object holding context data key-value pairs</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core"><code>ContextDataInjector</code></a>, 
+<dt><span class="strong">Returns:</span></dt><dd>the <code>ReadOnlyStringMap</code> object holding localContext data key-value pairs</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core"><code>ContextDataInjector</code></a>,
 <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/ThreadContext.html?is-external=true" title="class or interface in org.apache.logging.log4j"><code>ThreadContext</code></a></dd></dl>
 </li>
 </ul>
@@ -841,11 +841,11 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/LogEvent.htm
 <h4>getContextMap</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getContextMap()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextMap()">LogEvent</a></code></strong></div>
-<div class="block">Gets the context map (also know as Mapped Diagnostic Context or MDC).</div>
+<div class="block">Gets the localContext map (also know as Mapped Diagnostic Context or MDC).</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextMap()">getContextMap</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>The context map, never <code>null</code>.</dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>The localContext map, never <code>null</code>.</dd></dl>
 </li>
 </ul>
 <a name="getContextStack()">
@@ -856,11 +856,11 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/LogEvent.htm
 <h4>getContextStack</h4>
 <pre>public&nbsp;<a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/ThreadContext.ContextStack.html?is-external=true" title="class or interface in org.apache.logging.log4j">ThreadContext.ContextStack</a>&nbsp;getContextStack()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextStack()">LogEvent</a></code></strong></div>
-<div class="block">Gets the context stack (also known as Nested Diagnostic Context or NDC).</div>
+<div class="block">Gets the localContext stack (also known as Nested Diagnostic Context or NDC).</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextStack()">getContextStack</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>The context stack, never <code>null</code>.</dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>The localContext stack, never <code>null</code>.</dd></dl>
 </li>
 </ul>
 <a name="getThreadId()">
@@ -891,7 +891,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/LogEvent.htm
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getThreadName()">getThreadName</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></code></dd>
 <dt><span class="strong">Returns:</span></dt><dd>thread name, may be null.
- TODO guess this could go into a thread context object too. (RG) Why?</dd></dl>
+ TODO guess this could go into a thread localContext object too. (RG) Why?</dd></dl>
 </li>
 </ul>
 <a name="getThreadPriority()">

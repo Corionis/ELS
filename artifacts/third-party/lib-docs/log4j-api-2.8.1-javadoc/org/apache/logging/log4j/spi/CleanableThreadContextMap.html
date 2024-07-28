@@ -125,7 +125,7 @@ extends <a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap2.h
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/CleanableThreadContextMap.html#removeAll(java.lang.Iterable)">removeAll</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;keys)</code>
-<div class="block">Removes all given context map keys from the current thread's context map.</div>
+<div class="block">Removes all given localContext map keys from the current thread's localContext map.</div>
 </td>
 </tr>
 </table>
@@ -164,9 +164,9 @@ extends <a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap2.h
 <li class="blockList">
 <h4>removeAll</h4>
 <pre>void&nbsp;removeAll(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;keys)</pre>
-<div class="block">Removes all given context map keys from the current thread's context map.
+<div class="block">Removes all given localContext map keys from the current thread's localContext map.
 
- <p>If the current thread does not have a context map it is
+ <p>If the current thread does not have a localContext map it is
  created as a side effect.</p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>keys</code> - The keys.</dd><dt><span class="strong">Since:</span></dt>
   <dd>2.8</dd></dl>

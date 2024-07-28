@@ -2,17 +2,28 @@
   "configName": "001 Any publisher",
   "tasks": [
     {
-      "configName": "Archive junk",
+      "configName": "Download junk",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "JunkRemover",
-      "publisherKey": "_ANY_SERVER_",
-      "subscriberKey": "",
-      "subscriberRemote": false,
       "origins": [
+        {
+          "location": "Movies",
+          "type": 5
+        },
         {
           "location": "TV Shows",
           "type": 5
         }
-      ]
+      ],
+      "publisherKey": "_ANY_SERVER_",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     }
   ]
 }

@@ -9,7 +9,6 @@ import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Origins;
 import com.corionis.els.jobs.Task;
 import com.corionis.els.tools.AbstractTool;
-import com.corionis.els.tools.Tools;
 import com.corionis.els.tools.junkremover.JunkRemoverTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +38,7 @@ public class JunkRemoverUI extends AbstractToolDialog
     private SwingWorker<Void, Void> worker;
     private JunkRemoverTool workerJrt = null;
     private boolean workerRunning = false;
+    private Task workerTask = null;
 
     public JunkRemoverUI(Window owner, Context context)
     {
@@ -151,8 +151,11 @@ public class JunkRemoverUI extends AbstractToolDialog
         {
             if (checkForChanges())
             {
-                int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.cancel.all.changes"),
-                        context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+                Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
+                int reply = JOptionPane.showOptionDialog(this,
+                        context.cfg.gs("Z.cancel.all.changes"),
+                        getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                        null, opts, opts[1]);
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     cancelChanges();
@@ -208,12 +211,14 @@ public class JunkRemoverUI extends AbstractToolDialog
     private void actionDeleteClicked(ActionEvent e)
     {
         if (tableJunk.isEditing())
-        {
             tableJunk.getCellEditor().stopCellEditing();
-        }
+
         int index = configItems.getSelectedRow();
         if (index >= 0)
         {
+            if (configItems.isEditing())
+                configItems.getCellEditor().stopCellEditing();
+
             JunkRemoverTool tool = (JunkRemoverTool) configModel.getValueAt(index, 0);
             int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
                     context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
@@ -342,12 +347,107 @@ public class JunkRemoverUI extends AbstractToolDialog
         {
             tableJunk.getCellEditor().stopCellEditing();
         }
+
         int index = configItems.getSelectedRow();
         if (index >= 0)
         {
-            JunkRemoverTool tool = (JunkRemoverTool) configModel.getValueAt(index, 0);
-            workerJrt = tool.clone();
-            processSelected(workerJrt);
+            try
+            {
+                ArrayList<Origin> origins = new ArrayList<Origin>();
+                isSubscriber = Origins.makeOriginsFromSelected(context, this, origins);
+                int count = origins.size();
+
+                if (origins != null && origins.size() > 0)
+                {
+                    final JunkRemoverTool jrt = (JunkRemoverTool) configModel.getValueAt(index, 0);
+
+                    // make dialog pieces
+                    String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
+                    String message = java.text.MessageFormat.format(context.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
+                    JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
+                    checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
+                    checkbox.setSelected(context.preferences.isDefaultDryrun());
+                    Object[] params = {message, checkbox};
+
+                    // confirm run of tool
+                    int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("JunkRemover.title"), JOptionPane.YES_NO_OPTION);
+                    isDryRun = checkbox.isSelected();
+                    if (reply == JOptionPane.YES_OPTION)
+                    {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        setComponentEnabled(false);
+                        cancelButton.setEnabled(true);
+                        cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        labelHelp.setEnabled(true);
+                        labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+                        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+                        {
+                            @Override
+                            protected Void doInBackground() throws Exception
+                            {
+                                try
+                                {
+                                    workerJrt = jrt.clone();
+                                    processSelected(workerJrt, origins, isSubscriber);
+                                }
+                                catch (Exception e)
+                                {
+                                    if (!e.getMessage().equals("HANDLED_INTERNALLY"))
+                                    {
+                                        String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                                        if (context != null)
+                                        {
+                                            logger.error(msg);
+                                            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                                        }
+                                        else
+                                            logger.error(msg);
+                                    }
+                                }
+                                return null;
+                            }
+                        };
+
+                        if (worker != null)
+                        {
+                            workerRunning = true;
+                            worker.addPropertyChangeListener(new PropertyChangeListener()
+                            {
+                                @Override
+                                public void propertyChange(PropertyChangeEvent e)
+                                {
+                                    if (e.getPropertyName().equals("state"))
+                                    {
+                                        if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                            processTerminated();
+                                    }
+                                }
+                            });
+                            worker.execute();
+                        }
+                    }
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(this, context.cfg.gs("JunkRemover.nothing.selected.in.browser"),
+                            context.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                }
+            }
+            catch (Exception e1)
+            {
+                if (!e1.getMessage().equals("HANDLED_INTERNALLY"))
+                {
+                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e1);
+                    if (context != null)
+                    {
+                        logger.error(msg);
+                        JOptionPane.showMessageDialog(context.navigator.dialogJunkRemover, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+                    else
+                        logger.error(msg);
+                }
+            }
         }
     }
 
@@ -448,10 +548,10 @@ public class JunkRemoverUI extends AbstractToolDialog
 
     private void loadConfigurations()
     {
+        ArrayList<AbstractTool> toolList = null;
         try
         {
-            Tools tools = new Tools();
-            ArrayList<AbstractTool> toolList = tools.loadAllTools(context, JunkRemoverTool.INTERNAL_NAME);
+            toolList = context.tools.loadAllTools(context, JunkRemoverTool.INTERNAL_NAME);
             for (AbstractTool tool : toolList)
             {
                 JunkRemoverTool jrt = (JunkRemoverTool) tool;
@@ -470,6 +570,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                 logger.error(msg);
         }
 
+        configModel.setToolList(toolList);
         configModel.loadJobsConfigurations(this, null);
 
         if (configModel.getRowCount() == 0)
@@ -519,104 +620,28 @@ public class JunkRemoverUI extends AbstractToolDialog
         }
     }
 
-    public void processSelected(JunkRemoverTool jrt)
+    private void processSelected(JunkRemoverTool jrt, ArrayList<Origin> origins, boolean isSubscriber) throws Exception
     {
         if (jrt != null)
         {
-            try
+            if (origins != null && origins.size() > 0)
             {
-                ArrayList<Origin> origins = new ArrayList<Origin>();
-                isSubscriber = Origins.makeOriginsFromSelected(context, this, origins, jrt.isRealOnly());
+                workerTask = new Task(jrt.getInternalName(), jrt.getConfigName());
+                workerTask.setContext(context);
+                workerTask.setDryRun(isDryRun);
+                workerTask.setOrigins(origins);
 
-                if (origins != null && origins.size() > 0)
-                {
-                    int count = origins.size();
-
-                    // make dialog pieces
-                    String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
-                    String message = java.text.MessageFormat.format(context.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
-                    JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
-                    checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
-                    checkbox.setSelected(context.preferences.isDefaultDryrun());
-                    Object[] params = {message, checkbox};
-
-                    // confirm run of tool
-                    int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("JunkRemover.title"), JOptionPane.YES_NO_OPTION);
-                    isDryRun = checkbox.isSelected();
-                    if (reply == JOptionPane.YES_OPTION)
-                    {
-                        try
-                        {
-                            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                            setComponentEnabled(false);
-                            cancelButton.setEnabled(true);
-                            cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                            labelHelp.setEnabled(true);
-                            labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-                            Task task = new Task(jrt.getInternalName(), jrt.getConfigName());
-                            task.setOrigins(origins);
-
-                            if (isSubscriber)
-                                task.setSubscriberKey(Task.ANY_SERVER);
-                            else
-                                task.setPublisherKey(Task.ANY_SERVER);
-
-                            worker = task.process(context, jrt, isDryRun);
-                            if (worker != null)
-                            {
-                                workerRunning = true;
-                                worker.addPropertyChangeListener(new PropertyChangeListener()
-                                {
-                                    @Override
-                                    public void propertyChange(PropertyChangeEvent e)
-                                    {
-                                        if (e.getPropertyName().equals("state"))
-                                        {
-                                            if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                                processTerminated(task, jrt);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                            if (context != null)
-                            {
-                                logger.error(msg);
-                                JOptionPane.showMessageDialog(context.navigator.dialogJunkRemover, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
-                            }
-                            else
-                                logger.error(msg);
-                        }
-                    }
-                }
+                if (isSubscriber)
+                    workerTask.setSubscriberKey(Task.ANY_SERVER);
                 else
-                {
-                    JOptionPane.showMessageDialog(this, context.cfg.gs("JunkRemover.nothing.selected.in.browser"),
-                            context.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
-                }
-            }
-            catch (Exception e)
-            {
-                if (!e.getMessage().equals("HANDLED_INTERNALLY"))
-                {
-                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                    if (context != null)
-                    {
-                        logger.error(msg);
-                        JOptionPane.showMessageDialog(context.navigator.dialogJunkRemover, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-                    else
-                        logger.error(msg);
-                }
+                    workerTask.setPublisherKey(Task.ANY_SERVER);
+
+                workerTask.process(context);
             }
         }
     }
 
-    private void processTerminated(Task task, JunkRemoverTool jrt)
+    private void processTerminated()
     {
         if (context.progress != null)
         {
@@ -625,18 +650,19 @@ public class JunkRemoverUI extends AbstractToolDialog
             context.progress = null;
         }
 
-        Origins.setSelectedFromOrigins(context, this, task.getOrigins());
+        Origins.setSelectedFromOrigins(context, this, workerTask.getOrigins());
 
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
+        if (workerJrt.isRequestStop())
+        {
+            logger.info(workerJrt.getConfigName() + context.cfg.gs("Z.cancelled"));
+            context.mainFrame.labelStatusMiddle.setText(workerJrt.getConfigName() + context.cfg.gs("Z.cancelled"));
+        }
+
         workerRunning = false;
         workerJrt = null;
-
-        if (jrt.isRequestStop())
-        {
-            logger.info(jrt.getConfigName() + context.cfg.gs("Z.cancelled"));
-            context.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + context.cfg.gs("Z.cancelled"));
-        }
     }
 
     private void saveConfigurations()
@@ -644,15 +670,6 @@ public class JunkRemoverUI extends AbstractToolDialog
         JunkRemoverTool tool = null;
         try
         {
-            // write/update changed tool JSON configuration files
-            for (int i = 0; i < configModel.getRowCount(); ++i)
-            {
-                tool = (JunkRemoverTool) configModel.getValueAt(i, 0);
-                if (tool.isDataChanged())
-                    tool.write();
-                tool.setDataHasChanged(false);
-            }
-
             // remove any deleted tools JSON configuration file
             for (int i = 0; i < deletedTools.size(); ++i)
             {
@@ -662,6 +679,15 @@ public class JunkRemoverUI extends AbstractToolDialog
                 {
                     file.delete();
                 }
+            }
+            deletedTools = new ArrayList<AbstractTool>();
+
+            // write/update changed tool JSON configuration files
+            for (int i = 0; i < configModel.getRowCount(); ++i)
+            {
+                tool = (JunkRemoverTool) configModel.getValueAt(i, 0);
+                if (tool.isDataChanged())
+                    tool.write();
                 tool.setDataHasChanged(false);
             }
 
@@ -798,7 +824,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                 windowHidden(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========
@@ -852,7 +878,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                         panelTopButtons.add(hSpacerBeforeRun);
 
                         //---- buttonRun ----
-                        buttonRun.setText(context.cfg.gs("JunkRemover.button.Run.text"));
+                        buttonRun.setText(context.cfg.gs("Z.run.ellipsis"));
                         buttonRun.setMnemonic(context.cfg.gs("JunkRemover.button.Run.mnemonic").charAt(0));
                         buttonRun.setToolTipText(context.cfg.gs("JunkRemover.button.Run.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));

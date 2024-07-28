@@ -1,0 +1,20 @@
+{
+  "configName": "551 Navigator Remote",
+  "tasks": [
+    {
+      "configName": "Navigator Remote",
+      "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64f",
+      "hintsOverrideHost": true,
+      "hintsPath": "/home/trh/Work/corionis/ELS/mock/private/hint-server.json",
+      "hintsRemote": true,
+      "internalName": "Operations",
+      "origins": [],
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherPath": "/home/trh/Work/corionis/ELS/mock/libraries/publisher.json",
+      "subscriberKey": "c8ee28d3-4a99-41ee-87cc-d43c31827b06",
+      "subscriberOverrideHost": true,
+      "subscriberPath": "/home/trh/Work/corionis/ELS/mock/libraries/rockplex.json",
+      "subscriberRemote": true
+    }
+  ]
+}

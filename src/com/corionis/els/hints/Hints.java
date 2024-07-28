@@ -51,7 +51,7 @@ public class Hints
         if (context.cfg.isRemoteStatusServer())
         {
             String line = "conflict " + "\"" + library + "\" \"" + itemPath + "\"";
-            String response = context.statusStty.roundTrip(line + "\n", null, 10000);
+            String response = context.hintsStty.roundTrip(line + "\n", null, 10000);
             if (!response.toLowerCase().equals("false"))
             {
                 results = gsonParser.fromJson(response, results.getClass());
@@ -131,7 +131,7 @@ public class Hints
             if (context.cfg.isRemoteStatusServer())
             {
                 String line = "get \"all\"";
-                String response = context.statusStty.roundTrip(line + "\n", null, 10000);
+                String response = context.hintsStty.roundTrip(line + "\n", null, 10000);
                 if (!response.toLowerCase().equals("false"))
                 {
                     Type listType = new TypeToken<ArrayList<Hint>>()
@@ -160,7 +160,7 @@ public class Hints
             if (context.cfg.isRemoteStatusServer())
             {
                 String line = "count \"" + system + "\"";
-                String response = context.statusStty.roundTrip(line + "\n", null, 10000);
+                String response = context.hintsStty.roundTrip(line + "\n", null, 10000);
                 if (!response.toLowerCase().equals("false"))
                 {
                     count = Integer.valueOf(response);
@@ -181,7 +181,7 @@ public class Hints
         if (context.cfg.isRemoteStatusServer())
         {
             String line = "get \"for\" \"" + hintSystemName + "\"";
-            String response = context.statusStty.roundTrip(line + "\n", null, 10000);
+            String response = context.hintsStty.roundTrip(line + "\n", null, 10000);
             if (!response.toLowerCase().equals("false"))
             {
                 Type listType = new TypeToken<ArrayList<Hint>>()
@@ -457,7 +457,7 @@ public class Hints
                 }.getType();
                 String json = gsonBuilder.toJson(hints, listType);
                 String line = "\"save\" " + json;
-                response = context.statusStty.roundTrip(line + "\n", null, 10000);
+                response = context.hintsStty.roundTrip(line + "\n", null, 10000);
             }
             else
             {
@@ -536,7 +536,7 @@ public class Hints
         {
             String json = gsonBuilder.toJson(hint);
             String line = "get \"full\" " + json;
-            String response = context.statusStty.roundTrip(line + "\n", "Sending remote Hint Server: " + line, 10000);
+            String response = context.hintsStty.roundTrip(line + "\n", "Sending remote Hint Server: " + line, 10000);
             logger.info("Hint Server response: " + response);
             if (!response.equals("false"))
             {
@@ -575,7 +575,7 @@ public class Hints
         {
             String json = gsonBuilder.toJson(hint);
             String line = "\"hint\" " + json;
-            String response = context.statusStty.roundTrip(line + "\n", "Sending remote Hint Server: " + line, 10000);
+            String response = context.hintsStty.roundTrip(line + "\n", "Sending remote Hint Server: " + line, 10000);
             logger.info("Hint Server response: " + response);
             if (response.toLowerCase().equals("true"))
                 success = true;

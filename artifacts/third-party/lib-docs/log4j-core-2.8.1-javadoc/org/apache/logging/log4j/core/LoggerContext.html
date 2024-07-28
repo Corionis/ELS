@@ -184,21 +184,21 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <tr class="rowColor">
 <td class="colOne"><code><strong><a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html#LoggerContext(java.lang.String,%20java.lang.Object)">LoggerContext</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext)</code>
-<div class="block">Constructor taking a name and a reference to an external context.</div>
+<div class="block">Constructor taking a name and a reference to an external localContext.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><strong><a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html#LoggerContext(java.lang.String,%20java.lang.Object,%20java.lang.String)">LoggerContext</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;configLocn)</code>
-<div class="block">Constructor taking a name external context and a configuration location String.</div>
+<div class="block">Constructor taking a name external localContext and a configuration location String.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><strong><a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html#LoggerContext(java.lang.String,%20java.lang.Object,%20java.net.URI)">LoggerContext</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/net/URI.html?is-external=true" title="class or interface in java.net">URI</a>&nbsp;configLocn)</code>
-<div class="block">Constructor taking a name, external context and a configuration URI.</div>
+<div class="block">Constructor taking a name, external localContext and a configuration URI.</div>
 </td>
 </tr>
 </table>
@@ -265,7 +265,7 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html#getExternalContext()">getExternalContext</a></strong>()</code>
-<div class="block">Returns the external context.</div>
+<div class="block">Returns the external localContext.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -334,7 +334,7 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html#reconfigure()">reconfigure</a></strong>()</code>
-<div class="block">Reconfigures the context.</div>
+<div class="block">Reconfigures the localContext.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -350,13 +350,13 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html#setConfigLocation(java.net.URI)">setConfigLocation</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/net/URI.html?is-external=true" title="class or interface in java.net">URI</a>&nbsp;configLocation)</code>
-<div class="block">Sets the configLocation to the specified value and reconfigures this context.</div>
+<div class="block">Sets the configLocation to the specified value and reconfigures this localContext.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html#setExternalContext(java.lang.Object)">setExternalContext</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;context)</code>
-<div class="block">Sets the external context.</div>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html#setExternalContext(java.lang.Object)">setExternalContext</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;localContext)</code>
+<div class="block">Sets the external localContext.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -455,7 +455,7 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <h4>LoggerContext</h4>
 <pre>public&nbsp;LoggerContext(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
 <div class="block">Constructor taking only a name.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The context name.</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The localContext name.</dd></dl>
 </li>
 </ul>
 <a name="LoggerContext(java.lang.String, java.lang.Object)">
@@ -466,8 +466,8 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <h4>LoggerContext</h4>
 <pre>public&nbsp;LoggerContext(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext)</pre>
-<div class="block">Constructor taking a name and a reference to an external context.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The context name.</dd><dd><code>externalContext</code> - The external context.</dd></dl>
+<div class="block">Constructor taking a name and a reference to an external localContext.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The localContext name.</dd><dd><code>externalContext</code> - The external localContext.</dd></dl>
 </li>
 </ul>
 <a name="LoggerContext(java.lang.String, java.lang.Object, java.net.URI)">
@@ -479,8 +479,8 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <pre>public&nbsp;LoggerContext(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/net/URI.html?is-external=true" title="class or interface in java.net">URI</a>&nbsp;configLocn)</pre>
-<div class="block">Constructor taking a name, external context and a configuration URI.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The context name.</dd><dd><code>externalContext</code> - The external context.</dd><dd><code>configLocn</code> - The location of the configuration as a URI.</dd></dl>
+<div class="block">Constructor taking a name, external localContext and a configuration URI.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The localContext name.</dd><dd><code>externalContext</code> - The external localContext.</dd><dd><code>configLocn</code> - The location of the configuration as a URI.</dd></dl>
 </li>
 </ul>
 <a name="LoggerContext(java.lang.String, java.lang.Object, java.lang.String)">
@@ -492,9 +492,9 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <pre>public&nbsp;LoggerContext(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;externalContext,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;configLocn)</pre>
-<div class="block">Constructor taking a name external context and a configuration location String. The location must be resolvable
+<div class="block">Constructor taking a name external localContext and a configuration location String. The location must be resolvable
  to a File.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The configuration location.</dd><dd><code>externalContext</code> - The external context.</dd><dd><code>configLocn</code> - The configuration location.</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The configuration location.</dd><dd><code>externalContext</code> - The external localContext.</dd><dd><code>configLocn</code> - The configuration location.</dd></dl>
 </li>
 </ul>
 </li>
@@ -567,7 +567,7 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
  <pre>
  (LoggerContext) LogManager.getContext(loader, currentContext, configLocation);
  </pre></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loader</code> - The ClassLoader for the context. If null the context will attempt to determine the appropriate
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loader</code> - The ClassLoader for the localContext. If null the localContext will attempt to determine the appropriate
             ClassLoader.</dd><dd><code>currentContext</code> - if false the LoggerContext appropriate for the caller of this method is returned. For
             example, in a web application if the caller is a class in WEB-INF/lib then one LoggerContext may be
             returned and if the caller is a class in the container's classpath then a different LoggerContext may
@@ -651,7 +651,7 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <dd><code><a href="../../../../../org/apache/logging/log4j/core/AbstractLifeCycle.html#stop(long,%20java.util.concurrent.TimeUnit)">stop</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/apache/logging/log4j/core/AbstractLifeCycle.html" title="class in org.apache.logging.log4j.core">AbstractLifeCycle</a></code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>timeout</code> - the maximum time to wait, or 0 which mean that each apppender uses its default timeout, and don't wait for background
     tasks</dd><dd><code>timeUnit</code> - the time unit of the timeout argument</dd>
-<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the logger context terminated and <code>false</code> if the timeout elapsed before
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the logger localContext terminated and <code>false</code> if the timeout elapsed before
          termination.</dd><dt><span class="strong">Since:</span></dt>
   <dd>2.7</dd></dl>
 </li>
@@ -697,9 +697,9 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <ul class="blockList">
 <li class="blockList">
 <h4>setExternalContext</h4>
-<pre>public&nbsp;void&nbsp;setExternalContext(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;context)</pre>
-<div class="block">Sets the external context.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>context</code> - The external context.</dd></dl>
+<pre>public&nbsp;void&nbsp;setExternalContext(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;localContext)</pre>
+<div class="block">Sets the external localContext.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>localContext</code> - The external localContext.</dd></dl>
 </li>
 </ul>
 <a name="getExternalContext()">
@@ -709,11 +709,11 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <li class="blockList">
 <h4>getExternalContext</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;getExternalContext()</pre>
-<div class="block">Returns the external context.</div>
+<div class="block">Returns the external localContext.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/spi/LoggerContext.html?is-external=true#getExternalContext()" title="class or interface in org.apache.logging.log4j.spi">getExternalContext</a></code>&nbsp;in interface&nbsp;<code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/spi/LoggerContext.html?is-external=true" title="class or interface in org.apache.logging.log4j.spi">LoggerContext</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>The external context.</dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>The external localContext.</dd></dl>
 </li>
 </ul>
 <a name="getLogger(java.lang.String)">
@@ -882,7 +882,7 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <li class="blockList">
 <h4>setConfigLocation</h4>
 <pre>public&nbsp;void&nbsp;setConfigLocation(<a href="http://docs.oracle.com/javase/7/docs/api/java/net/URI.html?is-external=true" title="class or interface in java.net">URI</a>&nbsp;configLocation)</pre>
-<div class="block">Sets the configLocation to the specified value and reconfigures this context.</div>
+<div class="block">Sets the configLocation to the specified value and reconfigures this localContext.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>configLocation</code> - the location of the new configuration</dd></dl>
 </li>
 </ul>
@@ -893,7 +893,7 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <li class="blockList">
 <h4>reconfigure</h4>
 <pre>public&nbsp;void&nbsp;reconfigure()</pre>
-<div class="block">Reconfigures the context. Log4j does not remove Loggers during a reconfiguration. Log4j will create new
+<div class="block">Reconfigures the localContext. Log4j does not remove Loggers during a reconfiguration. Log4j will create new
  LoggerConfig objects and Log4j will point the Loggers at the new LoggerConfigs. Log4j will free the old
  LoggerConfig, along with old Appenders and Filters.</div>
 </li>

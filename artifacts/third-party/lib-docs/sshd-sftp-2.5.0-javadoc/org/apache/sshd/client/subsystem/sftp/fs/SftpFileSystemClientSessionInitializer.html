@@ -148,7 +148,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemClientSessionInitializer.html#authenticateClientSession-org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemProvider-org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemInitializationContext-org.apache.sshd.client.session.ClientSession-">authenticateClientSession</a></span>(<a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemProvider</a>&nbsp;provider,
-                         <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;context,
+                         <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;localContext,
                          <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session">ClientSession</a>&nbsp;session)</code>
 <div class="block">Invoked by the <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html#newFileSystem-java.net.URI-java.util.Map-"><code>SftpFileSystemProvider.newFileSystem(java.net.URI, Map)</code></a> method in order to authenticate
  the session obtained from
@@ -158,7 +158,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>default <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session">ClientSession</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemClientSessionInitializer.html#createClientSession-org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemProvider-org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemInitializationContext-">createClientSession</a></span>(<a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemProvider</a>&nbsp;provider,
-                   <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;context)</code>
+                   <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;localContext)</code>
 <div class="block">Invoked by the <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html#newFileSystem-java.net.URI-java.util.Map-"><code>SftpFileSystemProvider.newFileSystem(java.net.URI, Map)</code></a> method in order to obtain an
  initial (non-authenticated) <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session"><code>ClientSession</code></a>.</div>
 </td>
@@ -166,7 +166,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>default <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystem.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystem</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemClientSessionInitializer.html#createSftpFileSystem-org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemProvider-org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemInitializationContext-org.apache.sshd.client.session.ClientSession-org.apache.sshd.client.subsystem.sftp.SftpVersionSelector-">createSftpFileSystem</a></span>(<a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemProvider</a>&nbsp;provider,
-                    <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;context,
+                    <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;localContext,
                     <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session">ClientSession</a>&nbsp;session,
                     <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/SftpVersionSelector.html" title="interface in org.apache.sshd.client.subsystem.sftp">SftpVersionSelector</a>&nbsp;selector)</code>
 <div class="block">Invoked by the <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html#newFileSystem-java.net.URI-java.util.Map-"><code>SftpFileSystemProvider.newFileSystem(java.net.URI, Map)</code></a> method in order to create the
@@ -212,14 +212,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>createClientSession</h4>
 <pre>default&nbsp;<a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session">ClientSession</a>&nbsp;createClientSession(<a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemProvider</a>&nbsp;provider,
-                                          <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;context)
+                                          <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;localContext)
                                    throws <a href="https://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Invoked by the <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html#newFileSystem-java.net.URI-java.util.Map-"><code>SftpFileSystemProvider.newFileSystem(java.net.URI, Map)</code></a> method in order to obtain an
  initial (non-authenticated) <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session"><code>ClientSession</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>provider</code> - The <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.client.subsystem.sftp.fs"><code>SftpFileSystemProvider</code></a> instance requesting the session</dd>
-<dd><code>context</code> - The initialization <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs"><code>SftpFileSystemInitializationContext</code></a></dd>
+<dd><code>localContext</code> - The initialization <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs"><code>SftpFileSystemInitializationContext</code></a></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The created <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session"><code>ClientSession</code></a></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -234,7 +234,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>authenticateClientSession</h4>
 <pre>default&nbsp;void&nbsp;authenticateClientSession(<a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemProvider</a>&nbsp;provider,
-                                       <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;context,
+                                       <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;localContext,
                                        <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session">ClientSession</a>&nbsp;session)
                                 throws <a href="https://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Invoked by the <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html#newFileSystem-java.net.URI-java.util.Map-"><code>SftpFileSystemProvider.newFileSystem(java.net.URI, Map)</code></a> method in order to authenticate
@@ -243,7 +243,7 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>provider</code> - The <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.client.subsystem.sftp.fs"><code>SftpFileSystemProvider</code></a> instance requesting the session</dd>
-<dd><code>context</code> - The initialization <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs"><code>SftpFileSystemInitializationContext</code></a></dd>
+<dd><code>localContext</code> - The initialization <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs"><code>SftpFileSystemInitializationContext</code></a></dd>
 <dd><code>session</code> - The created <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session"><code>ClientSession</code></a></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - If failed to authenticate</dd>
@@ -257,7 +257,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>createSftpFileSystem</h4>
 <pre>default&nbsp;<a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystem.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystem</a>&nbsp;createSftpFileSystem(<a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemProvider</a>&nbsp;provider,
-                                            <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;context,
+                                            <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs">SftpFileSystemInitializationContext</a>&nbsp;localContext,
                                             <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session">ClientSession</a>&nbsp;session,
                                             <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/SftpVersionSelector.html" title="interface in org.apache.sshd.client.subsystem.sftp">SftpVersionSelector</a>&nbsp;selector)
                                      throws <a href="https://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
@@ -266,7 +266,7 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>provider</code> - The <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.client.subsystem.sftp.fs"><code>SftpFileSystemProvider</code></a> instance requesting the session</dd>
-<dd><code>context</code> - The initialization <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs"><code>SftpFileSystemInitializationContext</code></a></dd>
+<dd><code>localContext</code> - The initialization <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/fs/SftpFileSystemInitializationContext.html" title="class in org.apache.sshd.client.subsystem.sftp.fs"><code>SftpFileSystemInitializationContext</code></a></dd>
 <dd><code>session</code> - The authenticated <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html?is-external=true" title="class or interface in org.apache.sshd.client.session"><code>ClientSession</code></a></dd>
 <dd><code>selector</code> - The <U>resolved</U> <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/SftpVersionSelector.html" title="interface in org.apache.sshd.client.subsystem.sftp"><code>SftpVersionSelector</code></a> to use</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

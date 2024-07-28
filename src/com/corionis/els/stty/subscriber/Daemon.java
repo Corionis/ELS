@@ -453,8 +453,7 @@ public class Daemon extends AbstractDaemon
                             if (!context.timeout)
                                 send("End-Execution", trace ? "send End-Execution" : "");
                             Thread.sleep(3000);
-                            if (!context.cfg.isKeepGoing())
-                                throw new MungeException("Ignoring Fault command, --listener-keep-going enabled");
+                            throw new MungeException("Fault received from Publisher");
                         }
 
                         // -------------- return library file --------------------
@@ -689,7 +688,7 @@ public class Daemon extends AbstractDaemon
                         {
                             if (!context.timeout)
                             {
-                                send(e.getMessage(), "Subscriber exception");
+                                send(e.getMessage(), null);
                                 Thread.sleep(3000);
                             }
                         }

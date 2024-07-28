@@ -54,12 +54,30 @@ The list of Tools is updated each time the button is clicked.</p>
   <li>"Any publisher" will use any loaded publisher</li>
   <li>"Specific publisher" allows selection of a publisher from the list of libraries</li>
   <li>"Any subscriber" will use any loaded subscriber</li>
-  <li>"Local subscriber" allows section of a local subscriber from the list of libraries</li>
-  <li>"Remote subscriber" allows section of a remote subscriber from the list of libraries</li>
+  <li>"Local subscriber" allows selection of a local subscriber from the list of libraries</li>
+  <li>"Remote subscriber" allows selection of a remote subscriber from the list of libraries</li>
+  <li>"Local Hint Tracker" enables Hint processing using the current ELS instance.</li>
+  <li>"Remote Hint Server" enables Hint processing using a separate remote Hint Server.</li>
 </ul>
 
-<p>The Add button uses <i><b>whatever</b> is currently selected in the Browser</i>. That means
-combinations can be assembled that do not necessarily make sense or will execute correctly.</p>
+<p>Hints are defined in Operations so the Hint Tracker/Server cannot be changed in Jobs. But the
+type of connection must be set.</p>
+
+<p>&nbsp;</p>
+
+<p>For <b>Any publisher</b> and <b>Any subscriber</b> Task Origins the current Publisher and/or Subscriber
+are used when the Job is executed.
+<ul>
+  <li>If executed in the current instance using the Run ... button the currently-loaded publisher
+    and/or subscriber are used by the Job.</li>
+  <li>If executed in a separate ELS instance from the command line, a shortcut, or using the Generate/Run ... button
+    the publisher and subscriber arguments <u>must be added if necessary.</u></li>
+</ul>
+
+<p>The Origins Add button uses <i><b>whatever</b> is currently selected in the Browser</i>. That means
+combinations can be assembled that do not necessarily make sense or will execute correctly. For instance
+selecting subscriber libraries in the Browser, but choosing a different subscriber for the Job that does not
+have matching libraries.</p>
 
 <p>&nbsp;</p>
 
@@ -68,19 +86,24 @@ are available a "From: [name]" selection is added as the first entry in the comb
 is the most recent task capable of providing Origins prior to the current task. A series of these
 tasks may be defined to perform complex operations.</p>
 
-<h3>Generate</h3>
-<p>The Generate button creates a command line to execute the currently-selected
-job. using the current Publisher, Subscriber, Hint Keys and Hint Tracking as
-arguments, if appropriate and available. If not available those arguments will be missing from the
-generated command. Edit and copy (Ctrl-C) as desired, or select the Shortcut button to create a
-desktop shortcut.</p>
+<h3>Run ...</h3>
+<p>The Run button will execute the currently-selected Job in the currently-running ELS instance.</p>
+
+<h3>Generate/Run ...</h3>
+<p>The Generate button creates a command line to execute the currently-selected job.</p>
 
 <p>&nbsp;</p>
 
-<i><b>Note:</b></i><br/>
+<p>Edit as desired. Select the Copy button to copy the command line to the clipboard.
+Select the Shortcut ... button to create a desktop shortcut, or the Run ... button to
+execute the Job in a new instance of ELS.</p>
+
+<p>&nbsp;</p>
+
+<b>Note:</b><br/>
 <p>Depending on your choices additional parameters may be required for the
-command line to run correctly. In particular, if "<b>Any publisher</b>" or "<b>Any subscriber</b>" has
-been selected for the job then -p and/or -s parameters <i>will</i> needed.</p>
+Job to run correctly. In particular, if <b>Any publisher</b> or <b>Any subscriber</b> has
+been selected for any Tasks in the job then -p and/or -s parameters <i>will</i> needed.</p>
 
 <br/>
 <br/>

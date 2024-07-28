@@ -114,7 +114,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 context.progress.display();
             }
 //            else
-//                context.progress = null;
+//                localContext.progress = null;
 
         // iterate the selected source row's user object
             for (NavTreeUserObject sourceTuo : transferData)
@@ -238,7 +238,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
      */
     private void exportHints(ArrayList<NavTreeUserObject> transferData, NavTreeUserObject targetTuo) throws Exception
     {
-        // hints are for moves in the context of DnD/CCP
+        // hints are for moves in the localContext of DnD/CCP
         // copies to or within a collection are a basic add
         if (action == TransferHandler.MOVE)
         {

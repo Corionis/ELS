@@ -540,7 +540,7 @@ public class NavTransferHandler extends TransferHandler
     {
         context.fault = false;
         context.mainFrame.toFront();
-        //context.mainFrame.requestFocus();
+        //localContext.mainFrame.requestFocus();
 
         isDrop = info.isDrop();
         if (isDrop)

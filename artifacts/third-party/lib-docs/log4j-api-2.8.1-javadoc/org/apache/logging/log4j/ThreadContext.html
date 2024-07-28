@@ -102,7 +102,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">The ThreadContext allows applications to store information either in a Map or a Stack.
  <p>
  <b><em>The MDC is managed on a per thread basis</em></b>. A child thread automatically inherits a <em>copy</em> of
- the mapped diagnostic context of its parent.
+ the mapped diagnostic localContext of its parent.
  </p></div>
 </li>
 </ul>
@@ -173,13 +173,13 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#clearAll()">clearAll</a></strong>()</code>
-<div class="block">Clears the context map and stack.</div>
+<div class="block">Clears the localContext map and stack.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#clearMap()">clearMap</a></strong>()</code>
-<div class="block">Clears the context map.</div>
+<div class="block">Clears the localContext map.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -197,19 +197,19 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#containsKey(java.lang.String)">containsKey</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</code>
-<div class="block">Determines if the key is in the context.</div>
+<div class="block">Determines if the key is in the localContext.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#get(java.lang.String)">get</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</code>
-<div class="block">Gets the context value identified by the <code>key</code> parameter.</div>
+<div class="block">Gets the localContext value identified by the <code>key</code> parameter.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#getContext()">getContext</a></strong>()</code>
-<div class="block">Returns a mutable copy of current thread's context Map.</div>
+<div class="block">Returns a mutable copy of current thread's localContext Map.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -221,19 +221,19 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#getImmutableContext()">getImmutableContext</a></strong>()</code>
-<div class="block">Returns an immutable view of the current thread's context Map.</div>
+<div class="block">Returns an immutable view of the current thread's localContext Map.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../org/apache/logging/log4j/ThreadContext.ContextStack.html" title="interface in org.apache.logging.log4j">ThreadContext.ContextStack</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#getImmutableStack()">getImmutableStack</a></strong>()</code>
-<div class="block">Gets an immutable copy of this current thread's context stack.</div>
+<div class="block">Gets an immutable copy of this current thread's localContext stack.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ReadOnlyThreadContextMap</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#getThreadContextMap()">getThreadContextMap</a></strong>()</code>
-<div class="block">Returns a read-only view of the internal data structure used to store thread context key-value pairs,
+<div class="block">Returns a read-only view of the internal data structure used to store thread localContext key-value pairs,
  or <code>null</code> if the internal data structure does not implement the
  <code>ReadOnlyThreadContextMap</code> interface.</div>
 </td>
@@ -247,7 +247,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#peek()">peek</a></strong>()</code>
-<div class="block">Looks at the last diagnostic context at the top of this NDC without removing it.</div>
+<div class="block">Looks at the last diagnostic localContext at the top of this NDC without removing it.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -259,47 +259,47 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#push(java.lang.String)">push</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;message)</code>
-<div class="block">Pushes new diagnostic context information for the current thread.</div>
+<div class="block">Pushes new diagnostic localContext information for the current thread.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#push(java.lang.String,%20java.lang.Object...)">push</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;message,
     <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>...&nbsp;args)</code>
-<div class="block">Pushes new diagnostic context information for the current thread.</div>
+<div class="block">Pushes new diagnostic localContext information for the current thread.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#put(java.lang.String,%20java.lang.String)">put</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key,
    <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;value)</code>
-<div class="block">Puts a context value (the <code>value</code> parameter) as identified with the <code>key</code> parameter into
- the current thread's context map.</div>
+<div class="block">Puts a localContext value (the <code>value</code> parameter) as identified with the <code>key</code> parameter into
+ the current thread's localContext map.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#putAll(java.util.Map)">putAll</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;m)</code>
-<div class="block">Puts all given context map entries into the current thread's
- context map.</div>
+<div class="block">Puts all given localContext map entries into the current thread's
+ localContext map.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#remove(java.lang.String)">remove</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</code>
-<div class="block">Removes the context value identified by the <code>key</code> parameter.</div>
+<div class="block">Removes the localContext value identified by the <code>key</code> parameter.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#removeAll(java.lang.Iterable)">removeAll</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;keys)</code>
-<div class="block">Removes the context values identified by the <code>keys</code> parameter.</div>
+<div class="block">Removes the localContext values identified by the <code>keys</code> parameter.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#removeStack()">removeStack</a></strong>()</code>
-<div class="block">Removes the diagnostic context for this thread.</div>
+<div class="block">Removes the diagnostic localContext for this thread.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -311,7 +311,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/apache/logging/log4j/ThreadContext.html#trim(int)">trim</a></strong>(int&nbsp;depth)</code>
-<div class="block">Trims elements from this diagnostic context.</div>
+<div class="block">Trims elements from this diagnostic localContext.</div>
 </td>
 </tr>
 </table>
@@ -372,11 +372,11 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <h4>put</h4>
 <pre>public static&nbsp;void&nbsp;put(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key,
        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;value)</pre>
-<div class="block">Puts a context value (the <code>value</code> parameter) as identified with the <code>key</code> parameter into
- the current thread's context map.
+<div class="block">Puts a localContext value (the <code>value</code> parameter) as identified with the <code>key</code> parameter into
+ the current thread's localContext map.
 
  <p>
- If the current thread does not have a context map it is created as a side effect.
+ If the current thread does not have a localContext map it is created as a side effect.
  </p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - The key name.</dd><dd><code>value</code> - The key value.</dd></dl>
 </li>
@@ -388,10 +388,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>putAll</h4>
 <pre>public static&nbsp;void&nbsp;putAll(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;m)</pre>
-<div class="block">Puts all given context map entries into the current thread's
- context map.
+<div class="block">Puts all given localContext map entries into the current thread's
+ localContext map.
 
- <p>If the current thread does not have a context map it is
+ <p>If the current thread does not have a localContext map it is
  created as a side effect.</p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>m</code> - The map.</dd><dt><span class="strong">Since:</span></dt>
   <dd>2.7</dd></dl>
@@ -404,7 +404,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>get</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;get(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<div class="block">Gets the context value identified by the <code>key</code> parameter.
+<div class="block">Gets the localContext value identified by the <code>key</code> parameter.
 
  <p>
  This method has no side effects.
@@ -420,7 +420,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>remove</h4>
 <pre>public static&nbsp;void&nbsp;remove(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<div class="block">Removes the context value identified by the <code>key</code> parameter.</div>
+<div class="block">Removes the localContext value identified by the <code>key</code> parameter.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - The key to remove.</dd></dl>
 </li>
 </ul>
@@ -431,7 +431,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>removeAll</h4>
 <pre>public static&nbsp;void&nbsp;removeAll(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;keys)</pre>
-<div class="block">Removes the context values identified by the <code>keys</code> parameter.</div>
+<div class="block">Removes the localContext values identified by the <code>keys</code> parameter.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>keys</code> - The keys to remove.</dd><dt><span class="strong">Since:</span></dt>
   <dd>2.8</dd></dl>
 </li>
@@ -443,7 +443,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>clearMap</h4>
 <pre>public static&nbsp;void&nbsp;clearMap()</pre>
-<div class="block">Clears the context map.</div>
+<div class="block">Clears the localContext map.</div>
 </li>
 </ul>
 <a name="clearAll()">
@@ -453,7 +453,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>clearAll</h4>
 <pre>public static&nbsp;void&nbsp;clearAll()</pre>
-<div class="block">Clears the context map and stack.</div>
+<div class="block">Clears the localContext map and stack.</div>
 </li>
 </ul>
 <a name="containsKey(java.lang.String)">
@@ -463,9 +463,9 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>containsKey</h4>
 <pre>public static&nbsp;boolean&nbsp;containsKey(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<div class="block">Determines if the key is in the context.</div>
+<div class="block">Determines if the key is in the localContext.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - The key to locate.</dd>
-<dt><span class="strong">Returns:</span></dt><dd>True if the key is in the context, false otherwise.</dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>True if the key is in the localContext, false otherwise.</dd></dl>
 </li>
 </ul>
 <a name="getContext()">
@@ -475,8 +475,8 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>getContext</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getContext()</pre>
-<div class="block">Returns a mutable copy of current thread's context Map.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>a mutable copy of the context.</dd></dl>
+<div class="block">Returns a mutable copy of current thread's localContext Map.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a mutable copy of the localContext.</dd></dl>
 </li>
 </ul>
 <a name="getImmutableContext()">
@@ -486,7 +486,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>getImmutableContext</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getImmutableContext()</pre>
-<div class="block">Returns an immutable view of the current thread's context Map.</div>
+<div class="block">Returns an immutable view of the current thread's localContext Map.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>An immutable view of the ThreadContext Map.</dd></dl>
 </li>
 </ul>
@@ -497,14 +497,14 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>getThreadContextMap</h4>
 <pre>public static&nbsp;<a href="../../../../org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ReadOnlyThreadContextMap</a>&nbsp;getThreadContextMap()</pre>
-<div class="block">Returns a read-only view of the internal data structure used to store thread context key-value pairs,
+<div class="block">Returns a read-only view of the internal data structure used to store thread localContext key-value pairs,
  or <code>null</code> if the internal data structure does not implement the
  <code>ReadOnlyThreadContextMap</code> interface.
  <p>
  The <a href="../../../../org/apache/logging/log4j/spi/DefaultThreadContextMap.html" title="class in org.apache.logging.log4j.spi"><code>DefaultThreadContextMap</code></a> implementation does not implement <code>ReadOnlyThreadContextMap</code>, so by
  default this method returns <code>null</code>.
  </p></div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>the internal data structure used to store thread context key-value pairs or <code>null</code></dd><dt><span class="strong">Since:</span></dt>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the internal data structure used to store thread localContext key-value pairs or <code>null</code></dd><dt><span class="strong">Since:</span></dt>
   <dd>2.8</dd>
 <dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/apache/logging/log4j/spi/ThreadContextMapFactory.html" title="class in org.apache.logging.log4j.spi"><code>ThreadContextMapFactory</code></a>, 
 <a href="../../../../org/apache/logging/log4j/spi/DefaultThreadContextMap.html" title="class in org.apache.logging.log4j.spi"><code>DefaultThreadContextMap</code></a>, 
@@ -551,7 +551,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>getImmutableStack</h4>
 <pre>public static&nbsp;<a href="../../../../org/apache/logging/log4j/ThreadContext.ContextStack.html" title="interface in org.apache.logging.log4j">ThreadContext.ContextStack</a>&nbsp;getImmutableStack()</pre>
-<div class="block">Gets an immutable copy of this current thread's context stack.</div>
+<div class="block">Gets an immutable copy of this current thread's localContext stack.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>an immutable copy of the ThreadContext stack.</dd></dl>
 </li>
 </ul>
@@ -587,10 +587,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Returns the value of the last item placed on the stack.
 
  <p>
- The returned value is the value that was pushed last. If no context is available, then the empty string "" is
+ The returned value is the value that was pushed last. If no localContext is available, then the empty string "" is
  returned.
  </p></div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>String The innermost diagnostic context.</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>String The innermost diagnostic localContext.</dd></dl>
 </li>
 </ul>
 <a name="peek()">
@@ -600,13 +600,13 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>peek</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;peek()</pre>
-<div class="block">Looks at the last diagnostic context at the top of this NDC without removing it.
+<div class="block">Looks at the last diagnostic localContext at the top of this NDC without removing it.
 
  <p>
- The returned value is the value that was pushed last. If no context is available, then the empty string "" is
+ The returned value is the value that was pushed last. If no localContext is available, then the empty string "" is
  returned.
  </p></div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>String The innermost diagnostic context.</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>String The innermost diagnostic localContext.</dd></dl>
 </li>
 </ul>
 <a name="push(java.lang.String)">
@@ -616,12 +616,12 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>push</h4>
 <pre>public static&nbsp;void&nbsp;push(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;message)</pre>
-<div class="block">Pushes new diagnostic context information for the current thread.
+<div class="block">Pushes new diagnostic localContext information for the current thread.
 
  <p>
  The contents of the <code>message</code> parameter is determined solely by the client.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>message</code> - The new diagnostic context information.</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>message</code> - The new diagnostic localContext information.</dd></dl>
 </li>
 </ul>
 <a name="push(java.lang.String, java.lang.Object...)">
@@ -632,14 +632,14 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <h4>push</h4>
 <pre>public static&nbsp;void&nbsp;push(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;message,
         <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>...&nbsp;args)</pre>
-<div class="block">Pushes new diagnostic context information for the current thread.
+<div class="block">Pushes new diagnostic localContext information for the current thread.
 
  <p>
  The contents of the <code>message</code> and args parameters are determined solely by the client. The message
  will be treated as a format String and tokens will be replaced with the String value of the arguments in
  accordance with ParameterizedMessage.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>message</code> - The new diagnostic context information.</dd><dd><code>args</code> - Parameters for the message.</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>message</code> - The new diagnostic localContext information.</dd><dd><code>args</code> - Parameters for the message.</dd></dl>
 </li>
 </ul>
 <a name="removeStack()">
@@ -649,10 +649,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>removeStack</h4>
 <pre>public static&nbsp;void&nbsp;removeStack()</pre>
-<div class="block">Removes the diagnostic context for this thread.
+<div class="block">Removes the diagnostic localContext for this thread.
 
  <p>
- Each thread that created a diagnostic context by calling <a href="../../../../org/apache/logging/log4j/ThreadContext.html#push(java.lang.String)"><code>push(java.lang.String)</code></a> should call this method before exiting.
+ Each thread that created a diagnostic localContext by calling <a href="../../../../org/apache/logging/log4j/ThreadContext.html#push(java.lang.String)"><code>push(java.lang.String)</code></a> should call this method before exiting.
  Otherwise, the memory used by the <b>thread</b> cannot be reclaimed by the VM.
  </p>
 
@@ -672,7 +672,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>trim</h4>
 <pre>public static&nbsp;void&nbsp;trim(int&nbsp;depth)</pre>
-<div class="block">Trims elements from this diagnostic context. If the current depth is smaller or equal to <code>maxDepth</code>,
+<div class="block">Trims elements from this diagnostic localContext. If the current depth is smaller or equal to <code>maxDepth</code>,
  then no action is taken. If the current depth is larger than newDepth then all elements at maxDepth or higher are
  discarded.
 

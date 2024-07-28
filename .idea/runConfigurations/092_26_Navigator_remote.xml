@@ -2,8 +2,8 @@
   <configuration default="false" name="092-26_Navigator-remote" type="Application" factoryName="Application" folderName="092-00 Navigator - Local Hint Tracker - Remote Backup">
     <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-C . --navigator -c debug -d debug --hints libraries/hint-server.json -k system/hint.keys --remote P -P libraries/publisher.json -S libraries/subscriber-one.json -F output/092-26_Navigator-remote.log" />
-    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />
+    <option name="PROGRAM_PARAMETERS" value="-C . --navigator -c debug -d debug --hints libraries/hint-server.json -k system/hint.keys --remote P -P libraries/publisher.json -O -S libraries/subscriber-one.json -F output/092-26_Navigator-remote.log" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml -Dsun.awt.disablegrab=true" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <method v="2">
       <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/els.xml" target="stamp" />

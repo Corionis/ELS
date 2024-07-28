@@ -139,7 +139,7 @@
 <td class="colLast"><span class="strong">ContextDataInjector.</span><code><strong><a href="../../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../org/apache/logging/log4j/core/config/Property.html" title="class in org.apache.logging.log4j.core.config">Property</a>&gt;&nbsp;properties,
                  <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;reusable)</code>
 <div class="block">Returns a <code>StringMap</code> object initialized with the specified properties and the appropriate
- context data.</div>
+ localContext data.</div>
 </td>
 </tr>
 </tbody>
@@ -494,7 +494,7 @@
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a></code></td>
 <td class="colLast"><span class="strong">ThreadContextDataInjector.ForDefaultThreadContextMap.</span><code><strong><a href="../../../../../../../org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForDefaultThreadContextMap.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../org/apache/logging/log4j/core/config/Property.html" title="class in org.apache.logging.log4j.core.config">Property</a>&gt;&nbsp;props,
                  <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;ignore)</code>
-<div class="block">Puts key-value pairs from both the specified list of properties as well as the thread context into the
+<div class="block">Puts key-value pairs from both the specified list of properties as well as the thread localContext into the
  specified reusable StringMap.</div>
 </td>
 </tr>
@@ -502,7 +502,7 @@
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a></code></td>
 <td class="colLast"><span class="strong">ThreadContextDataInjector.ForGarbageFreeThreadContextMap.</span><code><strong><a href="../../../../../../../org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForGarbageFreeThreadContextMap.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../org/apache/logging/log4j/core/config/Property.html" title="class in org.apache.logging.log4j.core.config">Property</a>&gt;&nbsp;props,
                  <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;reusable)</code>
-<div class="block">Puts key-value pairs from both the specified list of properties as well as the thread context into the
+<div class="block">Puts key-value pairs from both the specified list of properties as well as the thread localContext into the
  specified reusable StringMap.</div>
 </td>
 </tr>
@@ -510,7 +510,7 @@
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a></code></td>
 <td class="colLast"><span class="strong">ThreadContextDataInjector.ForCopyOnWriteThreadContextMap.</span><code><strong><a href="../../../../../../../org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForCopyOnWriteThreadContextMap.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../org/apache/logging/log4j/core/config/Property.html" title="class in org.apache.logging.log4j.core.config">Property</a>&gt;&nbsp;props,
                  <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;ignore)</code>
-<div class="block">If there are no configuration properties, this injector will return the thread context's internal data
+<div class="block">If there are no configuration properties, this injector will return the thread localContext's internal data
  structure.</div>
 </td>
 </tr>

@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
@@ -74,9 +73,8 @@ public class RenamerTool extends AbstractTool
         renamer.setConfigName(this.getConfigName());
         renamer.setDisplayName(this.getDisplayName());
         renamer.setDataHasChanged();
-        renamer.setIncludeInToolsList(this.isIncludeInToolsList());
         renamer.isDryRun = this.isDryRun;
-        renamer.setIsRemote(this.isRemote());
+        renamer.setRemote(this.isRemote());
         renamer.setType(this.getType());
         renamer.setSegment(this.getSegment());
         renamer.setIsRecursive(this.isRecursive());
@@ -357,19 +355,9 @@ public class RenamerTool extends AbstractTool
         return value;
     }
 
-    public boolean isCachedLastTask()
-    {
-        return true;
-    }
-
     public boolean isDataChanged()
     {
         return dataHasChanged; // used by the GUI
-    }
-
-    public boolean isDualRepositories()
-    {
-        return false;
     }
 
     public boolean isFilesOnly()
@@ -392,53 +380,71 @@ public class RenamerTool extends AbstractTool
         return option3;
     }
 
-    public boolean isRealOnly()
-    {
-        return false;
-    }
-
     public boolean isRecursive()
     {
         return recursive;
     }
 
     @Override
-    public void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
+    public boolean isToolCachedOrigins()
     {
-        // to satisfy AbstractTool, not used
+        return true;
     }
 
-    /**
-     * Process the tool with the metadata provided
-     * <br/>
-     * Used by a Job & the Run button of the tool
-     */
-    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task previousTask) throws Exception
+    @Override
+    public boolean isToolOriginsUsed()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isToolPubOrSub()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isToolSubscriber()
+    {
+        return false;
+    }
+
+    @Override
+    public void processTool(Task task) throws Exception
     {
         reset();
-        isDryRun = dryRun;
+        isDryRun = task.dryRun;
 
-        if (publisherRepo != null && subscriberRepo != null)
+        if (task.publisherRepo != null && task.subscriberRepo != null)
+        {
+            context.fault = true;
             throw new MungeException(java.text.MessageFormat.format(getCfg().gs("Renamer.uses.only.one.repository"), getInternalName()));
+        }
 
         // this tool only uses one repository
-        repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
-
-        if (previousTask != null)
+        repo = (task.publisherRepo != null) ? task.publisherRepo : task.subscriberRepo;
+        if (repo == null)
         {
-            origins = previousTask.getOrigins(); //.getTool().getUpdatedOrigins();
+            context.fault = true;
+            logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer..has.no.repository.defined"), getConfigName()));
+            return;
+        }
+
+        if (task.previousTask != null)
+        {
+            task.origins = task.previousTask.getOrigins(); //.getTool().getUpdatedOrigins();
         }
 
         // only subscribers can be remote
-        if (subscriberRepo != null && getCfg().isRemoteOperation())
-            setIsRemote(true);
+        if (task.subscriberRepo != null && getCfg().isRemoteOperation())
+            setRemote(true);
 
-        for (int i = 0; i < origins.size(); ++i)
+        for (int i = 0; i < task.origins.size(); ++i)
         {
             if (isRequestStop())
                 break;
 
-            Origin origin =  origins.get(i);
+            Origin origin =  task.origins.get(i);
             String path = origin.getLocation();
             String rem = isRemote() ? getCfg().gs("Z.remote.uppercase") : "";
             logger.info(getDisplayName() + ", " + getConfigName() + ": " + rem + "\"" + path + "\"");
@@ -597,79 +603,6 @@ public class RenamerTool extends AbstractTool
             requestStop();
         }
         return path;
-    }
-
-    @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
-    {
-        // to satisfy AbstractTool, not used
-        return null;
-    }
-
-    /**
-     * Process the task on a SwingWorker thread
-     * <br/>
-     * Used by the Run button of the tool
-     *
-     * @param context        The Context
-     * @param publisherRepo  Publisher repo, or null
-     * @param subscriberRepo Subscriber repo, or null
-     * @param origins        List of origins to process
-     * @param dryRun         Boolean for a dry-run
-     * @return SwingWorker<Void, Void> of thread
-     */
-    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
-    {
-        // create a fresh dialog
-/*
-        if (context.navigator != null)
-        {
-            if (context.progress == null || !context.progress.isBeingUsed())
-            {
-                ActionListener cancel = new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent)
-                    {
-                        requestStop();
-                    }
-                };
-                context.progress = new Progress(context, context.mainFrame, cancel, isDryRun);
-                context.progress.display();
-            }
-            else
-            {
-                JOptionPane.showMessageDialog(context.mainFrame, getCfg().gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
-                return null;
-            }
-        }
-*/
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-        {
-            @Override
-            protected Void doInBackground() throws Exception
-            {
-                try
-                {
-                    processTool(context, publisherRepo, subscriberRepo, origins, dryRun, null);
-                }
-                catch (Exception e)
-                {
-                    String msg = getCfg().gs("Z.exception") + " " + Utils.getStackTrace(e);
-                    if (context.navigator != null)
-                    {
-                        logger.error(msg);
-                        JOptionPane.showMessageDialog(context.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-                    else
-                        logger.error(msg);
-                }
-                return null;
-            }
-        };
-        worker.execute();
-        return worker;
     }
 
     private String rename(String fullpath, String filename, boolean isDirectory) throws Exception

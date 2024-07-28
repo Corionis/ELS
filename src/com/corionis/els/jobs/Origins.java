@@ -30,21 +30,21 @@ public class Origins
         else if (object instanceof JTable)
             baseTable = (JTable) object;
 
-        makeOriginsFromSelected(context, component, originsArray.get(0), false, context.mainFrame.treeCollectionOne);
+        makeOriginsFromSelected(context, component, originsArray.get(0), context.mainFrame.treeCollectionOne);
 
-        makeOriginsFromSelected(context, component, originsArray.get(1), false, context.mainFrame.tableCollectionOne);
+        makeOriginsFromSelected(context, component, originsArray.get(1), context.mainFrame.tableCollectionOne);
 
-        makeOriginsFromSelected(context, component, originsArray.get(2), false, context.mainFrame.treeSystemOne);
+        makeOriginsFromSelected(context, component, originsArray.get(2), context.mainFrame.treeSystemOne);
 
-        makeOriginsFromSelected(context, component, originsArray.get(3), false, context.mainFrame.tableSystemOne);
+        makeOriginsFromSelected(context, component, originsArray.get(3), context.mainFrame.tableSystemOne);
 
-        makeOriginsFromSelected(context, component, originsArray.get(4), false, context.mainFrame.treeCollectionTwo);
+        makeOriginsFromSelected(context, component, originsArray.get(4), context.mainFrame.treeCollectionTwo);
 
-        makeOriginsFromSelected(context, component, originsArray.get(5), false, context.mainFrame.tableCollectionTwo);
+        makeOriginsFromSelected(context, component, originsArray.get(5), context.mainFrame.tableCollectionTwo);
 
-        makeOriginsFromSelected(context, component, originsArray.get(6), false, context.mainFrame.treeSystemTwo);
+        makeOriginsFromSelected(context, component, originsArray.get(6), context.mainFrame.treeSystemTwo);
 
-        makeOriginsFromSelected(context, component, originsArray.get(7), false, context.mainFrame.tableSystemTwo);
+        makeOriginsFromSelected(context, component, originsArray.get(7), context.mainFrame.tableSystemTwo);
 
         if (baseTree != null)
             baseTree.requestFocus();
@@ -59,13 +59,12 @@ public class Origins
      *
      * @param component The component calling this method, for message dialogs
      * @param origins The ArrayList of Origins to be added to
-     * @param realOnly If the current AbstractTool accepts NavTreeUserObject.REAL items only
      * @return boolean true if is Subscriber, else false
      * @throws MungeException with message "HANDLED_INTERNALLY" if a selection is not valid
      */
-    public static boolean makeOriginsFromSelected(Context context, Component component, ArrayList<Origin> origins, boolean realOnly) throws MungeException
+    public static boolean makeOriginsFromSelected(Context context, Component component, ArrayList<Origin> origins) throws MungeException
     {
-        return makeOriginsFromSelected(context, component, origins, realOnly, context.browser.lastComponent);
+        return makeOriginsFromSelected(context, component, origins, context.browser.lastComponent);
     }
 
     /**
@@ -73,12 +72,11 @@ public class Origins
      *
      * @param component The component calling this method, for message dialogs
      * @param origins The ArrayList of Origins to be added to
-     * @param realOnly If the current AbstractTool accepts NavTreeUserObject.REAL items only
      * @param fromComponent The component to capture selections from, a tree or table
      * @return boolean true if is Subscriber, else false
      * @throws MungeException with message "HANDLED_INTERNALLY" if a selection is not valid
      */
-    public static boolean makeOriginsFromSelected(Context context, Component component, ArrayList<Origin> origins, boolean realOnly, Object fromComponent) throws MungeException
+    public static boolean makeOriginsFromSelected(Context context, Component component, ArrayList<Origin> origins, Object fromComponent) throws MungeException
     {
         boolean isSubscriber = false;
         if (fromComponent instanceof JTree)

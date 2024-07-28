@@ -179,7 +179,7 @@
 <pre>static final&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> PATTERN_ASYNC_LOGGER</pre>
 <div class="block">ObjectName pattern ("org.apache.logging.log4j2:type=%s,component=AsyncLoggerRingBuffer") for the RingBufferAdmin MBean that instruments
  the global <code>AsyncLogger</code> ring buffer.
- This pattern contains one variable: the name of the context.
+ This pattern contains one variable: the name of the localContext.
  <p>
  You can find the registered RingBufferAdmin MBean for the global AsyncLogger like this:
  </p>
@@ -201,7 +201,7 @@
 <div class="block">ObjectName pattern ("org.apache.logging.log4j2:type=%s,component=Loggers,name=%s,subtype=RingBuffer") for RingBufferAdmin MBeans that instrument
  <code>AsyncLoggerConfig</code> ring buffers.
  This pattern contains three variables, where the first is the name of the
- context, the second and third are identical and the name of the instrumented logger config.
+ localContext, the second and third are identical and the name of the instrumented logger config.
  <p>
  You can find all registered RingBufferAdmin MBeans like this:
  </p>

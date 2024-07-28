@@ -493,7 +493,7 @@ public class DuplicateFinderUI extends JDialog
                         panelTopButtons.add(hSpacerBeforeRun);
 
                         //---- buttonRun ----
-                        buttonRun.setText(context.cfg.gs("DuplicateFinder.buttonRun.text"));
+                        buttonRun.setText(context.cfg.gs("Z.run.ellipsis"));
                         buttonRun.setMnemonic(context.cfg.gs("DuplicateFinder.buttonRun.mnemonic").charAt(0));
                         buttonRun.setToolTipText(context.cfg.gs("DuplicateFinder.buttonRun.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));

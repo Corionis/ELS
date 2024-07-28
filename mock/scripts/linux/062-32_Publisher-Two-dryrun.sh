@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-rt/bin/java -jar bin/ELS.jar -C . --hints libraries/hint-server.json -k system/hint.keys -c debug -d debug -r P -p libraries/publisher.json -s libraries/subscriber-two.json -T -m output/062-32_Publisher-Two-dryrun_mismatches.txt -W output/062-32_Publisher-Two-dryrun_whatsnew.txt -F output/062-32_Publisher-Two-dryrun.log --dry-run
+rt/bin/java -jar bin/ELS.jar -C . --hints libraries/hint-server.json -k system/hint.keys -c debug -d debug -r P -p libraries/publisher.json -O -s libraries/subscriber-two.json -T -m output/062-32_Publisher-Two-dryrun_mismatches.txt -W output/062-32_Publisher-Two-dryrun_whatsnew.txt -F output/062-32_Publisher-Two-dryrun.log --dry-run
 

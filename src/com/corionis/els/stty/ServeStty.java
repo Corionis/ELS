@@ -140,7 +140,7 @@ public class ServeStty extends Thread
             }
             else if (cfg.isStatusServer())
             {
-                theConnection = new Connection(aSocket, "hintserver", new com.corionis.els.stty.hintServer.Daemon(context, context.statusRepo, null));
+                theConnection = new Connection(aSocket, "hintserver", new com.corionis.els.stty.hintServer.Daemon(context, context.hintsRepo, null));
             }
             else
             {
@@ -309,10 +309,12 @@ public class ServeStty extends Thread
     {
         if (listenerRepo != null &&
                 listenerRepo.getLibraryData() != null &&
-                listenerRepo.getLibraryData().libraries != null &&
-                listenerRepo.getLibraryData().libraries.listen != null)
+                listenerRepo.getLibraryData().libraries != null)
         {
-            startServer(listenerRepo.getLibraryData().libraries.listen);
+            String address = listenerRepo.getLibraryData().libraries.listen;
+            if (address == null || address.isEmpty())
+                address = listenerRepo.getLibraryData().libraries.host;
+            startServer(address);
         }
         else
         {
@@ -352,9 +354,6 @@ public class ServeStty extends Thread
      */
     public void stopServer()
     {
-
-        // TODO If this happens it should exit the program - or restart the listeners !!
-
         if (allSessions != null)
         {
             logger.debug("stopping all stty listener threads");

@@ -2,17 +2,28 @@
   "configName": "004 Local Subscriber",
   "tasks": [
     {
-      "configName": "Archive junk",
+      "configName": "Download junk",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "JunkRemover",
-      "publisherKey": "",
-      "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
-      "subscriberRemote": false,
       "origins": [
         {
           "location": "Movies",
           "type": 5
+        },
+        {
+          "location": "TV Shows",
+          "type": 5
         }
-      ]
+      ],
+      "publisherKey": "",
+      "publisherPath": "",
+      "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+      "subscriberOverrideHost": false,
+      "subscriberPath": "/home/trh/Work/corionis/ELS/mock/libraries/subscriber-one.json",
+      "subscriberRemote": false
     }
   ]
 }

@@ -627,7 +627,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
             ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
             if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
             {
-                // exclude certain DOS/Windows "system" items; TODO Adjust excluded Windows items as necessary
+                // exclude certain DOS/Windows "system" items; TODO EXTEND+ Adjust excluded Windows items as necessary
                 String longname = entry.getLongname();
                 if (longname.matches("(?i).*OWNER\\@.*GROUP\\@.*") ||
                         (longname.matches("(?i).*Administrators.*BUILTIN.*")) ||

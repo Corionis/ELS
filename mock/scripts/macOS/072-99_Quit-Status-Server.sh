@@ -8,5 +8,5 @@ cd "$base"
 
 cd ../..
 
-rt/Contents/Home/bin/java -jar bin/ELS.jar -C . -c debug -d debug --force-quit --hint-server libraries/hint-server.json -p libraries/publisher.json -F output/072-99_Quit-Status-Server.log
+rt/Contents/Home/bin/java -jar bin/ELS.jar -C . -c debug -d debug --force-quit -J --hint-server libraries/hint-server.json -p libraries/publisher.json -F output/072-99_Quit-Status-Server.log
 

@@ -32,7 +32,7 @@ public class Libraries
 
     /**
      * The listen for incoming connections, [host name|IP address]:[port]
-     * Default port is 50271 if not specified
+     * Default is host if not specified
      */
     public String listen = "";
 

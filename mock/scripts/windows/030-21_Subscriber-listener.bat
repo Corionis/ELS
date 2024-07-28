@@ -4,7 +4,7 @@ set base=%~dp0
 cd /d "%base%"
 cd ..\..
 
-rt\bin\java -jar bin\ELS.jar -C . -c debug -d debug --remote S --authorize sharkbait -p libraries\publisher.json -s libraries\subscriber-one.json -T -F output\030-21_Subscriber-listener.log
+rt\bin\java -jar bin\ELS.jar -C . -c debug -d debug -O --remote S --authorize sharkbait -p libraries\publisher.json -s libraries\subscriber-one.json -T -F output\030-21_Subscriber-listener.log
 
 cd /d "%base%"
 

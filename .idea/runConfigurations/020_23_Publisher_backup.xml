@@ -2,7 +2,7 @@
   <configuration default="false" name="020-23 Publisher backup" type="Application" factoryName="Application" folderName="020-00 Remote Backup">
     <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug --remote P -p libraries/publisher.json -S libraries/subscriber-one.json -T -m output/020-23_Publisher-backup_mismatches.txt -W output/020-23_Publisher-backup_whatsnew.txt -F output/020-23_Publisher-backup.log" />
+    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug --remote P -O -p libraries/publisher.json -O -S libraries/subscriber-one.json -T -m output/020-23_Publisher-backup_mismatches.txt -W output/020-23_Publisher-backup_whatsnew.txt -F output/020-23_Publisher-backup.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <method v="2">

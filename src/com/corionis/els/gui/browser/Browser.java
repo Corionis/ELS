@@ -401,9 +401,9 @@ public class Browser
 //                        JTextField field = (JTextField) object;
 //                        if (field.getName() != null && field.getName().equals("location"))
 //                        {
-//                            JOptionPane.showMessageDialog(context.form,
+//                            JOptionPane.showMessageDialog(localContext.form,
 //                                    "change location",
-//                                    context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+//                                    localContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
 //                        }
                     }
                     else
@@ -1235,7 +1235,7 @@ public class Browser
         for (int i = 0; i < navStack.length; ++i)
             navStack[i] = new Stack<NavItem>();
 
-        //logger.info(context.cfg.getNavigatorName() + " " + context.cfg.getVersionStamp());
+        //logger.info(localContext.cfg.getNavigatorName() + " " + localContext.cfg.getVersionStamp());
         initializeToolbar();
         initializeNavigation();
         initializeBrowserOne();
@@ -1354,7 +1354,7 @@ public class Browser
 
         // --- treeCollectionOne
         context.mainFrame.treeCollectionOne.setName("treeCollectionOne");
-        if (context.publisherRepo != null && context.publisherRepo.isInitialized())
+        if (context.publisherRepo != null && context.publisherRepo.isInitialized() && !context.cfg.isLoggerView())
             loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
         else
             setCollectionRoot(null, context.mainFrame.treeCollectionOne, context.cfg.gs("Browser.open.a.publisher"), false);
@@ -1413,7 +1413,7 @@ public class Browser
 
         // --- treeSystemOne
         context.mainFrame.treeSystemOne.setName("treeSystemOne");
-        if (context.publisherRepo != null && context.publisherRepo.isInitialized())
+        if (context.publisherRepo != null && context.publisherRepo.isInitialized() && !context.cfg.isLoggerView())
             loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
         else
             setCollectionRoot(null, context.mainFrame.treeSystemOne, context.cfg.gs("Browser.open.a.publisher"), false);
@@ -1498,7 +1498,7 @@ public class Browser
 
         // --- treeCollectionTwo
         context.mainFrame.treeCollectionTwo.setName("treeCollectionTwo");
-        if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
+        if (context.subscriberRepo != null && context.subscriberRepo.isInitialized() && !context.cfg.isLoggerView())
             loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteOperation());
         else
             setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteOperation());
@@ -1554,7 +1554,7 @@ public class Browser
 
         // --- treeSystemTwo
         context.mainFrame.treeSystemTwo.setName("treeSystemTwo");
-        if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
+        if (context.subscriberRepo != null && context.subscriberRepo.isInitialized() && !context.cfg.isLoggerView())
             loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteOperation());
         else
             setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteOperation());
@@ -2491,14 +2491,17 @@ public class Browser
         NavTreeNode root = (NavTreeNode) model.getRoot();
         for (Library lib : repo.getLibraryData().libraries.bibliography)
         {
-            NavTreeNode node = new NavTreeNode(context, repo, tree);
-            NavTreeUserObject tuo = new NavTreeUserObject(node, lib.name, lib.sources, remote);
-            node.setNavTreeUserObject(tuo);
-            root.add(node);
-            if (deep)
-                node.deepScanChildren(recursive);
-            else
-                node.loadChildren(false);
+            if (!context.fault)
+            {
+                NavTreeNode node = new NavTreeNode(context, repo, tree);
+                NavTreeUserObject tuo = new NavTreeUserObject(node, lib.name, lib.sources, remote);
+                node.setNavTreeUserObject(tuo);
+                root.add(node);
+                if (deep)
+                    node.deepScanChildren(recursive);
+                else
+                    node.loadChildren(false);
+            }
         }
         root.setLoaded(true);
     }
@@ -2563,16 +2566,19 @@ public class Browser
             String[] roots = driveList.split("\\|");
             for (int i = 0; i < roots.length; ++i)
             {
-                String drive = roots[i];
-                String path = "/" + drive.replaceAll("\\\\", "/");
-                driveNode = new NavTreeNode(context, repo, tree);
-                tuo = new NavTreeUserObject(driveNode, drive, path, NavTreeUserObject.DRIVE, remote);
-                driveNode.setNavTreeUserObject(tuo);
-                computerNode.add(driveNode);
-                if (deep)
-                    driveNode.deepScanChildren(recursive);
-                else
-                    driveNode.loadChildren(false);
+                if (!context.fault)
+                {
+                    String drive = roots[i];
+                    String path = "/" + drive.replaceAll("\\\\", "/");
+                    driveNode = new NavTreeNode(context, repo, tree);
+                    tuo = new NavTreeUserObject(driveNode, drive, path, NavTreeUserObject.DRIVE, remote);
+                    driveNode.setNavTreeUserObject(tuo);
+                    computerNode.add(driveNode);
+                    if (deep)
+                        driveNode.deepScanChildren(recursive);
+                    else
+                        driveNode.loadChildren(false);
+                }
             }
         }
         else

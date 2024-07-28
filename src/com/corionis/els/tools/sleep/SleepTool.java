@@ -1,6 +1,5 @@
 package com.corionis.els.tools.sleep;
 
-import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Task;
 import com.corionis.els.tools.AbstractTool;
 import com.google.gson.Gson;
@@ -8,15 +7,12 @@ import com.google.gson.GsonBuilder;
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
-import com.corionis.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
 public class SleepTool extends AbstractTool
 {
@@ -29,10 +25,8 @@ public class SleepTool extends AbstractTool
     private int sleep = 0;
 
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
-    transient private boolean dualRepositories = false; // used by GUI, always false for this tool
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
-    transient private final boolean realOnly = false;
     // @formatter:on
 
     /**
@@ -46,7 +40,6 @@ public class SleepTool extends AbstractTool
         this.context = context;
         setDisplayName(getCfg().gs("Sleep.displayName"));
         this.dataHasChanged = false;
-        this.originPathsAllowed = false;
     }
 
     public SleepTool clone()
@@ -56,11 +49,9 @@ public class SleepTool extends AbstractTool
         tool.setConfigName(getConfigName());
         tool.setDisplayName(getDisplayName());
         tool.setDataHasChanged();
-        tool.setIncludeInToolsList(this.isIncludeInToolsList());
         tool.isDryRun = this.isDryRun;
-        tool.setIsRemote(this.isRemote());
+        tool.setRemote(this.isRemote());
         tool.setSleepTime(this.getSleepTime());
-        tool.setIncludeInToolsList(isIncludeInToolsList());
         return tool;
     }
 
@@ -94,68 +85,30 @@ public class SleepTool extends AbstractTool
     }
 
     @Override
-    public boolean isCachedLastTask()
+    public void processTool(Task task) throws Exception
     {
-        return false;
-    }
-
-    @Override
-    public boolean isDualRepositories()
-    {
-        return dualRepositories;
-    }
-
-    @Override
-    public boolean isRealOnly()
-    {
-        return false;
-    }
-
-    @Override
-    public void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
-    {
-        // to satisfy AbstractTool, not used
-    }
-
-    /**
-     * Process the tool with the metadata provided
-     */
-    @Override
-    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
-    {
-        logger.info(getDisplayName() + ", " + getConfigName() + ": " + sleep);
+        logger.info(context.cfg.gs("Z.launching") + getDisplayName() + ", " + getConfigName());
+        logger.info("+------------------------------------------");
+        logger.info(java.text.MessageFormat.format(context.cfg.gs("Sleep.sleeping.minutes"), sleep));
         Thread.sleep(sleep * 1000 * 60);
         logger.info(getConfigName() + context.cfg.gs("Z.completed"));
-    }
-
-    @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
-    {
-        // to satisfy AbstractTool, not used
-        return null;
-    }
-
-    /**
-     * Process the task on a SwingWorker thread
-     * <br/>
-     * Used by the Run button of the tool
-     *
-     * @param context     The context
-     * @param publisherRepo  Publisher repo, or null
-     * @param subscriberRepo Subscriber repo, or null
-     * @param origins        List of origins to process
-     * @param dryRun         Boolean for a dry-run
-     * @return SwingWorker<Void, Void> of thread
-     */
-    @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
-    {
-        return null;
     }
 
     public boolean isDataChanged()
     {
         return dataHasChanged;
+    }
+
+    @Override
+    public boolean isToolPublisher()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isToolSubscriber()
+    {
+        return false;
     }
 
     public void reset()

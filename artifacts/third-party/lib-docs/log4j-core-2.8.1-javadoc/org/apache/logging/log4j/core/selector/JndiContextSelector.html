@@ -105,12 +105,12 @@
 extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../../org/apache/logging/log4j/core/selector/NamedContextSelector.html" title="interface in org.apache.logging.log4j.core.selector">NamedContextSelector</a></pre>
 <div class="block">This class can be used to define a custom logger repository. It makes use of the fact that in J2EE environments, each
- web-application is guaranteed to have its own JNDI context relative to the <code>java:comp/env</code> context. In
- EJBs, each enterprise bean (albeit not each application) has its own context relative to the
- <code>java:comp/env</code> context. An <code>env-entry</code> in a deployment descriptor provides the information to
- the JNDI context. Once the <code>env-entry</code> is set, a repository selector can query the JNDI application
- context to look up the value of the entry. The logging context of the web-application will depend on the value the
- env-entry. The JNDI context which is looked up by this class is <code>java:comp/env/log4j/context-name</code>.
+ web-application is guaranteed to have its own JNDI localContext relative to the <code>java:comp/env</code> localContext. In
+ EJBs, each enterprise bean (albeit not each application) has its own localContext relative to the
+ <code>java:comp/env</code> localContext. An <code>env-entry</code> in a deployment descriptor provides the information to
+ the JNDI localContext. Once the <code>env-entry</code> is set, a repository selector can query the JNDI application
+ localContext to look up the value of the entry. The logging localContext of the web-application will depend on the value the
+ env-entry. The JNDI localContext which is looked up by this class is <code>java:comp/env/log4j/localContext-name</code>.
 
  <p>
  Here is an example of an <code>env-entry</code>:
@@ -119,8 +119,8 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/selector/Nam
  
  <pre>
  &lt;env-entry&gt;
-   &lt;description&gt;JNDI logging context name for this app&lt;/description&gt;
-   &lt;env-entry-name&gt;log4j/context-name&lt;/env-entry-name&gt;
+   &lt;description&gt;JNDI logging localContext name for this app&lt;/description&gt;
+   &lt;env-entry-name&gt;log4j/localContext-name&lt;/env-entry-name&gt;
    &lt;env-entry-value&gt;aDistinctiveLoggingContextName&lt;/env-entry-value&gt;
    &lt;env-entry-type&gt;java.lang.String&lt;/env-entry-type&gt;
  &lt;/env-entry&gt;
@@ -129,19 +129,19 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/selector/Nam
  </blockquote>
 
  <p>
- <em>If multiple applications use the same logging context name, then they
- will share the same logging context.</em>
+ <em>If multiple applications use the same logging localContext name, then they
+ will share the same logging localContext.</em>
  </p>
 
  <p>
- You can also specify the URL for this context's configuration resource. This repository selector
+ You can also specify the URL for this localContext's configuration resource. This repository selector
  (ContextJNDISelector) will use this resource to automatically configure the log4j repository.
  </p>
  <blockquote>
  
  <pre>
  &lt;env-entry&gt;
-   &lt;description&gt;URL for configuring log4j context&lt;/description&gt;
+   &lt;description&gt;URL for configuring log4j localContext&lt;/description&gt;
    &lt;env-entry-name&gt;log4j/configuration-resource&lt;/env-entry-name&gt;
    &lt;env-entry-value&gt;urlOfConfigurationResource&lt;/env-entry-value&gt;
    &lt;env-entry-type&gt;java.lang.String&lt;/env-entry-type&gt;
@@ -222,7 +222,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/selector/Nam
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/JndiContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context)</code>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/JndiContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Remove any references to the LoggerContext.</div>
 </td>
 </tr>
@@ -324,7 +324,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/selector/Nam
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/selector/NamedContextSelector.html#locateContext(java.lang.String,%20java.lang.Object,%20java.net.URI)">locateContext</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/selector/NamedContextSelector.html" title="interface in org.apache.logging.log4j.core.selector">NamedContextSelector</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The LoggerContext name.</dd><dd><code>externalContext</code> - The external context to associate with the LoggerContext.</dd><dd><code>configLocation</code> - The location of the configuration.</dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The LoggerContext name.</dd><dd><code>externalContext</code> - The external localContext to associate with the LoggerContext.</dd><dd><code>configLocation</code> - The location of the configuration.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>A LoggerContext.</dd></dl>
 </li>
 </ul>
@@ -334,13 +334,13 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/selector/Nam
 <ul class="blockList">
 <li class="blockList">
 <h4>removeContext</h4>
-<pre>public&nbsp;void&nbsp;removeContext(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context)</pre>
+<pre>public&nbsp;void&nbsp;removeContext(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/selector/ContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">ContextSelector</a></code></strong></div>
 <div class="block">Remove any references to the LoggerContext.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/selector/ContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/selector/ContextSelector.html" title="interface in org.apache.logging.log4j.core.selector">ContextSelector</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>context</code> - The context to remove.</dd></dl>
+<dt><span class="strong">Parameters:</span></dt><dd><code>localContext</code> - The localContext to remove.</dd></dl>
 </li>
 </ul>
 <a name="removeContext(java.lang.String)">

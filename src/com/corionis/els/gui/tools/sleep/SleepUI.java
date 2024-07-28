@@ -7,7 +7,6 @@ import com.corionis.els.gui.jobs.AbstractToolDialog;
 import com.corionis.els.gui.jobs.ConfigModel;
 import com.corionis.els.gui.util.NumberFilter;
 import com.corionis.els.tools.AbstractTool;
-import com.corionis.els.tools.Tools;
 import com.corionis.els.tools.sleep.SleepTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -122,8 +121,11 @@ public class SleepUI extends AbstractToolDialog
         {
             if (checkForChanges())
             {
-                int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.cancel.all.changes"),
-                        context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+                Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
+                int reply = JOptionPane.showOptionDialog(this,
+                        context.cfg.gs("Z.cancel.all.changes"),
+                        getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                        null, opts, opts[1]);
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     cancelChanges();
@@ -167,6 +169,9 @@ public class SleepUI extends AbstractToolDialog
         int index = configItems.getSelectedRow();
         if (index >= 0)
         {
+            if (configItems.isEditing())
+                configItems.getCellEditor().stopCellEditing();
+
             SleepTool tool = (SleepTool) configModel.getValueAt(index, 0);
 
             int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
@@ -181,6 +186,7 @@ public class SleepUI extends AbstractToolDialog
                     if (file.exists())
                     {
                         deletedTools.add(tool);
+                        tool.setDataHasChanged(false);
                     }
 
                     tool.setDataHasChanged();
@@ -231,16 +237,6 @@ public class SleepUI extends AbstractToolDialog
         {
             JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.rename.the.existing") +
                     context.cfg.gs("Z.untitled"), context.cfg.gs("Sleep.title"), JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private void actionRunClicked(ActionEvent e)
-    {
-        int index = configItems.getSelectedRow();
-        if (index >= 0)
-        {
-            currentSleepTool = (SleepTool) configModel.getValueAt(index, 0);
-            workerTool = currentSleepTool.clone();
         }
     }
 
@@ -313,10 +309,10 @@ public class SleepUI extends AbstractToolDialog
 
     private void loadConfigurations()
     {
+        ArrayList<AbstractTool> toolList = null;
         try
         {
-            Tools tools = new Tools();
-            ArrayList<AbstractTool> toolList = tools.loadAllTools(context, SleepTool.INTERNAL_NAME);
+            toolList = context.tools.loadAllTools(context, SleepTool.INTERNAL_NAME);
             for (AbstractTool atool : toolList)
             {
                 SleepTool tool = (SleepTool) atool;
@@ -335,6 +331,7 @@ public class SleepUI extends AbstractToolDialog
                 logger.error(msg);
         }
 
+        configModel.setToolList(toolList);
         configModel.loadJobsConfigurations(this, null);
 
         if (configModel.getRowCount() == 0)
@@ -374,15 +371,6 @@ public class SleepUI extends AbstractToolDialog
         SleepTool tool = null;
         try
         {
-            // write/update changed tool JSON configuration files
-            for (int i = 0; i < configModel.getRowCount(); ++i)
-            {
-                tool = (SleepTool) configModel.getValueAt(i, 0);
-                if (tool.isDataChanged())
-                    tool.write();
-                tool.setDataHasChanged(false);
-            }
-
             // remove any deleted tools JSON configuration file
             for (int i = 0; i < deletedTools.size(); ++i)
             {
@@ -392,6 +380,15 @@ public class SleepUI extends AbstractToolDialog
                 {
                     file.delete();
                 }
+            }
+            deletedTools = new ArrayList<AbstractTool>();
+
+            // write/update changed tool JSON configuration files
+            for (int i = 0; i < configModel.getRowCount(); ++i)
+            {
+                tool = (SleepTool) configModel.getValueAt(i, 0);
+                if (tool.isDataChanged())
+                    tool.write();
                 tool.setDataHasChanged(false);
             }
 

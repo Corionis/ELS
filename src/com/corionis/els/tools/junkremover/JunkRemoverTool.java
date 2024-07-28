@@ -39,10 +39,8 @@ public class JunkRemoverTool extends AbstractTool
 
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int deleteCount = 0;
-    transient private boolean dualRepositories = false; // used by GUI, always false for this tool
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
-    transient private final boolean realOnly = false;
     transient private Repository repo; // this tool only uses one repo
     transient private ArrayList<String> toolPaths;
     // @formatter:on
@@ -76,11 +74,9 @@ public class JunkRemoverTool extends AbstractTool
         jrt.setConfigName(getConfigName());
         jrt.setDisplayName(getDisplayName());
         jrt.setDataHasChanged();
-        jrt.setIncludeInToolsList(this.isIncludeInToolsList());
         jrt.isDryRun = this.isDryRun;
-        jrt.setIsRemote(this.isRemote());
+        jrt.setRemote(this.isRemote());
         jrt.setJunkList(getJunkList());
-        jrt.setIncludeInToolsList(isIncludeInToolsList());
         return jrt;
     }
 
@@ -168,21 +164,22 @@ public class JunkRemoverTool extends AbstractTool
         return dataHasChanged; // used by the GUI
     }
 
-    public boolean isCachedLastTask()
+    @Override
+    public boolean isToolOriginsUsed()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isToolPubOrSub()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isToolSubscriber()
     {
         return false;
-    }
-
-    @Override
-    public boolean isDualRepositories()
-    {
-        return dualRepositories;
-    }
-
-    @Override
-    public boolean isRealOnly()
-    {
-        return realOnly;
     }
 
     private void logDeletion(String fullpath)
@@ -206,39 +203,30 @@ public class JunkRemoverTool extends AbstractTool
     }
 
     @Override
-    public void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
-    {
-        // to satisfy AbstractTool, not used
-    }
-
-    /**
-     * Process the tool with the metadata provided
-     * <br/>
-     * Uses the junkList across the toolPaths added by addToolPaths() and the dryRun setting.
-     * The addToolPaths() method must be called first.
-     * <br/>
-     * Used by a Job & the Run button of the tool
-     */
-    @Override
-    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
+    public void processTool(Task task) throws Exception
     {
         reset();
-        isDryRun = dryRun;
+        isDryRun = task.dryRun;
 
-        if (publisherRepo != null && subscriberRepo != null)
+        if (task.publisherRepo != null && task.subscriberRepo != null)
             throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("JunkRemover.uses.only.one.repository"), getInternalName()));
 
         // this tool only uses one repository
-        repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
+        repo = (task.publisherRepo != null) ? task.publisherRepo : task.subscriberRepo;
+        if (repo == null)
+        {
+            logger.error(getConfigName() + " has no repository defined");
+            return;
+        }
 
         // expand origins into physical toolPaths
-        int count = expandOrigins(origins);
+        int count = expandOrigins(task.origins);
         if (toolPaths == null || toolPaths.size() == 0)
             return;
 
         // only subscribers can be remote
-        if (subscriberRepo != null && getCfg().isRemoteOperation())
-            setIsRemote(true);
+        if (task.subscriberRepo != null && getCfg().isRemoteOperation())
+            setRemote(true);
 
         for (String path : toolPaths)
         {
@@ -251,7 +239,7 @@ public class JunkRemoverTool extends AbstractTool
         }
 
         logger.info(getDisplayName() + ", " + getConfigName() + ": " + deleteCount + (isDryRun ? " (dry-run)" : ""));
-        if (context != null)
+        if (context != null && context.cfg.isNavigator() && !context.cfg.isLoggerView())
         {
             // reset and reload relevant trees
             if (!isDryRun && deleteCount > 0)
@@ -267,82 +255,7 @@ public class JunkRemoverTool extends AbstractTool
                     context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, isRemote());
                 }
             }
-            logger.info(getConfigName() + context.cfg.gs("Z.completed"));
         }
-    }
-
-    @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
-    {
-        // to satisfy AbstractTool, not used
-        return null;
-    }
-
-    /**
-     * Process the task on a SwingWorker thread
-     * <br/>
-     * Used by the Run button of the tool
-     *
-     * @param context     The context
-     * @param publisherRepo  Publisher repo, or null
-     * @param subscriberRepo Subscriber repo, or null
-     * @param origins        List of origins to process
-     * @param dryRun         Boolean for a dry-run
-     * @return SwingWorker<Void, Void> of thread
-     */
-    @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
-    {
-        // create a fresh dialog
-/*
-        if (context != null)
-        {
-            if (context.progress == null || !context.progress.isBeingUsed())
-            {
-                ActionListener cancel = new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent)
-                    {
-                        requestStop();
-                    }
-                };
-                context.progress = new Progress(context, context.mainFrame, cancel, isDryRun);
-                context.progress.display();
-            }
-            else
-            {
-                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
-                return null;
-            }
-        }
-*/
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-        {
-            @Override
-            protected Void doInBackground() throws Exception
-            {
-                try
-                {
-                    processTool(context, publisherRepo, subscriberRepo, origins, dryRun, null);
-                }
-                catch (Exception e)
-                {
-                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                    if (context != null)
-                    {
-                        logger.error(msg);
-                        JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-                    else
-                        logger.error(msg);
-                }
-                return null;
-            }
-        };
-        worker.execute();
-        return worker;
     }
 
     public void reset()

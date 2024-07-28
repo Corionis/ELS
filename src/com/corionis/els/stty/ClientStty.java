@@ -146,13 +146,33 @@ public class ClientStty
         {
             this.myKey = myRepo.getLibraryData().libraries.key;
 
-            String host = Utils.parseHost(this.theirRepo.getLibraryData().libraries.host);
+            String address;
+            String hostListen;
+            boolean override = false;
+            if (this == context.clientStty)
+                override = context.cfg.isOverrideSubscriberHost();
+            else if (this == context.hintsStty)
+                override = context.cfg.isOverrideHintsHost();
+            if (override)
+            {
+                address = this.theirRepo.getLibraryData().libraries.listen;
+                if (address == null || address.length() < 1)
+                    address = this.theirRepo.getLibraryData().libraries.host;
+                hostListen = context.cfg.gs("Z.listen");
+            }
+            else
+            {
+                address = this.theirRepo.getLibraryData().libraries.host;
+                hostListen = context.cfg.gs("Z.host");
+            }
+
+            String host = Utils.parseHost(address);
             if (host == null || host.isEmpty())
             {
                 host = null;
             }
-            int port = Utils.getPort(this.theirRepo.getLibraryData().libraries.host) + ((primaryServers) ? 0 : 2);
-            logger.info("Opening stty connection to: " + (host == null ? "localhost" : host) + ":" + port);
+            int port = Utils.getPort(address) + ((primaryServers) ? 0 : 2);
+            logger.info("Opening stty connection to: " + (host == null ? "localhost" : host) + ":" + port + hostListen);
 
             try
             {
@@ -239,7 +259,7 @@ public class ClientStty
                             continue;
                         }
                         context.fault = true;
-                        if (instance == context.statusStty && context.cfg.isNavigator())
+                        if (instance == context.hintsStty && context.cfg.isNavigator())
                         {
                             context.browser.toggleHintTracking(false);
                             context.mainFrame.buttonHintTracking.setEnabled(false);
@@ -404,7 +424,7 @@ public class ClientStty
     {
         if (context.cfg.isQuitStatusServer())
         {
-            if (context.statusRepo == null)
+            if (context.hintsRepo == null)
             {
                 logger.warn("-q requires a -h hints file");
                 context.fault = true;
@@ -413,14 +433,14 @@ public class ClientStty
             {
                 if (isConnected())
                 {
-                    logger.info("Sending quit command to Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
-                    context.statusStty.send("quit", "");
+                    logger.info("Sending quit command to Hint Status Server: " + context.hintsRepo.getLibraryData().libraries.description);
+                    context.hintsStty.send("quit", "");
                     Thread.sleep(3000);
-                    context.statusStty.disconnect();
-                    context.statusStty = null;
+                    context.hintsStty.disconnect();
+                    context.hintsStty = null;
                 }
                 else
-                    logger.warn("could not send quit command to Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
+                    logger.warn("could not send quit command to Hint Status Server: " + context.hintsRepo.getLibraryData().libraries.description);
             }
             catch (Exception e)
             {

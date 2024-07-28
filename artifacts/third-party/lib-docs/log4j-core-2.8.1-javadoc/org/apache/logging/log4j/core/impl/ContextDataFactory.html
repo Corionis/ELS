@@ -100,9 +100,9 @@
 <pre>public class <span class="strong">ContextDataFactory</span>
 extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
 <div class="block">Factory for creating the StringMap instances used to initialize LogEvents'
- <a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextData()">context data</a>. When context data is
+ <a href="../../../../../../org/apache/logging/log4j/core/LogEvent.html#getContextData()">localContext data</a>. When localContext data is
  <a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core">injected</a> into the log event, these StringMap
- instances may be either populated with key-value pairs from the context, or completely replaced altogether.
+ instances may be either populated with key-value pairs from the localContext, or completely replaced altogether.
  <p>
  By default returns <code>SortedArrayStringMap</code> objects. Can be configured by setting system property
  <code>"log4j2.ContextData"</code> to the fully qualified class name of a class implementing the

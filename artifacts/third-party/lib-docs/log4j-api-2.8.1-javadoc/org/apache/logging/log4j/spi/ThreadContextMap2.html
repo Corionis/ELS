@@ -127,14 +127,14 @@ extends <a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.ht
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../org/apache/logging/log4j/util/StringMap.html" title="interface in org.apache.logging.log4j.util">StringMap</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap2.html#getReadOnlyContextData()">getReadOnlyContextData</a></strong>()</code>
-<div class="block">Returns the context data for reading.</div>
+<div class="block">Returns the localContext data for reading.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap2.html#putAll(java.util.Map)">putAll</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;map)</code>
-<div class="block">Puts all given context map entries into the current thread's
- context map.</div>
+<div class="block">Puts all given localContext map entries into the current thread's
+ localContext map.</div>
 </td>
 </tr>
 </table>
@@ -166,10 +166,10 @@ extends <a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.ht
 <li class="blockList">
 <h4>putAll</h4>
 <pre>void&nbsp;putAll(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;map)</pre>
-<div class="block">Puts all given context map entries into the current thread's
- context map.
+<div class="block">Puts all given localContext map entries into the current thread's
+ localContext map.
 
- <p>If the current thread does not have a context map it is
+ <p>If the current thread does not have a localContext map it is
  created as a side effect.</p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>map</code> - The map.</dd><dt><span class="strong">Since:</span></dt>
   <dd>2.7</dd></dl>
@@ -182,7 +182,7 @@ extends <a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.ht
 <li class="blockList">
 <h4>getReadOnlyContextData</h4>
 <pre><a href="../../../../../org/apache/logging/log4j/util/StringMap.html" title="interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;getReadOnlyContextData()</pre>
-<div class="block">Returns the context data for reading. Note that regardless of whether the returned context data has been
+<div class="block">Returns the localContext data for reading. Note that regardless of whether the returned localContext data has been
  <a href="../../../../../org/apache/logging/log4j/util/StringMap.html#freeze()">frozen</a> (made read-only) or not, callers should not attempt to modify
  the returned data structure.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the <code>StringMap</code></dd></dl>

@@ -1,0 +1,20 @@
+{
+  "configName": "900 hints",
+  "tasks": [
+    {
+      "configName": "Hint status server",
+      "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
+      "hintsOverrideHost": true,
+      "hintsPath": "/home/trh/Work/corionis/ELS/mock/libraries/hint-server.json",
+      "hintsRemote": true,
+      "internalName": "Operations",
+      "origins": [],
+      "publisherKey": "",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
+    }
+  ]
+}

@@ -229,7 +229,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <td class="colFirst"><code>static double</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSystemScaleFactor(java.awt.Graphics2D)">getSystemScaleFactor</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/java/awt/Graphics2D.html?is-external=true" title="class or interface in java.awt" class="externalLink">Graphics2D</a>&nbsp;g)</code></th>
 <td class="colLast">
-<div class="block">Returns the system scale factor for the given graphics context.</div>
+<div class="block">Returns the system scale factor for the given graphics localContext.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -297,7 +297,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scaleGraphics(java.awt.Graphics2D)">scaleGraphics</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/java/awt/Graphics2D.html?is-external=true" title="class or interface in java.awt" class="externalLink">Graphics2D</a>&nbsp;g)</code></th>
 <td class="colLast">
-<div class="block">If user scale factor is not 1, scale the given graphics context by invoking
+<div class="block">If user scale factor is not 1, scale the given graphics localContext by invoking
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/java/awt/Graphics2D.html?is-external=true#scale(double,double)" title="class or interface in java.awt" class="externalLink"><code>Graphics2D.scale(double, double)</code></a> with user scale factor.</div>
 </td>
 </tr>
@@ -393,7 +393,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <li class="blockList">
 <h4>getSystemScaleFactor</h4>
 <pre class="methodSignature">public static&nbsp;double&nbsp;getSystemScaleFactor&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/java/awt/Graphics2D.html?is-external=true" title="class or interface in java.awt" class="externalLink">Graphics2D</a>&nbsp;g)</pre>
-<div class="block">Returns the system scale factor for the given graphics context.</div>
+<div class="block">Returns the system scale factor for the given graphics localContext.</div>
 </li>
 </ul>
 <a id="getSystemScaleFactor(java.awt.GraphicsConfiguration)">
@@ -500,7 +500,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <li class="blockList">
 <h4>scaleGraphics</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;scaleGraphics&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/java/awt/Graphics2D.html?is-external=true" title="class or interface in java.awt" class="externalLink">Graphics2D</a>&nbsp;g)</pre>
-<div class="block">If user scale factor is not 1, scale the given graphics context by invoking
+<div class="block">If user scale factor is not 1, scale the given graphics localContext by invoking
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/java/awt/Graphics2D.html?is-external=true#scale(double,double)" title="class or interface in java.awt" class="externalLink"><code>Graphics2D.scale(double, double)</code></a> with user scale factor.</div>
 </li>
 </ul>

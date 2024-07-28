@@ -557,7 +557,7 @@ public class Process
                         {
                             // ... this is done in Main.process finally clause ...
                             //logger.warn("Sending remote fault command (2)");
-                            //resp = context.clientStty.roundTrip("fault");
+                            //resp = localContext.clientStty.roundTrip("fault");
                         }
                         else
                         {

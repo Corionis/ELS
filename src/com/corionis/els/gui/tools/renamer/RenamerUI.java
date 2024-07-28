@@ -13,7 +13,6 @@ import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Origins;
 import com.corionis.els.jobs.Task;
 import com.corionis.els.tools.AbstractTool;
-import com.corionis.els.tools.Tools;
 import com.corionis.els.tools.renamer.RenamerTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,6 +57,7 @@ public class RenamerUI extends AbstractToolDialog
     private SwingWorker<Void, Void> worker;
     private RenamerTool workerRenamer = null;
     private boolean workerRunning = false;
+    private Task workerTask = null;
 
     public RenamerUI(Window owner, Context context)
     {
@@ -167,8 +167,11 @@ public class RenamerUI extends AbstractToolDialog
         {
             if (checkForChanges())
             {
-                int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.cancel.all.changes"),
-                        context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+                Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
+                int reply = JOptionPane.showOptionDialog(this,
+                        context.cfg.gs("Z.cancel.all.changes"),
+                        getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                        null, opts, opts[1]);
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     cancelChanges();
@@ -226,6 +229,9 @@ public class RenamerUI extends AbstractToolDialog
         int index = configItems.getSelectedRow();
         if (index >= 0)
         {
+            if (configItems.isEditing())
+                configItems.getCellEditor().stopCellEditing();
+
             RenamerTool tool = (RenamerTool) configModel.getValueAt(index, 0);
 
             int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
@@ -240,6 +246,7 @@ public class RenamerUI extends AbstractToolDialog
                     if (file.exists())
                     {
                         deletedTools.add(tool);
+                        tool.setDataHasChanged(false);
                     }
 
                     configModel.removeRow(index);
@@ -387,8 +394,103 @@ public class RenamerUI extends AbstractToolDialog
         {
             currentConfigIndex = index;
             RenamerTool tool = (RenamerTool) configModel.getValueAt(index, 0);
-            workerRenamer = tool.clone();
-            processSelected(workerRenamer);
+
+            try
+            {
+                ArrayList<Origin> origins = new ArrayList<Origin>();
+                isSubscriber = Origins.makeOriginsFromSelected(context, this, origins);
+
+                if (origins != null && origins.size() > 0)
+                {
+                    int count = origins.size();
+
+                    // make dialog pieces
+                    String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
+                    String message = java.text.MessageFormat.format(context.cfg.gs("Renamer.run.on.N.locations"), tool.getConfigName(), count, which);
+                    JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
+                    checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
+                    checkbox.setSelected(context.preferences.isDefaultDryrun());
+                    Object[] params = {message, checkbox};
+
+                    // confirm run of tool
+                    int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("Renamer.title"), JOptionPane.YES_NO_OPTION);
+                    isDryRun = checkbox.isSelected();
+                    if (reply == JOptionPane.YES_OPTION)
+                    {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        setComponentEnabled(false);
+                        cancelButton.setEnabled(true);
+                        cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        labelHelp.setEnabled(true);
+                        labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+                        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+                        {
+                            @Override
+                            protected Void doInBackground() throws Exception
+                            {
+                                try
+                                {
+                                    workerRenamer = tool.clone();
+                                    processSelected(workerRenamer, origins, isSubscriber);
+                                }
+                                catch (Exception e)
+                                {
+                                    if (!e.getMessage().equals("HANDLED_INTERNALLY"))
+                                    {
+                                        String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                                        if (context != null)
+                                        {
+                                            logger.error(msg);
+                                            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                                        }
+                                        else
+                                            logger.error(msg);
+                                    }
+                                }
+                                return null;
+                            }
+                        };
+
+                        if (worker !=null)
+                        {
+                            workerRunning = true;
+                            worker.addPropertyChangeListener(new PropertyChangeListener()
+                            {
+                                @Override
+                                public void propertyChange(PropertyChangeEvent e)
+                                {
+                                    if (e.getPropertyName().equals("state"))
+                                    {
+                                        if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                            processTerminated();
+                                    }
+                                }
+                            });
+                            worker.execute();
+                        }
+                    }
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(this, context.cfg.gs("Renamer.nothing.selected.in.browser"),
+                            context.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
+                }
+            }
+            catch (Exception e1)
+            {
+                if (!e1.getMessage().equals("HANDLED_INTERNALLY"))
+                {
+                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e1);
+                    if (context.navigator != null)
+                    {
+                        logger.error(msg);
+                        JOptionPane.showMessageDialog(context.navigator.dialogRenamer, msg, context.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+                    else
+                        logger.error(msg);
+                }
+            }
         }
     }
 
@@ -552,10 +654,10 @@ public class RenamerUI extends AbstractToolDialog
 
     private void loadConfigurations()
     {
+        ArrayList<AbstractTool> toolList = null;
         try
         {
-            Tools tools = new Tools();
-            ArrayList<AbstractTool> toolList = tools.loadAllTools(context, RenamerTool.INTERNAL_NAME);
+            toolList = context.tools.loadAllTools(context, RenamerTool.INTERNAL_NAME);
             for (AbstractTool tool : toolList)
             {
                 RenamerTool renamer = (RenamerTool) tool;
@@ -574,6 +676,7 @@ public class RenamerUI extends AbstractToolDialog
                 logger.error(msg);
         }
 
+        configModel.setToolList(toolList);
         configModel.loadJobsConfigurations(this, null);
 
         if (configModel.getRowCount() == 0)
@@ -738,104 +841,28 @@ public class RenamerUI extends AbstractToolDialog
         return isSubscriber;
     }
 
-    public void processSelected(RenamerTool renamer)
+    public void processSelected(RenamerTool renamer, ArrayList<Origin> origins, boolean isSubscriber) throws Exception
     {
         if (renamer != null)
         {
-            try
+            if (origins != null && origins.size() > 0)
             {
-                ArrayList<Origin> origins = new ArrayList<Origin>();
-                isSubscriber = Origins.makeOriginsFromSelected(context, this, origins, renamer.isRealOnly());
+                workerTask = new Task(renamer.getInternalName(), renamer.getConfigName());
+                workerTask.setContext(context);
+                workerTask.setDryRun(isDryRun);
+                workerTask.setOrigins(origins);
 
-                if (origins != null && origins.size() > 0)
-                {
-                    int count = origins.size();
-
-                    // make dialog pieces
-                    String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
-                    String message = java.text.MessageFormat.format(context.cfg.gs("Renamer.run.on.N.locations"), renamer.getConfigName(), count, which);
-                    JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
-                    checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
-                    checkbox.setSelected(context.preferences.isDefaultDryrun());
-                    Object[] params = {message, checkbox};
-
-                    // confirm run of tool
-                    int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("Renamer.title"), JOptionPane.YES_NO_OPTION);
-                    isDryRun = checkbox.isSelected();
-                    if (reply == JOptionPane.YES_OPTION)
-                    {
-                        try
-                        {
-                            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                            setComponentEnabled(false);
-                            cancelButton.setEnabled(true);
-                            cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                            labelHelp.setEnabled(true);
-                            labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-                            Task task = new Task(renamer.getInternalName(), renamer.getConfigName());
-                            task.setOrigins(origins);
-
-                            if (isSubscriber)
-                                task.setSubscriberKey(Task.ANY_SERVER);
-                            else
-                                task.setPublisherKey(Task.ANY_SERVER);
-
-                            worker = task.process(context, renamer, isDryRun);
-                            if (worker != null)
-                            {
-                                workerRunning = true;
-                                worker.addPropertyChangeListener(new PropertyChangeListener()
-                                {
-                                    @Override
-                                    public void propertyChange(PropertyChangeEvent e)
-                                    {
-                                        if (e.getPropertyName().equals("state"))
-                                        {
-                                            if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                                processTerminated(task, renamer);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                            if (context.navigator != null)
-                            {
-                                logger.error(msg);
-                                JOptionPane.showMessageDialog(context.navigator.dialogRenamer, msg, context.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
-                            }
-                            else
-                                logger.error(msg);
-                        }
-                    }
-                }
+                if (isSubscriber)
+                    workerTask.setSubscriberKey(Task.ANY_SERVER);
                 else
-                {
-                    JOptionPane.showMessageDialog(this, context.cfg.gs("Renamer.nothing.selected.in.browser"),
-                            context.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
-                }
-            }
-            catch (Exception e)
-            {
-                if (!e.getMessage().equals("HANDLED_INTERNALLY"))
-                {
-                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                    if (context.navigator != null)
-                    {
-                        logger.error(msg);
-                        JOptionPane.showMessageDialog(context.navigator.dialogRenamer, msg, context.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-                    else
-                        logger.error(msg);
-                }
+                    workerTask.setPublisherKey(Task.ANY_SERVER);
+
+                workerTask.process(context);
             }
         }
     }
 
-    private void processTerminated(Task task, RenamerTool renamer)
+    private void processTerminated()
     {
         // reset and reload relevant trees
         if (!isDryRun) // && task.getTool().renameCount > 0)
@@ -859,21 +886,22 @@ public class RenamerUI extends AbstractToolDialog
             context.progress = null;
         }
 
-        Origins.setSelectedFromOrigins(context, this, task.getOrigins());
+        Origins.setSelectedFromOrigins(context, this, workerTask.getOrigins());
 
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        workerRunning = false;
-        workerRenamer = null;
 
         loadTable();
         processTable();
 
-        if (renamer.isRequestStop())
+        if (workerRenamer.isRequestStop())
         {
-            logger.info(renamer.getConfigName() + context.cfg.gs("Z.cancelled"));
-            context.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + context.cfg.gs("Z.cancelled"));
+            logger.info(workerRenamer.getConfigName() + context.cfg.gs("Z.cancelled"));
+            context.mainFrame.labelStatusMiddle.setText(workerRenamer.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
+
+        workerRunning = false;
+        workerRenamer = null;
     }
 
     private void processTable()
@@ -911,15 +939,6 @@ public class RenamerUI extends AbstractToolDialog
         RenamerTool renamer = null;
         try
         {
-            // write/update changed tool JSON configuration files
-            for (int i = 0; i < configModel.getRowCount(); ++i)
-            {
-                renamer = (RenamerTool) configModel.getValueAt(i, 0);
-                if (renamer.isDataChanged())
-                    renamer.write();
-                renamer.setDataHasChanged(false);
-            }
-
             // remove any deleted tools JSON configuration file
             for (int i = 0; i < deletedTools.size(); ++i)
             {
@@ -929,6 +948,15 @@ public class RenamerUI extends AbstractToolDialog
                 {
                     file.delete();
                 }
+            }
+            deletedTools = new ArrayList<AbstractTool>();
+
+            // write/update changed tool JSON configuration files
+            for (int i = 0; i < configModel.getRowCount(); ++i)
+            {
+                renamer = (RenamerTool) configModel.getValueAt(i, 0);
+                if (renamer.isDataChanged())
+                    renamer.write();
                 renamer.setDataHasChanged(false);
             }
 
@@ -1390,7 +1418,7 @@ public class RenamerUI extends AbstractToolDialog
                         panelTopButtons.add(hSpacerBeforeRun);
 
                         //---- buttonRun ----
-                        buttonRun.setText(context.cfg.gs("Renamer.button.Run.text"));
+                        buttonRun.setText(context.cfg.gs("Z.run"));
                         buttonRun.setMnemonic(context.cfg.gs("Renamer.button.Run.mnemonic").charAt(0));
                         buttonRun.setToolTipText(context.cfg.gs("Renamer.button.Run.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));
@@ -1566,6 +1594,7 @@ public class RenamerUI extends AbstractToolDialog
 
                                         //======== panelGettingStarted ========
                                         {
+                                            panelGettingStarted.setMaximumSize(null);
                                             panelGettingStarted.setLayout(new BorderLayout());
 
                                             //---- labelOperationGettingStarted ----
@@ -1580,7 +1609,7 @@ public class RenamerUI extends AbstractToolDialog
                                         {
                                             panelCaseChangeCard.setPreferredSize(new Dimension(328, 92));
                                             panelCaseChangeCard.setMinimumSize(new Dimension(328, 92));
-                                            panelCaseChangeCard.setMaximumSize(new Dimension(32767, 92));
+                                            panelCaseChangeCard.setMaximumSize(null);
                                             panelCaseChangeCard.addComponentListener(new ComponentAdapter() {
                                                 @Override
                                                 public void componentShown(ComponentEvent e) {
@@ -1620,7 +1649,7 @@ public class RenamerUI extends AbstractToolDialog
 
                                         //======== panelInsertCard ========
                                         {
-                                            panelInsertCard.setMaximumSize(new Dimension(32767, 92));
+                                            panelInsertCard.setMaximumSize(null);
                                             panelInsertCard.setMinimumSize(new Dimension(328, 92));
                                             panelInsertCard.setPreferredSize(new Dimension(328, 92));
                                             panelInsertCard.addComponentListener(new ComponentAdapter() {
@@ -1761,9 +1790,9 @@ public class RenamerUI extends AbstractToolDialog
 
                                         //======== panelNumberingCard ========
                                         {
-                                            panelNumberingCard.setMaximumSize(new Dimension(32767, 92));
                                             panelNumberingCard.setMinimumSize(new Dimension(328, 92));
                                             panelNumberingCard.setPreferredSize(new Dimension(328, 92));
+                                            panelNumberingCard.setMaximumSize(null);
                                             panelNumberingCard.addComponentListener(new ComponentAdapter() {
                                                 @Override
                                                 public void componentShown(ComponentEvent e) {
@@ -1940,7 +1969,7 @@ public class RenamerUI extends AbstractToolDialog
 
                                         //======== panelRemoveCard ========
                                         {
-                                            panelRemoveCard.setMaximumSize(new Dimension(32767, 92));
+                                            panelRemoveCard.setMaximumSize(null);
                                             panelRemoveCard.setMinimumSize(new Dimension(328, 92));
                                             panelRemoveCard.setPreferredSize(new Dimension(328, 92));
                                             panelRemoveCard.addComponentListener(new ComponentAdapter() {
@@ -2049,7 +2078,7 @@ public class RenamerUI extends AbstractToolDialog
 
                                         //======== panelReplaceCard ========
                                         {
-                                            panelReplaceCard.setMaximumSize(new Dimension(32767, 92));
+                                            panelReplaceCard.setMaximumSize(null);
                                             panelReplaceCard.setMinimumSize(new Dimension(328, 92));
                                             panelReplaceCard.setPreferredSize(new Dimension(328, 92));
                                             panelReplaceCard.addComponentListener(new ComponentAdapter() {

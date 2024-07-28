@@ -307,7 +307,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <h4>getClassLoader</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/ClassLoader.html?is-external=true" title="class or interface in java.lang">ClassLoader</a>&nbsp;getClassLoader()</pre>
 <div class="block">Returns the ClassLoader that will be used for scanning for classes. If no explicit ClassLoader has been set by
- the calling, the context class loader will be used.</div>
+ the calling, the localContext class loader will be used.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the ClassLoader that will be used to scan for classes</dd></dl>
 </li>
 </ul>
@@ -318,7 +318,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <li class="blockList">
 <h4>setClassLoader</h4>
 <pre>public&nbsp;void&nbsp;setClassLoader(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/ClassLoader.html?is-external=true" title="class or interface in java.lang">ClassLoader</a>&nbsp;aClassloader)</pre>
-<div class="block">Sets an explicit ClassLoader that should be used when scanning for classes. If none is set then the context
+<div class="block">Sets an explicit ClassLoader that should be used when scanning for classes. If none is set then the localContext
  ClassLoader will be used.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>aClassloader</code> - a ClassLoader to use when scanning for classes</dd></dl>
 </li>

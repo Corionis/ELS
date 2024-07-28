@@ -1,15 +1,11 @@
 package com.corionis.els.tools;
 
-import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Task;
 import com.corionis.els.Configuration;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
-import com.corionis.els.repository.Repository;
 
-import javax.swing.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * AbstractTool class
@@ -22,9 +18,7 @@ public abstract class AbstractTool implements Comparable, Serializable
     transient protected Context context;
     transient protected boolean dataHasChanged = false;
     transient protected String displayName; // GUI i18n display name
-    transient protected boolean includeInToolsList = true; // set by tool at runtime
     transient protected boolean isRemote;
-    transient protected boolean originPathsAllowed = true; // set by tool at runtime
     transient protected boolean stop = false;
 
     private AbstractTool()
@@ -86,23 +80,7 @@ public abstract class AbstractTool implements Comparable, Serializable
 
     abstract public String getSubsystem();
 
-    abstract public boolean isCachedLastTask();
-
-    abstract public boolean isDualRepositories();
-
     abstract public boolean isDataChanged();
-
-    public boolean isIncludeInToolsList()
-    {
-        return includeInToolsList;
-    }
-
-    public boolean isOriginPathsAllowed()
-    {
-        return originPathsAllowed;
-    }
-
-    abstract public boolean isRealOnly();
 
     public boolean isRemote()
     {
@@ -115,50 +93,72 @@ public abstract class AbstractTool implements Comparable, Serializable
     }
 
     /**
-     * Process an Operations tool
-     *
-     * @param context The runtime Context
-     * @param publisherPath Repository of the publisher or null
-     * @param subscriberPath Repository of the subscriber or null
-     * @param dryRun Boolean dryrun
-     * @throws Exception
+     * Does this tool use cached origins from a previous task?
+     * <br/>Override to change.
+     * @return boolean, default false
      */
-    public abstract void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception;
+    public boolean isToolCachedOrigins()
+    {
+        return false;
+    }
+
+    /**
+     * Is this tool a Hint Server?
+     * <br/>Override to change.
+     * @return boolean, default false
+     */
+    public boolean isToolHintServer()
+    {
+        return false;
+    }
+
+    /**
+     * Does this tool use origins?
+     * <br/>Override to change.
+     * @return boolean, default false
+     */
+    public boolean isToolOriginsUsed()
+    {
+        return false;
+    }
+
+    /**
+     * Does this tool use publisher OR subscriber if enabled?
+     * <br/>Override to change.
+     * @return boolean, default false uses publisher AND subscriber if enabled
+     */
+    public boolean isToolPubOrSub()
+    {
+        return false;
+    }
+
+    /**
+     * Does this tool use a publisher?
+     * <br/>Override to change.
+     * @return boolean, default true
+     */
+    public boolean isToolPublisher()
+    {
+        return true;
+    }
+
+    /**
+     * Does this tool use a subscriber?
+     * <br/>Override to change.
+     * @return boolean, default true
+     */
+    public boolean isToolSubscriber()
+    {
+        return true;
+    }
 
     /**
      * Process the tool
      *
-     * @param context The runtime Context
-     * @param publisherRepo Repository of the publisher or null
-     * @param subscriberRepo Repository of the subscriber or null
-     * @param origins ArrayList<Origin> of starting locations
-     * @param dryRun Boolean dryrun
+     * @param task Current Task
      * @throws Exception
      */
-    public abstract void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception;
-
-    /**
-     * Process an Operations tool on a SwingWorker thread
-     *
-     * @param context The runtime Context
-     * @param publisherPath Repository of the publisher or null
-     * @param subscriberPath Repository of the subscriber or null
-     * @param dryRun Boolean dryrun
-     * @return SwingWorker<Void, Void> of thread
-     */
-    public abstract SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception;
-
-    /**
-     * Process the tool on a SwingWorker thread
-     *
-     * @param context The runtime Context
-     * @param publisherRepo Repository of the publisher or null
-     * @param subscriberRepo Repository of the subscriber or null
-     * @param origins ArrayList<Origin> of starting locations
-     * @param dryRun Boolean dryrun
-     * @return SwingWorker<Void, Void> of thread
-     */
-    public abstract SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun);
+    public abstract void processTool(Task task) throws Exception;
 
     /**
      * Request the tool to stop (optional)
@@ -190,12 +190,7 @@ public abstract class AbstractTool implements Comparable, Serializable
         this.displayName = displayName;
     }
 
-    public void setIncludeInToolsList(boolean includeInToolsList)
-    {
-        this.includeInToolsList = includeInToolsList;
-    }
-
-    public void setIsRemote(boolean remote)
+    public void setRemote(boolean remote)
     {
         isRemote = remote;
     }

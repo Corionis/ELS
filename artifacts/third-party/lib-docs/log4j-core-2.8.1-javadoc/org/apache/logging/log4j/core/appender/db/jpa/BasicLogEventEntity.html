@@ -179,13 +179,13 @@ extends <a href="../../../../../../../../org/apache/logging/log4j/core/appender/
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/BasicLogEventEntity.html#getContextMap()">getContextMap</a></strong>()</code>
-<div class="block">Gets the context map.</div>
+<div class="block">Gets the localContext map.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/ThreadContext.ContextStack.html?is-external=true" title="class or interface in org.apache.logging.log4j">ThreadContext.ContextStack</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/BasicLogEventEntity.html#getContextStack()">getContextStack</a></strong>()</code>
-<div class="block">Gets the context stack.</div>
+<div class="block">Gets the localContext stack.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -469,8 +469,8 @@ extends <a href="../../../../../../../../org/apache/logging/log4j/core/appender/
 <li class="blockList">
 <h4>getContextMap</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getContextMap()</pre>
-<div class="block">Gets the context map. Annotated with <code>@Convert(converter = ContextMapAttributeConverter.class)</code>.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>the context map.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/converter/ContextMapAttributeConverter.html" title="class in org.apache.logging.log4j.core.appender.db.jpa.converter"><code>ContextMapAttributeConverter</code></a>, 
+<div class="block">Gets the localContext map. Annotated with <code>@Convert(converter = ContextMapAttributeConverter.class)</code>.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the localContext map.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/converter/ContextMapAttributeConverter.html" title="class in org.apache.logging.log4j.core.appender.db.jpa.converter"><code>ContextMapAttributeConverter</code></a>,
 <a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/converter/ContextMapJsonAttributeConverter.html" title="class in org.apache.logging.log4j.core.appender.db.jpa.converter"><code>ContextMapJsonAttributeConverter</code></a></dd></dl>
 </li>
 </ul>
@@ -481,8 +481,8 @@ extends <a href="../../../../../../../../org/apache/logging/log4j/core/appender/
 <li class="blockList">
 <h4>getContextStack</h4>
 <pre>public&nbsp;<a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/ThreadContext.ContextStack.html?is-external=true" title="class or interface in org.apache.logging.log4j">ThreadContext.ContextStack</a>&nbsp;getContextStack()</pre>
-<div class="block">Gets the context stack. Annotated with <code>@Convert(converter = ContextStackAttributeConverter.class)</code>.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>the context stack.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/converter/ContextStackAttributeConverter.html" title="class in org.apache.logging.log4j.core.appender.db.jpa.converter"><code>ContextStackAttributeConverter</code></a>, 
+<div class="block">Gets the localContext stack. Annotated with <code>@Convert(converter = ContextStackAttributeConverter.class)</code>.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the localContext stack.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/converter/ContextStackAttributeConverter.html" title="class in org.apache.logging.log4j.core.appender.db.jpa.converter"><code>ContextStackAttributeConverter</code></a>,
 <a href="../../../../../../../../org/apache/logging/log4j/core/appender/db/jpa/converter/ContextStackJsonAttributeConverter.html" title="class in org.apache.logging.log4j.core.appender.db.jpa.converter"><code>ContextStackJsonAttributeConverter</code></a></dd></dl>
 </li>
 </ul>

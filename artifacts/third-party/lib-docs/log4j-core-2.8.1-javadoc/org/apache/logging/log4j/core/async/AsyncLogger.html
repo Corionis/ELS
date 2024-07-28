@@ -187,11 +187,11 @@ implements com.lmax.disruptor.EventTranslatorVararg&lt;<a href="../../../../../.
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/AsyncLogger.html#AsyncLogger(org.apache.logging.log4j.core.LoggerContext,%20java.lang.String,%20org.apache.logging.log4j.message.MessageFactory,%20org.apache.logging.log4j.core.async.AsyncLoggerDisruptor)">AsyncLogger</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context,
+<td class="colOne"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/AsyncLogger.html#AsyncLogger(org.apache.logging.log4j.core.LoggerContext,%20java.lang.String,%20org.apache.logging.log4j.message.MessageFactory,%20org.apache.logging.log4j.core.async.AsyncLoggerDisruptor)">AsyncLogger</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext,
            <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
            <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/message/MessageFactory.html?is-external=true" title="class or interface in org.apache.logging.log4j.message">MessageFactory</a>&nbsp;messageFactory,
            <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/core.async.AsyncLoggerDisruptor.html?is-external=true" title="class or interface in org.apache.logging.log4j">org.apache.logging.log4j.core.async.AsyncLoggerDisruptor</a>&nbsp;loggerDisruptor)</code>
-<div class="block">Constructs an <code>AsyncLogger</code> with the specified context, name and message factory.</div>
+<div class="block">Constructs an <code>AsyncLogger</code> with the specified localContext, name and message factory.</div>
 </td>
 </tr>
 </table>
@@ -277,12 +277,12 @@ implements com.lmax.disruptor.EventTranslatorVararg&lt;<a href="../../../../../.
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AsyncLogger</h4>
-<pre>public&nbsp;AsyncLogger(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context,
+<pre>public&nbsp;AsyncLogger(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext,
            <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
            <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/message/MessageFactory.html?is-external=true" title="class or interface in org.apache.logging.log4j.message">MessageFactory</a>&nbsp;messageFactory,
            <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/core.async.AsyncLoggerDisruptor.html?is-external=true" title="class or interface in org.apache.logging.log4j">org.apache.logging.log4j.core.async.AsyncLoggerDisruptor</a>&nbsp;loggerDisruptor)</pre>
-<div class="block">Constructs an <code>AsyncLogger</code> with the specified context, name and message factory.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>context</code> - context of this logger</dd><dd><code>name</code> - name of this logger</dd><dd><code>messageFactory</code> - message factory of this logger</dd><dd><code>loggerDisruptor</code> - helper class that logging can be delegated to. This object owns the Disruptor.</dd></dl>
+<div class="block">Constructs an <code>AsyncLogger</code> with the specified localContext, name and message factory.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>localContext</code> - localContext of this logger</dd><dd><code>name</code> - name of this logger</dd><dd><code>messageFactory</code> - message factory of this logger</dd><dd><code>loggerDisruptor</code> - helper class that logging can be delegated to. This object owns the Disruptor.</dd></dl>
 </li>
 </ul>
 </li>

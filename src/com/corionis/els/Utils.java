@@ -1079,7 +1079,7 @@ public class Utils
     /**
      * Make a path relative to the working directory if possible
      *
-     * @param workingDirectory The current working directory, context.cfg.getWorkingDirectory()
+     * @param workingDirectory The current working directory, localContext.cfg.getWorkingDirectory()
      * @param path The path to reduce
      * @return String the path, potentially shortened to be relative to the working path
      */

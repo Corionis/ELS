@@ -240,9 +240,9 @@ public class DownloadUpdater extends JFrame
                         }
                         else
                         {
-//                            message = java.text.MessageFormat.format(context.cfg.gs("Navigator.update.not.found"), updateArchive);
-//                            Object[] opts = {context.cfg.gs("Z.ok")};
-//                            JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
+//                            message = java.text.MessageFormat.format(localContext.cfg.gs("Navigator.update.not.found"), updateArchive);
+//                            Object[] opts = {localContext.cfg.gs("Z.ok")};
+//                            JOptionPane.showOptionDialog(localContext.mainFrame, message, localContext.cfg.gs("Navigator.update"),
 //                                    JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
                             return false;
                         }

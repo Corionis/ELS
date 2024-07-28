@@ -43,27 +43,42 @@
 </head>
 <body>
 <h2>Operations</h2>
-<p>Operations define parameters and options for executing ELS in one of the
-various modes. Paths are for the local system.</p>
 
 <p>
+  Operations define parameters and options for executing ELS in one of the various modes.
+</p>
+
+<p>
+  &bull; Paths are for the local system.
+</p>
+
+<p>
+&bull; Named configurations may be executed by adding the Operation as a Task in a Job.
+<!--
 Named configurations may be executed:
 <ul>
   <li>Using the Run button</li>
   <li>Added as a Task in a Job</li>
   <li>With a command line copy or shortcut using the Generate button</li>
 </ul>
-
-<p>The publisher and subscriber for execution come from, respectively:</p>
-<ul>
-  <li>The currently loaded libraries in the ELS Navigator Browser.</li>
-  <li>From the defined Task Origins in a Job.</li>
-  <li>As parameters in the command line -p|-P and -s|-S.</li>
-</ul>
+-->
+</p>
+<br/>
+<p>
+  The publisher and subscriber for execution come from, respectively:
+</p>
+<p>
+  &bull; The currently-loaded libraries in the ELS Navigator Browser when the Task Origin option ANY is used.
+</p>
+<p>
+  &bull; From the defined Task Origins in a Job.
+</p>
+<p>
+  &bull; As parameters in the command line -p|-P and -s|-S when the Task Origin option ANY is used.
 </p>
 
 <h3>Operational Modes</h3>
-<p>ELS may be executed in one of the following modes and as a task in a Job. (* = Advanced).</p>
+<p>ELS may be executed in one of the following modes and as a task in a Job..</p>
 <ul>
   <li>Local publish : Back-up with all storage connected to the local system.</li>
   <li>Remote publish : Back-up using two systems over a LAN or Internet.</li>
@@ -78,12 +93,14 @@ Named configurations may be executed:
 
 <p>For remote operations both computers use copies of the each other's JSON library files.</p>
 
+<!--
 <h3>Generate Button</h3>
 <p>The Generate button creates a command line for executing the currently-selected
 operation using the current Publisher, Subscriber, Hint Keys and Hint Tracking as
 arguments, if appropriate and available. If not available those arguments will be missing from the
 generated command. Edit and copy (Ctrl-C) as desired, or select the Shortcut button to create a
 desktop shortcut.</p>
+-->
 
 <h3>Options</h3>
 <p>Listed alphabetically. The single-letter and long variations are shown. Which options

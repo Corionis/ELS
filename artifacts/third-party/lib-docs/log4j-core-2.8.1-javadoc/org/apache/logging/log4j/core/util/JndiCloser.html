@@ -122,13 +122,13 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/util/JndiCloser.html#close(javax.naming.Context)">close</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/Context.html?is-external=true" title="class or interface in javax.naming">Context</a>&nbsp;context)</code>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/util/JndiCloser.html#close(javax.naming.Context)">close</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/Context.html?is-external=true" title="class or interface in javax.naming">Context</a>&nbsp;localContext)</code>
 <div class="block">Closes the specified <code>Context</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
-<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/util/JndiCloser.html#closeSilently(javax.naming.Context)">closeSilently</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/Context.html?is-external=true" title="class or interface in javax.naming">Context</a>&nbsp;context)</code>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/util/JndiCloser.html#closeSilently(javax.naming.Context)">closeSilently</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/Context.html?is-external=true" title="class or interface in javax.naming">Context</a>&nbsp;localContext)</code>
 <div class="block">Closes the specified <code>Context</code>, ignoring any exceptions thrown by the close operation.</div>
 </td>
 </tr>
@@ -160,10 +160,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>close</h4>
-<pre>public static&nbsp;void&nbsp;close(<a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/Context.html?is-external=true" title="class or interface in javax.naming">Context</a>&nbsp;context)
+<pre>public static&nbsp;void&nbsp;close(<a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/Context.html?is-external=true" title="class or interface in javax.naming">Context</a>&nbsp;localContext)
                   throws <a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/NamingException.html?is-external=true" title="class or interface in javax.naming">NamingException</a></pre>
 <div class="block">Closes the specified <code>Context</code>.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>context</code> - the JNDI Context to close, may be <code>null</code></dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>localContext</code> - the JNDI Context to close, may be <code>null</code></dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/NamingException.html?is-external=true" title="class or interface in javax.naming">NamingException</a></code> - if a problem occurred closing the specified JNDI Context</dd></dl>
 </li>
@@ -174,9 +174,9 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <ul class="blockListLast">
 <li class="blockList">
 <h4>closeSilently</h4>
-<pre>public static&nbsp;boolean&nbsp;closeSilently(<a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/Context.html?is-external=true" title="class or interface in javax.naming">Context</a>&nbsp;context)</pre>
+<pre>public static&nbsp;boolean&nbsp;closeSilently(<a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/Context.html?is-external=true" title="class or interface in javax.naming">Context</a>&nbsp;localContext)</pre>
 <div class="block">Closes the specified <code>Context</code>, ignoring any exceptions thrown by the close operation.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>context</code> - the JNDI Context to close, may be <code>null</code></dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>localContext</code> - the JNDI Context to close, may be <code>null</code></dd></dl>
 </li>
 </ul>
 </li>

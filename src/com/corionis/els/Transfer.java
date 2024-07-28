@@ -459,36 +459,39 @@ public class Transfer
                 }
 
                 // check for opening commands from Subscriber
-                // *** might change context.cfg options for subscriber and targets that are handled below ***
+                // *** might change localContext.cfg options for subscriber and targets that are handled below ***
                 if (context.clientStty.checkBannerCommands())
                 {
                     logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
                 }
             }
 
-            if (context.cfg.isNavigator())
+            if (!context.cfg.isLoggerView())
             {
-                if (context.cfg.isRemoteOperation())
+                if (context.cfg.isNavigator())
                 {
-                    requestLibrary();
-                }
-            }
-            else
-            {
-                // get -s Subscriber libraries
-                if (context.cfg.getSubscriberLibrariesFileName().length() > 0)
-                {
-                    if (context.cfg.isRemoteOperation() && context.cfg.isRequestCollection())
+                    if (context.cfg.isRemoteOperation())
                     {
-                        requestCollection();
+                        requestLibrary();
                     }
                 }
-
-                // get -t|T Targets
-                if (context.cfg.isTargetsEnabled())
+                else
                 {
-                    logger.info(context.cfg.gs("Transfer.requesting.subscriber.targets"));
-                    getStorageTargets();
+                    // get -s Subscriber libraries
+                    if (context.cfg.getSubscriberLibrariesFileName().length() > 0)
+                    {
+                        if (context.cfg.isRemoteOperation() && context.cfg.isRequestCollection())
+                        {
+                            requestCollection();
+                        }
+                    }
+
+                    // get -t|T Targets
+                    if (context.cfg.isTargetsEnabled())
+                    {
+                        logger.info(context.cfg.gs("Transfer.requesting.subscriber.targets"));
+                        getStorageTargets();
+                    }
                 }
             }
         }
@@ -961,6 +964,7 @@ public class Transfer
             context.cfg.setSubscriberCollectionFilename(""); // clear so the library file will be used
             context.cfg.setSubscriberLibrariesFileName(location);
             context.subscriberRepo.read(context.cfg.getSubscriberLibrariesFileName(), "Subscriber", true);
+            context.subscriberRepo.setDynamic(true);
         }
     }
 

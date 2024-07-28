@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.10" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.3.0.386" Java: "17.0.11" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": false
@@ -52,7 +52,7 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonRun"
-								"text": new FormMessage( null, "HintsUI.buttonRun.text" )
+								"text": new FormMessage( null, "Z.run.ellipsis" )
 								"mnemonic": new FormMessage( null, "HintsUI.buttonRun.mnemonic" )
 								"toolTipText": new FormMessage( null, "HintsUI.buttonRun.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRunClicked", true ) )
@@ -139,6 +139,7 @@ new FormModel {
 					name: "panelBottom"
 					add( new FormComponent( "javax.swing.JLabel" ) {
 						name: "labelStatus"
+						"maximumSize": new java.awt.Dimension( 32768, 0 )
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "Center"
 					} )

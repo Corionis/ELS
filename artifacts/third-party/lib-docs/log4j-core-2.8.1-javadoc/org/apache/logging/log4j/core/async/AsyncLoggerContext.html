@@ -222,7 +222,7 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.h
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/AsyncLoggerContext.html#setUseThreadLocals(boolean)">setUseThreadLocals</a></strong>(boolean&nbsp;useThreadLocals)</code>
-<div class="block">Signals this context whether it is allowed to use ThreadLocal objects for efficiency.</div>
+<div class="block">Signals this localContext whether it is allowed to use ThreadLocal objects for efficiency.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -413,7 +413,7 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.h
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html#stop(long,%20java.util.concurrent.TimeUnit)">stop</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>timeout</code> - the maximum time to wait, or 0 which mean that each apppender uses its default timeout, and don't wait for background
     tasks</dd><dd><code>timeUnit</code> - the time unit of the timeout argument</dd>
-<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the logger context terminated and <code>false</code> if the timeout elapsed before
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the logger localContext terminated and <code>false</code> if the timeout elapsed before
          termination.</dd></dl>
 </li>
 </ul>
@@ -436,8 +436,8 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.h
 <li class="blockList">
 <h4>setUseThreadLocals</h4>
 <pre>public&nbsp;void&nbsp;setUseThreadLocals(boolean&nbsp;useThreadLocals)</pre>
-<div class="block">Signals this context whether it is allowed to use ThreadLocal objects for efficiency.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>useThreadLocals</code> - whether this context is allowed to use ThreadLocal objects</dd></dl>
+<div class="block">Signals this localContext whether it is allowed to use ThreadLocal objects for efficiency.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>useThreadLocals</code> - whether this localContext is allowed to use ThreadLocal objects</dd></dl>
 </li>
 </ul>
 </li>

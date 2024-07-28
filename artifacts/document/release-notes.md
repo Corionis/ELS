@@ -141,7 +141,13 @@ upgrading for changes, additions and enhancements.
     "-C ." for the current directory.
 
 18. Added --marker "arg" to aid in identifying a running process. Any "arg" is ignored.
-    This option has no effect on ELS and is intended to help with scripting if needed.    
+    This option has no effect on ELS and is intended to help with scripting if needed.
+
+19. Added -O | --override-subscriber-host to use the listen address:port for out-going connections
+    to a Subscriber instead of the host. Used for LAN connections when host is used over the Internet.
+
+20. Added -J | --override-hint-host to use the listen address:port for out-going connections
+    to a Hint Server instead of the host. Used for LAN connections when host is used over the Internet.
 
 
 ### Other Changes

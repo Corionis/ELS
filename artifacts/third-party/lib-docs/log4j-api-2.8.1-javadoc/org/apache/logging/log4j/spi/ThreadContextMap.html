@@ -124,31 +124,31 @@
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.html#clear()">clear</a></strong>()</code>
-<div class="block">Clears the context.</div>
+<div class="block">Clears the localContext.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.html#containsKey(java.lang.String)">containsKey</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</code>
-<div class="block">Determines if the key is in the context.</div>
+<div class="block">Determines if the key is in the localContext.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.html#get(java.lang.String)">get</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</code>
-<div class="block">Gets the context identified by the <code>key</code> parameter.</div>
+<div class="block">Gets the localContext identified by the <code>key</code> parameter.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.html#getCopy()">getCopy</a></strong>()</code>
-<div class="block">Gets a non-<code>null</code> mutable copy of current thread's context Map.</div>
+<div class="block">Gets a non-<code>null</code> mutable copy of current thread's localContext Map.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.html#getImmutableMapOrNull()">getImmutableMapOrNull</a></strong>()</code>
-<div class="block">Returns an immutable view on the context Map or <code>null</code> if the context map is empty.</div>
+<div class="block">Returns an immutable view on the localContext Map or <code>null</code> if the localContext map is empty.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -161,15 +161,15 @@
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.html#put(java.lang.String,%20java.lang.String)">put</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key,
    <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;value)</code>
-<div class="block">Puts a context value (the <code>o</code> parameter) as identified
+<div class="block">Puts a localContext value (the <code>o</code> parameter) as identified
  with the <code>key</code> parameter into the current thread's
- context map.</div>
+ localContext map.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/spi/ThreadContextMap.html#remove(java.lang.String)">remove</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</code>
-<div class="block">Removes the the context identified by the <code>key</code>
+<div class="block">Removes the the localContext identified by the <code>key</code>
  parameter.</div>
 </td>
 </tr>
@@ -195,7 +195,7 @@
 <li class="blockList">
 <h4>clear</h4>
 <pre>void&nbsp;clear()</pre>
-<div class="block">Clears the context.</div>
+<div class="block">Clears the localContext.</div>
 </li>
 </ul>
 <a name="containsKey(java.lang.String)">
@@ -205,9 +205,9 @@
 <li class="blockList">
 <h4>containsKey</h4>
 <pre>boolean&nbsp;containsKey(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<div class="block">Determines if the key is in the context.</div>
+<div class="block">Determines if the key is in the localContext.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - The key to locate.</dd>
-<dt><span class="strong">Returns:</span></dt><dd>True if the key is in the context, false otherwise.</dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>True if the key is in the localContext, false otherwise.</dd></dl>
 </li>
 </ul>
 <a name="get(java.lang.String)">
@@ -217,7 +217,7 @@
 <li class="blockList">
 <h4>get</h4>
 <pre><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;get(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<div class="block">Gets the context identified by the <code>key</code> parameter.
+<div class="block">Gets the localContext identified by the <code>key</code> parameter.
 
  <p>This method has no side effects.</p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - The key to locate.</dd>
@@ -231,8 +231,8 @@
 <li class="blockList">
 <h4>getCopy</h4>
 <pre><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getCopy()</pre>
-<div class="block">Gets a non-<code>null</code> mutable copy of current thread's context Map.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>a mutable copy of the context.</dd></dl>
+<div class="block">Gets a non-<code>null</code> mutable copy of current thread's localContext Map.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a mutable copy of the localContext.</dd></dl>
 </li>
 </ul>
 <a name="getImmutableMapOrNull()">
@@ -242,8 +242,8 @@
 <li class="blockList">
 <h4>getImmutableMapOrNull</h4>
 <pre><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getImmutableMapOrNull()</pre>
-<div class="block">Returns an immutable view on the context Map or <code>null</code> if the context map is empty.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>an immutable context Map or <code>null</code>.</dd></dl>
+<div class="block">Returns an immutable view on the localContext Map or <code>null</code> if the localContext map is empty.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>an immutable localContext Map or <code>null</code>.</dd></dl>
 </li>
 </ul>
 <a name="isEmpty()">
@@ -265,11 +265,11 @@
 <h4>put</h4>
 <pre>void&nbsp;put(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key,
        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;value)</pre>
-<div class="block">Puts a context value (the <code>o</code> parameter) as identified
+<div class="block">Puts a localContext value (the <code>o</code> parameter) as identified
  with the <code>key</code> parameter into the current thread's
- context map.
+ localContext map.
 
- <p>If the current thread does not have a context map it is
+ <p>If the current thread does not have a localContext map it is
  created as a side effect.</p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - The key name.</dd><dd><code>value</code> - The key value.</dd></dl>
 </li>
@@ -281,7 +281,7 @@
 <li class="blockList">
 <h4>remove</h4>
 <pre>void&nbsp;remove(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<div class="block">Removes the the context identified by the <code>key</code>
+<div class="block">Removes the the localContext identified by the <code>key</code>
  parameter.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - The key to remove.</dd></dl>
 </li>

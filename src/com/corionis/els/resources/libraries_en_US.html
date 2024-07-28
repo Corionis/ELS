@@ -58,7 +58,8 @@
 
   <li id="opts">Listen<br/>
     Listen is the hostname:port or IP address:port listener operations use to listen for incoming connections. If not defined
-    Host is used. This setting is used with NAT or port forwarding to route incoming traffic to an inside system on a LAN.</li>
+    Host is used. This setting is used with NAT or port forwarding to route incoming traffic to an inside system on a LAN.
+    If it is the same IP as the host the port must be > +2 of the host port. Those two ports are used by the sftp component.</li>
 
   <li id="opts">Time-out<br/>
     The number of minutes before a listen operation times-out and throws an error. A "heartbeat" is used during long
@@ -98,9 +99,8 @@
 
 <p>&nbsp;</p>
 
-<p>Fully-qualified partial paths to their
-length should match the beginning of the full paths used in Library sources. Relative partial paths to their length should be contained
-within the full paths used in Library sources.</p>
+<p>Fully-qualified partial paths to their length should match the beginning of the full paths used in
+Library sources. Relative partial paths to their length should be contained within the full paths used in Library sources.</p>
 
   <h4><i>Examples:</i></h4>
   <table>
@@ -140,7 +140,7 @@ space from Targets override Locations.</p>
 <<p>&nbsp;</p>
 
 <p>The order of the sources defines the order searched for available free space, depending on the
-run-time setting of "Back-fill".</p>
+runtime setting of "Back-fill".</p>
 
 <br/>
 <br/>

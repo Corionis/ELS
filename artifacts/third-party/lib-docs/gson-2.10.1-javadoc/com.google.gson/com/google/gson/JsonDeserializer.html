@@ -161,7 +161,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 
  <pre>
  class IdDeserializer implements JsonDeserializer&lt;Id&gt; {
-   public Id deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+   public Id deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext localContext)
        throws JsonParseException {
      long idValue = json.getAsJsonPrimitive().getAsLong();
      return new Id((Class) typeOfT, idValue);
@@ -208,7 +208,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="JsonDeserializer.html" title="type parameter in JsonDeserializer">T</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#deserialize(com.google.gson.JsonElement,java.lang.reflect.Type,com.google.gson.JsonDeserializationContext)">deserialize</a></span>&#8203;(<a href="JsonElement.html" title="class in com.google.gson">JsonElement</a>&nbsp;json,
            <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;typeOfT,
-           <a href="JsonDeserializationContext.html" title="interface in com.google.gson">JsonDeserializationContext</a>&nbsp;context)</code></th>
+           <a href="JsonDeserializationContext.html" title="interface in com.google.gson">JsonDeserializationContext</a>&nbsp;localContext)</code></th>
 <td class="colLast">
 <div class="block">Gson invokes this call-back method during deserialization when it encounters a field of the
  specified type.</div>
@@ -239,7 +239,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>deserialize</h4>
 <pre class="methodSignature"><a href="JsonDeserializer.html" title="type parameter in JsonDeserializer">T</a>&nbsp;deserialize&#8203;(<a href="JsonElement.html" title="class in com.google.gson">JsonElement</a>&nbsp;json,
               <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;typeOfT,
-              <a href="JsonDeserializationContext.html" title="interface in com.google.gson">JsonDeserializationContext</a>&nbsp;context)
+              <a href="JsonDeserializationContext.html" title="interface in com.google.gson">JsonDeserializationContext</a>&nbsp;localContext)
        throws <a href="JsonParseException.html" title="class in com.google.gson">JsonParseException</a></pre>
 <div class="block">Gson invokes this call-back method during deserialization when it encounters a field of the
  specified type.

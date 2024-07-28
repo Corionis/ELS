@@ -299,11 +299,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html#clear()">clear()</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ReadOnlyThreadContextMap</a></dt>
 <dd>
-<div class="block">Clears the context.</div>
+<div class="block">Clears the localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ThreadContextMap.html#clear()">clear()</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ThreadContextMap</a></dt>
 <dd>
-<div class="block">Clears the context.</div>
+<div class="block">Clears the localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/status/StatusLogger.html#clear()">clear()</a></span> - Method in class org.apache.logging.log4j.status.<a href="./org/apache/logging/log4j/status/StatusLogger.html" title="class in org.apache.logging.log4j.status">StatusLogger</a></dt>
 <dd>
@@ -317,11 +317,11 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#clearAll()">clearAll()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Clears the context map and stack.</div>
+<div class="block">Clears the localContext map and stack.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#clearMap()">clearMap()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Clears the context map.</div>
+<div class="block">Clears the localContext map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#clearStack()">clearStack()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
@@ -367,15 +367,15 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html#containsKey(java.lang.String)">containsKey(String)</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ReadOnlyThreadContextMap</a></dt>
 <dd>
-<div class="block">Determines if the key is in the context.</div>
+<div class="block">Determines if the key is in the localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ThreadContextMap.html#containsKey(java.lang.String)">containsKey(String)</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ThreadContextMap</a></dt>
 <dd>
-<div class="block">Determines if the key is in the context.</div>
+<div class="block">Determines if the key is in the localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#containsKey(java.lang.String)">containsKey(String)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Determines if the key is in the context.</div>
+<div class="block">Determines if the key is in the localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/util/ReadOnlyStringMap.html#containsKey(java.lang.String)">containsKey(String)</a></span> - Method in interface org.apache.logging.log4j.util.<a href="./org/apache/logging/log4j/util/ReadOnlyStringMap.html" title="interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a></dt>
 <dd>
@@ -1761,7 +1761,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/MutableThreadContextStack.html#freeze()">freeze()</a></span> - Method in class org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/MutableThreadContextStack.html" title="class in org.apache.logging.log4j.spi">MutableThreadContextStack</a></dt>
 <dd>
-<div class="block">"Freezes" this context stack so it becomes immutable: all mutator methods will throw an exception from now on.</div>
+<div class="block">"Freezes" this localContext stack so it becomes immutable: all mutator methods will throw an exception from now on.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/util/SortedArrayStringMap.html#freeze()">freeze()</a></span> - Method in class org.apache.logging.log4j.util.<a href="./org/apache/logging/log4j/util/SortedArrayStringMap.html" title="class in org.apache.logging.log4j.util">SortedArrayStringMap</a></dt>
 <dd>&nbsp;</dd>
@@ -1785,15 +1785,15 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html#get(java.lang.String)">get(String)</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ReadOnlyThreadContextMap</a></dt>
 <dd>
-<div class="block">Gets the context identified by the <code>key</code> parameter.</div>
+<div class="block">Gets the localContext identified by the <code>key</code> parameter.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ThreadContextMap.html#get(java.lang.String)">get(String)</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ThreadContextMap</a></dt>
 <dd>
-<div class="block">Gets the context identified by the <code>key</code> parameter.</div>
+<div class="block">Gets the localContext identified by the <code>key</code> parameter.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#get(java.lang.String)">get(String)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Gets the context value identified by the <code>key</code> parameter.</div>
+<div class="block">Gets the localContext value identified by the <code>key</code> parameter.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/util/LambdaUtil.html#get(org.apache.logging.log4j.util.Supplier)">get(Supplier&lt;?&gt;)</a></span> - Static method in class org.apache.logging.log4j.util.<a href="./org/apache/logging/log4j/util/LambdaUtil.html" title="class in org.apache.logging.log4j.util">LambdaUtil</a></dt>
 <dd>
@@ -1906,7 +1906,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#getContext()">getContext()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Returns a mutable copy of current thread's context Map.</div>
+<div class="block">Returns a mutable copy of current thread's localContext Map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/DefaultThreadContextMap.html#getCopy()">getCopy()</a></span> - Method in class org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/DefaultThreadContextMap.html" title="class in org.apache.logging.log4j.spi">DefaultThreadContextMap</a></dt>
 <dd>&nbsp;</dd>
@@ -1914,11 +1914,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html#getCopy()">getCopy()</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ReadOnlyThreadContextMap</a></dt>
 <dd>
-<div class="block">Gets a non-<code>null</code> mutable copy of current thread's context Map.</div>
+<div class="block">Gets a non-<code>null</code> mutable copy of current thread's localContext Map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ThreadContextMap.html#getCopy()">getCopy()</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ThreadContextMap</a></dt>
 <dd>
-<div class="block">Gets a non-<code>null</code> mutable copy of current thread's context Map.</div>
+<div class="block">Gets a non-<code>null</code> mutable copy of current thread's localContext Map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/util/ReflectionUtil.html#getCurrentStackTrace()">getCurrentStackTrace()</a></span> - Static method in class org.apache.logging.log4j.util.<a href="./org/apache/logging/log4j/util/ReflectionUtil.html" title="class in org.apache.logging.log4j.util">ReflectionUtil</a></dt>
 <dd>&nbsp;</dd>
@@ -1960,7 +1960,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/LoggerContext.html#getExternalContext()">getExternalContext()</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/LoggerContext.html" title="interface in org.apache.logging.log4j.spi">LoggerContext</a></dt>
 <dd>
-<div class="block">An anchor for some other context, such as a ClassLoader or ServletContext.</div>
+<div class="block">An anchor for some other localContext, such as a ClassLoader or ServletContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/LogManager.html#getFactory()">getFactory()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/LogManager.html" title="class in org.apache.logging.log4j">LogManager</a></dt>
 <dd>
@@ -2126,7 +2126,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#getImmutableContext()">getImmutableContext()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Returns an immutable view of the current thread's context Map.</div>
+<div class="block">Returns an immutable view of the current thread's localContext Map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/DefaultThreadContextMap.html#getImmutableMapOrNull()">getImmutableMapOrNull()</a></span> - Method in class org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/DefaultThreadContextMap.html" title="class in org.apache.logging.log4j.spi">DefaultThreadContextMap</a></dt>
 <dd>&nbsp;</dd>
@@ -2134,15 +2134,15 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html#getImmutableMapOrNull()">getImmutableMapOrNull()</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ReadOnlyThreadContextMap</a></dt>
 <dd>
-<div class="block">Returns an immutable view on the context Map or <code>null</code> if the context map is empty.</div>
+<div class="block">Returns an immutable view on the localContext Map or <code>null</code> if the localContext map is empty.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ThreadContextMap.html#getImmutableMapOrNull()">getImmutableMapOrNull()</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ThreadContextMap</a></dt>
 <dd>
-<div class="block">Returns an immutable view on the context Map or <code>null</code> if the context map is empty.</div>
+<div class="block">Returns an immutable view on the localContext Map or <code>null</code> if the localContext map is empty.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#getImmutableStack()">getImmutableStack()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Gets an immutable copy of this current thread's context stack.</div>
+<div class="block">Gets an immutable copy of this current thread's localContext stack.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/DefaultThreadContextStack.html#getImmutableStackOrNull()">getImmutableStackOrNull()</a></span> - Method in class org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/DefaultThreadContextStack.html" title="class in org.apache.logging.log4j.spi">DefaultThreadContextStack</a></dt>
 <dd>&nbsp;</dd>
@@ -2426,11 +2426,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html#getReadOnlyContextData()">getReadOnlyContextData()</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ReadOnlyThreadContextMap</a></dt>
 <dd>
-<div class="block">Returns the context data for reading.</div>
+<div class="block">Returns the localContext data for reading.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ThreadContextMap2.html#getReadOnlyContextData()">getReadOnlyContextData()</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ThreadContextMap2.html" title="interface in org.apache.logging.log4j.spi">ThreadContextMap2</a></dt>
 <dd>
-<div class="block">Returns the context data for reading.</div>
+<div class="block">Returns the localContext data for reading.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/message/StructuredDataId.html#getRequired()">getRequired()</a></span> - Method in class org.apache.logging.log4j.message.<a href="./org/apache/logging/log4j/message/StructuredDataId.html" title="class in org.apache.logging.log4j.message">StructuredDataId</a></dt>
 <dd>
@@ -2498,7 +2498,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#getThreadContextMap()">getThreadContextMap()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Returns a read-only view of the internal data structure used to store thread context key-value pairs,
+<div class="block">Returns a read-only view of the internal data structure used to store thread localContext key-value pairs,
  or <code>null</code> if the internal data structure does not implement the
  <code>ReadOnlyThreadContextMap</code> interface.</div>
 </dd>
@@ -2689,7 +2689,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/util/LoaderUtil.html#IGNORE_TCCL_PROPERTY">IGNORE_TCCL_PROPERTY</a></span> - Static variable in class org.apache.logging.log4j.util.<a href="./org/apache/logging/log4j/util/LoaderUtil.html" title="class in org.apache.logging.log4j.util">LoaderUtil</a></dt>
 <dd>
-<div class="block">System property to set to ignore the thread context ClassLoader.</div>
+<div class="block">System property to set to ignore the thread localContext ClassLoader.</div>
 </dd>
 <dt><a href="./org/apache/logging/log4j/util/IndexedReadOnlyStringMap.html" title="interface in org.apache.logging.log4j.util"><span class="strong">IndexedReadOnlyStringMap</span></a> - Interface in <a href="./org/apache/logging/log4j/util/package-summary.html">org.apache.logging.log4j.util</a></dt>
 <dd>
@@ -3312,7 +3312,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/MutableThreadContextStack.html#isFrozen()">isFrozen()</a></span> - Method in class org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/MutableThreadContextStack.html" title="class in org.apache.logging.log4j.spi">MutableThreadContextStack</a></dt>
 <dd>
-<div class="block">Returns whether this context stack is frozen.</div>
+<div class="block">Returns whether this localContext stack is frozen.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/util/SortedArrayStringMap.html#isFrozen()">isFrozen()</a></span> - Method in class org.apache.logging.log4j.util.<a href="./org/apache/logging/log4j/util/SortedArrayStringMap.html" title="class in org.apache.logging.log4j.util">SortedArrayStringMap</a></dt>
 <dd>&nbsp;</dd>
@@ -4692,7 +4692,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#peek()">peek()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Looks at the last diagnostic context at the top of this NDC without removing it.</div>
+<div class="block">Looks at the last diagnostic localContext at the top of this NDC without removing it.</div>
 </dd>
 <dt><a href="./org/apache/logging/log4j/util/PerformanceSensitive.html" title="annotation in org.apache.logging.log4j.util"><span class="strong">PerformanceSensitive</span></a> - Annotation Type in <a href="./org/apache/logging/log4j/util/package-summary.html">org.apache.logging.log4j.util</a></dt>
 <dd>
@@ -4755,19 +4755,19 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/CloseableThreadContext.Instance.html#push(java.lang.String)">push(String)</a></span> - Method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/CloseableThreadContext.Instance.html" title="class in org.apache.logging.log4j">CloseableThreadContext.Instance</a></dt>
 <dd>
-<div class="block">Pushes new diagnostic context information on to the Thread Context Stack.</div>
+<div class="block">Pushes new diagnostic localContext information on to the Thread Context Stack.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/CloseableThreadContext.Instance.html#push(java.lang.String,%20java.lang.Object[])">push(String, Object[])</a></span> - Method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/CloseableThreadContext.Instance.html" title="class in org.apache.logging.log4j">CloseableThreadContext.Instance</a></dt>
 <dd>
-<div class="block">Pushes new diagnostic context information on to the Thread Context Stack.</div>
+<div class="block">Pushes new diagnostic localContext information on to the Thread Context Stack.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/CloseableThreadContext.html#push(java.lang.String)">push(String)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/CloseableThreadContext.html" title="class in org.apache.logging.log4j">CloseableThreadContext</a></dt>
 <dd>
-<div class="block">Pushes new diagnostic context information on to the Thread Context Stack.</div>
+<div class="block">Pushes new diagnostic localContext information on to the Thread Context Stack.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/CloseableThreadContext.html#push(java.lang.String,%20java.lang.Object...)">push(String, Object...)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/CloseableThreadContext.html" title="class in org.apache.logging.log4j">CloseableThreadContext</a></dt>
 <dd>
-<div class="block">Pushes new diagnostic context information on to the Thread Context Stack.</div>
+<div class="block">Pushes new diagnostic localContext information on to the Thread Context Stack.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/DefaultThreadContextStack.html#push(java.lang.String)">push(String)</a></span> - Method in class org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/DefaultThreadContextStack.html" title="class in org.apache.logging.log4j.spi">DefaultThreadContextStack</a></dt>
 <dd>&nbsp;</dd>
@@ -4779,11 +4779,11 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#push(java.lang.String)">push(String)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Pushes new diagnostic context information for the current thread.</div>
+<div class="block">Pushes new diagnostic localContext information for the current thread.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#push(java.lang.String,%20java.lang.Object...)">push(String, Object...)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Pushes new diagnostic context information for the current thread.</div>
+<div class="block">Pushes new diagnostic localContext information for the current thread.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/CloseableThreadContext.Instance.html#pushAll(java.util.List)">pushAll(List&lt;String&gt;)</a></span> - Method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/CloseableThreadContext.Instance.html" title="class in org.apache.logging.log4j">CloseableThreadContext.Instance</a></dt>
 <dd>
@@ -4811,14 +4811,14 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ThreadContextMap.html#put(java.lang.String,%20java.lang.String)">put(String, String)</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ThreadContextMap</a></dt>
 <dd>
-<div class="block">Puts a context value (the <code>o</code> parameter) as identified
+<div class="block">Puts a localContext value (the <code>o</code> parameter) as identified
  with the <code>key</code> parameter into the current thread's
- context map.</div>
+ localContext map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#put(java.lang.String,%20java.lang.String)">put(String, String)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Puts a context value (the <code>value</code> parameter) as identified with the <code>key</code> parameter into
- the current thread's context map.</div>
+<div class="block">Puts a localContext value (the <code>value</code> parameter) as identified with the <code>key</code> parameter into
+ the current thread's localContext map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/CloseableThreadContext.Instance.html#putAll(java.util.Map)">putAll(Map&lt;String, String&gt;)</a></span> - Method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/CloseableThreadContext.Instance.html" title="class in org.apache.logging.log4j">CloseableThreadContext.Instance</a></dt>
 <dd>
@@ -4836,13 +4836,13 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ThreadContextMap2.html#putAll(java.util.Map)">putAll(Map&lt;String, String&gt;)</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ThreadContextMap2.html" title="interface in org.apache.logging.log4j.spi">ThreadContextMap2</a></dt>
 <dd>
-<div class="block">Puts all given context map entries into the current thread's
- context map.</div>
+<div class="block">Puts all given localContext map entries into the current thread's
+ localContext map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#putAll(java.util.Map)">putAll(Map&lt;String, String&gt;)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Puts all given context map entries into the current thread's
- context map.</div>
+<div class="block">Puts all given localContext map entries into the current thread's
+ localContext map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/util/SortedArrayStringMap.html#putAll(org.apache.logging.log4j.util.ReadOnlyStringMap)">putAll(ReadOnlyStringMap)</a></span> - Method in class org.apache.logging.log4j.util.<a href="./org/apache/logging/log4j/util/SortedArrayStringMap.html" title="class in org.apache.logging.log4j.util">SortedArrayStringMap</a></dt>
 <dd>&nbsp;</dd>
@@ -4947,12 +4947,12 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/ThreadContextMap.html#remove(java.lang.String)">remove(String)</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/ThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">ThreadContextMap</a></dt>
 <dd>
-<div class="block">Removes the the context identified by the <code>key</code>
+<div class="block">Removes the the localContext identified by the <code>key</code>
  parameter.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#remove(java.lang.String)">remove(String)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Removes the context value identified by the <code>key</code> parameter.</div>
+<div class="block">Removes the localContext value identified by the <code>key</code> parameter.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/util/SortedArrayStringMap.html#remove(java.lang.String)">remove(String)</a></span> - Method in class org.apache.logging.log4j.util.<a href="./org/apache/logging/log4j/util/SortedArrayStringMap.html" title="class in org.apache.logging.log4j.util">SortedArrayStringMap</a></dt>
 <dd>&nbsp;</dd>
@@ -4962,7 +4962,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/CleanableThreadContextMap.html#removeAll(java.lang.Iterable)">removeAll(Iterable&lt;String&gt;)</a></span> - Method in interface org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/CleanableThreadContextMap.html" title="interface in org.apache.logging.log4j.spi">CleanableThreadContextMap</a></dt>
 <dd>
-<div class="block">Removes all given context map keys from the current thread's context map.</div>
+<div class="block">Removes all given localContext map keys from the current thread's localContext map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/spi/DefaultThreadContextMap.html#removeAll(java.lang.Iterable)">removeAll(Iterable&lt;String&gt;)</a></span> - Method in class org.apache.logging.log4j.spi.<a href="./org/apache/logging/log4j/spi/DefaultThreadContextMap.html" title="class in org.apache.logging.log4j.spi">DefaultThreadContextMap</a></dt>
 <dd>&nbsp;</dd>
@@ -4972,7 +4972,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#removeAll(java.lang.Iterable)">removeAll(Iterable&lt;String&gt;)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Removes the context values identified by the <code>keys</code> parameter.</div>
+<div class="block">Removes the localContext values identified by the <code>keys</code> parameter.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/simple/SimpleLoggerContextFactory.html#removeContext(org.apache.logging.log4j.spi.LoggerContext)">removeContext(LoggerContext)</a></span> - Method in class org.apache.logging.log4j.simple.<a href="./org/apache/logging/log4j/simple/SimpleLoggerContextFactory.html" title="class in org.apache.logging.log4j.simple">SimpleLoggerContextFactory</a></dt>
 <dd>&nbsp;</dd>
@@ -4986,7 +4986,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#removeStack()">removeStack()</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Removes the diagnostic context for this thread.</div>
+<div class="block">Removes the diagnostic localContext for this thread.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/message/StructuredDataId.html#RESERVED">RESERVED</a></span> - Static variable in class org.apache.logging.log4j.message.<a href="./org/apache/logging/log4j/message/StructuredDataId.html" title="class in org.apache.logging.log4j.message">StructuredDataId</a></dt>
 <dd>
@@ -5861,7 +5861,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/ThreadContext.html#trim(int)">trim(int)</a></span> - Static method in class org.apache.logging.log4j.<a href="./org/apache/logging/log4j/ThreadContext.html" title="class in org.apache.logging.log4j">ThreadContext</a></dt>
 <dd>
-<div class="block">Trims elements from this diagnostic context.</div>
+<div class="block">Trims elements from this diagnostic localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/util/Strings.html#trimToNull(java.lang.String)">trimToNull(String)</a></span> - Static method in class org.apache.logging.log4j.util.<a href="./org/apache/logging/log4j/util/Strings.html" title="class in org.apache.logging.log4j.util">Strings</a></dt>
 <dd>

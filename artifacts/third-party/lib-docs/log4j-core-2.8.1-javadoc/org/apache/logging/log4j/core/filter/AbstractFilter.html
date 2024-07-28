@@ -113,8 +113,8 @@
 <pre>public abstract class <span class="strong">AbstractFilter</span>
 extends <a href="../../../../../../org/apache/logging/log4j/core/AbstractLifeCycle.html" title="class in org.apache.logging.log4j.core">AbstractLifeCycle</a>
 implements <a href="../../../../../../org/apache/logging/log4j/core/Filter.html" title="interface in org.apache.logging.log4j.core">Filter</a></pre>
-<div class="block">Users should extend this class to implement filters. Filters can be either context wide or attached to
- an appender. A filter may choose to support being called only from the context or only from an appender in
+<div class="block">Users should extend this class to implement filters. Filters can be either localContext wide or attached to
+ an appender. A filter may choose to support being called only from the localContext or only from an appender in
  which case it will only implement the required method(s). The rest will default to return <code>Result#NEUTRAL</code>.
  <p>
  Garbage-free note: the methods with unrolled varargs by default delegate to the

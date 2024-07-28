@@ -2,13 +2,13 @@ package com.corionis.els.jobs;
 
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
+import com.corionis.els.gui.Environment;
 import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.stty.ClientStty;
 import com.corionis.els.tools.AbstractTool;
-import com.corionis.els.tools.Tools;
 import com.corionis.els.tools.operations.OperationsTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,27 +19,43 @@ import java.util.ArrayList;
 
 public class Task implements Comparable, Serializable
 {
-    private transient Logger logger = LogManager.getLogger("applog");
     public static final String ANY_SERVER = "_ANY_SERVER_";
     public static final String CACHEDLASTTASK = "_CACHEDLASTTASK_";
+    public String configName = null; // name of tool configuration
+    public String hintsKey = "";
+    public boolean hintsOverrideHost = false;
+    public String hintsPath = "";
+    public boolean hintsRemote = false;
+    public String internalName = null; // internal name of tool
+    public ArrayList<Origin> origins; // last serializable member
+    public String publisherKey = "";
+    public String publisherPath = "";
+    public String subscriberKey = "";
+    public boolean subscriberOverrideHost = false;
+    public String subscriberPath = "";
+    public boolean subscriberRemote = false;
 
-    private String configName; // name of tool configuration
-    private String internalName; // internal name of tool
-    private String publisherKey = "";
-    private String subscriberKey = "";
-    private boolean subscriberRemote = false;
-    private ArrayList<Origin> origins;
+    transient public Context localContext = null;
+    transient public AbstractTool currentTool = null;
+    transient public boolean dryRun = false; // set before calling process(task)
+    transient public Environment environment = null;
+    transient public Task previousTask = null;
+    transient public Repository publisherRepo = null;
+    transient public String remoteType = null;
+    transient public Repository subscriberRepo = null;
+    transient private Logger logger = LogManager.getLogger("applog");
 
-    transient private Context context = null;
-    transient private AbstractTool currentTool = null;
-    transient private boolean dual = true;
-    transient private Task previousTask = null;
-    transient private Repository pubRepo;
-    transient private boolean realOnly = false;
-    transient private Repository subRepo;
-    transient private Tools tools = null;
-    transient private String remoteType;
+    private Task()
+    {
+        // hide default constructor
+    }
 
+    /**
+     * Task used in a Job
+     *
+     * @param internalName Internal name of the task
+     * @param configName   User name for the task
+     */
     public Task(String internalName, String configName)
     {
         this.internalName = internalName;
@@ -52,20 +68,35 @@ public class Task implements Comparable, Serializable
         this.origins.addAll(origins);
     }
 
+    @Override
     public Task clone()
     {
         Task task = new Task(this.getInternalName(), this.getConfigName());
+        task.setHintsKey(this.getHintsKey());
+        task.setHintsOverrideHost(this.isHintsOverrideHost());
+        task.setHintsPath(this.getHintsPath());
+        task.setHintsRemote(this.isHintsRemote());
         task.setPublisherKey(this.getPublisherKey());
+        task.setPublisherPath(this.getPublisherPath());
         task.setSubscriberKey(this.getSubscriberKey());
-        task.setDual(this.isDual());
-        task.setRealOnly(this.isRealOnly());
-        task.setSubscriberRemote(this.subscriberRemote);
+        task.setSubscriberOverrideHost(this.isSubscriberOverrideHost());
+        task.setSubscriberPath(this.getSubscriberPath());
+        task.setSubscriberRemote(this.isSubscriberRemote());
+
         ArrayList<Origin> origins = new ArrayList<Origin>();
         for (Origin origin : this.getOrigins())
         {
             origins.add(origin.clone());
         }
         task.setOrigins(origins);
+
+        task.setContext(this.localContext);
+        task.currentTool = this.currentTool;
+        task.dryRun = this.dryRun;
+        task.previousTask = this.previousTask;
+        task.publisherRepo = this.publisherRepo;
+        task.remoteType = this.remoteType;
+        task.subscriberRepo = this.subscriberRepo;
         return task;
     }
 
@@ -171,6 +202,16 @@ public class Task implements Comparable, Serializable
         return configName;
     }
 
+    public String getHintsKey()
+    {
+        return hintsKey;
+    }
+
+    public String getHintsPath()
+    {
+        return hintsPath;
+    }
+
     public String getInternalName()
     {
         return internalName;
@@ -186,7 +227,12 @@ public class Task implements Comparable, Serializable
         return publisherKey;
     }
 
-    private Repository getRepo(Context context, String key, boolean forPublisher) throws Exception
+    public String getPublisherPath()
+    {
+        return publisherPath;
+    }
+
+    private Repository getRepo(Context context, String key, String path, boolean forPublisher) throws Exception
     {
         Repository repo = null;
 
@@ -214,87 +260,98 @@ public class Task implements Comparable, Serializable
                     repositories.loadList(context);
 
                     RepoMeta repoMeta;
-                    if (key.length() > 0)
+                    if (path.length() > 0)
                     {
-                        repoMeta = repositories.find(key);
+                        repoMeta = repositories.findMetaPath(path);
                         if (repoMeta != null)
                         {
                             repo = new Repository(context, forPublisher ? Repository.PUBLISHER : Repository.SUBSCRIBER);
-                            repo.read(repoMeta.path, (forPublisher ? "Publisher" : "Subscriber"), true);
+                            repo.read(repoMeta.path, (forPublisher ? "Publisher" : "Subscriber"), false);
                         }
                         else
-                            throw new MungeException(key + context.cfg.gs("Z.not.found"));
+                            throw new MungeException(path + ", " + key + context.cfg.gs("Z.not.found"));
                     }
                 }
             }
         }
 
+        context.cfg.setPublisherCollectionFilename("");
+        context.cfg.setSubscriberCollectionFilename("");
+
         if (repo != null)
         {
-            context.cfg.setPublisherCollectionFilename("");
-            context.cfg.setSubscriberCollectionFilename("");
             if (forPublisher)
+            {
                 context.cfg.setPublisherLibrariesFileName(repo.getJsonFilename());
+                context.publisherRepo = repo;
+            }
             else
+            {
                 context.cfg.setSubscriberLibrariesFileName(repo.getJsonFilename());
+                context.subscriberRepo = repo;
+            }
+        }
+        else // no repo
+        {
+            if (forPublisher)
+            {
+                context.cfg.setPublisherLibrariesFileName("");
+                context.publisherRepo = null;
+            }
+            else
+            {
+                context.cfg.setSubscriberLibrariesFileName("");
+                context.subscriberRepo = null;
+            }
         }
 
         return repo;
     }
 
-    private String getRepoPath(String key) throws Exception
+/*
+    public String getRepoPath(String key)
     {
-        String path = null;
+        String path = "";
         Repositories repositories = new Repositories();
-        repositories.loadList(context);
+        repositories.loadList(localContext);
 
-        RepoMeta repoMeta;
+        RepoMeta repoMeta = null;
         if (key.length() > 0)
         {
-            repoMeta = repositories.find(key);
+            repoMeta = repositories.findMeta(key);
             if (repoMeta != null)
             {
                 path = repoMeta.path;
             }
-            else
-                throw new MungeException(key + context.cfg.gs("Z.not.found"));
         }
         return path;
     }
+*/
 
     public String getSubscriberKey()
     {
         return subscriberKey;
     }
 
+    public String getSubscriberPath()
+    {
+        return subscriberPath;
+    }
+
     public AbstractTool getTool() throws Exception
     {
-        if (currentTool == null)
-        {
-            if (tools == null)
-                this.tools = new Tools();
-            currentTool = tools.loadTool(context, getInternalName(), getConfigName());
-        }
+        currentTool = localContext.tools.loadTool(localContext, getInternalName(), getConfigName());
         return currentTool;
     }
 
-    public boolean isCachedLastTask(Context context)
+    public boolean isHintsOverrideHost()
     {
-        AbstractTool tool;
-        if (currentTool == null)
-        {
-            if (tools == null)
-                this.tools = new Tools();
-            tool = tools.makeTempTool(getInternalName(), context);
-        }
-        else
-            tool = currentTool;
-        return tool.isCachedLastTask();
+        return hintsOverrideHost;
     }
 
-    public boolean isDual()
+    public boolean isHintsRemote()
     {
-        return dual;
+        return hintsRemote;
     }
 
     public boolean isJob()
@@ -304,20 +361,9 @@ public class Task implements Comparable, Serializable
         return false;
     }
 
-    public boolean isOriginPathsAllowed(Context context)
+    public boolean isSubscriberOverrideHost()
     {
-        AbstractTool tool;
-        if (currentTool == null)
-        {
-            if (tools == null)
-                this.tools = new Tools();
-            tool = tools.makeTempTool(getInternalName(), context);
-        }
-        else
-            tool = currentTool;
-        if (tool == null)
-            return false;
-        return tool.isOriginPathsAllowed();
+        return subscriberOverrideHost;
     }
 
     public boolean isSubscriberRemote()
@@ -325,9 +371,11 @@ public class Task implements Comparable, Serializable
         return subscriberRemote;
     }
 
-    public boolean isRealOnly()
+    public boolean isToolCachedOrigins(Context context)
     {
-        return realOnly;
+        AbstractTool tool;
+        tool = context.tools.makeTempTool(getInternalName(), context);
+        return tool.isToolCachedOrigins();
     }
 
     /**
@@ -335,18 +383,14 @@ public class Task implements Comparable, Serializable
      * <br/>
      * Used by a Job
      *
-     * @param context   The Context
-     * @param dryRun Boolean for a dry-run
+     * @param context The execution Context
      * @throws Exception
      */
-    public boolean process(Context context, boolean dryRun) throws Exception
+    public boolean process(Context context) throws Exception
     {
-        String pubPath = null;
-        String subPath = null;
-
-        this.context = context;
-        if (tools == null)
-            this.tools = new Tools();
+        this.environment = new Environment(context);
+        this.localContext = this.environment.getContext(); // use cloned Context
+        this.dryRun = dryRun;
 
         if (logger == null)
             logger = LogManager.getLogger("applog");
@@ -354,161 +398,89 @@ public class Task implements Comparable, Serializable
         currentTool = getTool();
         if (currentTool != null)
         {
-            if ((origins == null || origins.size() == 0) && !useCachedLastTask(context) && currentTool.isOriginPathsAllowed())
+            if ((origins == null || origins.size() == 0) && !useCachedLastTask(localContext) && currentTool.isToolOriginsUsed())
             {
-                if (context.navigator != null)
+                if (localContext.navigator != null)
                 {
-                    String msg = context.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
+                    String msg = localContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
                     logger.info(msg);
-                    JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(localContext.mainFrame, msg, localContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else
-                    logger.info(context.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+                    logger.info(localContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
                 return false;
             }
 
             // get repositories or paths
-            if (useCachedLastTask(context)) // not an Operations tool
+            if (useCachedLastTask(localContext)) // not an Operations tool
             {
-                pubRepo = previousTask.pubRepo;
-                subRepo = previousTask.subRepo;
+                setHintsKey(previousTask.getHintsKey());
+                setHintsOverrideHost(previousTask.isHintsOverrideHost());
+                setHintsRemote(previousTask.isHintsRemote());
+                setPublisherKey(previousTask.getPublisherKey());
+                setSubscriberKey(previousTask.getSubscriberKey());
+                setHintsOverrideHost(previousTask.hintsOverrideHost);
+                setSubscriberOverrideHost(previousTask.subscriberOverrideHost);
                 setSubscriberRemote(previousTask.subscriberRemote);
                 setOrigins(previousTask.getOrigins());
+                hintsPath = previousTask.hintsPath;
+                if (previousTask.publisherRepo != null)
+                    publisherPath = previousTask.publisherRepo.getJsonFilename();
+                else
+                    publisherPath = "";
+                publisherRepo = previousTask.publisherRepo;
+                remoteType = previousTask.remoteType;
+                if (previousTask.subscriberRepo != null)
+                    subscriberPath = previousTask.subscriberRepo.getJsonFilename();
+                else
+                    subscriberPath = "";
+                subscriberRepo = previousTask.subscriberRepo;
             }
             else
             {
-                if (currentTool instanceof OperationsTool)
-                {
-                    pubRepo = getRepo(context, getPublisherKey(), true);
-                    subRepo = getRepo(context, getSubscriberKey(), false);
-                    if (pubRepo != null)
-                        pubPath = pubRepo.getJsonFilename();
-                    if (subRepo != null)
-                        subPath = subRepo.getJsonFilename();
-                    pubRepo = null;
-                    subRepo = null;
-                    context.nestedProcesses = true;
-                }
-                else // other tools
-                {
-                    pubRepo = getRepo(context, getPublisherKey(), true);
-                    subRepo = getRepo(context, getSubscriberKey(), false);
-                    remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && context.cfg.isRemoteOperation())) ? "P" : "-";
+                publisherRepo = getRepo(localContext, getPublisherKey(), getPublisherPath(), true);
+                if (publisherRepo != null)
+                    publisherPath = publisherRepo.getJsonFilename();
 
-                    context.cfg.setRemoteType(remoteType);
-                    context.cfg.setPublishOperation(remoteType.equalsIgnoreCase("p") ? true : false);
+                remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && localContext.cfg.isRemoteOperation())) ? "P" : "-";
 
-                    if (isSubscriberRemote())
-                    {
-                        Repository me = pubRepo;
-                        if (me == null)
-                            me = context.publisherRepo;
-                        if (!connectRemote(context, me, subRepo))
-                            return false;
-                    }
-                }
+                subscriberRepo = getRepo(localContext, getSubscriberKey(), getSubscriberPath(), false);
+                if (subscriberRepo != null)
+                    subscriberPath = subscriberRepo.getJsonFilename();
+
+                if (!(currentTool instanceof OperationsTool))
+                    this.environment.switchConnections();
             }
 
-            // sanity check then run it
-            if (currentTool instanceof OperationsTool)
-            {
-                currentTool.processTool(context, pubPath, subPath, dryRun);
-            }
-            else // other tools
-            {
-                currentTool.processTool(context, pubRepo, subRepo, origins, dryRun, useCachedLastTask(context) ? previousTask : null);
-            }
+            localContext.cfg.setPublisherLibrariesFileName(publisherPath);
+            localContext.cfg.setPublisherCollectionFilename("");
+
+            localContext.cfg.setRemoteType(remoteType);
+
+            localContext.cfg.setSubscriberLibrariesFileName(subscriberPath);
+            localContext.cfg.setSubscriberCollectionFilename("");
+            localContext.cfg.setOverrideSubscriberHost(isSubscriberOverrideHost());
+
+            localContext.cfg.setHintsDaemonFilename("");
+            localContext.cfg.setHintTrackerFilename("");
+            localContext.cfg.setOverrideHintsHost(isHintsOverrideHost());
+            if (isHintsRemote())
+                localContext.cfg.setHintsDaemonFilename(hintsPath);
+            else
+                localContext.cfg.setHintTrackerFilename(hintsPath);
+
+            // run it
+            currentTool.processTool(this);
+
             if (currentTool.isRequestStop())
                 return false;
+
+            context.fault = localContext.fault;
         }
         else
-            throw new MungeException(context.cfg.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
+            throw new MungeException(localContext.cfg.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
 
         return true;
-    }
-
-    /**
-     * Process the task on a SwingWorker thread
-     * <br/>
-     * Used by the Run button of the tool
-     *
-     * @param context The Context
-     * @param dryRun     Boolean for a dry-run
-     * @return SwingWorker<Void, Void> of thread
-     */
-    public SwingWorker<Void, Void> process(Context context, AbstractTool tool, boolean dryRun) throws Exception
-    {
-        String pubPath = null;
-        String subPath = null;
-        SwingWorker<Void, Void> worker = null;
-
-        this.context = context;
-        currentTool = tool;
-
-        if (logger == null)
-            logger = LogManager.getLogger("applog");
-
-        if (currentTool != null)
-        {
-            if ((origins == null || origins.size() == 0) && !useCachedLastTask(context) && currentTool.isOriginPathsAllowed())
-            {
-                if (context.navigator != null)
-                {
-                    String msg = context.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
-                    logger.info(msg);
-                    JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
-                }
-                else
-                    logger.info(context.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
-                return null;
-            }
-
-            // get repositories or paths
-            if (useCachedLastTask(context)) // not an Operations tool
-            {
-                pubRepo = previousTask.pubRepo;
-                subRepo = previousTask.subRepo;
-                setSubscriberRemote(previousTask.subscriberRemote);
-            }
-            else
-            {
-                if (currentTool instanceof OperationsTool)
-                {
-                    pubPath = getRepoPath(getPublisherKey());
-                    subPath = getRepoPath(getSubscriberKey());
-                    pubRepo = null;
-                    subRepo = null;
-                    context.nestedProcesses = true;
-                }
-                else // other tools
-                {
-                    if (currentTool.isOriginPathsAllowed())
-                    {
-                        pubRepo = getRepo(context, getPublisherKey(), true);
-                        subRepo = getRepo(context, getSubscriberKey(), false);
-                    }
-                }
-            }
-
-            // sanity check then run it
-            if (currentTool instanceof OperationsTool)
-            {
-                if (pubPath == null && subPath == null)
-                    throw new MungeException(context.cfg.gs("Task.no.repository.is.defined"));
-
-                worker = currentTool.processToolThread(context, pubPath, subPath, dryRun);
-            }
-            else
-            {
-                if (pubRepo == null && subRepo == null && currentTool.isOriginPathsAllowed())
-                    throw new MungeException((context.cfg.gs("Task.no.repository.is.loaded")));
-
-                worker = currentTool.processToolThread(context, pubRepo, subRepo, origins, dryRun);
-            }
-
-            return worker;
-        }
-        return null;
     }
 
     public void requestStop()
@@ -526,12 +498,32 @@ public class Task implements Comparable, Serializable
 
     public void setContext(Context context)
     {
-        this.context = context;
+        this.localContext = context;
     }
 
-    public void setDual(boolean dual)
+    public void setHintsKey(String hintsKey)
     {
-        this.dual = dual;
+        this.hintsKey = hintsKey;
+    }
+
+    public void setDryRun(boolean sense)
+    {
+        this.dryRun = sense;
+    }
+
+    public void setHintsOverrideHost(boolean hintsOverrideHost)
+    {
+        this.hintsOverrideHost = hintsOverrideHost;
+    }
+
+    public void setHintsPath(String hintsPath)
+    {
+        this.hintsPath = hintsPath;
+    }
+
+    public void setHintsRemote(boolean isHintsRemote)
+    {
+        this.hintsRemote = isHintsRemote;
     }
 
     public void setInternalName(String internalName)
@@ -554,14 +546,24 @@ public class Task implements Comparable, Serializable
         this.publisherKey = publisherKey;
     }
 
-    public void setRealOnly(boolean realOnly)
+    public void setPublisherPath(String publisherPath)
     {
-        this.realOnly = realOnly;
+        this.publisherPath = publisherPath;
     }
 
     public void setSubscriberKey(String subscriberKey)
     {
         this.subscriberKey = subscriberKey;
+    }
+
+    public void setSubscriberOverrideHost(boolean subscriberOverrideHost)
+    {
+        this.subscriberOverrideHost = subscriberOverrideHost;
+    }
+
+    public void setSubscriberPath(String subscriberPath)
+    {
+        this.subscriberPath = subscriberPath;
     }
 
     public void setSubscriberRemote(boolean isSubscriberRemote)
@@ -572,7 +574,7 @@ public class Task implements Comparable, Serializable
     public boolean useCachedLastTask(Context context)
     {
         // publisher key (only) is used to indicate last task
-        if (isCachedLastTask(context) && previousTask != null && publisherKey.equalsIgnoreCase(CACHEDLASTTASK))
+        if (isToolCachedOrigins(context) && previousTask != null && publisherKey.equalsIgnoreCase(CACHEDLASTTASK))
             return true;
         return false;
     }

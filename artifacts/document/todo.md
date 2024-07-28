@@ -3,14 +3,25 @@
 
 ## Current Short-List
 
-
-
-### Hints Reengineering
+RUN BUTTON
+    Add validateRun() method to check task requirements; Jobs iterate their Tasks
 
 #### Short List
+ * Another Regression Test from a scratch installation.
+   * No pre-defined JSON files.
  * Error handling
  * Statistics
  * Test scripts, and match run profiles to o/s scripts
+
+#### Documentation
+  * Normalize the use of Library instead of Collection
+  * Remote operations: Start Hint Server, then Subscriber, then Publisher
+  * Tools define something to do. Tasks in Jobs define where to do it.
+    * That way Tools may be reused for different publishers and subscribers 
+      * "Any Publisher" and "Any Subscriber" in Job, Task, Origins requires command line options
+        for those arguments.
+    * The Run button in Tools use the current publisher, subscriber, hints, etc.
+    * The Run button in Jobs use the definitions of the Tasks and Tools.
 
 #### Thoughts
  * Opens possibility of the Hint Status Server optionally auto-pushing new Hints to systems in Hint Keys.
@@ -49,14 +60,23 @@
    * File counts
    * Additions, by date, month, quarter, year
 
+ * Invite mechanism
+   * Special code/key + command to "register" a new Navigator user
+   * A manual, one-time, process
+   * Use a complex stty + sftp protocol; unhackable
 
 ## Fragments
 
 ```
-    Object[] opts = { context.cfg.gs("Z.ok") };
-    JOptionPane.showOptionDialog(this, context.cfg.gs("EmptyDirectoryFinder.removal.of.empties.successful"),
+    Object[] opts = { localContext.cfg.gs("Z.ok") };
+    JOptionPane.showOptionDialog(this, localContext.cfg.gs("EmptyDirectoryFinder.removal.of.empties.successful"),
         this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
         null, opts, opts[0]);
 ```
+
+Close a JComboBox during debugging to avoid desktop lock-up:
+```
+   combo.getUI().setPopupVisible(combo, false);
+   ```
 
 #### _-end-_

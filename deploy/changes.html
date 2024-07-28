@@ -15,6 +15,28 @@
 
 <hr/>
 
+<h3>27 July 2024</h3>
+<ul>
+    <li>Fixed null pointer after Job Run if an origin library was not previously loaded.</li>
+    <li>Fixed toolbar show/hide on restart.</li>
+    <li>Fixed start-up bug when there are no repositories defined yet.</li>
+    <li>Fixed File, Open Subscriber when there is an existing remote connection.</li>
+    <li>Fixed a save/delete bug in all Tools.</li>
+    <li>Added a dialog during File, Open Subscriber and Open Hint Tracking to select the host or listen address for a remote connection.</li>
+    <li>Added -O | --override-host to use the listen address:port for out-going Subscriber connections from clients.</li>
+    <li>Added -J | --override-hints-host to use the listen address:port for out-going Hint Server connections from clients.</li>
+    <li>Note: "Clients" are Navigator and remote Publisher processes.</li>
+    <li>Added Hint Tracker/Server to Jobs, Tasks, Origins when required by the Task.</li>
+    <li>Hint Server previously used the Task Subscriber key for Job Tasks but was changed to have its own key.</li>
+    <li>Cleaned-up dry-run handling in Run and Generate dialogs. Removed that option from Operations.</li>
+    <li>Added Run in another foreground or background instance option to the Jobs, Generate dialog.</li>
+    <li>Added display of dynamically-loaded remote Repository to Libraries tab. Not editable. Removed when closed.</li>
+    <li>Replaced the previous Windows shortcut-creation mechanism that used an outside program with an internal implementation.</li>
+    <li>Reorganized the code related to the execution of Tools and Jobs.</li>
+    <li>Fixed resizing problems with the Tools, Operations dialog.</li>
+    <li>Added --logger option for -j|--job to execute in the foreground to display the Job log.</li>
+</ul>
+
 <h3>18 April 2024</h3>
 <ul>
     <li>Fixed Updater cross-over path error and log4j plugin warnings</li>

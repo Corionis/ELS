@@ -219,7 +219,7 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFac
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html#getContext(java.lang.String,%20java.lang.ClassLoader,%20java.lang.Object,%20boolean)">getContext</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html" title="interface in org.apache.logging.log4j.spi">LoggerContextFactory</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>fqcn</code> - The fully qualified class name of the caller.</dd><dd><code>loader</code> - The ClassLoader to use or null.</dd><dd><code>externalContext</code> - An external context (such as a ServletContext) to be associated with the LoggerContext.</dd><dd><code>currentContext</code> - If true returns the current Context, if false returns the Context appropriate
+<dt><span class="strong">Parameters:</span></dt><dd><code>fqcn</code> - The fully qualified class name of the caller.</dd><dd><code>loader</code> - The ClassLoader to use or null.</dd><dd><code>externalContext</code> - An external localContext (such as a ServletContext) to be associated with the LoggerContext.</dd><dd><code>currentContext</code> - If true returns the current Context, if false returns the Context appropriate
  for the caller if a more appropriate Context can be determined.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext.</dd></dl>
 </li>
@@ -241,8 +241,8 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFac
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html#getContext(java.lang.String,%20java.lang.ClassLoader,%20java.lang.Object,%20boolean,%20java.net.URI,%20java.lang.String)">getContext</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html" title="interface in org.apache.logging.log4j.spi">LoggerContextFactory</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>fqcn</code> - The fully qualified class name of the caller.</dd><dd><code>loader</code> - The ClassLoader to use or null.</dd><dd><code>externalContext</code> - An external context (such as a ServletContext) to be associated with the LoggerContext.</dd><dd><code>currentContext</code> - If true returns the current Context, if false returns the Context appropriate
- for the caller if a more appropriate Context can be determined.</dd><dd><code>configLocation</code> - The location of the configuration for the LoggerContext.</dd><dd><code>name</code> - The name of the context or null.</dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>fqcn</code> - The fully qualified class name of the caller.</dd><dd><code>loader</code> - The ClassLoader to use or null.</dd><dd><code>externalContext</code> - An external localContext (such as a ServletContext) to be associated with the LoggerContext.</dd><dd><code>currentContext</code> - If true returns the current Context, if false returns the Context appropriate
+ for the caller if a more appropriate Context can be determined.</dd><dd><code>configLocation</code> - The location of the configuration for the LoggerContext.</dd><dd><code>name</code> - The name of the localContext or null.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The LoggerContext.</dd></dl>
 </li>
 </ul>
@@ -258,7 +258,7 @@ implements <a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFac
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html#removeContext(org.apache.logging.log4j.spi.LoggerContext)">removeContext</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/apache/logging/log4j/spi/LoggerContextFactory.html" title="interface in org.apache.logging.log4j.spi">LoggerContextFactory</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>removeContext</code> - The context to remove.</dd></dl>
+<dt><span class="strong">Parameters:</span></dt><dd><code>removeContext</code> - The localContext to remove.</dd></dl>
 </li>
 </ul>
 </li>

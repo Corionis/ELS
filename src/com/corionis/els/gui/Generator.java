@@ -6,16 +6,23 @@ import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.operations.OperationsTool;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
+import mslinks.ShellLink;
+import mslinks.ShellLinkHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @SuppressWarnings(value = "unchecked")
 public class Generator
@@ -23,14 +30,20 @@ public class Generator
     private String consoleLevel = "";
     private Context context;
     private String debugLevel = "";
+    private boolean dryRun = false;
     private String generated = "";
+    private boolean fileGenerate = false;
     private File logFile = null;
-    private String logOption = "";
     private Logger logger = LogManager.getLogger("applog");
 
-    public Generator(Context context)
+    private Generator()
+    {
+    }
+
+    public Generator(Context context, boolean isFileGenerate)
     {
         this.context = context;
+        this.fileGenerate = isFileGenerate;
     }
 
     private void createDesktopShortcut(JDialog owner, String name, String commandLine)
@@ -56,6 +69,7 @@ public class Generator
 
         // setup name panel
         labelName.setText(context.cfg.gs("Generator.shortcut.name"));
+        labelName.setPreferredSize(new Dimension(100, 16));
         panelName.add(labelName);
         fieldName.setText(name);
         fieldName.setPreferredSize(new Dimension(200, 30));
@@ -63,6 +77,7 @@ public class Generator
 
         // setup comment panel
         labelComment.setText(context.cfg.gs("Generator.shortcut.comment"));
+        labelComment.setPreferredSize(new Dimension(100, 16));
         panelComment.add(labelComment);
         fieldComment.setText(context.cfg.gs("Generator.launch.els") + name);
         fieldComment.setPreferredSize(new Dimension(200, 30));
@@ -82,12 +97,12 @@ public class Generator
 
         final JDialog dialog = new JDialog(owner);
         dialog.setAlwaysOnTop(true);
-        if (owner == null)
-            dialog.setLocation(Utils.getRelativePosition(context.mainFrame, dialog));
-        else
-            dialog.setLocationRelativeTo(owner);
+//        if (owner == null)
+//            dialog.setLocation(Utils.getRelativePosition(localContext.mainFrame, dialog));
+//        else
+//            dialog.setLocationRelativeTo(owner);
         Object[] params = {panelName, panelComment, panelTerminal, panelWarning};
-        int resp = JOptionPane.showConfirmDialog(dialog, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
+        int resp = JOptionPane.showConfirmDialog((owner == null) ? context.mainFrame.panelMain : owner, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
         if (resp == JOptionPane.OK_OPTION)
         {
             name = fieldName.getText();
@@ -132,17 +147,17 @@ public class Generator
                 }
                 else if (Utils.isOsLinux())
                 {
-                /*
-                    Format:
-                        [Desktop Entry]
-                        Name=ELS Navigator
-                        Exec=java -jar ...
-                        Comment=Launch ELS Navigator
-                        Terminal=false
-                        Icon=/home/...
-                        Type=Application
-                    chmod 775 "~/Desktop/ELS Navigator.desktop"
-                */
+                    /*
+                        Format:
+                            [Desktop Entry]
+                            Name=ELS Navigator
+                            Exec=java -jar ...
+                            Comment=Launch ELS Navigator
+                            Terminal=false
+                            Icon=/home/...
+                            Type=Application
+                        chmod 775 "~/Desktop/ELS Navigator.desktop"
+                    */
 
                     StringBuilder sb = new StringBuilder();
                     name = fieldName.getText();
@@ -173,69 +188,54 @@ public class Generator
                 }
                 else // Windows
                 {
-                    // Shortcut.exe :: https://www.optimumx.com/downloads.html
-                    /* Shortcut.exe ReadMe.txt:
-                        Shortcut [Version 1.20]
-                        Creates, modifies or queries Windows shell links (shortcuts)
-                        The syntax of this command is:
-                         /F:filename    : Specifies the .LNK shortcut file.
-                         /A:action      : Defines the action to take (C=Create, E=Edit or Q=Query).
-                         /T:target      : Defines the target path and file name the shortcut points to.
-                         /P:parameters  : Defines the command-line parameters to pass to the target.
-                         /W:working dir : Defines the working directory the target starts with.
-                         /R:run style   : Defines the window state (1=Normal, 3=Max, 7=Min).
-                         /I:icon,index  : Defines the icon and optional index (file.exe or file.exe,0).
-                         /H:hotkey      : Defines the hotkey, a numeric value of the keyboard shortcut.
-                         /D:description : Defines the description (or comment) for the shortcut.
+                    // https://github.com/DmitriiShamrikov/mslinks?tab=readme-ov-file
+                    try
+                    {
+                        name = fieldName.getText();
+                        if (name != null && name.length() > 0)
+                        {
+                            ShellLink shellLink = new ShellLink();
+                            shellLink.setWorkingDir(context.cfg.getWorkingDirectory());
+                            shellLink.setIconLocation(context.cfg.getIconPath());
+                            shellLink.getHeader().setIconIndex(0);
 
-                         Notes:
-                         - Any argument that contains spaces must be enclosed in "double quotes".
-                         - If Query is specified (/A:Q), all arguments except /F: are ignored.
-                         - To find the numeric hotkey value, use Explorer to set a hotkey and then /A:Q
-                         - To prevent an environment variable from being expanded until the shortcut
-                           is launched, use the ^ carat escape character like this: ^%WINDIR^%
+                            // remove exec name from beginning of commandLine
+                            String exec = "\"" + context.cfg.getExecutablePath() + "\"";
+                            commandLine = commandLine.substring(exec.length()).trim();
+                            shellLink.setCMDArgs(commandLine);
 
-                         Examples:
-                           /f:"%ALLUSERSPROFILE%\Start Menu\Programs\My App.lnk" /a:q
-                           /f:"%USERPROFILE%\Desktop\Notepad.lnk" /a:c /t:^%WINDIR^%\Notepad.exe /h:846
-                           /f:"%USERPROFILE%\Desktop\Notepad.lnk" /a:e /p:C:\Setup.log /r:3
-                    */
-                    String target = context.cfg.getExecutablePath();
-                    if (!checkboxTerminal.isSelected())
-                        target = target.replace("java.exe", "javaw.exe");
+                            Path target = Paths.get(context.cfg.getExecutablePath()).toAbsolutePath().normalize();
+                            String root = target.getRoot().toString();
+                            String pathNoRoot = target.subpath(0, target.getNameCount()).toString();
 
-                    // remove "java.exe" target /T to have only parameters /P
-                    commandLine = commandLine.substring(("\"" + context.cfg.getExecutablePath() + "\" ").length());
-                    // escape embedded quotes
-                    commandLine = commandLine.replace("\"", "\\\"");
+                            ShellLinkHelper helper = new ShellLinkHelper(shellLink);
+                            helper.setLocalTarget(root, pathNoRoot, ShellLinkHelper.Options.ForceTypeFile);
+                            helper.saveTo(shortcut);
+                            logger.info(context.cfg.gs("Generator.created.shortcut") + shortcut);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.error(Utils.getStackTrace(e));
+                        return;
+                    }
 
-                    StringBuilder wb = new StringBuilder();
-                    wb.append("\"" + context.cfg.getElsJarPath() + System.getProperty("file.separator") + "Shortcut.exe" + "\" ");
-                    wb.append("/F:\"" + shortFile.getAbsolutePath() + "\" ");
-                    wb.append("/A:C ");
-                    wb.append("/T:\"" + target + "\" ");
-                    wb.append("/I:\"" + context.cfg.getIconPath() + "\" ");
-                    wb.append("/W:\"" + context.cfg.getWorkingDirectory() + "\" ");
-                    wb.append("/D:\"" + fieldComment.getText() + "\" ");
-                    wb.append("/P:\"" + commandLine + "\" ");
-                    String wc = wb.toString();
-                    context.navigator.execExternalExe(wc);
                 }
             }
         }
     }
 
-    private String generate(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwrite, String log)
+    private String generate(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwrite, String log, boolean foreground)
     {
         try
         {
-            if (tool == null)
+            if (tool == null) // File, Generate ...
             {
                 generated = context.cfg.generateCurrentCommandline(consoleLevel, debugLevel, overwrite, log);
             }
             else if (tool instanceof Job)
             {
-                generated = generateJobCommandline(tool, consoleLevel, debugLevel, overwrite, log);
+                generated = generateJobCommandline(tool, consoleLevel, debugLevel, overwrite, log, foreground);
             }
             else if (tool instanceof OperationsTool)
             {
@@ -250,68 +250,34 @@ public class Generator
         return generated;
     }
 
-    private String generateJobCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
+    private String generateJobCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log, boolean foreground) throws Exception
     {
         boolean glo = context.preferences.isGenerateLongOptions();
-        String exec = context.cfg.getExecutablePath();
+        String exec = "\"" + context.cfg.getExecutablePath() + "\"";
         String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
-
-        String conf = getCfgOpt();
-
-        String cmd = "\"" + exec + "\"" +
-                (jar.length() > 0 ? " -jar " + "\"" + jar + "\" " : "");
-
-        cmd += conf + (glo ? " --job \"" : " -j \"") + tool.getConfigName() + "\"";
-
-        // --- hint keys
-        if (context.preferences.getLastHintKeysOpenFile().length() > 0 && context.preferences.isLastHintKeysIsOpen())
-        {
-            if (context.cfg.isHintSkipMainProcess())
-                cmd += " " + (glo ? "--keys-only" : "-K");
-            else
-                cmd += " " + (glo ? "--keys" : "-k");
-            cmd += " \"" + Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.preferences.getLastHintKeysOpenFile()) + "\"";
-        }
-
-        // --- hints & hint server
-        if (context.preferences.getLastHintTrackingOpenFile().length() > 0 && context.preferences.isLastHintTrackingIsOpen())
-        {
-            String hf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.preferences.getLastHintTrackingOpenFile());
-            if (context.preferences.isLastHintTrackingIsRemote())
-                cmd += " " + (glo ? "--hint-server" : "-H") + " \"" + hf + "\"";
-            else
-                cmd += " " + (glo ? "--hints" : "-h") + " \"" + hf + "\"";
-        }
-
-        // Jobs use Origins and not Publisher or Subscriber arguments
+        String opts = ((Job) tool).generateCommandline(dryRun);
+        if (foreground)
+            opts += " --logger";
         String overOpt = overwriteLog ? (glo ? "--log-overwrite" : "-F") : (glo ? "--log-file" : "-f");
-
-        cmd += (glo ? " --console-level " : " -c ") + consoleLevel +
+        String cmd = exec + (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
+                " " + opts + (glo ? " --console-level " : " -c ") + consoleLevel +
                 (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
+
         return cmd;
     }
 
     private String generateOperationsCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
         boolean glo = context.preferences.isGenerateLongOptions();
-        String exec = context.cfg.getExecutablePath();
+        String exec = "\"" + context.cfg.getExecutablePath() + "\"";
         String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
-        // tool has all the parameter data, use it's generate method
-        String conf = getCfgOpt();
-        // use context.preferences because the subscriber filename can change if requested from a remote listener
-        String opts = ((OperationsTool) tool).generateCommandLine(context.preferences.getLastPublisherOpenFile(), context.preferences.getLastSubscriberOpenFile());
+        // use localContext.preferences because the subscriber filename can change if requested from a remote listener
+        String opts = ((OperationsTool) tool).generateCommandLine(context.preferences.getLastPublisherOpenFile(), context.preferences.getLastSubscriberOpenFile(), dryRun);
         String overOpt = overwriteLog ? (glo ? "--log-overwrite" : "-F") : (glo ? "--log-file" : "-f");
-        String cmd = "\"" + exec + "\"" +
-                (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
-                " " + conf + " " + opts + (glo ? " --console-level " : " -c ") + consoleLevel +
+        String cmd = exec + (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
+                " " + opts + (glo ? " --console-level " : " -c ") + consoleLevel +
                 (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
-    }
-
-    private String getCfgOpt()
-    {
-        boolean glo = context.preferences.isGenerateLongOptions();
-        return (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
     }
 
     public String getGenerated()
@@ -330,14 +296,10 @@ public class Generator
         return "unknown";
     }
 
-    public boolean showDialog(JDialog owner, AbstractTool tool, String configName)
+    public void showDialog(JDialog owner, AbstractTool tool, String configName)
     {
-        boolean completed = false;
-        String messasge = "<html><body>" + context.cfg.gs("Generator.generated") + " <b>" + configName +
-                "</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                //"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>&nbsp;<br/></body></html>";
+        String messasge = "<html><body>" + context.cfg.gs((fileGenerate ? "Generator.generate" : "Generator.generate.run")) +
+                " <b>" + configName + "</b><br/>&nbsp;<br/></body></html>";
 
         // log levels panel
         JPanel panelLogLevels = new JPanel();
@@ -353,6 +315,12 @@ public class Generator
         JLabel labelLogFile = new JLabel();
         JComboBox comboboxLogOverwrite = new JComboBox();
         JButton selectLogButton = new JButton();
+
+        // dry run panel
+        JPanel panelDryrun = new JPanel();
+        panelDryrun.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        JRadioButton foreground = new JRadioButton(context.cfg.gs("Generator.foreground"));
+        JRadioButton background = new JRadioButton(context.cfg.gs("Generator.background"));
 
         // horizontal panels
         JPanel panelHorizontal1 = new JPanel();
@@ -400,10 +368,8 @@ public class Generator
                     generated = generate(tool,
                             consoleLevel,
                             (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
-                            (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath());
+                            (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath(), foreground.isSelected());
                     generatedTextField.setText(generated);
-                    generatedTextField.selectAll();
-                    generatedTextField.requestFocus();
                 }
             }
         });
@@ -437,10 +403,8 @@ public class Generator
                     generated = generate(tool,
                             (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
                             debugLevel,
-                            (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath());
+                            (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath(), foreground.isSelected());
                     generatedTextField.setText(generated);
-                    generatedTextField.selectAll();
-                    generatedTextField.requestFocus();
                 }
             }
         });
@@ -464,14 +428,12 @@ public class Generator
                 if (cmd.equals("comboBoxChanged"))
                 {
                     String generated = "";
-                    logOption = (comboboxLogOverwrite.getSelectedIndex() == 0) ? "-f" : "-F";
+                    String logOption = (comboboxLogOverwrite.getSelectedIndex() == 0) ? "-f" : "-F";
                     generated = generate(tool,
                             (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
                             (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
-                            (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath());
+                            (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath(), foreground.isSelected());
                     generatedTextField.setText(generated);
-                    generatedTextField.selectAll();
-                    generatedTextField.requestFocus();
                 }
             }
         });
@@ -489,14 +451,14 @@ public class Generator
                 fc.setDialogTitle(context.cfg.gs("Generator.open.log.file"));
                 fc.setFileHidingEnabled(false);
 
-                File logDir = new File(context.cfg.getWorkingDirectory());
+                File logDir = new File(context.cfg.getLogFilePath());
                 fc.setCurrentDirectory(logDir);
                 File lf = new File(configName + ".log");
                 fc.setSelectedFile(lf);
 
                 while (true)
                 {
-                    int selection = fc.showOpenDialog(owner);
+                    int selection = fc.showOpenDialog((owner == null) ? context.mainFrame.panelMain : owner);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
                         File last = fc.getCurrentDirectory();
@@ -513,10 +475,8 @@ public class Generator
                         generated = generate(tool,
                                 (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
                                 (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
-                                (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath());
+                                (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath(), foreground.isSelected());
                         generatedTextField.setText(generated);
-                        generatedTextField.selectAll();
-                        generatedTextField.requestFocus();
                     }
                     break;
                 }
@@ -524,17 +484,96 @@ public class Generator
         });
         panelLogFile.add(selectLogButton);
 
+        // nudge labelDebugLogLevels to line-up over selectLogButton
+        Dimension dimC = comboBoxConsoleLevel.getPreferredSize();
+        Dimension dimL = comboboxLogOverwrite.getPreferredSize();
+        int margin = (dimL.width >= dimC.width) ? dimL.width - dimC.width : dimC.width - dimL.width; // allow for different locale
+        Border before = labelDebugLogLevels.getBorder();
+        Border spacer = new EmptyBorder(0, margin, 0, 0);
+        labelDebugLogLevels.setBorder(new CompoundBorder(before, spacer));
+
+        // setup panel dry run
+        JCheckBox checkboxDryrun = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
+        Dimension dim = labelConsoleLogLevels.getPreferredSize();
+        checkboxDryrun.setMargin(new Insets(-8, (int) dim.getWidth() + 5, -12, 0));
+        checkboxDryrun.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
+        checkboxDryrun.setSelected(context.preferences.isDefaultDryrun());
+        checkboxDryrun.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                String generated = "";
+                dryRun = checkboxDryrun.isSelected();
+                generated = generate(tool,
+                        (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
+                        (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
+                        (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath(), foreground.isSelected());
+                generatedTextField.setText(generated);
+            }
+        });
+        if (!fileGenerate)
+            panelDryrun.add(checkboxDryrun);
+
+        if (!fileGenerate)
+        {
+            JPanel genSpacer1 = new JPanel();
+            genSpacer1.setMinimumSize(new Dimension(22, 6));
+            genSpacer1.setPreferredSize(new Dimension(22, 6));
+            panelDryrun.add(genSpacer1);
+
+            ButtonGroup bg = new ButtonGroup();
+            foreground.setToolTipText(context.cfg.gs("Generator.foreground.tooltip"));
+            foreground.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    String generated = "";
+                    dryRun = checkboxDryrun.isSelected();
+                    generated = generate(tool,
+                            (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
+                            (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
+                            (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath(), foreground.isSelected());
+                    generatedTextField.setText(generated);
+                }
+            });
+            background.setToolTipText(context.cfg.gs("Generator.background.tooltip"));
+            background.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    String generated = "";
+                    dryRun = checkboxDryrun.isSelected();
+                    generated = generate(tool,
+                            (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
+                            (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
+                            (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath(), foreground.isSelected());
+                    generatedTextField.setText(generated);
+                }
+            });
+            bg.add(foreground);
+            bg.add(background);
+            panelDryrun.add(foreground);
+            panelDryrun.add(background);
+            if (context.preferences.getRunOption() == 0)
+                foreground.setSelected(true);
+            else
+                background.setSelected(true); // 1
+        }
+
         // horizontal separator
         JSeparator horizontalLine = new JSeparator(SwingConstants.HORIZONTAL);
 
         // setup copy panel
-        generatedTextField.setPreferredSize(new Dimension(530, 30));
+        generatedTextField.setPreferredSize(new Dimension(558, 30));
         String logDir = context.cfg.getLogFilePath();
         logFile = new File(logDir + configName + ".log");
         String generated = generate(tool,
                 (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
                 (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
-                (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath());
+                (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath(), foreground.isSelected());
         generatedTextField.setText(generated);
         panelGenerated.add(generatedTextField);
 
@@ -556,30 +595,83 @@ public class Generator
         });
         panelActions.add(copyButton);
         //
-        //if (!(owner == context.mainFrame && Utils.getOS().toLowerCase().equals("windows")))       // disable?
+        shortcutButton.setText(context.cfg.gs("Generator.shortcut"));
+        shortcutButton.setMnemonic(context.cfg.gs("Generator.shortcut.mnemonic").charAt(0));
+        shortcutButton.setToolTipText(context.cfg.gs("Generator.shortcut.tooltip"));
+        shortcutButton.addActionListener(new ActionListener()
         {
-            shortcutButton.setText(context.cfg.gs("Generator.shortcut"));
-            shortcutButton.setMnemonic(context.cfg.gs("Generator.shortcut.mnemonic").charAt(0));
-            shortcutButton.setToolTipText(context.cfg.gs("Generator.shortcut.tooltip"));
-            shortcutButton.addActionListener(new ActionListener()
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                createDesktopShortcut(owner, configName, generatedTextField.getText());
+            }
+        });
+        panelActions.add(shortcutButton);
+
+        // run button
+        if (!fileGenerate)
+        {
+            JPanel genSpacer2 = new JPanel();
+            genSpacer2.setMinimumSize(new Dimension(22, 6));
+            genSpacer2.setPreferredSize(new Dimension(22, 6));
+            panelActions.add(genSpacer2);
+            //
+            JButton runButton = new JButton();
+            runButton.setText(context.cfg.gs("Z.run.ellipsis"));
+            runButton.setMnemonic(context.cfg.gs("Z.run.mnemonic").charAt(0));
+            runButton.setToolTipText(context.cfg.gs("Z.run.tooltip"));
+            runButton.addActionListener(new ActionListener()
             {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent)
                 {
-                    generatedTextField.selectAll();
-                    generatedTextField.requestFocus();
-                    createDesktopShortcut(owner, configName, generatedTextField.getText());
+                    String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), tool.getConfigName());
+                    Object[] params = {message};
+
+                    // confirm run of job
+                    int reply = JOptionPane.showConfirmDialog((owner == null) ? context.mainFrame.panelMain : owner, params, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION)
+                    {
+                        try
+                        {
+                            String cmd = generate(tool,
+                                    (String) comboBoxConsoleLevel.getItemAt(comboBoxConsoleLevel.getSelectedIndex()),
+                                    (String) comboBoxDebugLevel.getItemAt(comboBoxDebugLevel.getSelectedIndex()),
+                                    (comboboxLogOverwrite.getSelectedIndex() == 0) ? false : true, logFile.getPath(), foreground.isSelected());
+
+                            String[] parms = Utils.parseCommandLIne(cmd);
+                            logger.info(context.cfg.gs("Z.launching") + cmd);
+                            Process proc = Runtime.getRuntime().exec(parms);
+                        }
+                        catch (Exception e)
+                        {
+                            logger.error(Utils.getStackTrace(e));
+                            message = context.cfg.gs("Generator.error.launching") + tool.getConfigName() + ", " + e.getMessage();
+                            Object[] opts = {context.cfg.gs("Z.ok")};
+                            JOptionPane.showOptionDialog(context.mainFrame, message, getTitle(tool),
+                                    JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                        }
+
+                        // close the dialog
+//                        Window w = SwingUtilities.getWindowAncestor(runButton);
+//                        if (w != null)
+//                            w.setVisible(false);
+                    }
                 }
             });
-            panelActions.add(shortcutButton);
+            panelActions.add(runButton);
         }
 
         // show the dialog
-        Object[] params = {messasge, panelLogLevels, panelLogFile, panelHorizontal1, horizontalLine, panelHorizontal2, panelGenerated, panelActions};
-        JOptionPane.showMessageDialog(owner, params, getTitle(tool), JOptionPane.PLAIN_MESSAGE);
-        completed = true;
-
-        return completed;
+        Object[] params = {messasge, panelLogLevels, panelLogFile, panelDryrun, panelHorizontal1, horizontalLine, panelHorizontal2, panelGenerated, panelActions};
+        JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner, params, getTitle(tool), JOptionPane.PLAIN_MESSAGE);
+        if (!fileGenerate)
+        {
+            if (foreground.isSelected())
+                context.preferences.setRunOption(0);
+            else if (background.isSelected())
+                context.preferences.setRunOption(1);
+        }
     }
 
 }

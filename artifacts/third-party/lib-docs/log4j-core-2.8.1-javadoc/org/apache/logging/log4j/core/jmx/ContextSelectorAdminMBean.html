@@ -164,7 +164,7 @@
 <h4>PATTERN</h4>
 <pre>static final&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> PATTERN</pre>
 <div class="block">ObjectName pattern ("org.apache.logging.log4j2:type=%s,component=ContextSelector") for ContextSelectorAdmin MBeans.
- This pattern contains a variable, which is the name of the logger context.
+ This pattern contains a variable, which is the name of the logger localContext.
  <p>
  You can find all registered ContextSelectorAdmin MBeans like this:
  </p>
@@ -174,7 +174,7 @@
  Set&lt;ObjectName&gt; contextSelectorNames = mbs.queryNames(new ObjectName(pattern), null);
  </pre>
  <p>
- Some characters are not allowed in ObjectNames. The logger context name
+ Some characters are not allowed in ObjectNames. The logger localContext name
  may be quoted. When ContextSelectorAdmin MBeans are
  registered, their ObjectNames are created using this pattern as follows:
  </p>

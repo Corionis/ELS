@@ -86,7 +86,7 @@ public class Connection extends Thread
 /*
             // notify the ConnectionManager that this connection has closed
             ServeStty cm = ServeStty.getInstance();
-            if (cm != null && cm.isAlive()) // && !service.context.timeout)
+            if (cm != null && cm.isAlive()) // && !service.localContext.timeout)
             {
                 logger.debug("closing stty connection to: " + Utils.formatAddresses(socket));
                 cm.endConnection();
@@ -98,9 +98,9 @@ public class Connection extends Thread
 */
 
             ServeStty cm = ServeStty.getInstance();
-            if (cm != null && cm.isAlive()) // && !service.context.timeout)
+            if (cm != null && cm.isAlive()) // && !service.localContext.timeout)
             {
-                logger.debug("closing stty connection to: " + Utils.formatAddresses(socket));
+                logger.info("closing stty connection to: " + Utils.formatAddresses(socket));
                 Vector conns = cm.getAllConnections();
                 conns.remove(this);
             }
@@ -109,31 +109,34 @@ public class Connection extends Thread
             {
                 try // also done in Main.process() finally{ shutdownHook }
                 {
-                    logger.trace("shutdown via stty");
+                    if (service.context.main.primaryExecution)
+                    {
+                        logger.trace("shutdown via stty");
 
-                    // optionally command status server to quit
-                    if (service.context.main.context.statusStty != null)
-                        service.context.main.context.statusStty.quitStatusServer(service.context);  // do before stopping the services
+                        // optionally command status server to quit
+                        if (service.context.main.context.hintsStty != null)
+                            service.context.main.context.hintsStty.quitStatusServer(service.context);  // do before stopping the services
 
-                    service.context.main.stopServices();
-                    sleep(2000);
-                    service.context.main.stopVerbiage();
+                        service.context.main.stopServices();
+                        sleep(2000);
+                        service.context.main.stopVerbiage();
+                    }
+                    else
+                        service.context.main.restoreEnvironment();
 
                     // halt kills the remaining threads
+                    // see Main isListening clause with Runtime.getRuntime().addShutdownHook()
                     if (service.context.main.context.fault)
                         logger.error("Exiting with error code");
-                    if (!service.context.main.secondaryInvocation)
+                    if (service.context.main.primaryExecution)
                         Runtime.getRuntime().halt(service.context.main.context.fault ? 1 : 0);
                 }
                 catch (Exception e)
                 {
                     logger.error(Utils.getStackTrace(e));
-                    if (!service.context.main.secondaryInvocation)
+                    if (service.context.main.primaryExecution)
                         Runtime.getRuntime().halt(1);
                 }
-
-//                logger.trace("stty calling exit");
-//                System.exit(0); // must be 0 to trigger Main.process.ShutdownHook()
             }
         }
     }

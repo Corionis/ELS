@@ -99,8 +99,11 @@ public class FileEditor extends JDialog
     {
         if (dataTableModel.isDataChanged())
         {
-            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.cancel.all.changes"),
-                    context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+            Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
+            int reply = JOptionPane.showOptionDialog(this,
+                    context.cfg.gs("Z.cancel.all.changes"),
+                    getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                    null, opts, opts[1]);
             if (reply == JOptionPane.YES_OPTION)
             {
                 setVisible(false);
@@ -188,7 +191,7 @@ public class FileEditor extends JDialog
 
             ArrayList<CollectionSelector> csList = new ArrayList<>();
             Repositories repositories = getRepositories();
-            if (repositories.getList().size() > 0)
+            if (repositories.getMetaList().size() > 0)
             {
                 JPanel controls = new JPanel();
                 GridBagLayout gridBagLayout = new GridBagLayout();
@@ -210,9 +213,9 @@ public class FileEditor extends JDialog
                 table.setMinimumSize(new Dimension(530, 100));
                 table.setPreferredSize(new Dimension(530, 260));
 
-                for (int i = 0; i < repositories.getList().size(); ++i)
+                for (int i = 0; i < repositories.getMetaList().size(); ++i)
                 {
-                    RepoMeta repoMeta = repositories.getList().get(i);
+                    RepoMeta repoMeta = repositories.getMetaList().get(i);
                     CollectionSelector cs = new CollectionSelector();
                     cs.description = repoMeta.description;
                     cs.key = repoMeta.key;
@@ -628,7 +631,7 @@ public class FileEditor extends JDialog
                 FileEditor.this.windowClosing(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========

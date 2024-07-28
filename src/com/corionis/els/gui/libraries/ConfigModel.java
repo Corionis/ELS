@@ -21,13 +21,13 @@ public class ConfigModel extends DefaultTableModel
     }
 
     /**
-     * Find a library in the table
+     * Find a LibMeta library in the table
      *
      * @param configName Library configuration name to find
      * @param myMeta Library Meta, if not null that LibMeta is skipped (a duplicate check)
      * @return LibMeta found, or null if not found or skipped
      */
-    public LibrariesUI.LibMeta find(String configName, LibrariesUI.LibMeta myMeta)
+    public LibrariesUI.LibMeta findMeta(String configName, LibrariesUI.LibMeta myMeta)
     {
         for (int i = 0; i < getRowCount(); ++i)
         {
@@ -41,6 +41,25 @@ public class ConfigModel extends DefaultTableModel
             }
         }
         return null;
+    }
+
+    /**
+     * Find a index library in the table
+     *
+     * @param myMeta Library Meta, if not null that LibMeta is skipped (a duplicate check)
+     * @return Index in the table if founnd, otherwise -1
+     */
+    public int findIndex(LibrariesUI.LibMeta myMeta)
+    {
+        for (int i = 0; i < getRowCount(); ++i)
+        {
+            LibrariesUI.LibMeta libMeta = (LibrariesUI.LibMeta) getValueAt(i, 0);
+            if (libMeta.path.equals(myMeta.path))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -64,7 +83,7 @@ public class ConfigModel extends DefaultTableModel
             LibrariesUI.LibMeta libMeta = (LibrariesUI.LibMeta) getValueAt(index, 0);
             if (libMeta != null)
             {
-                LibrariesUI.LibMeta tmp = find(name, libMeta);
+                LibrariesUI.LibMeta tmp = findMeta(name, libMeta);
                 if (tmp != null)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame,

@@ -198,7 +198,7 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
-<td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/core/Logger.html#Logger(org.apache.logging.log4j.core.LoggerContext,%20java.lang.String,%20org.apache.logging.log4j.message.MessageFactory)">Logger</a></strong>(<a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context,
+<td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/core/Logger.html#Logger(org.apache.logging.log4j.core.LoggerContext,%20java.lang.String,%20org.apache.logging.log4j.message.MessageFactory)">Logger</a></strong>(<a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext,
       <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
       <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/message/MessageFactory.html?is-external=true" title="class or interface in org.apache.logging.log4j.message">MessageFactory</a>&nbsp;messageFactory)</code>
 <div class="block">The constructor.</div>
@@ -538,11 +538,11 @@ implements <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/a
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Logger</h4>
-<pre>protected&nbsp;Logger(<a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context,
+<pre>protected&nbsp;Logger(<a href="../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext,
       <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
       <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/message/MessageFactory.html?is-external=true" title="class or interface in org.apache.logging.log4j.message">MessageFactory</a>&nbsp;messageFactory)</pre>
 <div class="block">The constructor.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>context</code> - The LoggerContext this Logger is associated with.</dd><dd><code>messageFactory</code> - The message factory.</dd><dd><code>name</code> - The name of the Logger.</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>localContext</code> - The LoggerContext this Logger is associated with.</dd><dd><code>messageFactory</code> - The message factory.</dd><dd><code>name</code> - The name of the Logger.</dd></dl>
 </li>
 </ul>
 </li>

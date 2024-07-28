@@ -66,8 +66,12 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         myRepo = mine;
         theirRepo = theirs;
 
-        hostname = Utils.parseHost(myRepo.getLibraryData().libraries.listen);
-        listenport = Utils.getPort(myRepo.getLibraryData().libraries.listen) + ((primaryServers) ? 1 : 3);
+        String address = myRepo.getLibraryData().libraries.listen;
+        if (address == null || address.isEmpty())
+            address = myRepo.getLibraryData().libraries.host;
+
+        hostname = Utils.parseHost(address);
+        listenport = Utils.getPort(address) + ((primaryServers) ? 1 : 3);
 
         user = theirRepo.getLibraryData().libraries.key;
         password = myRepo.getLibraryData().libraries.key;

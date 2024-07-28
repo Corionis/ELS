@@ -228,7 +228,7 @@
 <pre>static final&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> PATTERN</pre>
 <div class="block">ObjectName pattern ("org.apache.logging.log4j2:type=%s,component=AsyncAppenders,name=%s" ) for AsyncAppenderAdmin MBeans. This
  pattern contains two variables, where the first is the name of the
- context, the second is the name of the instrumented appender.
+ localContext, the second is the name of the instrumented appender.
  <p>
  You can find all registered AsyncAppenderAdmin MBeans like this:
  </p>
@@ -239,7 +239,7 @@
  Set&lt;ObjectName&gt; appenderNames = mbs.queryNames(new ObjectName(pattern), null);
  </pre>
  <p>
- Some characters are not allowed in ObjectNames. The logger context name
+ Some characters are not allowed in ObjectNames. The logger localContext name
  and appender name may be quoted. When AsyncAppenderAdmin MBeans are
  registered, their ObjectNames are created using this pattern as follows:
  </p>

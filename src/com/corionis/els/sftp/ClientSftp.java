@@ -21,6 +21,7 @@ import java.util.Vector;
 public class ClientSftp
 {
     private Context context;
+    private String hostListen;
     private String hostname;
     private int hostport;
     private Channel jChannel;
@@ -52,28 +53,46 @@ public class ClientSftp
         myRepo = mine;
         theirRepo = theirs;
 
-        hostname = Utils.parseHost(theirRepo.getLibraryData().libraries.host);
-        hostport = Utils.getPort(theirRepo.getLibraryData().libraries.host) + ((primaryServers) ? 1 : 3);
+        String address;
+        if (context.cfg.isOverrideSubscriberHost())
+        {
+            address = theirRepo.getLibraryData().libraries.listen;
+            if (address == null || address.isEmpty())
+                address = theirRepo.getLibraryData().libraries.host;
+            hostListen = context.cfg.gs("Z.listen");
+        }
+        else
+        {
+            address = theirRepo.getLibraryData().libraries.host;
+            hostListen = context.cfg.gs("Z.host");
+        }
+
+        hostname = Utils.parseHost(address);
+        hostport = Utils.getPort(address) + ((primaryServers) ? 1 : 3);
 
         user = myRepo.getLibraryData().libraries.key;
         password = theirRepo.getLibraryData().libraries.key;
     }
 
     /**
-     * List a remote directory
+     * Establish a remote channel connection
      *
-     * @param directory Path to list
-     * @return Vector of entries
-     * @throws Exception
+     * @return ChannelSftp object or null
      */
-    public synchronized Vector listDirectory(String directory) throws Exception
+    private ChannelSftp connect()
     {
-        ChannelSftp jSftp = connect();
-        directory = Utils.pipe(directory);
-        directory = Utils.unpipe(directory, "/");
-        Vector listing = jSftp.ls(directory);
-        jSftp.disconnect();
-        return listing;
+        ChannelSftp jSftp = null;
+        try
+        {
+            jChannel = jSession.openChannel("sftp");
+            jChannel.connect();
+            jSftp = (ChannelSftp) jChannel;
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+        }
+        return jSftp;
     }
 
     /**
@@ -95,6 +114,34 @@ public class ClientSftp
         else
             jSftp.get(source, dest);
         jSftp.disconnect();
+    }
+
+    /**
+     * Is the sftp connected?
+     */
+    public boolean isConnected()
+    {
+        boolean connected = false;
+        if (jChannel != null && jSession != null)
+            connected = true;
+        return connected;
+    }
+
+    /**
+     * List a remote directory
+     *
+     * @param directory Path to list
+     * @return Vector of entries
+     * @throws Exception
+     */
+    public synchronized Vector listDirectory(String directory) throws Exception
+    {
+        ChannelSftp jSftp = connect();
+        directory = Utils.pipe(directory);
+        directory = Utils.unpipe(directory, "/");
+        Vector listing = jSftp.ls(directory);
+        jSftp.disconnect();
+        return listing;
     }
 
     /**
@@ -146,27 +193,6 @@ public class ClientSftp
             }
         }
         return whole;
-    }
-
-    /**
-     * Establish a remote channel connection
-     *
-     * @return ChannelSftp object or null
-     */
-    private ChannelSftp connect()
-    {
-        ChannelSftp jSftp = null;
-        try
-        {
-            jChannel = jSession.openChannel("sftp");
-            jChannel.connect();
-            jSftp = (ChannelSftp) jChannel;
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage());
-        }
-        return jSftp;
     }
 
     /**
@@ -230,7 +256,7 @@ public class ClientSftp
         this.purpose = purpose;
         try
         {
-            logger.info("Opening sftp " + purpose + " connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
+            logger.info("Opening sftp " + purpose + " connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport + hostListen);
             jsch = new JSch();
             jSession = jsch.getSession(user, hostname, hostport);
             jSession.setConfig("StrictHostKeyChecking", "no");
@@ -271,7 +297,7 @@ public class ClientSftp
      */
     public void stopClient()
     {
-        logger.debug(java.text.MessageFormat.format(context.cfg.gs("ClientStty.disconnecting.sftp"), purpose, (hostname == null ? "localhost" : hostname)) + hostport);
+        logger.debug(java.text.MessageFormat.format(context.cfg.gs("Main.disconnecting.sftp"), purpose, (hostname == null ? "localhost" : hostname)) + hostport);
         if (jChannel != null)
             jChannel.disconnect();
 

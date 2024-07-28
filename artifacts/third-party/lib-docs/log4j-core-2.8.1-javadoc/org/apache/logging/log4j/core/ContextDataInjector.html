@@ -94,21 +94,21 @@
 <hr>
 <br>
 <pre>public interface <span class="strong">ContextDataInjector</span></pre>
-<div class="block">Responsible for initializing the context data of LogEvents. Context data is data that is set by the application to be
+<div class="block">Responsible for initializing the localContext data of LogEvents. Context data is data that is set by the application to be
  included in all subsequent log events.
  <p>
- The source of the context data is implementation-specific. The default source for context data is the ThreadContext.
+ The source of the localContext data is implementation-specific. The default source for localContext data is the ThreadContext.
  </p><p>
  In some asynchronous models, work may be delegated to several threads, while conceptually this work shares the same
- context. In such models, storing context data in <code>ThreadLocal</code> variables is not convenient or desirable.
+ localContext. In such models, storing localContext data in <code>ThreadLocal</code> variables is not convenient or desirable.
  Users can configure the <code>ContextDataInjectorFactory</code> to provide custom <code>ContextDataInjector</code> objects,
- in order to initialize log events with context data from any arbitrary context.
+ in order to initialize log events with localContext data from any arbitrary localContext.
  </p><p>
  When providing a custom <code>ContextDataInjector</code>, be aware that the <code>ContextDataInjectorFactory</code> may be
- invoked multiple times and the various components in Log4j that need access to context data may each have their own
+ invoked multiple times and the various components in Log4j that need access to localContext data may each have their own
  instance of <code>ContextDataInjector</code>.
  This includes the object(s) that populate log events, but also various lookups and filters that look at
- context data to determine whether an event should be logged.
+ localContext data to determine whether an event should be logged.
  </p><p>
  Implementors should take particular note of how the different methods in the interface have different thread-safety
  guarantees to enable optimal performance.
@@ -143,13 +143,13 @@
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/core/ContextDataInjector.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../org/apache/logging/log4j/core/config/Property.html" title="class in org.apache.logging.log4j.core.config">Property</a>&gt;&nbsp;properties,
                  <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;reusable)</code>
 <div class="block">Returns a <code>StringMap</code> object initialized with the specified properties and the appropriate
- context data.</div>
+ localContext data.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/apache/logging/log4j/core/ContextDataInjector.html#rawContextData()">rawContextData</a></strong>()</code>
-<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the context.</div>
+<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the localContext.</div>
 </td>
 </tr>
 </table>
@@ -176,27 +176,27 @@
 <pre><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;injectContextData(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../org/apache/logging/log4j/core/config/Property.html" title="class in org.apache.logging.log4j.core.config">Property</a>&gt;&nbsp;properties,
                           <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;reusable)</pre>
 <div class="block">Returns a <code>StringMap</code> object initialized with the specified properties and the appropriate
- context data. The returned value may be the specified parameter or a different object.
+ localContext data. The returned value may be the specified parameter or a different object.
  <p>
- This method will be called for each log event to initialize its context data and implementors should take
+ This method will be called for each log event to initialize its localContext data and implementors should take
  care to make this method as performant as possible while preserving at least the following thread-safety
  guarantee.
  </p><p>
  Thread-safety note: The returned object can safely be passed off to another thread: future changes in the
- underlying context data will not be reflected in the returned object.
+ underlying localContext data will not be reflected in the returned object.
  </p><p>
  Example implementation:
  </p>
  <pre>
  public StringMap injectContextData(List<Property> properties, StringMap reusable) {
      if (properties == null || properties.isEmpty()) {
-         // assume context data is stored in a copy-on-write data structure that is safe to pass to another thread
+         // assume localContext data is stored in a copy-on-write data structure that is safe to pass to another thread
          return (StringMap) rawContextData();
      }
      // first copy configuration properties into the result
      ThreadContextDataInjector.copyProperties(properties, reusable);
 
-     // then copy context data key-value pairs (may overwrite configuration properties)
+     // then copy localContext data key-value pairs (may overwrite configuration properties)
      reusable.putAll(rawContextData());
      return reusable;
  }
@@ -204,7 +204,7 @@
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>properties</code> - Properties from the log4j configuration to be added to the resulting ReadOnlyStringMap. May be
           <code>null</code> or empty</dd><dd><code>reusable</code> - a <code>StringMap</code> instance that may be reused to avoid creating temporary objects</dd>
 <dt><span class="strong">Returns:</span></dt><dd>a <code>StringMap</code> instance initialized with the specified properties and the appropriate
-          context data. The returned value may be the specified parameter or a different object.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../org/apache/logging/log4j/core/impl/ThreadContextDataInjector.html#copyProperties(java.util.List,%20org.apache.logging.log4j.util.StringMap)"><code>ThreadContextDataInjector.copyProperties(List, StringMap)</code></a></dd></dl>
+          localContext data. The returned value may be the specified parameter or a different object.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../org/apache/logging/log4j/core/impl/ThreadContextDataInjector.html#copyProperties(java.util.List,%20org.apache.logging.log4j.util.StringMap)"><code>ThreadContextDataInjector.copyProperties(List, StringMap)</code></a></dd></dl>
 </li>
 </ul>
 <a name="rawContextData()">
@@ -214,7 +214,7 @@
 <li class="blockList">
 <h4>rawContextData</h4>
 <pre><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a>&nbsp;rawContextData()</pre>
-<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the context. Configuration properties
+<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the localContext. Configuration properties
  are not included in the result.
  <p>
  This method may be called multiple times for each log event by Filters and Lookups and implementors should take
@@ -222,10 +222,10 @@
  guarantee.
  </p><p>
  Thread-safety note: The returned object can only be safely used <em>in the current thread</em>. Changes in the
- underlying context may or may not be reflected in the returned object, depending on the context data source and
+ underlying localContext may or may not be reflected in the returned object, depending on the localContext data source and
  the implementation of this method. It is not safe to pass the returned object to another thread.
  </p></div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>a <code>ReadOnlyStringMap</code> object reflecting the current state of the context, may not return <code>null</code></dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a <code>ReadOnlyStringMap</code> object reflecting the current state of the localContext, may not return <code>null</code></dd></dl>
 </li>
 </ul>
 </li>

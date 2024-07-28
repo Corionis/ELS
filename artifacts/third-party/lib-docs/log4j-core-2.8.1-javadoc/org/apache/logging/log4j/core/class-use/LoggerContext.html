@@ -244,7 +244,7 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/Logger.html#Logger(org.apache.logging.log4j.core.LoggerContext,%20java.lang.String,%20org.apache.logging.log4j.message.MessageFactory)">Logger</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context,
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/Logger.html#Logger(org.apache.logging.log4j.core.LoggerContext,%20java.lang.String,%20org.apache.logging.log4j.message.MessageFactory)">Logger</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext,
       <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
       <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/message/MessageFactory.html?is-external=true" title="class or interface in org.apache.logging.log4j.message">MessageFactory</a>&nbsp;messageFactory)</code>
 <div class="block">The constructor.</div>
@@ -273,7 +273,7 @@
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></code></td>
 <td class="colLast"><span class="strong">AbstractManager.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/appender/AbstractManager.html#getLoggerContext()">getLoggerContext</a></strong>()</code>
-<div class="block">Gets the logger context used to create this instance or null.</div>
+<div class="block">Gets the logger localContext used to create this instance or null.</div>
 </td>
 </tr>
 </tbody>
@@ -443,11 +443,11 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/AsyncLogger.html#AsyncLogger(org.apache.logging.log4j.core.LoggerContext,%20java.lang.String,%20org.apache.logging.log4j.message.MessageFactory,%20org.apache.logging.log4j.core.async.AsyncLoggerDisruptor)">AsyncLogger</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context,
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/AsyncLogger.html#AsyncLogger(org.apache.logging.log4j.core.LoggerContext,%20java.lang.String,%20org.apache.logging.log4j.message.MessageFactory,%20org.apache.logging.log4j.core.async.AsyncLoggerDisruptor)">AsyncLogger</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext,
            <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
            <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/message/MessageFactory.html?is-external=true" title="class or interface in org.apache.logging.log4j.message">MessageFactory</a>&nbsp;messageFactory,
            <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/core.async.AsyncLoggerDisruptor.html?is-external=true" title="class or interface in org.apache.logging.log4j">org.apache.logging.log4j.core.async.AsyncLoggerDisruptor</a>&nbsp;loggerDisruptor)</code>
-<div class="block">Constructs an <code>AsyncLogger</code> with the specified context, name and message factory.</div>
+<div class="block">Constructs an <code>AsyncLogger</code> with the specified localContext, name and message factory.</div>
 </td>
 </tr>
 </tbody>
@@ -467,7 +467,7 @@
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></code></td>
 <td class="colLast"><span class="strong">Configuration.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/config/Configuration.html#getLoggerContext()">getLoggerContext</a></strong>()</code>
-<div class="block">Gets the logger context.</div>
+<div class="block">Gets the logger localContext.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -592,7 +592,7 @@
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><span class="strong">Configurator.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/config/Configurator.html#shutdown(org.apache.logging.log4j.core.LoggerContext)">shutdown</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;ctx)</code>
-<div class="block">Shuts down the given logger context.</div>
+<div class="block">Shuts down the given logger localContext.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -600,7 +600,7 @@
 <td class="colLast"><span class="strong">Configurator.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/config/Configurator.html#shutdown(org.apache.logging.log4j.core.LoggerContext,%20long,%20java.util.concurrent.TimeUnit)">shutdown</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;ctx,
         long&nbsp;timeout,
         <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/TimeUnit.html?is-external=true" title="class or interface in java.util.concurrent">TimeUnit</a>&nbsp;timeUnit)</code>
-<div class="block">Shuts down the given logger context.</div>
+<div class="block">Shuts down the given logger localContext.</div>
 </td>
 </tr>
 </tbody>
@@ -634,7 +634,7 @@
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">ConfigurationBuilder.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/config/builder/api/ConfigurationBuilder.html#setLoggerContext(org.apache.logging.log4j.core.LoggerContext)">setLoggerContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;loggerContext)</code>
-<div class="block">Sets the logger context.</div>
+<div class="block">Sets the logger localContext.</div>
 </td>
 </tr>
 </tbody>
@@ -1117,21 +1117,21 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">JndiContextSelector.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/JndiContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context)</code>&nbsp;</td>
+<td class="colLast"><span class="strong">JndiContextSelector.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/JndiContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">ContextSelector.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/ContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context)</code>
+<td class="colLast"><span class="strong">ContextSelector.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/ContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Remove any references to the LoggerContext.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">ClassLoaderContextSelector.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/ClassLoaderContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context)</code>&nbsp;</td>
+<td class="colLast"><span class="strong">ClassLoaderContextSelector.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/ClassLoaderContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">BasicContextSelector.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/BasicContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context)</code>&nbsp;</td>
+<td class="colLast"><span class="strong">BasicContextSelector.</span><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/BasicContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext)</code>&nbsp;</td>
 </tr>
 </tbody>
 </table>

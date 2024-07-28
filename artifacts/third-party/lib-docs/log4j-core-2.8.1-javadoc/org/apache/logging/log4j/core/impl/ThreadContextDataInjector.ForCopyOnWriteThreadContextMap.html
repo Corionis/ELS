@@ -111,8 +111,8 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/ContextDataI
 <div class="block">The <code>ContextDataInjector</code> used when the ThreadContextMap implementation is a copy-on-write
  StringMap-based data structure.
  <p>
- If there are no configuration properties, this injector will return the thread context's internal data
- structure. Otherwise the configuration properties are combined with the thread context key-value pairs into the
+ If there are no configuration properties, this injector will return the thread localContext's internal data
+ structure. Otherwise the configuration properties are combined with the thread localContext key-value pairs into the
  specified reusable StringMap.</div>
 </li>
 </ul>
@@ -153,14 +153,14 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/ContextDataI
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForCopyOnWriteThreadContextMap.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../org/apache/logging/log4j/core/config/Property.html" title="class in org.apache.logging.log4j.core.config">Property</a>&gt;&nbsp;props,
                  <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;ignore)</code>
-<div class="block">If there are no configuration properties, this injector will return the thread context's internal data
+<div class="block">If there are no configuration properties, this injector will return the thread localContext's internal data
  structure.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForCopyOnWriteThreadContextMap.html#rawContextData()">rawContextData</a></strong>()</code>
-<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the context.</div>
+<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the localContext.</div>
 </td>
 </tr>
 </table>
@@ -210,14 +210,14 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/ContextDataI
 <h4>injectContextData</h4>
 <pre>public&nbsp;<a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;injectContextData(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../org/apache/logging/log4j/core/config/Property.html" title="class in org.apache.logging.log4j.core.config">Property</a>&gt;&nbsp;props,
                           <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/StringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">StringMap</a>&nbsp;ignore)</pre>
-<div class="block">If there are no configuration properties, this injector will return the thread context's internal data
- structure. Otherwise the configuration properties are combined with the thread context key-value pairs into the
+<div class="block">If there are no configuration properties, this injector will return the thread localContext's internal data
+ structure. Otherwise the configuration properties are combined with the thread localContext key-value pairs into the
  specified reusable StringMap.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core">ContextDataInjector</a></code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>props</code> - list of configuration properties, may be <code>null</code></dd><dd><code>ignore</code> - a <code>StringMap</code> instance from the log event</dd>
-<dt><span class="strong">Returns:</span></dt><dd>a <code>StringMap</code> combining configuration properties with thread context data</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../org/apache/logging/log4j/core/impl/ThreadContextDataInjector.html#copyProperties(java.util.List,%20org.apache.logging.log4j.util.StringMap)"><code>ThreadContextDataInjector.copyProperties(List, StringMap)</code></a></dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>a <code>StringMap</code> combining configuration properties with thread localContext data</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../org/apache/logging/log4j/core/impl/ThreadContextDataInjector.html#copyProperties(java.util.List,%20org.apache.logging.log4j.util.StringMap)"><code>ThreadContextDataInjector.copyProperties(List, StringMap)</code></a></dd></dl>
 </li>
 </ul>
 <a name="rawContextData()">
@@ -228,7 +228,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/ContextDataI
 <h4>rawContextData</h4>
 <pre>public&nbsp;<a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/ReadOnlyStringMap.html?is-external=true" title="class or interface in org.apache.logging.log4j.util">ReadOnlyStringMap</a>&nbsp;rawContextData()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html#rawContextData()">ContextDataInjector</a></code></strong></div>
-<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the context. Configuration properties
+<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the localContext. Configuration properties
  are not included in the result.
  <p>
  This method may be called multiple times for each log event by Filters and Lookups and implementors should take
@@ -236,13 +236,13 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/ContextDataI
  guarantee.
  </p><p>
  Thread-safety note: The returned object can only be safely used <em>in the current thread</em>. Changes in the
- underlying context may or may not be reflected in the returned object, depending on the context data source and
+ underlying localContext may or may not be reflected in the returned object, depending on the localContext data source and
  the implementation of this method. It is not safe to pass the returned object to another thread.
  </p></div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html#rawContextData()">rawContextData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core">ContextDataInjector</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>a <code>ReadOnlyStringMap</code> object reflecting the current state of the context, may not return <code>null</code></dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>a <code>ReadOnlyStringMap</code> object reflecting the current state of the localContext, may not return <code>null</code></dd></dl>
 </li>
 </ul>
 </li>

@@ -20,16 +20,16 @@ import java.util.Collections;
 
 public class Tools
 {
+    private ArrayList<AbstractTool> toolList = null;
 
     /**
      * Get tool from existing toolList from loadAllTools()
      *
-     * @param toolList Existing toolList
      * @param internalName Internal name of desired tool
      * @param configName Config name of desired tool
      * @return The AbstractTool or null if not found
      */
-    public AbstractTool getTool(ArrayList<AbstractTool> toolList, String internalName, String configName)
+    public AbstractTool getTool(String internalName, String configName)
     {
         for (int i = 0; i < toolList.size(); ++i)
         {
@@ -38,6 +38,26 @@ public class Tools
                 return tool;
         }
         return null;
+    }
+
+    @Override
+    public Object clone()
+    {
+        Tools clone = new Tools();
+        clone.toolList = (ArrayList<AbstractTool>) toolList.clone();
+        return clone;
+    }
+
+    /**
+     * Get currently-loaded list of tools, does not include Jobs
+     *
+     * @return List of tools
+     */
+    public ArrayList<AbstractTool> getToolList(Context context) throws Exception
+    {
+        if (toolList == null)
+            loadAllTools(context, null);
+        return toolList;
     }
 
     /**
@@ -197,7 +217,7 @@ public class Tools
      */
     public ArrayList<AbstractTool> loadAllTools(Context context, String internalName) throws Exception
     {
-        ArrayList<AbstractTool> toolList = new ArrayList<AbstractTool>();
+        toolList = new ArrayList<AbstractTool>();
         return loadAllTools(context, internalName, toolList);
     }
 
@@ -209,11 +229,11 @@ public class Tools
      *
      * @param context The Context, null is allowed
      * @param internalName Internal name of desired tool, or null/empty for all tools
-     * @param  toolList ArrayList of AbstractTool to add new items to
+     * @param  toolObjects ArrayList of AbstractTool to ADD new items to
      * @return ArrayList of tools
      * @throws Exception File system and parse exceptions
      */
-    public ArrayList<AbstractTool> loadAllTools(Context context, String internalName, ArrayList<AbstractTool> toolList) throws Exception
+    public ArrayList<AbstractTool> loadAllTools(Context context, String internalName, ArrayList<AbstractTool> toolObjects) throws Exception
     {
         if (internalName != null && internalName.length() == 0)
             internalName = null;
@@ -221,7 +241,10 @@ public class Tools
         File toolDir = null;
         ToolParserI toolParser = null;
 
-        // being OperationsUI
+        if (toolList != toolObjects)
+            toolList = new ArrayList<AbstractTool>();
+
+        // begin OperationsUI
         if (internalName == null || internalName.equals(OperationsTool.INTERNAL_NAME))
         {
             toolParser = new OperationParser();
@@ -266,6 +289,15 @@ public class Tools
         // sort the list
         Collections.sort(toolList);
 
+        // append new toolList to separate toolObjects
+        if (toolObjects != null && toolList != toolObjects)
+        {
+            for (AbstractTool tool : toolList)
+            {
+                toolObjects.add(tool);
+            }
+            return toolObjects;
+        }
         return toolList;
     }
 

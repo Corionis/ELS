@@ -114,11 +114,11 @@ The changes.html file is edited in the 'build' directory between deployments.
     searching for:  `````// ---`````
     <br/><br/>
  2. Communications time-out handling and the many changes those areas have gone through
-   made finding the code locations more important. To find the relevant code locations 
-   search for:  ```time-out```
-   <br/><br/>
+    made finding the code locations more important. To find the relevant code locations 
+    search for:  ```time-out```
+    <br/><br/>
  3. The locations that handle the internal heartbeat for remote connections can be found
-   by searching the code for: ```ping```
+    by searching the code for: ```ping```
     <br/><br/>
  4. IntelliJ can be configured with additional To Do markers. In addition to those included
     in the IDE the ELS project also uses: 
@@ -127,6 +127,11 @@ The changes.html file is edited in the 'build' directory between deployments.
       * ISSUE case-sensitive
       * LEFTOFF case-sensitive, where we stopped for the nightdaynight
       * TEST case-sensitive
+ 5. Debugging event actions with GUI controls like a combobox can cause the desktop to
+    appear to be locked-up. It is a conflict between the application and the IDE. To avoid
+    that issue add "-Dsun.awt.disablegrab=true" to the VM arguments.
+    See also: https://intellij-support.jetbrains.com/hc/en-us/community/posts/206248729-Tip-Avoid-frozen-X-when-debugging-an-UI
+
 
 ## Contributing
 

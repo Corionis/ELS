@@ -55,7 +55,7 @@ public class DirectoryPicker
      * @param includeSize Include minimum-size line, for Locations
      * @param includeLibraries Include the Multiple-Add libraries list and All checkbox
      */
-    public DirectoryPicker(Context context, String displayName, String message, boolean includeSize, boolean includeLibraries)
+    public DirectoryPicker(Context context, String displayName, String message, boolean includeSize, boolean includeLibraries, String value)
     {
         numberFilter = new NumberFilter();
 
@@ -72,7 +72,9 @@ public class DirectoryPicker
 
         // location path
         directoryPathTextField = new JTextField();
-        directoryPathTextField.setEditable(false);
+        if (value != null)
+            directoryPathTextField.setText(value);
+        directoryPathTextField.setEditable(true);
         directoryPathTextField.setMinimumSize(new Dimension(360, 30));
         directoryPathTextField.setPreferredSize(new Dimension(360, 30));
         panel.add(directoryPathTextField, new GridBagConstraints(0, 1, 6, 1, 1.0, 0.0,

@@ -191,12 +191,12 @@ public class Datastore
      */
     public boolean initialize() throws Exception
     {
-        if (context.statusRepo.getLibraryData() != null &&
-                context.statusRepo.getLibraryData().libraries != null &&
-                context.statusRepo.getLibraryData().libraries.bibliography != null &&
-                context.statusRepo.getLibraryData().libraries.bibliography.length > 0)
+        if (context.hintsRepo.getLibraryData() != null &&
+                context.hintsRepo.getLibraryData().libraries != null &&
+                context.hintsRepo.getLibraryData().libraries.bibliography != null &&
+                context.hintsRepo.getLibraryData().libraries.bibliography.length > 0)
         {
-            statusLibrary = context.statusRepo.getLibraryData().libraries.bibliography[0];
+            statusLibrary = context.hintsRepo.getLibraryData().libraries.bibliography[0];
         }
         else
             throw new MungeException("Hint Status Tracker/Server repo contains no library for status datastore");
@@ -223,7 +223,7 @@ public class Datastore
         }
 
         // scan the status repository
-        context.statusRepo.scan(statusLibrary.name);
+        context.hintsRepo.scan(statusLibrary.name);
 
         int count = 0;
         if (statusLibrary.items != null)

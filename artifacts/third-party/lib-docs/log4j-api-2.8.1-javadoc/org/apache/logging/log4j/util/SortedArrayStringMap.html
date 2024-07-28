@@ -107,11 +107,11 @@ implements <a href="../../../../../org/apache/logging/log4j/util/IndexedStringMa
 <div class="block"><em>Consider this class private.</em>
  Array-based implementation of the <code>ReadOnlyStringMap</code> interface. Keys are held in a sorted array.
  <p>
- This is not a generic collection, but makes some trade-offs to optimize for the Log4j context data use case:
+ This is not a generic collection, but makes some trade-offs to optimize for the Log4j localContext data use case:
  </p>
  <ul>
    <li>Garbage-free iteration over key-value pairs with <code>BiConsumer</code> and <code>TriConsumer</code>.</li>
-   <li>Fast copy. If the ThreadContextMap is also an instance of <code>SortedArrayStringMap</code>, the full thread context
+   <li>Fast copy. If the ThreadContextMap is also an instance of <code>SortedArrayStringMap</code>, the full thread localContext
      data can be transferred with two array copies and two field updates.</li>
    <li>Acceptable performance for small data sets. The current implementation stores keys in a sorted array, values
      are stored in a separate array at the same index.

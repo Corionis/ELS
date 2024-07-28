@@ -946,7 +946,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/async/AsyncLogger.html#AsyncLogger(org.apache.logging.log4j.core.LoggerContext,%20java.lang.String,%20org.apache.logging.log4j.message.MessageFactory,%20org.apache.logging.log4j.core.async.AsyncLoggerDisruptor)">AsyncLogger(LoggerContext, String, MessageFactory, AsyncLoggerDisruptor)</a></span> - Constructor for class org.apache.logging.log4j.core.async.<a href="./org/apache/logging/log4j/core/async/AsyncLogger.html" title="class in org.apache.logging.log4j.core.async">AsyncLogger</a></dt>
 <dd>
-<div class="block">Constructs an <code>AsyncLogger</code> with the specified context, name and message factory.</div>
+<div class="block">Constructs an <code>AsyncLogger</code> with the specified localContext, name and message factory.</div>
 </dd>
 <dt><a href="./org/apache/logging/log4j/core/async/AsyncLoggerConfig.html" title="class in org.apache.logging.log4j.core.async"><span class="strong">AsyncLoggerConfig</span></a> - Class in <a href="./org/apache/logging/log4j/core/async/package-summary.html">org.apache.logging.log4j.core.async</a></dt>
 <dd>
@@ -1047,7 +1047,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="./org/apache/logging/log4j/core/selector/BasicContextSelector.html" title="class in org.apache.logging.log4j.core.selector"><span class="strong">BasicContextSelector</span></a> - Class in <a href="./org/apache/logging/log4j/core/selector/package-summary.html">org.apache.logging.log4j.core.selector</a></dt>
 <dd>
-<div class="block">Returns either this Thread's context or the default LoggerContext.</div>
+<div class="block">Returns either this Thread's localContext or the default LoggerContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/selector/BasicContextSelector.html#BasicContextSelector()">BasicContextSelector()</a></span> - Constructor for class org.apache.logging.log4j.core.selector.<a href="./org/apache/logging/log4j/core/selector/BasicContextSelector.html" title="class in org.apache.logging.log4j.core.selector">BasicContextSelector</a></dt>
 <dd>&nbsp;</dd>
@@ -1750,13 +1750,13 @@
 <dt><a href="./org/apache/logging/log4j/core/impl/ContextDataFactory.html" title="class in org.apache.logging.log4j.core.impl"><span class="strong">ContextDataFactory</span></a> - Class in <a href="./org/apache/logging/log4j/core/impl/package-summary.html">org.apache.logging.log4j.core.impl</a></dt>
 <dd>
 <div class="block">Factory for creating the StringMap instances used to initialize LogEvents'
- <a href="./org/apache/logging/log4j/core/LogEvent.html#getContextData()">context data</a>.</div>
+ <a href="./org/apache/logging/log4j/core/LogEvent.html#getContextData()">localContext data</a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/impl/ContextDataFactory.html#ContextDataFactory()">ContextDataFactory()</a></span> - Constructor for class org.apache.logging.log4j.core.impl.<a href="./org/apache/logging/log4j/core/impl/ContextDataFactory.html" title="class in org.apache.logging.log4j.core.impl">ContextDataFactory</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="./org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core"><span class="strong">ContextDataInjector</span></a> - Interface in <a href="./org/apache/logging/log4j/core/package-summary.html">org.apache.logging.log4j.core</a></dt>
 <dd>
-<div class="block">Responsible for initializing the context data of LogEvents.</div>
+<div class="block">Responsible for initializing the localContext data of LogEvents.</div>
 </dd>
 <dt><a href="./org/apache/logging/log4j/core/impl/ContextDataInjectorFactory.html" title="class in org.apache.logging.log4j.core.impl"><span class="strong">ContextDataInjectorFactory</span></a> - Class in <a href="./org/apache/logging/log4j/core/impl/package-summary.html">org.apache.logging.log4j.core.impl</a></dt>
 <dd>
@@ -1794,7 +1794,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="./org/apache/logging/log4j/core/lookup/ContextMapLookup.html" title="class in org.apache.logging.log4j.core.lookup"><span class="strong">ContextMapLookup</span></a> - Class in <a href="./org/apache/logging/log4j/core/lookup/package-summary.html">org.apache.logging.log4j.core.lookup</a></dt>
 <dd>
-<div class="block">Looks up keys from the context.</div>
+<div class="block">Looks up keys from the localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/lookup/ContextMapLookup.html#ContextMapLookup()">ContextMapLookup()</a></span> - Constructor for class org.apache.logging.log4j.core.lookup.<a href="./org/apache/logging/log4j/core/lookup/ContextMapLookup.html" title="class in org.apache.logging.log4j.core.lookup">ContextMapLookup</a></dt>
 <dd>&nbsp;</dd>
@@ -3050,7 +3050,7 @@
 </dd>
 <dt><a href="./org/apache/logging/log4j/core/filter/DynamicThresholdFilter.html" title="class in org.apache.logging.log4j.core.filter"><span class="strong">DynamicThresholdFilter</span></a> - Class in <a href="./org/apache/logging/log4j/core/filter/package-summary.html">org.apache.logging.log4j.core.filter</a></dt>
 <dd>
-<div class="block">Compares against a log level that is associated with a context value.</div>
+<div class="block">Compares against a log level that is associated with a localContext value.</div>
 </dd>
 </dl>
 <a name="_E_">
@@ -4112,7 +4112,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/config/plugins/util/PluginBuilder.html#forLogEvent(org.apache.logging.log4j.core.LogEvent)">forLogEvent(LogEvent)</a></span> - Method in class org.apache.logging.log4j.core.config.plugins.util.<a href="./org/apache/logging/log4j/core/config/plugins/util/PluginBuilder.html" title="class in org.apache.logging.log4j.core.config.plugins.util">PluginBuilder</a></dt>
 <dd>
-<div class="block">Specifies the LogEvent that may be used to provide extra context for string substitutions.</div>
+<div class="block">Specifies the LogEvent that may be used to provide extra localContext for string substitutions.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/pattern/AbstractStyleNameConverter.html#format(org.apache.logging.log4j.core.LogEvent,%20java.lang.StringBuilder)">format(LogEvent, StringBuilder)</a></span> - Method in class org.apache.logging.log4j.core.pattern.<a href="./org/apache/logging/log4j/core/pattern/AbstractStyleNameConverter.html" title="class in org.apache.logging.log4j.core.pattern">AbstractStyleNameConverter</a></dt>
 <dd>
@@ -5078,19 +5078,19 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/appender/db/jpa/AbstractLogEventWrapperEntity.html#getContextData()">getContextData()</a></span> - Method in class org.apache.logging.log4j.core.appender.db.jpa.<a href="./org/apache/logging/log4j/core/appender/db/jpa/AbstractLogEventWrapperEntity.html" title="class in org.apache.logging.log4j.core.appender.db.jpa">AbstractLogEventWrapperEntity</a></dt>
 <dd>
-<div class="block">Gets the context map.</div>
+<div class="block">Gets the localContext map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/async/RingBufferLogEvent.html#getContextData()">getContextData()</a></span> - Method in class org.apache.logging.log4j.core.async.<a href="./org/apache/logging/log4j/core/async/RingBufferLogEvent.html" title="class in org.apache.logging.log4j.core.async">RingBufferLogEvent</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/impl/Log4jLogEvent.html#getContextData()">getContextData()</a></span> - Method in class org.apache.logging.log4j.core.impl.<a href="./org/apache/logging/log4j/core/impl/Log4jLogEvent.html" title="class in org.apache.logging.log4j.core.impl">Log4jLogEvent</a></dt>
 <dd>
-<div class="block">Returns the <code>ReadOnlyStringMap</code> containing context data key-value pairs.</div>
+<div class="block">Returns the <code>ReadOnlyStringMap</code> containing localContext data key-value pairs.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/impl/MutableLogEvent.html#getContextData()">getContextData()</a></span> - Method in class org.apache.logging.log4j.core.impl.<a href="./org/apache/logging/log4j/core/impl/MutableLogEvent.html" title="class in org.apache.logging.log4j.core.impl">MutableLogEvent</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/LogEvent.html#getContextData()">getContextData()</a></span> - Method in interface org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></dt>
 <dd>
-<div class="block">Returns the <code>ReadOnlyStringMap</code> object holding context data key-value pairs.</div>
+<div class="block">Returns the <code>ReadOnlyStringMap</code> object holding localContext data key-value pairs.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/AbstractLogEvent.html#getContextMap()">getContextMap()</a></span> - Method in class org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/AbstractLogEvent.html" title="class in org.apache.logging.log4j.core">AbstractLogEvent</a></dt>
 <dd>
@@ -5098,7 +5098,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/appender/db/jpa/BasicLogEventEntity.html#getContextMap()">getContextMap()</a></span> - Method in class org.apache.logging.log4j.core.appender.db.jpa.<a href="./org/apache/logging/log4j/core/appender/db/jpa/BasicLogEventEntity.html" title="class in org.apache.logging.log4j.core.appender.db.jpa">BasicLogEventEntity</a></dt>
 <dd>
-<div class="block">Gets the context map.</div>
+<div class="block">Gets the localContext map.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/async/RingBufferLogEvent.html#getContextMap()">getContextMap()</a></span> - Method in class org.apache.logging.log4j.core.async.<a href="./org/apache/logging/log4j/core/async/RingBufferLogEvent.html" title="class in org.apache.logging.log4j.core.async">RingBufferLogEvent</a></dt>
 <dd>&nbsp;</dd>
@@ -5124,7 +5124,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/appender/db/jpa/BasicLogEventEntity.html#getContextStack()">getContextStack()</a></span> - Method in class org.apache.logging.log4j.core.appender.db.jpa.<a href="./org/apache/logging/log4j/core/appender/db/jpa/BasicLogEventEntity.html" title="class in org.apache.logging.log4j.core.appender.db.jpa">BasicLogEventEntity</a></dt>
 <dd>
-<div class="block">Gets the context stack.</div>
+<div class="block">Gets the localContext stack.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/async/RingBufferLogEvent.html#getContextStack()">getContextStack()</a></span> - Method in class org.apache.logging.log4j.core.async.<a href="./org/apache/logging/log4j/core/async/RingBufferLogEvent.html" title="class in org.apache.logging.log4j.core.async">RingBufferLogEvent</a></dt>
 <dd>&nbsp;</dd>
@@ -5136,7 +5136,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/LogEvent.html#getContextStack()">getContextStack()</a></span> - Method in interface org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/LogEvent.html" title="interface in org.apache.logging.log4j.core">LogEvent</a></dt>
 <dd>
-<div class="block">Gets the context stack (also known as Nested Diagnostic Context or NDC).</div>
+<div class="block">Gets the localContext stack (also known as Nested Diagnostic Context or NDC).</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/layout/PatternLayout.html#getConversionPattern()">getConversionPattern()</a></span> - Method in class org.apache.logging.log4j.core.layout.<a href="./org/apache/logging/log4j/core/layout/PatternLayout.html" title="class in org.apache.logging.log4j.core.layout">PatternLayout</a></dt>
 <dd>
@@ -5379,7 +5379,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/LoggerContext.html#getExternalContext()">getExternalContext()</a></span> - Method in class org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></dt>
 <dd>
-<div class="block">Returns the external context.</div>
+<div class="block">Returns the external localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/impl/ExtendedStackTraceElement.html#getExtraClassInfo()">getExtraClassInfo()</a></span> - Method in class org.apache.logging.log4j.core.impl.<a href="./org/apache/logging/log4j/core/impl/ExtendedStackTraceElement.html" title="class in org.apache.logging.log4j.core.impl">ExtendedStackTraceElement</a></dt>
 <dd>&nbsp;</dd>
@@ -5986,7 +5986,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/appender/AbstractManager.html#getLoggerContext()">getLoggerContext()</a></span> - Method in class org.apache.logging.log4j.core.appender.<a href="./org/apache/logging/log4j/core/appender/AbstractManager.html" title="class in org.apache.logging.log4j.core.appender">AbstractManager</a></dt>
 <dd>
-<div class="block">Gets the logger context used to create this instance or null.</div>
+<div class="block">Gets the logger localContext used to create this instance or null.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/appender/ConfigurationFactoryData.html#getLoggerContext()">getLoggerContext()</a></span> - Method in class org.apache.logging.log4j.core.appender.<a href="./org/apache/logging/log4j/core/appender/ConfigurationFactoryData.html" title="class in org.apache.logging.log4j.core.appender">ConfigurationFactoryData</a></dt>
 <dd>
@@ -5996,7 +5996,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/config/Configuration.html#getLoggerContext()">getLoggerContext()</a></span> - Method in interface org.apache.logging.log4j.core.config.<a href="./org/apache/logging/log4j/core/config/Configuration.html" title="interface in org.apache.logging.log4j.core.config">Configuration</a></dt>
 <dd>
-<div class="block">Gets the logger context.</div>
+<div class="block">Gets the logger localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/config/properties/PropertiesConfigurationBuilder.html#getLoggerContext()">getLoggerContext()</a></span> - Method in class org.apache.logging.log4j.core.config.properties.<a href="./org/apache/logging/log4j/core/config/properties/PropertiesConfigurationBuilder.html" title="class in org.apache.logging.log4j.core.config.properties">PropertiesConfigurationBuilder</a></dt>
 <dd>&nbsp;</dd>
@@ -7602,21 +7602,21 @@
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/ContextDataInjector.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData(List&lt;Property&gt;, StringMap)</a></span> - Method in interface org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core">ContextDataInjector</a></dt>
 <dd>
 <div class="block">Returns a <code>StringMap</code> object initialized with the specified properties and the appropriate
- context data.</div>
+ localContext data.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForCopyOnWriteThreadContextMap.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData(List&lt;Property&gt;, StringMap)</a></span> - Method in class org.apache.logging.log4j.core.impl.<a href="./org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForCopyOnWriteThreadContextMap.html" title="class in org.apache.logging.log4j.core.impl">ThreadContextDataInjector.ForCopyOnWriteThreadContextMap</a></dt>
 <dd>
-<div class="block">If there are no configuration properties, this injector will return the thread context's internal data
+<div class="block">If there are no configuration properties, this injector will return the thread localContext's internal data
  structure.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForDefaultThreadContextMap.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData(List&lt;Property&gt;, StringMap)</a></span> - Method in class org.apache.logging.log4j.core.impl.<a href="./org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForDefaultThreadContextMap.html" title="class in org.apache.logging.log4j.core.impl">ThreadContextDataInjector.ForDefaultThreadContextMap</a></dt>
 <dd>
-<div class="block">Puts key-value pairs from both the specified list of properties as well as the thread context into the
+<div class="block">Puts key-value pairs from both the specified list of properties as well as the thread localContext into the
  specified reusable StringMap.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForGarbageFreeThreadContextMap.html#injectContextData(java.util.List,%20org.apache.logging.log4j.util.StringMap)">injectContextData(List&lt;Property&gt;, StringMap)</a></span> - Method in class org.apache.logging.log4j.core.impl.<a href="./org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForGarbageFreeThreadContextMap.html" title="class in org.apache.logging.log4j.core.impl">ThreadContextDataInjector.ForGarbageFreeThreadContextMap</a></dt>
 <dd>
-<div class="block">Puts key-value pairs from both the specified list of properties as well as the thread context into the
+<div class="block">Puts key-value pairs from both the specified list of properties as well as the thread localContext into the
  specified reusable StringMap.</div>
 </dd>
 <dt><a href="./org/apache/logging/log4j/core/net/server/InputStreamLogEventBridge.html" title="class in org.apache.logging.log4j.core.net.server"><span class="strong">InputStreamLogEventBridge</span></a> - Class in <a href="./org/apache/logging/log4j/core/net/server/package-summary.html">org.apache.logging.log4j.core.net.server</a></dt>
@@ -8254,7 +8254,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/util/Constants.html#JNDI_CONTEXT_NAME">JNDI_CONTEXT_NAME</a></span> - Static variable in class org.apache.logging.log4j.core.util.<a href="./org/apache/logging/log4j/core/util/Constants.html" title="class in org.apache.logging.log4j.core.util">Constants</a></dt>
 <dd>
-<div class="block">JNDI context name string literal.</div>
+<div class="block">JNDI localContext name string literal.</div>
 </dd>
 <dt><a href="./org/apache/logging/log4j/core/util/JndiCloser.html" title="class in org.apache.logging.log4j.core.util"><span class="strong">JndiCloser</span></a> - Class in <a href="./org/apache/logging/log4j/core/util/package-summary.html">org.apache.logging.log4j.core.util</a></dt>
 <dd>
@@ -8898,15 +8898,15 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/LoggerContext.html#LoggerContext(java.lang.String,%20java.lang.Object)">LoggerContext(String, Object)</a></span> - Constructor for class org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></dt>
 <dd>
-<div class="block">Constructor taking a name and a reference to an external context.</div>
+<div class="block">Constructor taking a name and a reference to an external localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/LoggerContext.html#LoggerContext(java.lang.String,%20java.lang.Object,%20java.net.URI)">LoggerContext(String, Object, URI)</a></span> - Constructor for class org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></dt>
 <dd>
-<div class="block">Constructor taking a name, external context and a configuration URI.</div>
+<div class="block">Constructor taking a name, external localContext and a configuration URI.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/LoggerContext.html#LoggerContext(java.lang.String,%20java.lang.Object,%20java.lang.String)">LoggerContext(String, Object, String)</a></span> - Constructor for class org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></dt>
 <dd>
-<div class="block">Constructor taking a name external context and a configuration location String.</div>
+<div class="block">Constructor taking a name external localContext and a configuration location String.</div>
 </dd>
 <dt><a href="./org/apache/logging/log4j/core/jmx/LoggerContextAdmin.html" title="class in org.apache.logging.log4j.core.jmx"><span class="strong">LoggerContextAdmin</span></a> - Class in <a href="./org/apache/logging/log4j/core/jmx/package-summary.html">org.apache.logging.log4j.core.jmx</a></dt>
 <dd>
@@ -9049,7 +9049,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/net/JndiManager.html#lookup(java.lang.String)">lookup(String)</a></span> - Method in class org.apache.logging.log4j.core.net.<a href="./org/apache/logging/log4j/core/net/JndiManager.html" title="class in org.apache.logging.log4j.core.net">JndiManager</a></dt>
 <dd>
-<div class="block">Looks up a named object through this JNDI context.</div>
+<div class="block">Looks up a named object through this JNDI localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/util/datetime/FixedDateFormat.FixedFormat.html#lookup(java.lang.String)">lookup(String)</a></span> - Static method in enum org.apache.logging.log4j.core.util.datetime.<a href="./org/apache/logging/log4j/core/util/datetime/FixedDateFormat.FixedFormat.html" title="enum in org.apache.logging.log4j.core.util.datetime">FixedDateFormat.FixedFormat</a></dt>
 <dd>
@@ -10809,7 +10809,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/ContextDataInjector.html#rawContextData()">rawContextData()</a></span> - Method in interface org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/ContextDataInjector.html" title="interface in org.apache.logging.log4j.core">ContextDataInjector</a></dt>
 <dd>
-<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the context.</div>
+<div class="block">Returns a <code>ReadOnlyStringMap</code> object reflecting the current state of the localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForCopyOnWriteThreadContextMap.html#rawContextData()">rawContextData()</a></span> - Method in class org.apache.logging.log4j.core.impl.<a href="./org/apache/logging/log4j/core/impl/ThreadContextDataInjector.ForCopyOnWriteThreadContextMap.html" title="class in org.apache.logging.log4j.core.impl">ThreadContextDataInjector.ForCopyOnWriteThreadContextMap</a></dt>
 <dd>&nbsp;</dd>
@@ -10839,7 +10839,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/LoggerContext.html#reconfigure()">reconfigure()</a></span> - Method in class org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></dt>
 <dd>
-<div class="block">Reconfigures the context.</div>
+<div class="block">Reconfigures the localContext.</div>
 </dd>
 <dt><a href="./org/apache/logging/log4j/core/util/ReflectionUtil.html" title="class in org.apache.logging.log4j.core.util"><span class="strong">ReflectionUtil</span></a> - Class in <a href="./org/apache/logging/log4j/core/util/package-summary.html">org.apache.logging.log4j.core.util</a></dt>
 <dd>
@@ -11735,7 +11735,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/LoggerContext.html#setConfigLocation(java.net.URI)">setConfigLocation(URI)</a></span> - Method in class org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></dt>
 <dd>
-<div class="block">Sets the configLocation to the specified value and reconfigures this context.</div>
+<div class="block">Sets the configLocation to the specified value and reconfigures this localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/jmx/LoggerContextAdmin.html#setConfigLocationUri(java.lang.String)">setConfigLocationUri(String)</a></span> - Method in class org.apache.logging.log4j.core.jmx.<a href="./org/apache/logging/log4j/core/jmx/LoggerContextAdmin.html" title="class in org.apache.logging.log4j.core.jmx">LoggerContextAdmin</a></dt>
 <dd>&nbsp;</dd>
@@ -11912,7 +11912,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/LoggerContext.html#setExternalContext(java.lang.Object)">setExternalContext(Object)</a></span> - Method in class org.apache.logging.log4j.core.<a href="./org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></dt>
 <dd>
-<div class="block">Sets the external context.</div>
+<div class="block">Sets the external localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/appender/SyslogAppender.Builder.html#setFacility(org.apache.logging.log4j.core.net.Facility)">setFacility(Facility)</a></span> - Method in class org.apache.logging.log4j.core.appender.<a href="./org/apache/logging/log4j/core/appender/SyslogAppender.Builder.html" title="class in org.apache.logging.log4j.core.appender">SyslogAppender.Builder</a></dt>
 <dd>&nbsp;</dd>
@@ -12016,7 +12016,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/layout/GelfLayout.Builder.html#setIncludeThreadContext(boolean)">setIncludeThreadContext(boolean)</a></span> - Method in class org.apache.logging.log4j.core.layout.<a href="./org/apache/logging/log4j/core/layout/GelfLayout.Builder.html" title="class in org.apache.logging.log4j.core.layout">GelfLayout.Builder</a></dt>
 <dd>
-<div class="block">Whether to include thread context as additional fields (optional, default to true).</div>
+<div class="block">Whether to include thread localContext as additional fields (optional, default to true).</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/util/WatchManager.html#setIntervalSeconds(int)">setIntervalSeconds(int)</a></span> - Method in class org.apache.logging.log4j.core.util.<a href="./org/apache/logging/log4j/core/util/WatchManager.html" title="class in org.apache.logging.log4j.core.util">WatchManager</a></dt>
 <dd>&nbsp;</dd>
@@ -12113,7 +12113,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/config/builder/api/ConfigurationBuilder.html#setLoggerContext(org.apache.logging.log4j.core.LoggerContext)">setLoggerContext(LoggerContext)</a></span> - Method in interface org.apache.logging.log4j.core.config.builder.api.<a href="./org/apache/logging/log4j/core/config/builder/api/ConfigurationBuilder.html" title="interface in org.apache.logging.log4j.core.config.builder.api">ConfigurationBuilder</a></dt>
 <dd>
-<div class="block">Sets the logger context.</div>
+<div class="block">Sets the logger localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/config/builder/impl/DefaultConfigurationBuilder.html#setLoggerContext(org.apache.logging.log4j.core.LoggerContext)">setLoggerContext(LoggerContext)</a></span> - Method in class org.apache.logging.log4j.core.config.builder.impl.<a href="./org/apache/logging/log4j/core/config/builder/impl/DefaultConfigurationBuilder.html" title="class in org.apache.logging.log4j.core.config.builder.impl">DefaultConfigurationBuilder</a></dt>
 <dd>&nbsp;</dd>
@@ -12503,7 +12503,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/async/AsyncLoggerContext.html#setUseThreadLocals(boolean)">setUseThreadLocals(boolean)</a></span> - Method in class org.apache.logging.log4j.core.async.<a href="./org/apache/logging/log4j/core/async/AsyncLoggerContext.html" title="class in org.apache.logging.log4j.core.async">AsyncLoggerContext</a></dt>
 <dd>
-<div class="block">Signals this context whether it is allowed to use ThreadLocal objects for efficiency.</div>
+<div class="block">Signals this localContext whether it is allowed to use ThreadLocal objects for efficiency.</div>
 </dd>
 <dt><a href="./org/apache/logging/log4j/core/util/SetUtils.html" title="class in org.apache.logging.log4j.core.util"><span class="strong">SetUtils</span></a> - Class in <a href="./org/apache/logging/log4j/core/util/package-summary.html">org.apache.logging.log4j.core.util</a></dt>
 <dd>
@@ -12582,11 +12582,11 @@
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/config/Configurator.html#shutdown(org.apache.logging.log4j.core.LoggerContext)">shutdown(LoggerContext)</a></span> - Static method in class org.apache.logging.log4j.core.config.<a href="./org/apache/logging/log4j/core/config/Configurator.html" title="class in org.apache.logging.log4j.core.config">Configurator</a></dt>
 <dd>
-<div class="block">Shuts down the given logger context.</div>
+<div class="block">Shuts down the given logger localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/config/Configurator.html#shutdown(org.apache.logging.log4j.core.LoggerContext,%20long,%20java.util.concurrent.TimeUnit)">shutdown(LoggerContext, long, TimeUnit)</a></span> - Static method in class org.apache.logging.log4j.core.config.<a href="./org/apache/logging/log4j/core/config/Configurator.html" title="class in org.apache.logging.log4j.core.config">Configurator</a></dt>
 <dd>
-<div class="block">Shuts down the given logger context.</div>
+<div class="block">Shuts down the given logger localContext.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/net/server/AbstractSocketServer.html#shutdown()">shutdown()</a></span> - Method in class org.apache.logging.log4j.core.net.server.<a href="./org/apache/logging/log4j/core/net/server/AbstractSocketServer.html" title="class in org.apache.logging.log4j.core.net.server">AbstractSocketServer</a></dt>
 <dd>&nbsp;</dd>
@@ -13942,12 +13942,12 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/jmx/Server.html#unregisterLoggerContext(java.lang.String)">unregisterLoggerContext(String)</a></span> - Static method in class org.apache.logging.log4j.core.jmx.<a href="./org/apache/logging/log4j/core/jmx/Server.html" title="class in org.apache.logging.log4j.core.jmx">Server</a></dt>
 <dd>
-<div class="block">Unregisters all MBeans associated with the specified logger context (including MBeans for <code>LoggerConfig</code>s
+<div class="block">Unregisters all MBeans associated with the specified logger localContext (including MBeans for <code>LoggerConfig</code>s
  and <code>Appender</code>s from the platform MBean server.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/jmx/Server.html#unregisterLoggerContext(java.lang.String,%20javax.management.MBeanServer)">unregisterLoggerContext(String, MBeanServer)</a></span> - Static method in class org.apache.logging.log4j.core.jmx.<a href="./org/apache/logging/log4j/core/jmx/Server.html" title="class in org.apache.logging.log4j.core.jmx">Server</a></dt>
 <dd>
-<div class="block">Unregisters all MBeans associated with the specified logger context (including MBeans for <code>LoggerConfig</code>s
+<div class="block">Unregisters all MBeans associated with the specified logger localContext (including MBeans for <code>LoggerConfig</code>s
  and <code>Appender</code>s from the platform MBean server.</div>
 </dd>
 <dt><span class="strong"><a href="./org/apache/logging/log4j/core/jmx/Server.html#unregisterMBeans()">unregisterMBeans()</a></span> - Static method in class org.apache.logging.log4j.core.jmx.<a href="./org/apache/logging/log4j/core/jmx/Server.html" title="class in org.apache.logging.log4j.core.jmx">Server</a></dt>

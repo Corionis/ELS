@@ -218,6 +218,17 @@
             <src path="updater/src"/>
             <include name="**/*.java"/>
         </javac>
+        <!-- Merge annotation-generate Log4j2Plugins.dat with those found in lib Jar files -->
+        <exec executable="/usr/bin/java">
+            <arg value="-jar"/>
+            <arg value="artifacts/bin/MergeLog4j2Plugins.jar"/>
+            <arg value="--dat"/>
+            <arg value="out/updater/jar/META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat"/>
+            <arg value="--lib"/>
+            <arg value="lib"/>
+        </exec>
+        <!-- Save the merged Log4j2Plugins.dat -->
+        <copy file="out/updater/jar/META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" tofile="out/Log4j2Plugins.dat" overwrite="true" preservelastmodified="true"/>
     </target>
 
     <!-- Assemble all the pieces to build the Updater Jar -->
@@ -316,7 +327,6 @@
         <copy file="mock/bin/update.info" tofile="out/updater/zip/ELS_Updater/bin/update.info" preservelastmodified="true"/>
         <copy file="build/ELS_Updater.jar" todir="out/updater/zip/ELS_Updater/bin" preservelastmodified="true"/>
         <delete file="out/updater/zip/ELS_Updater/ELS-Navigator.exe" failonerror="false"/>
-        <delete file="out/updater/zip/ELS_Updater/bin/Shortcut.exe" failonerror="false"/>
         <zip destfile="build/ELS_Updater-${els.version.name}-${NUMBERNOW}.zip">
             <zipfileset dir="out/updater/zip" includes="**/*"/>
         </zip>

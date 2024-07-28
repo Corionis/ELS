@@ -491,7 +491,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>session</code> - The <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/server/session/ServerSession.html?is-external=true" title="class or interface in org.apache.sshd.server.session"><code>ServerSession</code></a> through which the request was received</dd>
 <dd><code>subsystem</code> - The SFTP subsystem instance that manages the session</dd>
 <dd><code>fileHandle</code> - The <a href="../../../../../../org/apache/sshd/server/subsystem/sftp/FileHandle.html" title="class in org.apache.sshd.server.subsystem.sftp"><code>FileHandle</code></a> representing the created channel - may be <code>null</code> if not invoked
-                     within the context of such a handle (special cases)</dd>
+                     within the localContext of such a handle (special cases)</dd>
 <dd><code>file</code> - The requested <U>local</U> file <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html?is-external=true" title="class or interface in java.nio.file"><code>Path</code></a> - same one returned by
                      <a href="../../../../../../org/apache/sshd/server/subsystem/sftp/SftpFileSystemAccessor.html#resolveLocalFilePath-org.apache.sshd.server.session.ServerSession-org.apache.sshd.server.subsystem.sftp.SftpSubsystemProxy-java.nio.file.Path-java.lang.String-"><code>resolveLocalFilePath</code></a></dd>
 <dd><code>handle</code> - The assigned file handle through which the remote peer references this file. May be
@@ -600,7 +600,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>session</code> - The <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/server/session/ServerSession.html?is-external=true" title="class or interface in org.apache.sshd.server.session"><code>ServerSession</code></a> through which the request was received</dd>
 <dd><code>subsystem</code> - The SFTP subsystem instance that manages the session</dd>
 <dd><code>fileHandle</code> - The <a href="../../../../../../org/apache/sshd/server/subsystem/sftp/FileHandle.html" title="class in org.apache.sshd.server.subsystem.sftp"><code>FileHandle</code></a> representing the created channel - may be <code>null</code> if not invoked
-                     within the context of such a handle (special cases)</dd>
+                     within the localContext of such a handle (special cases)</dd>
 <dd><code>file</code> - The requested <U>local</U> file <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html?is-external=true" title="class or interface in java.nio.file"><code>Path</code></a> - same one returned by
                      <a href="../../../../../../org/apache/sshd/server/subsystem/sftp/SftpFileSystemAccessor.html#resolveLocalFilePath-org.apache.sshd.server.session.ServerSession-org.apache.sshd.server.subsystem.sftp.SftpSubsystemProxy-java.nio.file.Path-java.lang.String-"><code>resolveLocalFilePath</code></a></dd>
 <dd><code>handle</code> - The assigned file handle through which the remote peer references this file</dd>
@@ -659,7 +659,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>session</code> - The <a href="http://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/server/session/ServerSession.html?is-external=true" title="class or interface in org.apache.sshd.server.session"><code>ServerSession</code></a> through which the request was received</dd>
 <dd><code>subsystem</code> - The SFTP subsystem instance that manages the session</dd>
 <dd><code>dirHandle</code> - The <a href="../../../../../../org/apache/sshd/server/subsystem/sftp/DirectoryHandle.html" title="class in org.apache.sshd.server.subsystem.sftp"><code>DirectoryHandle</code></a> representing the stream - may be <code>null</code> if not invoked
-                     within the context of such a handle (special cases)</dd>
+                     within the localContext of such a handle (special cases)</dd>
 <dd><code>dir</code> - The requested <U>local</U> directory <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html?is-external=true" title="class or interface in java.nio.file"><code>Path</code></a> - same one returned by
                      <a href="../../../../../../org/apache/sshd/server/subsystem/sftp/SftpFileSystemAccessor.html#resolveLocalFilePath-org.apache.sshd.server.session.ServerSession-org.apache.sshd.server.subsystem.sftp.SftpSubsystemProxy-java.nio.file.Path-java.lang.String-"><code>resolveLocalFilePath</code></a></dd>
 <dd><code>handle</code> - The assigned directory handle through which the remote peer references this directory</dd>

@@ -104,7 +104,7 @@
 <pre>public class <span class="strong">BasicContextSelector</span>
 extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../../org/apache/logging/log4j/core/selector/ContextSelector.html" title="interface in org.apache.logging.log4j.core.selector">ContextSelector</a></pre>
-<div class="block">Returns either this Thread's context or the default LoggerContext.</div>
+<div class="block">Returns either this Thread's localContext or the default LoggerContext.</div>
 </li>
 </ul>
 </div>
@@ -170,7 +170,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/selector/Con
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/BasicContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context)</code>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/selector/BasicContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext)</code>
 <div class="block">Remove any references to the LoggerContext.</div>
 </td>
 </tr>
@@ -268,13 +268,13 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/selector/Con
 <ul class="blockList">
 <li class="blockList">
 <h4>removeContext</h4>
-<pre>public&nbsp;void&nbsp;removeContext(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;context)</pre>
+<pre>public&nbsp;void&nbsp;removeContext(<a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a>&nbsp;localContext)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/selector/ContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">ContextSelector</a></code></strong></div>
 <div class="block">Remove any references to the LoggerContext.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../org/apache/logging/log4j/core/selector/ContextSelector.html#removeContext(org.apache.logging.log4j.core.LoggerContext)">removeContext</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/selector/ContextSelector.html" title="interface in org.apache.logging.log4j.core.selector">ContextSelector</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>context</code> - The context to remove.</dd></dl>
+<dt><span class="strong">Parameters:</span></dt><dd><code>localContext</code> - The localContext to remove.</dd></dl>
 </li>
 </ul>
 <a name="getLoggerContexts()">

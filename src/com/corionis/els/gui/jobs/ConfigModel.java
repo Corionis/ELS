@@ -6,7 +6,6 @@ import com.corionis.els.Utils;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.jobs.Task;
 import com.corionis.els.tools.AbstractTool;
-import com.corionis.els.tools.Tools;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -37,6 +36,7 @@ public class ConfigModel extends DefaultTableModel
     private ConfigModel jobsConfigModel;
     private Logger logger = LogManager.getLogger("applog");
     private AbstractToolDialog theDialog;
+    private ArrayList<AbstractTool> toolList = null;
 
     /**
      * Constructor
@@ -161,10 +161,6 @@ public class ConfigModel extends DefaultTableModel
      */
     private int getJobReferences(String oldName, String newName, String internalName)
     {
-        // load Jobs on demand, once
-        if (jobsConfigModel == null)
-            jobsConfigModel = loadJobsConfigurations(theDialog, null);
-
         int count = 0;
         conflicts = new ArrayList<>();
 
@@ -205,25 +201,10 @@ public class ConfigModel extends DefaultTableModel
             this.jobsConfigModel = configJobsModel; // set internal
         }
 
-        Tools toolsHandler = new Tools();
-        ArrayList<AbstractTool> toolList = null;
         Job tmpJob = new Job(context, "temp");
         File jobsDir = new File(tmpJob.getDirectoryPath());
         if (jobsDir.exists())
         {
-            toolsHandler = new Tools();
-            try
-            {
-                toolList = toolsHandler.loadAllTools(context, null);
-            }
-            catch (Exception e)
-            {
-                String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-                logger.error(msg);
-                JOptionPane.showMessageDialog(theDialog, msg,
-                        theDialog.getTitle(), JOptionPane.ERROR_MESSAGE);
-            }
-
             class objInstanceCreator implements InstanceCreator
             {
                 @Override
@@ -255,12 +236,10 @@ public class ConfigModel extends DefaultTableModel
                                     for (int i = 0; i < tasks.size(); ++i)
                                     {
                                         Task task = tasks.get(i);
-                                        AbstractTool tool = toolsHandler.getTool(toolList, task.getInternalName(), task.getConfigName());
+                                        AbstractTool tool = context.tools.getTool(task.getInternalName(), task.getConfigName());
                                         if (tool != null)
                                         {
 
-                                            task.setDual(tool.isDualRepositories());
-                                            task.setRealOnly(tool.isRealOnly());
                                             task.setContext(context);
                                             tasks.set(i, task);
                                         }
@@ -303,6 +282,7 @@ public class ConfigModel extends DefaultTableModel
             else // rename operation
             {
                 Task task = job.getTasks().get(conflict.taskNumber);
+                task.setContext(context);
                 task.setConfigName(conflict.newName);
             }
             job.setDataHasChanged();
@@ -452,6 +432,16 @@ public class ConfigModel extends DefaultTableModel
         theDialog.getConfigItems().changeSelection(index, 0, false, false);
 
         return success;
+    }
+
+    /**
+     * Set the list of available Jobs and Tools
+     *
+     * @param toolList
+     */
+    public void setToolList(ArrayList<AbstractTool> toolList)
+    {
+        this.toolList = toolList;
     }
 
     /**

@@ -37,6 +37,26 @@ public class HintsTableModel extends DefaultTableModel
         iconYellow.setDescription(context.cfg.gs("HintsUI.status.unknown"));
     }
 
+    private RepoMeta findRepoMeta(String key)
+    {
+        RepoMeta repoMeta = null;
+        if (key != null && !key.isEmpty())
+        {
+            if (repositories.getMetaList() != null)
+            {
+                for (RepoMeta m : repositories.getMetaList())
+                {
+                    if (m.key.equals(key))
+                    {
+                        repoMeta = m;
+                        break;
+                    }
+                }
+            }
+        }
+        return repoMeta;
+    }
+
     private ImageIcon getIcon(String name)
     {
         try
@@ -123,7 +143,7 @@ public class HintsTableModel extends DefaultTableModel
             default:
                 HintKey hk = context.hintKeys.get().get(column - 9);
                 String key = hk.uuid;
-                RepoMeta meta = repositories.find(key);
+                RepoMeta meta = findRepoMeta(key);
                 if (meta != null)
                     name = meta.description;
                 else if (hk != null)
@@ -156,7 +176,7 @@ public class HintsTableModel extends DefaultTableModel
                     HintKey hk = context.hintKeys.findSystem(system);
                     if (hk != null)
                     {
-                        RepoMeta meta = repositories.find(hk.uuid);
+                        RepoMeta meta = findRepoMeta(hk.uuid);
                         if (meta != null)
                             object = meta.description;
                         else

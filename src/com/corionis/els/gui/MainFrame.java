@@ -32,7 +32,6 @@ import java.awt.event.*;
  * <br/>
  * Uses free components from FormDev: <br/>
  *  - FlatLaf, https://www.formdev.com/flatlaf/ <br/>
- *  - FlatLaf GitHub:  https://github.com/JFormDesigner/FlatLaf
  *  - FlatLaf Themes: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes <br/>
  *  - FlatLaf Extras: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-extras <br/>
  * <br/>
@@ -58,7 +57,10 @@ public class MainFrame extends JFrame
         try
         {
             initComponents();
-            setTitle(context.cfg.NAVIGATOR_NAME);
+            if (context.cfg.isLoggerView())
+                setTitle(context.cfg.getJobName() + " : " + context.cfg.LOGGER_NAME);
+            else
+                setTitle(context.cfg.NAVIGATOR_NAME);
             setBrowserTabs(-1);
 
             panelToolbar.setBackground(menuToolbar.getBackground());
@@ -305,6 +307,18 @@ public class MainFrame extends JFrame
             context.browser.navTransferHandler.getTransferWorker().cancel(true);
             context.fault = true;
         }
+
+        if (context.navigator.isWorkerRunning())
+        {
+            int r = JOptionPane.showConfirmDialog(context.mainFrame,
+                    context.cfg.gs("MainFrame.job.running.are.you.sure"),
+                    context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -319,29 +333,29 @@ public class MainFrame extends JFrame
         int index = tabbedPaneMain.getSelectedIndex();
         if (index == 0)
         {
-            context.mainFrame.menuItemCopy.setEnabled(true);
-            context.mainFrame.menuItemCut.setEnabled(true);
-            context.mainFrame.menuItemPaste.setEnabled(true);
-            context.mainFrame.menuItemDelete.setEnabled(true);
-            context.mainFrame.menuItemNewFolder.setEnabled(true);
-            context.mainFrame.menuItemRename.setEnabled(true);
-            context.mainFrame.menuItemTouch.setEnabled(true);
-            context.mainFrame.menuItemFind.setEnabled(true);
-            context.mainFrame.menuItemFindNext.setEnabled(true);
-            context.mainFrame.menuItemRefresh.setEnabled(true);
-            context.mainFrame.radioButtonAutoRefresh.setEnabled(true);
-            context.mainFrame.radioButtonBatch.setEnabled(true);
-            context.mainFrame.menuItemShowHidden.setEnabled(true);
-            context.mainFrame.menuItemWordWrap.setEnabled(true);
+            boolean sense = context.navigator != null && context.navigator.isWorkerRunning() ? false : true;
+            context.mainFrame.menuItemCopy.setEnabled(sense);
+            context.mainFrame.menuItemCut.setEnabled(sense);
+            context.mainFrame.menuItemPaste.setEnabled(sense);
+            context.mainFrame.menuItemDelete.setEnabled(sense);
+            context.mainFrame.menuItemNewFolder.setEnabled(sense);
+            context.mainFrame.menuItemRename.setEnabled(sense);
+            context.mainFrame.menuItemTouch.setEnabled(sense);
+            context.mainFrame.menuItemFind.setEnabled(sense);
+            context.mainFrame.menuItemFindNext.setEnabled(sense);
+            context.mainFrame.menuItemRefresh.setEnabled(sense);
+            context.mainFrame.radioButtonAutoRefresh.setEnabled(sense);
+            context.mainFrame.menuItemShowHidden.setEnabled(sense);
+            context.mainFrame.menuItemWordWrap.setEnabled(sense);
 
-            context.mainFrame.menuTbCopy.setEnabled(true);
-            context.mainFrame.menuTbCut.setEnabled(true);
-            context.mainFrame.menuTbPaste.setEnabled(true);
-            context.mainFrame.menuTbDelete.setEnabled(true);
-            context.mainFrame.menuTbNewFolder.setEnabled(true);
-            context.mainFrame.menuTbRefresh.setEnabled(true);
+            context.mainFrame.menuTbCopy.setEnabled(sense);
+            context.mainFrame.menuTbCut.setEnabled(sense);
+            context.mainFrame.menuTbPaste.setEnabled(sense);
+            context.mainFrame.menuTbDelete.setEnabled(sense);
+            context.mainFrame.menuTbNewFolder.setEnabled(sense);
+            context.mainFrame.menuTbRefresh.setEnabled(sense);
 
-            if (context.browser != null)
+            if (context.browser != null && sense == true)
                 context.browser.selectPanelNumber(context.browser.lastPanelNumber);
         }
         else if (index == 1)
@@ -359,7 +373,6 @@ public class MainFrame extends JFrame
             context.mainFrame.menuItemFindNext.setEnabled(false);
             context.mainFrame.menuItemRefresh.setEnabled(false);
             context.mainFrame.radioButtonAutoRefresh.setEnabled(false);
-            context.mainFrame.radioButtonBatch.setEnabled(false);
             context.mainFrame.menuItemShowHidden.setEnabled(false);
             context.mainFrame.menuItemWordWrap.setEnabled(false);
 
@@ -412,7 +425,6 @@ public class MainFrame extends JFrame
         menuItemProgress = new JMenuItem();
         menuItemRefresh = new JMenuItem();
         radioButtonAutoRefresh = new JCheckBoxMenuItem();
-        radioButtonBatch = new JRadioButtonMenuItem();
         menuItemShowHidden = new JCheckBoxMenuItem();
         menuItemShowToolbar = new JCheckBoxMenuItem();
         menuItemWordWrap = new JCheckBoxMenuItem();
@@ -528,6 +540,8 @@ public class MainFrame extends JFrame
         buttonNew = new JButton();
         buttonCopy = new JButton();
         buttonDelete = new JButton();
+        hSpacer10 = new JPanel(null);
+        dynamicLabel = new JLabel();
         panelHelp = new JPanel();
         labelLibrariesHelp = new JLabel();
         splitPaneLibs = new JSplitPane();
@@ -554,6 +568,8 @@ public class MainFrame extends JFrame
         hSpacer6 = new JPanel(null);
         vSpacer6 = new JPanel(null);
         hSpacer5 = new JPanel(null);
+        label1 = new JLabel();
+        textFieldPath = new JTextField();
         labelKey = new JLabel();
         textFieldKey = new JTextField();
         vSpacer33 = new JPanel(null);
@@ -859,13 +875,6 @@ public class MainFrame extends JFrame
                 radioButtonAutoRefresh.setText(context.cfg.gs("Navigator.radioButtonAutoRefresh.text"));
                 menuView.add(radioButtonAutoRefresh);
 
-                //---- radioButtonBatch ----
-                radioButtonBatch.setText(context.cfg.gs("Navigator.radioButtonBatch.text"));
-                radioButtonBatch.setMnemonic(context.cfg.gs("Navigator.radioButtonBatch.mnemonic").charAt(0));
-                radioButtonBatch.setEnabled(false);
-                radioButtonBatch.setVisible(false);
-                menuView.add(radioButtonBatch);
-
                 //---- menuItemShowHidden ----
                 menuItemShowHidden.setText(context.cfg.gs("Navigator.menu.ShowHidden.text"));
                 menuItemShowHidden.setMnemonic(context.cfg.gs("Navigator.menu.ShowHidden.mnemonic").charAt(0));
@@ -915,38 +924,38 @@ public class MainFrame extends JFrame
                 //---- menuItemDuplicates ----
                 menuItemDuplicates.setText(context.cfg.gs("Navigator.menu.Duplicates.text"));
                 menuItemDuplicates.setMnemonic(context.cfg.gs("Navigator.menu.Duplicates.mnemonic").charAt(0));
-                menuItemDuplicates.setIcon(new ImageIcon(getClass().getResource("/d-duplicate.png")));
+                menuItemDuplicates.setIcon(new ImageIcon(getClass().getResource("/duplicates.png")));
                 menuTools.add(menuItemDuplicates);
 
                 //---- menuItemEmptyFinder ----
                 menuItemEmptyFinder.setText(context.cfg.gs("Navigator.menuItemEmptyFinder.text"));
                 menuItemEmptyFinder.setMnemonic(context.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic").charAt(0));
-                menuItemEmptyFinder.setIcon(new ImageIcon(getClass().getResource("/e-empty.png")));
+                menuItemEmptyFinder.setIcon(new ImageIcon(getClass().getResource("/empties.png")));
                 menuTools.add(menuItemEmptyFinder);
                 menuTools.addSeparator();
 
                 //---- menuItemJunk ----
                 menuItemJunk.setText(context.cfg.gs("Navigator.menu.Junk.text"));
                 menuItemJunk.setMnemonic(context.cfg.gs("Navigator.menu.Junk.mnemonic").charAt(0));
-                menuItemJunk.setIcon(new ImageIcon(getClass().getResource("/j-junk.png")));
+                menuItemJunk.setIcon(new ImageIcon(getClass().getResource("/junk.png")));
                 menuTools.add(menuItemJunk);
 
                 //---- menuItemOperations ----
                 menuItemOperations.setText(context.cfg.gs("Navigator.menuItemOperations.text"));
                 menuItemOperations.setMnemonic(context.cfg.gs("Navigator.menuItemOperations.mnemonic").charAt(0));
-                menuItemOperations.setIcon(new ImageIcon(getClass().getResource("/o-operations.png")));
+                menuItemOperations.setIcon(new ImageIcon(getClass().getResource("/operations.png")));
                 menuTools.add(menuItemOperations);
 
                 //---- menuItemRenamer ----
                 menuItemRenamer.setText(context.cfg.gs("Navigator.menu.Renamer.text"));
                 menuItemRenamer.setMnemonic(context.cfg.gs("Navigator.menu.Renamer.mnemonic").charAt(0));
-                menuItemRenamer.setIcon(new ImageIcon(getClass().getResource("/r-renamer.png")));
+                menuItemRenamer.setIcon(new ImageIcon(getClass().getResource("/renamer.png")));
                 menuTools.add(menuItemRenamer);
 
                 //---- menuItemSleep ----
                 menuItemSleep.setText(context.cfg.gs("Navigator.menuItemSleep.text"));
                 menuItemSleep.setMnemonic(context.cfg.gs("Navigator.menuItemSleep.mnemonic").charAt(0));
-                menuItemSleep.setIcon(new ImageIcon(getClass().getResource("/s-sleep.png")));
+                menuItemSleep.setIcon(new ImageIcon(getClass().getResource("/sleep.png")));
                 menuTools.add(menuItemSleep);
                 menuTools.addSeparator();
 
@@ -956,6 +965,7 @@ public class MainFrame extends JFrame
                 menuItemExternalTools.setEnabled(false);
                 menuItemExternalTools.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemExternalTools.displayedMnemonicIndex")));
                 menuItemExternalTools.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
+                menuItemExternalTools.setIcon(new ImageIcon(getClass().getResource("/external-manage.png")));
                 menuTools.add(menuItemExternalTools);
 
                 //---- menuItemPlexGenerator ----
@@ -1125,7 +1135,7 @@ public class MainFrame extends JFrame
 
                 //---- menuItemChangelist ----
                 menuItemChangelist.setText(context.cfg.gs("Navigator.menuItemChangelist.text"));
-                menuItemChangelist.setMnemonic(context.cfg.gs("Navigator.menuItemChangelist.mnemonic").charAt(0));
+                menuItemChangelist.setMnemonic(context.cfg.gs("Navigator.menuItemChangelist.mnemonic_2").charAt(0));
                 menuItemChangelist.setIcon(new ImageIcon(getClass().getResource("/changes.png")));
                 menuHelp.add(menuItemChangelist);
 
@@ -1790,6 +1800,15 @@ public class MainFrame extends JFrame
                             buttonDelete.setMnemonic(context.cfg.gs("Navigator.buttonDelete.mnemonic").charAt(0));
                             buttonDelete.setToolTipText(context.cfg.gs("Navigator.buttonDelete.toolTipText"));
                             panelTopButtons.add(buttonDelete);
+
+                            //---- hSpacer10 ----
+                            hSpacer10.setPreferredSize(new Dimension(4, 10));
+                            hSpacer10.setMinimumSize(new Dimension(4, 10));
+                            panelTopButtons.add(hSpacer10);
+
+                            //---- dynamicLabel ----
+                            dynamicLabel.setText(context.cfg.gs("Libraries.dynamic"));
+                            panelTopButtons.add(dynamicLabel);
                         }
                         panelLibsTop.add(panelTopButtons, BorderLayout.WEST);
 
@@ -1924,8 +1943,8 @@ public class MainFrame extends JFrame
                                         {
                                             panelLibraryCard.setLayout(new GridBagLayout());
                                             ((GridBagLayout)panelLibraryCard.getLayout()).columnWidths = new int[] {0, 190, 16, 0, 24};
-                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                                             //---- hSpacer4 ----
                                             hSpacer4.setMinimumSize(new Dimension(0, 0));
@@ -1956,9 +1975,21 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
+                                            //---- label1 ----
+                                            label1.setText(context.cfg.gs("Navigator.labelPath.text"));
+                                            panelLibraryCard.add(label1, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldPath ----
+                                            textFieldPath.setEditable(false);
+                                            panelLibraryCard.add(textFieldPath, new GridBagConstraints(1, 1, 3, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
                                             //---- labelKey ----
                                             labelKey.setText(context.cfg.gs("Navigator.labelKey.text"));
-                                            panelLibraryCard.add(labelKey, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelKey, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -1966,7 +1997,7 @@ public class MainFrame extends JFrame
                                             textFieldKey.setPreferredSize(new Dimension(240, 30));
                                             textFieldKey.setName("key");
                                             textFieldKey.setToolTipText(context.cfg.gs("Navigator.textFieldKey.toolTipText"));
-                                            panelLibraryCard.add(textFieldKey, new GridBagConstraints(1, 1, 3, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(textFieldKey, new GridBagConstraints(1, 2, 3, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -1974,7 +2005,7 @@ public class MainFrame extends JFrame
                                             vSpacer33.setMinimumSize(new Dimension(10, 30));
                                             vSpacer33.setPreferredSize(new Dimension(20, 30));
                                             vSpacer33.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer33, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer33, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -1990,20 +2021,20 @@ public class MainFrame extends JFrame
                                             buttonLibraryGenerateKey.setActionCommand("generateUUID");
                                             buttonLibraryGenerateKey.setToolTipText(context.cfg.gs("Navigator.buttonLibraryGenerateKey.toolTipText"));
                                             buttonLibraryGenerateKey.setName("generate");
-                                            panelLibraryCard.add(buttonLibraryGenerateKey, new GridBagConstraints(4, 1, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(buttonLibraryGenerateKey, new GridBagConstraints(4, 2, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                                                 new Insets(0, 0, 4, 0), 0, 0));
 
                                             //---- labelHost ----
                                             labelHost.setText(context.cfg.gs("Navigator.labelHost.text"));
-                                            panelLibraryCard.add(labelHost, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelHost, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- textFieldHost ----
                                             textFieldHost.setName("host");
                                             textFieldHost.setToolTipText(context.cfg.gs("Navigator.textFieldHost.toolTipText"));
-                                            panelLibraryCard.add(textFieldHost, new GridBagConstraints(1, 2, 3, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(textFieldHost, new GridBagConstraints(1, 3, 3, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2011,20 +2042,20 @@ public class MainFrame extends JFrame
                                             vSpacer34.setMinimumSize(new Dimension(10, 30));
                                             vSpacer34.setPreferredSize(new Dimension(20, 30));
                                             vSpacer34.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer34, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer34, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelListen ----
                                             labelListen.setText(context.cfg.gs("Navigator.labelListen.text"));
-                                            panelLibraryCard.add(labelListen, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelListen, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- textFieldListen ----
                                             textFieldListen.setName("listen");
                                             textFieldListen.setToolTipText(context.cfg.gs("Navigator.textFieldListen.toolTipText"));
-                                            panelLibraryCard.add(textFieldListen, new GridBagConstraints(1, 3, 3, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(textFieldListen, new GridBagConstraints(1, 4, 3, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2032,13 +2063,13 @@ public class MainFrame extends JFrame
                                             vSpacer35.setMinimumSize(new Dimension(10, 30));
                                             vSpacer35.setPreferredSize(new Dimension(20, 30));
                                             vSpacer35.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer35, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer35, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelTimeout ----
                                             labelTimeout.setText(context.cfg.gs("Navigator.labelTimeout.text"));
-                                            panelLibraryCard.add(labelTimeout, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelTimeout, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2047,7 +2078,7 @@ public class MainFrame extends JFrame
                                             textFieldTimeout.setPreferredSize(new Dimension(104, 30));
                                             textFieldTimeout.setMinimumSize(new Dimension(101104, 30));
                                             textFieldTimeout.setToolTipText(context.cfg.gs("Navigator.textFieldTimeout.toolTipText"));
-                                            panelLibraryCard.add(textFieldTimeout, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(textFieldTimeout, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2055,13 +2086,13 @@ public class MainFrame extends JFrame
                                             vSpacer36.setMinimumSize(new Dimension(10, 30));
                                             vSpacer36.setPreferredSize(new Dimension(20, 30));
                                             vSpacer36.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer36, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer36, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelFlavor ----
                                             labelFlavor.setText(context.cfg.gs("Navigator.labelFlavor.text"));
-                                            panelLibraryCard.add(labelFlavor, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelFlavor, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2075,7 +2106,7 @@ public class MainFrame extends JFrame
                                             comboBoxFlavor.setMinimumSize(new Dimension(104, 30));
                                             comboBoxFlavor.setPreferredSize(new Dimension(104, 30));
                                             comboBoxFlavor.setToolTipText(context.cfg.gs("Navigator.comboBoxFlavor.toolTipText"));
-                                            panelLibraryCard.add(comboBoxFlavor, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(comboBoxFlavor, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2083,20 +2114,20 @@ public class MainFrame extends JFrame
                                             vSpacer37.setMinimumSize(new Dimension(10, 30));
                                             vSpacer37.setPreferredSize(new Dimension(20, 30));
                                             vSpacer37.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer37, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer37, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelCase ----
                                             labelCase.setText(context.cfg.gs("Navigator.labelCase.text"));
-                                            panelLibraryCard.add(labelCase, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelCase, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- checkBoxCase ----
                                             checkBoxCase.setName("case");
                                             checkBoxCase.setToolTipText(context.cfg.gs("Navigator.checkBoxCase.toolTipText"));
-                                            panelLibraryCard.add(checkBoxCase, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(checkBoxCase, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2104,20 +2135,20 @@ public class MainFrame extends JFrame
                                             vSpacer38.setMinimumSize(new Dimension(10, 30));
                                             vSpacer38.setPreferredSize(new Dimension(20, 30));
                                             vSpacer38.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer38, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer38, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelTempDated ----
                                             labelTempDated.setText(context.cfg.gs("Navigator.labelTempDated.text"));
-                                            panelLibraryCard.add(labelTempDated, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelTempDated, new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- checkBoxTempDated ----
                                             checkBoxTempDated.setName("tempdated");
                                             checkBoxTempDated.setToolTipText(context.cfg.gs("Navigator.checkBoxTempDated.toolTipText"));
-                                            panelLibraryCard.add(checkBoxTempDated, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(checkBoxTempDated, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2125,13 +2156,13 @@ public class MainFrame extends JFrame
                                             vSpacer42.setMinimumSize(new Dimension(10, 30));
                                             vSpacer42.setPreferredSize(new Dimension(20, 30));
                                             vSpacer42.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer42, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer42, new GridBagConstraints(2, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelTempLocation ----
                                             labelTempLocation.setText(context.cfg.gs("Navigator.labelTempLocation.text"));
-                                            panelLibraryCard.add(labelTempLocation, new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelTempLocation, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 8), 0, 0));
 
@@ -2140,7 +2171,7 @@ public class MainFrame extends JFrame
                                             textFieldTempLocation.setMaximumSize(new Dimension(240, 2147483647));
                                             textFieldTempLocation.setName("templocation");
                                             textFieldTempLocation.setToolTipText(context.cfg.gs("Navigator.textFieldTempLocation.toolTipText"));
-                                            panelLibraryCard.add(textFieldTempLocation, new GridBagConstraints(1, 8, 3, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(textFieldTempLocation, new GridBagConstraints(1, 9, 3, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2148,7 +2179,7 @@ public class MainFrame extends JFrame
                                             vSpacer39.setMinimumSize(new Dimension(10, 30));
                                             vSpacer39.setPreferredSize(new Dimension(20, 30));
                                             vSpacer39.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer39, new GridBagConstraints(2, 8, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer39, new GridBagConstraints(2, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2164,20 +2195,20 @@ public class MainFrame extends JFrame
                                             buttonLibrarySelectTempLocation.setActionCommand("generateUUID");
                                             buttonLibrarySelectTempLocation.setToolTipText(context.cfg.gs("Navigator.buttonLibrarySelectTempLocation.toolTipText"));
                                             buttonLibrarySelectTempLocation.setName("tempLocation");
-                                            panelLibraryCard.add(buttonLibrarySelectTempLocation, new GridBagConstraints(4, 8, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(buttonLibrarySelectTempLocation, new GridBagConstraints(4, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                                                 new Insets(0, 0, 4, 0), 0, 0));
 
                                             //---- labelTerminalAllosed ----
                                             labelTerminalAllosed.setText(context.cfg.gs("Navigator.labelTerminalAllowed.text"));
-                                            panelLibraryCard.add(labelTerminalAllosed, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelTerminalAllosed, new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- checkBoxTerminalAllowed ----
                                             checkBoxTerminalAllowed.setName("terminalallowed");
                                             checkBoxTerminalAllowed.setToolTipText(context.cfg.gs("Navigator.checkBoxTerminalAllowed.toolTipText"));
-                                            panelLibraryCard.add(checkBoxTerminalAllowed, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(checkBoxTerminalAllowed, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2185,13 +2216,13 @@ public class MainFrame extends JFrame
                                             vSpacer40.setMinimumSize(new Dimension(10, 30));
                                             vSpacer40.setPreferredSize(new Dimension(20, 30));
                                             vSpacer40.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer40, new GridBagConstraints(2, 9, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer40, new GridBagConstraints(2, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelIgnores ----
                                             labelIgnores.setText(context.cfg.gs("Navigator.labelIgnores.text"));
-                                            panelLibraryCard.add(labelIgnores, new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(labelIgnores, new GridBagConstraints(0, 11, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2256,7 +2287,7 @@ public class MainFrame extends JFrame
                                                 }
                                                 panelLibrariesIgnorePatternsBox.add(panelLibrariesIgnorePatternsButtons);
                                             }
-                                            panelLibraryCard.add(panelLibrariesIgnorePatternsBox, new GridBagConstraints(1, 10, 3, 6, 0.0, 0.0,
+                                            panelLibraryCard.add(panelLibrariesIgnorePatternsBox, new GridBagConstraints(1, 11, 3, 6, 0.0, 0.0,
                                                 GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
                                                 new Insets(0, 0, 0, 4), 0, 0));
 
@@ -2264,7 +2295,7 @@ public class MainFrame extends JFrame
                                             vSpacer41.setMinimumSize(new Dimension(10, 30));
                                             vSpacer41.setPreferredSize(new Dimension(20, 30));
                                             vSpacer41.setMaximumSize(new Dimension(20, 30));
-                                            panelLibraryCard.add(vSpacer41, new GridBagConstraints(2, 10, 1, 1, 0.0, 0.0,
+                                            panelLibraryCard.add(vSpacer41, new GridBagConstraints(2, 11, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
                                         }
@@ -2778,7 +2809,6 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemProgress;
     public JMenuItem menuItemRefresh;
     public JCheckBoxMenuItem radioButtonAutoRefresh;
-    public JRadioButtonMenuItem radioButtonBatch;
     public JCheckBoxMenuItem menuItemShowHidden;
     public JCheckBoxMenuItem menuItemShowToolbar;
     public JCheckBoxMenuItem menuItemWordWrap;
@@ -2894,6 +2924,8 @@ public class MainFrame extends JFrame
     public JButton buttonNew;
     public JButton buttonCopy;
     public JButton buttonDelete;
+    public JPanel hSpacer10;
+    public JLabel dynamicLabel;
     public JPanel panelHelp;
     public JLabel labelLibrariesHelp;
     public JSplitPane splitPaneLibs;
@@ -2920,6 +2952,8 @@ public class MainFrame extends JFrame
     public JPanel hSpacer6;
     public JPanel vSpacer6;
     public JPanel hSpacer5;
+    public JLabel label1;
+    public JTextField textFieldPath;
     public JLabel labelKey;
     public JTextField textFieldKey;
     public JPanel vSpacer33;

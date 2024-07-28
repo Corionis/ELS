@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug --force-quit --hint-server libraries/hint-server.json -p libraries/publisher.json -F output/070-99_Quit-Status-Server.log
+rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug --force-quit -J --hint-server libraries/hint-server.json -p libraries/publisher.json -F output/070-99_Quit-Status-Server.log
 

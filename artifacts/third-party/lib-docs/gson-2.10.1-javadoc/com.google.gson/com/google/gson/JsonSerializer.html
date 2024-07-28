@@ -161,7 +161,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 
  <pre>
  class IdSerializer implements JsonSerializer&lt;Id&gt; {
-   public JsonElement serialize(Id id, Type typeOfId, JsonSerializationContext context) {
+   public JsonElement serialize(Id id, Type typeOfId, JsonSerializationContext localContext) {
      return new JsonPrimitive(id.getValue());
    }
  }
@@ -205,7 +205,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="JsonElement.html" title="class in com.google.gson">JsonElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#serialize(T,java.lang.reflect.Type,com.google.gson.JsonSerializationContext)">serialize</a></span>&#8203;(<a href="JsonSerializer.html" title="type parameter in JsonSerializer">T</a>&nbsp;src,
          <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;typeOfSrc,
-         <a href="JsonSerializationContext.html" title="interface in com.google.gson">JsonSerializationContext</a>&nbsp;context)</code></th>
+         <a href="JsonSerializationContext.html" title="interface in com.google.gson">JsonSerializationContext</a>&nbsp;localContext)</code></th>
 <td class="colLast">
 <div class="block">Gson invokes this call-back method during serialization when it encounters a field of the
  specified type.</div>
@@ -238,7 +238,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>serialize</h4>
 <pre class="methodSignature"><a href="JsonElement.html" title="class in com.google.gson">JsonElement</a>&nbsp;serialize&#8203;(<a href="JsonSerializer.html" title="type parameter in JsonSerializer">T</a>&nbsp;src,
                       <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;typeOfSrc,
-                      <a href="JsonSerializationContext.html" title="interface in com.google.gson">JsonSerializationContext</a>&nbsp;context)</pre>
+                      <a href="JsonSerializationContext.html" title="interface in com.google.gson">JsonSerializationContext</a>&nbsp;localContext)</pre>
 <div class="block">Gson invokes this call-back method during serialization when it encounters a field of the
  specified type.
 

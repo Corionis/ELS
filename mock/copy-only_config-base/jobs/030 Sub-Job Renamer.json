@@ -1,0 +1,35 @@
+{
+  "configName": "030 Sub-Job Renamer",
+  "tasks": [
+    {
+      "configName": "020 Multi-Renamer Publisher L",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "internalName": "jobs",
+      "origins": [],
+      "publisherKey": "",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
+    },
+    {
+      "configName": "UPPER",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "internalName": "Renamer",
+      "origins": [],
+      "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
+    }
+  ]
+}

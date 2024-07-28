@@ -3,29 +3,43 @@
   "tasks": [
     {
       "configName": "Archive junk",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "JunkRemover",
-      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
-      "subscriberKey": "",
-      "subscriberRemote": false,
       "origins": [
         {
           "location": "TV Shows",
           "type": 5
         }
-      ]
+      ],
+      "publisherKey": "_ANY_SERVER_",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     },
     {
       "configName": "Download junk",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
       "internalName": "JunkRemover",
-      "publisherKey": "_ANY_SERVER_",
-      "subscriberKey": "",
-      "subscriberRemote": false,
       "origins": [
         {
           "location": "TV Shows",
           "type": 5
         }
-      ]
+      ],
+      "publisherKey": "_ANY_SERVER_",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverrideHost": false,
+      "subscriberPath": "",
+      "subscriberRemote": false
     }
   ]
 }

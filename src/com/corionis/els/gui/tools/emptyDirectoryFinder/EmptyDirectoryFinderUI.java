@@ -480,7 +480,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                         panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
                         //---- buttonRun ----
-                        buttonRun.setText(context.cfg.gs("EmptyDirectoryFinder.buttonRun.text"));
+                        buttonRun.setText(context.cfg.gs("Z.run.ellipsis"));
                         buttonRun.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.buttonRun.mnemonic").charAt(0));
                         buttonRun.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.buttonRun.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));

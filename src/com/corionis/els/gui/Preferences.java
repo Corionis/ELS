@@ -85,6 +85,8 @@ public class Preferences implements Serializable
     private boolean lastHintTrackingIsRemote = false;
     private String lastHintTrackingOpenFile = "";
     private String lastHintTrackingOpenPath = "";
+    private boolean lastOverrideHintHost = false;
+    private boolean lastOverrideSubscriberHost = false;
     private boolean lastPublisherIsOpen = false;
     private boolean lastPublisherIsWorkstation = false;
     private String lastPublisherOpenFile = "";
@@ -107,6 +109,7 @@ public class Preferences implements Serializable
     private int progressWidth = -1;
     private int progressXpos = -1;
     private int progressYpos = 0;
+    private int runOption = 0;
     private int schema = 1;
     private boolean showArrows = true;
     private boolean showCcpConfirmation = true;
@@ -162,7 +165,6 @@ public class Preferences implements Serializable
     private boolean tooltipsLargeTables = true;
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
-
     /**
      * Constructor
      */
@@ -621,7 +623,6 @@ public class Preferences implements Serializable
     {
         return jobsYpos;
     }
-    //private transient LookAndFeel laf = null;
 
     public String getLastHintKeysOpenFile()
     {
@@ -652,6 +653,7 @@ public class Preferences implements Serializable
     {
         return lastPublisherOpenPath;
     }
+    //private transient LookAndFeel laf = null;
 
     public String getLastSubscriberOpenFile()
     {
@@ -727,6 +729,11 @@ public class Preferences implements Serializable
     public int getProgressYpos()
     {
         return progressYpos;
+    }
+
+    public int getRunOption()
+    {
+        return runOption;
     }
 
     public int getSchema()
@@ -994,7 +1001,7 @@ public class Preferences implements Serializable
     {
         try
         {
-            //if (isInitial) // not sure if this matters
+            if (isInitial) // not sure if this matters
             {
                 if (Utils.getOS().equalsIgnoreCase("mac"))
                 {
@@ -1106,6 +1113,16 @@ public class Preferences implements Serializable
     public boolean isLastHintTrackingIsRemote()
     {
         return lastHintTrackingIsRemote;
+    }
+
+    public boolean isLastOverrideHintHost()
+    {
+        return lastOverrideHintHost;
+    }
+
+    public boolean isLastOverrideSubscriberHost()
+    {
+        return lastOverrideSubscriberHost;
     }
 
     public boolean isLastPublisherIsOpen()
@@ -1515,6 +1532,16 @@ public class Preferences implements Serializable
         this.lastHintTrackingOpenPath = lastHintTrackingOpenPath;
     }
 
+    public void setLastOverrideHintHost(boolean lastOverrideHintHost)
+    {
+        this.lastOverrideHintHost = lastOverrideHintHost;
+    }
+
+    public void setLastOverrideSubscriberHost(boolean lastOverrideSubscriberHost)
+    {
+        this.lastOverrideSubscriberHost = lastOverrideSubscriberHost;
+    }
+
     public void setLastPublisherIsOpen(boolean lastPublisherIsOpen)
     {
         this.lastPublisherIsOpen = lastPublisherIsOpen;
@@ -1618,6 +1645,11 @@ public class Preferences implements Serializable
     public void setProgressYpos(int progressYpos)
     {
         this.progressYpos = progressYpos;
+    }
+
+    public void setRunOption(int runOption)
+    {
+        this.runOption = runOption;
     }
 
     public void setSchema(int schema)

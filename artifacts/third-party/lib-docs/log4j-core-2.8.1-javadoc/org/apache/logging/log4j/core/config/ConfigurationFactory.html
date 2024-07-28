@@ -507,7 +507,7 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/config/builder/
                              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
                              <a href="http://docs.oracle.com/javase/7/docs/api/java/net/URI.html?is-external=true" title="class or interface in java.net">URI</a>&nbsp;configLocation)</pre>
 <div class="block">Returns the Configuration.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loggerContext</code> - The logger context</dd><dd><code>name</code> - The configuration name.</dd><dd><code>configLocation</code> - The configuration location.</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loggerContext</code> - The logger localContext</dd><dd><code>name</code> - The configuration name.</dd><dd><code>configLocation</code> - The configuration location.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The Configuration.</dd></dl>
 </li>
 </ul>
@@ -522,7 +522,7 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/config/builder/
                              <a href="http://docs.oracle.com/javase/7/docs/api/java/net/URI.html?is-external=true" title="class or interface in java.net">URI</a>&nbsp;configLocation,
                              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/ClassLoader.html?is-external=true" title="class or interface in java.lang">ClassLoader</a>&nbsp;loader)</pre>
 <div class="block">Returns the Configuration obtained using a given ClassLoader.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loggerContext</code> - The logger context</dd><dd><code>name</code> - The configuration name.</dd><dd><code>configLocation</code> - A URI representing the location of the configuration.</dd><dd><code>loader</code> - The default ClassLoader to use. If this is <code>null</code>, then the
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>loggerContext</code> - The logger localContext</dd><dd><code>name</code> - The configuration name.</dd><dd><code>configLocation</code> - A URI representing the location of the configuration.</dd><dd><code>loader</code> - The default ClassLoader to use. If this is <code>null</code>, then the
                <a href="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/org/apache/logging/log4j/util/LoaderUtil.html?is-external=true#getThreadContextClassLoader()" title="class or interface in org.apache.logging.log4j.util">default ClassLoader</a> will be used.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>The Configuration.</dd></dl>
 </li>
