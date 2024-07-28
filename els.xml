@@ -257,9 +257,9 @@
                 <include name="**/gson-2.10.1.jar"/>
                 <include name="**/guava-32.0.1-jre.jar"/>
                 <include name="**/javax.activation-1.2.0.jar"/>
-                <include name="**/log4j-api-2.23.0.jar"/>
-                <include name="**/log4j-core-2.23.0.jar"/>
-                <include name="**/log4j-slf4j2-impl-2.23.0.jar"/>
+                <include name="**/log4j-api-2.23.1.jar"/>
+                <include name="**/log4j-core-2.23.1.jar"/>
+                <include name="**/log4j-slf4j2-impl-2.23.1.jar"/>
                 <include name="**/slf4j-api-2.0.12.jar"/>
                 <include name="**/slf4j-simple-2.0.12.jar"/>
                 <include name="**/sshd-common-2.10.0.jar"/>

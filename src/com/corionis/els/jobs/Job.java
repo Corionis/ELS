@@ -305,21 +305,20 @@ public class Job extends AbstractTool
             if (context.mainFrame != null)
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
+            String msg;
             if (context.fault)
             {
-                String msg = java.text.MessageFormat.format(context.cfg.gs("Job.ended.with.error"), job.getConfigName());
+                msg = java.text.MessageFormat.format(context.cfg.gs("Job.ended.with.error"), job.getConfigName());
                 logger.error(msg);
-                if (context.mainFrame != null)
-                    context.mainFrame.labelStatusMiddle.setText(msg);
             }
             else
             {
-                String msg = java.text.MessageFormat.format(context.cfg.gs("Job.completed.job"),
+                msg = java.text.MessageFormat.format(context.cfg.gs("Job.completed.job"),
                         job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
                 logger.info(msg);
-                if (context.mainFrame != null)
-                    context.mainFrame.labelStatusMiddle.setText(msg);
             }
+            if (context.mainFrame != null)
+                context.mainFrame.labelStatusMiddle.setText(msg);
         }
         else
             throw new MungeException(context.cfg.gs("JobsUI.job.has.no.tasks") + job.getConfigName());
