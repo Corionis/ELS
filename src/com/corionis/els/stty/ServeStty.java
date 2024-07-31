@@ -180,6 +180,7 @@ public class ServeStty extends Thread
 
         // log it
         logger.info("Stty server is listening on: " + (host == null ? "localhost" : listener.getInetAddr()) + ":" + aPort);
+        context.main.setListening(true);
 
         // fire it up
         listener.start();

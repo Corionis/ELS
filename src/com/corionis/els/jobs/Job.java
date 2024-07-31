@@ -305,7 +305,7 @@ public class Job extends AbstractTool
             if (context.mainFrame != null)
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
-            String msg;
+            String msg = null;
             if (context.fault)
             {
                 msg = java.text.MessageFormat.format(context.cfg.gs("Job.ended.with.error"), job.getConfigName());
@@ -313,9 +313,12 @@ public class Job extends AbstractTool
             }
             else
             {
-                msg = java.text.MessageFormat.format(context.cfg.gs("Job.completed.job"),
-                        job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
-                logger.info(msg);
+                if (!context.main.isListening())
+                {
+                    msg = java.text.MessageFormat.format(context.cfg.gs("Job.completed.job"),
+                            job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
+                    logger.info(msg);
+                }
             }
             if (context.mainFrame != null)
                 context.mainFrame.labelStatusMiddle.setText(msg);

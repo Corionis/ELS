@@ -46,6 +46,7 @@ import static com.corionis.els.Configuration.*;
 public class Main
 {
     public Context context;
+    private Job job = null;
     public String localeAbbrev; // abbreviation of locale, e.g. en_US
     public Logger logger = null; // log4j2 logger singleton
     public String operationName = ""; // secondary invocation name
@@ -75,7 +76,7 @@ public class Main
         this.previousContext = null;
         process(args);          // ELS Processor
 
-        if (this.context.mainFrame == null && !this.context.cfg.isNavigator())
+        if (this.context.mainFrame == null && !this.context.cfg.isNavigator() && !this.isListening)
             System.exit(this.context.fault ? 1 : 0);
     }
 
@@ -184,7 +185,7 @@ public class Main
      */
     public void checkWorkingDirectories() throws Exception
     {
-        String[] stdDirs = { "jobs", "libraries", "local", "system", "tools"};
+        String[] stdDirs = {"jobs", "libraries", "local", "system", "tools"};
         String working = context.cfg.getWorkingDirectory();
         for (int i = 0; i < stdDirs.length; ++i)
         {
@@ -193,7 +194,7 @@ public class Main
                 Files.createDirectories(dir);
         }
 
-        String[] toolDirs = { "JunkRemover", "Operations", "Renamer", "Sleep" };
+        String[] toolDirs = {"JunkRemover", "Operations", "Renamer", "Sleep"};
         for (int i = 0; i < toolDirs.length; ++i)
         {
             Path dir = Paths.get(working, "tools", toolDirs[i]);
@@ -205,8 +206,8 @@ public class Main
     /**
      * Execute an external executable and monitor it's output and execution
      *
-     * @param comp Component performing action
-     * @param cfg The Configuration
+     * @param comp  Component performing action
+     * @param cfg   The Configuration
      * @param parms Execution parameters
      * @return Success = true, else false
      */
@@ -303,6 +304,11 @@ public class Main
             appender = (GuiLogAppender) appenders.get("GuiLogAppender");
         }
         return appender;
+    }
+
+    public boolean isListening()
+    {
+        return isListening;
     }
 
     /**
@@ -438,15 +444,12 @@ public class Main
             if (cfgException != null)
                 throw cfgException;
 
-            // if running a Navigator in a secondary invocation initialize the LaF
-//logger.info("primary: " + primaryServers + ", isNav: " + localContext.cfg.isNavigator() + ", isdef: " + localContext.cfg.isDefaultNavigator());
-//            if (!primaryServers && (localContext.cfg.isNavigator() || localContext.cfg.isDefaultNavigator()))
-//            {
-//logger.info("initLookAndFeel");
-//                localContext.preferences.initLookAndFeel(localContext.cfg.APPLICATION_NAME, true);
-//            }
+            // pre-create working directory structure
+            checkWorkingDirectories();
 
-            checkWorkingDirectories(); // pre-create working directory structure
+            // logger mode is only for Jobs
+            if (context.cfg.getOperation() != JOB_PROCESS)
+                context.cfg.setLoggerView(false);
 
             //
             // an execution of this program can only be configured as one of these operations
@@ -890,7 +893,7 @@ public class Main
 
                         // run the Job
                         Job tmpJob = new Job(context, "temp");
-                        Job job = tmpJob.load(context.cfg.getJobName());
+                        job = tmpJob.load(context.cfg.getJobName());
                         if (job == null)
                             throw new MungeException("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
                         saveEnvironment();
@@ -996,6 +999,12 @@ public class Main
                     {
                         try // also done in Connection.run()
                         {
+                            if (isListening && context.cfg.getOperation() == JOB_PROCESS)
+                            {
+                                String msg = java.text.MessageFormat.format(context.cfg.gs("Job.completed.job"),
+                                        job.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
+                                logger.info(msg);
+                            }
                             //logger.info(context.cfg.gs("Main.disconnecting"));
 
                             // optionally command status server to quit
@@ -1173,6 +1182,11 @@ public class Main
 
             context.environment = new Environment(context); // the initial environment only
         }
+    }
+
+    public void setListening(boolean listening)
+    {
+        isListening = listening;
     }
 
     /**
@@ -1365,6 +1379,7 @@ public class Main
         {
             logger.error(Utils.getStackTrace(e));
         }
+        isListening = false;
     }
 
     /**

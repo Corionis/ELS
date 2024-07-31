@@ -1135,7 +1135,7 @@ public class MainFrame extends JFrame
 
                 //---- menuItemChangelist ----
                 menuItemChangelist.setText(context.cfg.gs("Navigator.menuItemChangelist.text"));
-                menuItemChangelist.setMnemonic(context.cfg.gs("Navigator.menuItemChangelist.mnemonic_2").charAt(0));
+                menuItemChangelist.setMnemonic(context.cfg.gs("Navigator.menuItemChangelist.mnemonic").charAt(0));
                 menuItemChangelist.setIcon(new ImageIcon(getClass().getResource("/changes.png")));
                 menuHelp.add(menuItemChangelist);
 

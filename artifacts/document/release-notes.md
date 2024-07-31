@@ -149,6 +149,9 @@ upgrading for changes, additions and enhancements.
 20. Added -J | --override-hint-host to use the listen address:port for out-going connections
     to a Hint Server instead of the host. Used for LAN connections when host is used over the Internet.
 
+21. Added the --logger option for the -j | --job action to execute the Job in the foreground
+    with ELS operating in Logger mode to display the Job log.
+
 
 ### Other Changes
 

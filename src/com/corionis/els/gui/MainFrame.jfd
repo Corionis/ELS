@@ -2004,7 +2004,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemChangelist"
 						"text": new FormMessage( null, "Navigator.menuItemChangelist.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemChangelist.mnemonic_2" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemChangelist.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/changes.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
