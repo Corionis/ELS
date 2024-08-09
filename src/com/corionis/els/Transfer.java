@@ -460,9 +460,12 @@ public class Transfer
 
                 // check for opening commands from Subscriber
                 // *** might change localContext.cfg options for subscriber and targets that are handled below ***
-                if (context.clientStty.checkBannerCommands())
+                if (context.clientStty != null)
                 {
-                    logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
+                    if (context.clientStty.checkBannerCommands())
+                    {
+                        logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
+                    }
                 }
             }
 
@@ -470,7 +473,7 @@ public class Transfer
             {
                 if (context.cfg.isNavigator())
                 {
-                    if (context.cfg.isRemoteOperation())
+                    if (context.cfg.isRemoteOperation() && context.clientStty != null)
                     {
                         requestLibrary();
                     }

@@ -46,7 +46,6 @@ import static com.corionis.els.Configuration.*;
 public class Main
 {
     public Context context;
-    private Job job = null;
     public String localeAbbrev; // abbreviation of locale, e.g. en_US
     public Logger logger = null; // log4j2 logger singleton
     public String operationName = ""; // secondary invocation name
@@ -57,6 +56,7 @@ public class Main
     private GuiLogAppender appender = null;
     private boolean catchExceptions = true;
     private boolean isListening = false; // listener mode
+    private Job job = null;
 
     /**
      * Hide default constructor
@@ -201,6 +201,58 @@ public class Main
             if (!Files.exists(dir))
                 Files.createDirectories(dir);
         }
+    }
+
+    /**
+     * Connect to remote Subscriber
+     *
+     * @return true if successful, otherwise false
+     * @throws Exception Configuration and connection exceptions
+     */
+    public boolean connectSubscriber(boolean promptOnFailure) throws Exception
+    {
+        try
+        {
+            if (context.publisherRepo != null && context.subscriberRepo != null)
+            {
+                // start the clientStty
+                context.clientStty = new ClientStty(context, false, true);
+                if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                {
+                    throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Main.remote.subscriber.failed.to.connect"),
+                            context.subscriberRepo.getLibraryData().libraries.description));
+                }
+            }
+            else
+            {
+                throw new MungeException((context.publisherRepo == null) ? context.cfg.gs("Main.publisher.library.or.collection.file.is.required.for.remote.publish") :
+                        ("Main.subscriber.library.or.collection.file.is.required.for.remote.publish"));
+            }
+        }
+        catch (Exception e)
+        {
+            String msg = e.getMessage();
+            logger.error(msg);
+
+            context.clientStty = null;
+            context.clientSftp = null;
+            context.clientSftpMetadata = null;
+            context.subscriberRepo = null;
+            context.cfg.setOperation(NOT_REMOTE);
+            context.cfg.setSubscriberCollectionFilename("");
+            context.cfg.setSubscriberLibrariesFileName("");
+
+            if (isStartupActive())
+            {
+                int opt = JOptionPane.showConfirmDialog(getGuiLogAppender().getStartup(),
+                        "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue"))  + "</body></html>",
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                if (opt == JOptionPane.YES_OPTION)
+                    context.fault = false;
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -563,24 +615,15 @@ public class Main
                         setupHints(context.publisherRepo);
 
                         // start the serveStty client interactively
-                        context.clientStty = new ClientStty(context, true, true);
-                        if (context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                        if (connectSubscriber(false))
                         {
-                            context.clientStty.terminalSession();
-                            isListening = true; // fake listener to wait for shutdown
+                            // start the serveSftp transfer client
+                            context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+                            if (!context.clientSftp.startClient("transfer"))
+                            {
+                                throw new MungeException("Publisher sftp transfer client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                            }
                         }
-                        else
-                        {
-                            throw new MungeException("Publisher manual console to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
-                        }
-
-                        // start the serveSftp transfer client
-                        context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                        if (!context.clientSftp.startClient("transfer"))
-                        {
-                            throw new MungeException("Publisher sftp transfer client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
-                        }
-
                         saveEnvironment();
                     }
                     break;
@@ -604,18 +647,18 @@ public class Main
                         setupHints(context.publisherRepo);
 
                         // start the serveStty client for automation
-                        context.clientStty = new ClientStty(context, false, true);
-                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                        boolean commOk = true;
+                        if (connectSubscriber(true))
                         {
-                            throw new MungeException("Remote subscriber " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                            // start the serveSftp transfer client
+                            context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+                            if (!context.clientSftp.startClient("transfer"))
+                            {
+                                throw new MungeException("Subscriber sftp transfer to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                            }
                         }
-
-                        // start the serveSftp transfer client
-                        context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                        if (!context.clientSftp.startClient("transfer"))
-                        {
-                            throw new MungeException("Subscriber sftp transfer to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
-                        }
+                        else
+                            commOk = false;
 
                         // handle -n|--navigator to display the Navigator
                         if (context.cfg.isNavigator())
@@ -623,11 +666,14 @@ public class Main
                             context.tools = new Tools();
                             context.tools.loadAllTools(context, null);
 
-                            // start the serveSftp metadata client
-                            context.clientSftpMetadata = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                            if (!context.clientSftpMetadata.startClient("metadata"))
+                            if (commOk)
                             {
-                                throw new MungeException("Subscriber sftp metadata to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                                // start the serveSftp metadata client
+                                context.clientSftpMetadata = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+                                if (!context.clientSftpMetadata.startClient("metadata"))
+                                {
+                                    throw new MungeException("Subscriber sftp metadata to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
+                                }
                             }
 
                             context.navigator = new Navigator(context);
@@ -639,10 +685,13 @@ public class Main
                         }
                         else
                         {
-                            // the Process class handles the ELS process
-                            saveEnvironment();
-                            process = new Process(context);
-                            process.process();
+                            if (commOk)
+                            {
+                                // the Process class handles the ELS process
+                                saveEnvironment();
+                                process = new Process(context);
+                                process.process();
+                            }
                         }
                     }
                     else
@@ -712,35 +761,27 @@ public class Main
                         setupHints(context.subscriberRepo);
 
                         // start the serveStty client interactively
-                        context.clientStty = new ClientStty(context, true, true);
-                        if (context.clientStty.connect(context.subscriberRepo, context.publisherRepo))
+                        if (connectSubscriber(false))
                         {
-                            context.clientStty.terminalSession();
-                            isListening = true; // fake listener to wait for shutdown
+                            // start the serveSftp transfer client
+                            context.clientSftp = new ClientSftp(context, context.subscriberRepo, context.publisherRepo, true);
+                            if (!context.clientSftp.startClient("transfer"))
+                            {
+                                throw new MungeException("Publisher sftp transfer to " + context.publisherRepo.getLibraryData().libraries.description + " failed to connect");
+                            }
+
+                            // start serveStty server
+                            sessionThreads = new ThreadGroup("subscriber.terminal");
+                            context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, false);
+                            context.serveStty.startListening(context.subscriberRepo);
+                            isListening = true;
+
+                            // start serveSftp server
+                            context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, false);
+                            context.serveSftp.startServer();
+
+                            saveEnvironment();
                         }
-                        else
-                        {
-                            throw new MungeException("Subscriber terminal console to " + context.publisherRepo.getLibraryData().libraries.description + " failed to connect");
-                        }
-
-                        // start the serveSftp transfer client
-                        context.clientSftp = new ClientSftp(context, context.subscriberRepo, context.publisherRepo, true);
-                        if (!context.clientSftp.startClient("transfer"))
-                        {
-                            throw new MungeException("Publisher sftp transfer to " + context.publisherRepo.getLibraryData().libraries.description + " failed to connect");
-                        }
-
-                        // start serveStty server
-                        sessionThreads = new ThreadGroup("subscriber.terminal");
-                        context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, false);
-                        context.serveStty.startListening(context.subscriberRepo);
-                        isListening = true;
-
-                        // start serveSftp server
-                        context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, false);
-                        context.serveSftp.startServer();
-
-                        saveEnvironment();
                     }
                     else
                     {
@@ -837,20 +878,18 @@ public class Main
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // start the serveStty client
-                        context.clientStty = new ClientStty(context, false, true);
-                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                        if (connectSubscriber(false))
                         {
-                            throw new MungeException("Remote subscriber " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
-                        }
-                        try
-                        {
-                            saveEnvironment();
-                            context.clientStty.roundTrip("quit", "Sending remote quit command", 5000);
-                            Thread.sleep(3000);
-                        }
-                        catch (Exception e)
-                        {
-                            // ignore any exception
+                            try
+                            {
+                                saveEnvironment();
+                                context.clientStty.roundTrip("quit", "Sending remote quit command", 5000);
+                                Thread.sleep(3000);
+                            }
+                            catch (Exception e)
+                            {
+                                // ignore any exception
+                            }
                         }
                     }
                     break;
@@ -1210,7 +1249,7 @@ public class Main
                 {
                     // Hints Keys
                     context.hintKeys = new HintKeys(context);
-                    msg = "Exception while reading Hint Keys: ";
+                    msg = context.cfg.gs("Main.exception.while.reading.hint.keys");
                     context.hintKeys.read(context.cfg.getHintKeysFile());
                     context.hints = new Hints(context, context.hintKeys);
                     context.preferences.setLastHintKeysIsOpen(true);
@@ -1218,7 +1257,7 @@ public class Main
                 else
                 {
                     if (!context.cfg.isQuitStatusServer())
-                        throw new MungeException("Hint Keys are required to use Hint Tracking");
+                        throw new MungeException(context.cfg.gs("Main.hint.keys.are.required.to.use.hint.tracking"));
                 }
 
                 if (context.cfg.isHintTrackingEnabled())
@@ -1230,25 +1269,27 @@ public class Main
                     {
                         // exceptions handle by read()
                         catchExceptions = false;
-                        msg = "Exception while reading Hint Server: ";
+                        msg = context.cfg.gs("Main.exception.while.reading.hint.server");
 
                         if (context.hintsRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true))
                         {
                             catchExceptions = true;
 
-                            // start the serveStty client connection the Hint Status Server
+                            // start the hintsStty client connection to the Hint Status Server
                             context.hintsStty = new ClientStty(context, false, true); //primaryServers);
                             if (!context.hintsStty.connect(repo, context.hintsRepo))
                             {
                                 msg = "";
-                                throw new MungeException("Hint Status Server: " + context.hintsRepo.getLibraryData().libraries.description + " failed to connect");
+                                throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Main.hint.status.server.failed.to.connect"),
+                                        context.hintsRepo.getLibraryData().libraries.description));
                             }
 
                             String response = context.hintsStty.receive("", 5000); // check the initial prompt
                             if (!response.startsWith("CMD"))
                             {
                                 msg = "";
-                                throw new MungeException("Bad initial response from Hint Status Server: " + context.hintsRepo.getLibraryData().libraries.description);
+                                throw new MungeException(context.cfg.gs("Main.bad.initial.response.from.hint.status.server") +
+                                        context.hintsRepo.getLibraryData().libraries.description);
                             }
 
                             context.preferences.setLastHintTrackingIsRemote(true);
@@ -1264,7 +1305,7 @@ public class Main
                     {
                         // exceptions handle by read()
                         catchExceptions = false;
-                        msg = "Exception while reading Hint Tracker: ";
+                        msg = context.cfg.gs("Main.exception.while.reading.hint.tracker");
 
                         if (context.hintsRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
                         {
@@ -1274,7 +1315,7 @@ public class Main
                             boolean valid = context.datastore.initialize();
                             if (!valid)
                             {
-                                throw new MungeException("Error initializing from hint status server JSON file");
+                                throw new MungeException(context.cfg.gs("Main.error.initializing.from.hint.status.server.json.file"));
                             }
 
                             context.preferences.setLastHintTrackingIsRemote(false);
@@ -1298,17 +1339,18 @@ public class Main
         {
             if (catchExceptions)
             {
-                msg += " " + e.toString();
+                msg = (msg.length() > 0 ? msg : "") + e.getMessage();
                 logger.error(msg);
 
                 context.cfg.setHintKeysFile("");
                 context.cfg.setHintsDaemonFilename("");
                 context.cfg.setHintTrackerFilename("");
+                context.hintsRepo = null;
 
                 if (isStartupActive())
                 {
                     int opt = JOptionPane.showConfirmDialog(getGuiLogAppender().getStartup(),
-                            "<html><body>" + msg + "<br/><br/>Continue?</body></html>",
+                            "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue"))  + "</body></html>",
                             context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                     if (opt == JOptionPane.YES_OPTION)
                     {

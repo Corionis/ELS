@@ -115,6 +115,7 @@ public class Configuration
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
         SubscriberTerminal, StatusServer, StatusServerQuit, SubscriberListenerQuit
     }
+
     /**
      * Constructor
      */
@@ -2668,6 +2669,11 @@ public class Configuration
     public void setNoBackFill(boolean noBackFill)
     {
         this.noBackFill = noBackFill == true ? 1 : 0;
+    }
+
+    public void setOperation(int operation)
+    {
+        this.operation = operation;
     }
 
     public void setOverrideHintsHost(boolean overrideHintHost)

@@ -3,6 +3,8 @@
 
 ## Current Short-List
 
+ * TEST switching repos in Navigator during Job
+
 RUN BUTTON
     Add validateRun() method to check task requirements; Jobs iterate their Tasks
 
