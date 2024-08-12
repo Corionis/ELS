@@ -91,6 +91,7 @@ public class OperationsTool extends AbstractTool
         tool.setConfigName(getConfigName());
         tool.internalName = INTERNAL_NAME;
         tool.setOperation(getOperation());
+        tool.setCard(getCard());
         tool.setOptAuthorize(getOptAuthorize());
         tool.setOptAuthKeys(getOptAuthKeys());
         tool.setOptNoBackFill(isOptNoBackFill());

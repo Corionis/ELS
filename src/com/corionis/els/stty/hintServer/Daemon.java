@@ -1,5 +1,6 @@
 package com.corionis.els.stty.hintServer;
 
+import com.corionis.els.Main;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintKeys;
@@ -113,6 +114,10 @@ public class Daemon extends AbstractDaemon
                         logger.info("Hint Server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
                         context.fault = false;
                         context.timeout = false;
+                    }
+                    else
+                    {
+                        logger.error("Hint Server cannot find key: " + input);
                     }
                 }
                 else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
@@ -534,7 +539,7 @@ public class Daemon extends AbstractDaemon
             }
         }
         if (buf.length > 0)
-            input = Utils.decrypt(key, buf);
+            input = context.main.decrypt(key, buf);
         return input;
     }
 

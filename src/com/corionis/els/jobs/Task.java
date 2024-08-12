@@ -2,7 +2,7 @@ package com.corionis.els.jobs;
 
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
-import com.corionis.els.gui.Environment;
+import com.corionis.els.Environment;
 import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;

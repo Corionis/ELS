@@ -1,6 +1,7 @@
 package com.corionis.els.stty;
 
 import com.corionis.els.Context;
+import com.corionis.els.Main;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.repository.Repository;
@@ -201,7 +202,7 @@ public abstract class AbstractDaemon
         String response = null;
         while (true)
         {
-            response = Utils.readStream(in, myRepo.getLibraryData().libraries.key);
+            response = context.main.readStream(in, myRepo.getLibraryData().libraries.key);
 
             if (response != null && response.startsWith("ping"))
                 logger.trace("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
@@ -244,7 +245,7 @@ public abstract class AbstractDaemon
         if (!message.equalsIgnoreCase("ping"))
             disableHeartBeat();
 
-        Utils.writeStream(out, myRepo.getLibraryData().libraries.key, message);
+        context.main.writeStream(out, myRepo.getLibraryData().libraries.key, message);
 
         if (!message.equalsIgnoreCase("ping"))
             enableHeartBeat();

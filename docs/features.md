@@ -70,7 +70,7 @@ that may be used in a variety of ways.
 
 ### &bull; Hints
 
-&nbsp;&nbsp;&nbsp;&nbsp;Hints are used to coordinate manual changes in collections. 
+&nbsp;&nbsp;&nbsp;&nbsp;Hints are used to coordinate manual changes (deletes, renames and moves) in collections. 
 
  * Hints are processed during back-up operations.
  * Any number of back-ups are supported.

@@ -1,10 +1,10 @@
 package com.corionis.els.stty.gui;
 
 import com.corionis.els.Configuration;
+import com.corionis.els.Main;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.stty.ClientStty;
 import com.corionis.els.Context;
-import com.corionis.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -182,7 +182,7 @@ public class TerminalGui implements WindowListener, ActionListener
 
     public String receive() throws Exception
     {
-        String response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
+        String response = context.main.readStream(in, theirRepo.getLibraryData().libraries.key);
         textArea.append(response);
         return response;
     }
@@ -216,7 +216,7 @@ public class TerminalGui implements WindowListener, ActionListener
     public int send(String command) throws Exception
     {
         textArea.append(command + "\r\n");
-        Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, command);
+        context.main.writeStream(out, theirRepo.getLibraryData().libraries.key, command);
         return 0;
     }
 

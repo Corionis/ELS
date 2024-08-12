@@ -20,10 +20,10 @@ RUN BUTTON
   * Remote operations: Start Hint Server, then Subscriber, then Publisher
   * Tools define something to do. Tasks in Jobs define where to do it.
     * That way Tools may be reused for different publishers and subscribers 
-      * "Any Publisher" and "Any Subscriber" in Job, Task, Origins requires command line options
+      * "Any Publisher" and "Any Subscriber" in Job, Task, Origins require command line options
         for those arguments.
     * The Run button in Tools use the current publisher, subscriber, hints, etc.
-    * The Run button in Jobs use the definitions of the Tasks and Tools.
+    * The Run buttons in Jobs use the definitions of the Tasks and Tools.
 
 #### Thoughts
  * Opens possibility of the Hint Status Server optionally auto-pushing new Hints to systems in Hint Keys.

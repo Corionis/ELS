@@ -1,6 +1,7 @@
 package com.corionis.els.stty;
 
 import com.corionis.els.Context;
+import com.corionis.els.Main;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.repository.Repository;
@@ -480,7 +481,7 @@ public class ClientStty
         String response = null;
         while (true)
         {
-            response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
+            response = context.main.readStream(in, theirRepo.getLibraryData().libraries.key);
             if (response != null && response.startsWith("ping"))
                 logger.trace("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
             else
@@ -570,7 +571,7 @@ public class ClientStty
         if (out != null && theirRepo != null && theirRepo.getLibraryData() != null && theirRepo.getLibraryData().libraries != null &&
                 theirRepo.getLibraryData().libraries.key != null && theirRepo.getLibraryData().libraries.key.length() > 0)
         {
-            Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, message);
+            context.main.writeStream(out, theirRepo.getLibraryData().libraries.key, message);
         }
 
         if (!message.equalsIgnoreCase("ping"))

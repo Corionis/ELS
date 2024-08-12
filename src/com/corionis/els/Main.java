@@ -2,7 +2,6 @@ package com.corionis.els;
 
 import com.corionis.els.gui.Navigator;
 import com.corionis.els.gui.Preferences;
-import com.corionis.els.gui.Environment;
 import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.hints.HintKeys;
@@ -24,12 +23,16 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Key;
 import java.util.*;
 
 import static com.corionis.els.Configuration.*;
@@ -245,7 +248,7 @@ public class Main
             if (isStartupActive())
             {
                 int opt = JOptionPane.showConfirmDialog(getGuiLogAppender().getStartup(),
-                        "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue"))  + "</body></html>",
+                        "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (opt == JOptionPane.YES_OPTION)
                     context.fault = false;
@@ -253,6 +256,72 @@ public class Main
             }
         }
         return true;
+    }
+
+    /**
+     * Decrypt a byte array to a string using provided key
+     *
+     * @param key       UUID key
+     * @param encrypted Data to decrypt
+     * @return String Decrypted texts
+     */
+    public synchronized String decrypt(String key, byte[] encrypted)
+    {
+        String output = "";
+        try
+        {
+            // Create key and cipher
+            key = key.replaceAll("-", "");
+            if (key.length() > 16)
+            {
+                key = key.substring(0, 16);
+            }
+//            logger.trace("  decrypt with " + key);  // todo comment out
+            Key aesKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            // decrypt the text
+            cipher.init(Cipher.DECRYPT_MODE, aesKey);
+            output = new String(cipher.doFinal(encrypted));
+//            logger.trace("  decrypted " + output.length() + " bytes");  // todo comment out
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+        }
+        return output;
+    }
+
+    /**
+     * Encrypt a string using provided key
+     *
+     * @param key  UUID key
+     * @param text Data to encrypt
+     * @return byte[] of encrypted data
+     */
+    public synchronized byte[] encrypt(String key, String text)
+    {
+        byte[] encrypted = {};
+        try
+        {
+            // Create key and cipher
+            key = key.replaceAll("-", "");
+            if (key.length() > 16)
+            {
+                key = key.substring(0, 16);
+            }
+//            logger.trace("  encrypt with " + key + ", " + text); // todo comment out
+            Key aesKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            // encrypt the text
+            cipher.init(Cipher.ENCRYPT_MODE, aesKey);
+//            logger.trace("  encrypted " + text.getBytes().length + " bytes");  // todo comment out
+            encrypted = cipher.doFinal(text.getBytes("UTF-8"));
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+        }
+        return encrypted;
     }
 
     /**
@@ -1194,6 +1263,74 @@ public class Main
         return repo;
     }
 
+    /**
+     * Read an encrypted data stream, return decrypted string
+     *
+     * @param in  DataInputStream to read, e.g. remote connection
+     * @param key UUID key to decrypt the data stream
+     * @return String read from stream; null if connection is closed
+     */
+    public String readStream(DataInputStream in, String key) throws Exception
+    {
+        byte[] buf = {};
+        String input = "";
+        while (true)
+        {
+            try
+            {
+                logger.trace("read() waiting ...");
+                int count = in.readInt();
+
+                logger.trace("  receiving " + count + " encrypted bytes");
+                int pos = 0;
+                if (count > 0)
+                {
+                    buf = new byte[count];
+                    int remaining = count;
+                    while (true)
+                    {
+                        int readCount = in.read(buf, pos, remaining);
+                        if (readCount < 0)
+                            break;
+                        pos += readCount;
+                        remaining -= readCount;
+                        if (pos == count)
+                            break;
+                    }
+                    if (pos != count)
+                    {
+                        logger.warn("read counts do not match, expected " + count + ", received " + pos);
+                    }
+                }
+                break;
+            }
+            catch (SocketTimeoutException e)
+            {
+                logger.error("read() timed-out");
+                input = null;
+                throw e;
+            }
+            catch (EOFException e)
+            {
+                logger.error("  read() EOF");
+                input = null; // remote disconnected
+                break;
+            }
+            catch (IOException e)
+            {
+                if (e.getMessage().toLowerCase().contains("connection reset"))
+                    logger.warn("connection closed during read");
+                input = null;
+                throw e;
+            }
+        }
+        if (buf.length > 0 && input != null)
+            input = decrypt(key, buf);
+
+        logger.trace("read done " + ((input != null) ? input.length() : "0") + " bytes");
+        return input;
+    }
+
     public void restoreEnvironment()
     {
         try
@@ -1350,7 +1487,7 @@ public class Main
                 if (isStartupActive())
                 {
                     int opt = JOptionPane.showConfirmDialog(getGuiLogAppender().getStartup(),
-                            "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue"))  + "</body></html>",
+                            "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
                             context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                     if (opt == JOptionPane.YES_OPTION)
                     {
@@ -1442,4 +1579,31 @@ public class Main
             logger.fatal("Process failed");
     }
 
+    /**
+     * Write an encrypted string to output stream
+     *
+     * @param out     DataOutputStream to write
+     * @param key     UUID key to encrypt the string
+     * @param message String to encrypted and write
+     */
+    public void writeStream(DataOutputStream out, String key, String message) throws Exception
+    {
+        logger.trace("writing " + message.length() + " bytes");
+        byte[] buf = encrypt(key, message);
+
+        logger.trace("  sending " + buf.length + " encrypted bytes");
+        //logger.trace("  writing size");
+        out.writeInt(buf.length);
+
+        //logger.trace("  flushing size");
+        out.flush();
+
+        //logger.trace("  writing data");
+        out.write(buf);
+
+        //logger.trace("  flushing data");
+        out.flush();
+
+        logger.trace("write done");
+    }
 }
