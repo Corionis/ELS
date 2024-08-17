@@ -56,6 +56,8 @@ public class Main
     public boolean primaryExecution = true;
     public boolean secondaryNavigator = false;
     public Date stamp = new Date(); // runtime stamp for this invocation
+    public String whatsRunning = "";
+
     private GuiLogAppender appender = null;
     private boolean catchExceptions = true;
     private boolean isListening = false; // listener mode
@@ -276,13 +278,13 @@ public class Main
             {
                 key = key.substring(0, 16);
             }
-//            logger.trace("  decrypt with " + key);  // todo comment out
+            //logger.trace("  decrypt with " + key + ", " + whatsRunning);  // todo comment out
             Key aesKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
             Cipher cipher = Cipher.getInstance("AES");
             // decrypt the text
             cipher.init(Cipher.DECRYPT_MODE, aesKey);
             output = new String(cipher.doFinal(encrypted));
-//            logger.trace("  decrypted " + output.length() + " bytes");  // todo comment out
+            //logger.trace("  decrypted " + output.length() + " bytes" + ", " + whatsRunning);  // todo comment out
         }
         catch (Exception e)
         {
@@ -309,12 +311,12 @@ public class Main
             {
                 key = key.substring(0, 16);
             }
-//            logger.trace("  encrypt with " + key + ", " + text); // todo comment out
+            //logger.trace("  encrypt with " + key + ", " + text + ", " + whatsRunning); // todo comment out
             Key aesKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
             Cipher cipher = Cipher.getInstance("AES");
             // encrypt the text
             cipher.init(Cipher.ENCRYPT_MODE, aesKey);
-//            logger.trace("  encrypted " + text.getBytes().length + " bytes");  // todo comment out
+            //logger.trace("  encrypted " + text.getBytes().length + " bytes, " + whatsRunning);  // todo comment out
             encrypted = cipher.doFinal(text.getBytes("UTF-8"));
         }
         catch (Exception e)
@@ -461,7 +463,6 @@ public class Main
      * Execute the process
      *
      * @param args the input arguments
-     * @return Return status
      */
     public void process(String[] args)
     {
@@ -551,7 +552,7 @@ public class Main
             context.cfg.loadLocale(filePart);
             if (context.cfg.gs("Transfer.received.subscriber.commands").length() == 0)
             {
-                logger.trace("local locale not supported, loading default");
+                logger.warn("local locale not supported, loading default");
                 context.cfg.loadLocale("-");
             }
             else
@@ -583,7 +584,8 @@ public class Main
                     // handle -n|--navigator to display the Navigator
                     if (context.cfg.isNavigator())
                     {
-                        logger.info("ELS: Local Navigator, version " + getBuildVersionName() + ", " + getBuildDate());
+                        whatsRunning = "ELS: Local Navigator";
+                        logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                         context.cfg.dump();
 
                         if (context.cfg.getPublisherFilename().length() > 0)
@@ -610,7 +612,8 @@ public class Main
                     }
                     else
                     {
-                        logger.info("ELS: Local Publish, version " + getBuildVersionName() + ", " + getBuildDate());
+                        whatsRunning = "ELS: Local Publish";;
+                        logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                         context.cfg.dump();
 
                         if (context.cfg.getPublisherFilename().length() > 0)
@@ -639,7 +642,8 @@ public class Main
 
                 // --- -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("ELS: Publisher Listener, version " + getBuildVersionName() + ", " + getBuildDate());
+                    whatsRunning = "ELS: Publisher Listener";
+                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -653,7 +657,7 @@ public class Main
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("publisher.listener");
-                        context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, true);
+                        context.serveStty = new ServeStty(sessionThreads, 100, context, true);
                         context.serveStty.startListening(context.publisherRepo);
                         isListening = true;
 
@@ -671,7 +675,8 @@ public class Main
 
                 // --- -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("ELS: Publisher Terminal, version " + getBuildVersionName() + ", " + getBuildDate());
+                    whatsRunning = "ELS: Publisher Terminal";
+                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -693,6 +698,7 @@ public class Main
                                 throw new MungeException("Publisher sftp transfer client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                             }
                         }
+
                         saveEnvironment();
                     }
                     break;
@@ -701,9 +707,10 @@ public class Main
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
                     if (context.cfg.isNavigator())
-                        logger.info("ELS: Remote Navigator, version " + getBuildVersionName() + ", " + getBuildDate());
+                        whatsRunning = "ELS: Remote Navigator";
                     else
-                        logger.info("ELS: Remote Publish, version " + getBuildVersionName() + ", " + getBuildDate());
+                        whatsRunning = "ELS: Remote Publish";
+                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -713,10 +720,10 @@ public class Main
                     if (context.cfg.isNavigator() || (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized()))
                     {
                         // connect to the hint status server if defined
+                        boolean commOk = true;
                         setupHints(context.publisherRepo);
 
                         // start the serveStty client for automation
-                        boolean commOk = true;
                         if (connectSubscriber(true))
                         {
                             // start the serveSftp transfer client
@@ -771,7 +778,8 @@ public class Main
 
                 // --- -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("ELS: Subscriber Listener, version " + getBuildVersionName() + ", " + getBuildDate());
+                    whatsRunning = "ELS: Subscriber Listener";
+                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     if (!context.cfg.isTargetsEnabled())
@@ -799,7 +807,7 @@ public class Main
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("subscriber.listener");
-                        context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, true);
+                        context.serveStty = new ServeStty(sessionThreads, 100, context, true);
                         context.serveStty.startListening(context.subscriberRepo);
                         isListening = true;
 
@@ -817,7 +825,8 @@ public class Main
 
                 // --- -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("ELS: Subscriber Terminal, version " + getBuildVersionName() + ", " + getBuildDate());
+                    whatsRunning = "ELS: Subscriber Terminal";
+                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
@@ -841,7 +850,7 @@ public class Main
 
                             // start serveStty server
                             sessionThreads = new ThreadGroup("subscriber.terminal");
-                            context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, false);
+                            context.serveStty = new ServeStty(sessionThreads, 100, context, false);
                             context.serveStty.startListening(context.subscriberRepo);
                             isListening = true;
 
@@ -860,7 +869,8 @@ public class Main
 
                 // --- -H|--hint-server stand-alone hint status server
                 case STATUS_SERVER:
-                    logger.info("ELS: Hint Status Server, version " + getBuildVersionName() + ", " + getBuildDate());
+                    whatsRunning = "ELS: Hint Status Server";
+                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     if (context.cfg.getHintKeysFile() == null || context.cfg.getHintKeysFile().length() == 0)
@@ -899,7 +909,7 @@ public class Main
                     {
                         // start serveStty server
                         sessionThreads = new ThreadGroup("hint.status.server");
-                        context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, true);
+                        context.serveStty = new ServeStty(sessionThreads, 100, context, true);
                         context.serveStty.startListening(context.hintsRepo);
                         isListening = true;
                         saveEnvironment();
@@ -912,7 +922,8 @@ public class Main
 
                 // --- -Q|--force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
-                    logger.info("ELS: Hint Status Server Quit, version " + getBuildVersionName() + ", " + getBuildDate());
+                    whatsRunning = "ELS: Hint Status Server Quit";
+                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     if (context.cfg.getHintHandlerFilename() == null || context.cfg.getHintHandlerFilename().length() == 0)
@@ -934,7 +945,8 @@ public class Main
 
                 // --- -G|--listener-quit the remote subscriber
                 case SUBSCRIBER_LISTENER_FORCE_QUIT:
-                    logger.info("ELS: Subscriber Listener Quit, version " + getBuildVersionName() + ", " + getBuildDate());
+                    whatsRunning = "ELS: Subscriber Listener Quit";
+                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     if (context.cfg.getSubscriberFilename() == null || context.cfg.getSubscriberFilename().length() == 0)
@@ -965,8 +977,8 @@ public class Main
 
                 // --- -j|--job to execute a Job
                 case JOB_PROCESS:
-                    logger.info("ELS: Job, version " + getBuildVersionName() + ", " + getBuildDate());
-
+                    whatsRunning = "ELS: Job";
+                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     // optional arguments for support of Any Publisher/Subscriber
@@ -1004,6 +1016,7 @@ public class Main
                         job = tmpJob.load(context.cfg.getJobName());
                         if (job == null)
                             throw new MungeException("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
+                        whatsRunning += ", " + job.getConfigName();
                         saveEnvironment();
                         job.process(context);
                     }
@@ -1145,7 +1158,7 @@ public class Main
                         }
                     }
                 });
-                logger.trace("listener shutdown hook added");
+                logger.trace("listener shutdown hook added, " + whatsRunning);
             }
         }
 
@@ -1278,10 +1291,10 @@ public class Main
         {
             try
             {
-                logger.trace("read() waiting ...");
+                logger.trace("read() waiting ... " + whatsRunning);
                 int count = in.readInt();
 
-                logger.trace("  receiving " + count + " encrypted bytes");
+                logger.trace("  receiving " + count + " encrypted bytes, " + whatsRunning);
                 int pos = 0;
                 if (count > 0)
                 {
@@ -1327,7 +1340,7 @@ public class Main
         if (buf.length > 0 && input != null)
             input = decrypt(key, buf);
 
-        logger.trace("read done " + ((input != null) ? input.length() : "0") + " bytes");
+        logger.trace("read done " + ((input != null) ? input.length() : "0") + " bytes, " + whatsRunning);
         return input;
     }
 
@@ -1506,7 +1519,7 @@ public class Main
      */
     public void stopServices()
     {
-        logger.trace("stopServices()");
+        logger.trace("stopServices(), " + whatsRunning);
 
         try
         {
@@ -1588,10 +1601,10 @@ public class Main
      */
     public void writeStream(DataOutputStream out, String key, String message) throws Exception
     {
-        logger.trace("writing " + message.length() + " bytes");
+        logger.trace("writing " + message.length() + " bytes, " + whatsRunning);
         byte[] buf = encrypt(key, message);
 
-        logger.trace("  sending " + buf.length + " encrypted bytes");
+        logger.trace("  sending " + buf.length + " encrypted bytes, " + whatsRunning);
         //logger.trace("  writing size");
         out.writeInt(buf.length);
 
@@ -1604,6 +1617,6 @@ public class Main
         //logger.trace("  flushing data");
         out.flush();
 
-        logger.trace("write done");
+        logger.trace("write done, " + whatsRunning);
     }
 }

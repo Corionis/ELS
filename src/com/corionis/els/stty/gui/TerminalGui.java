@@ -1,7 +1,6 @@
 package com.corionis.els.stty.gui;
 
 import com.corionis.els.Configuration;
-import com.corionis.els.Main;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.stty.ClientStty;
 import com.corionis.els.Context;

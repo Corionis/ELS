@@ -38,15 +38,20 @@ public class Daemon extends AbstractDaemon
     private boolean fault = false;
     private boolean isTerminal = false;
     private Transfer transfer;
+    private ServeStty instance = null;
 
     /**
      * Instantiate the Daemon service
      *
+     * @param instance The ServeStty
      * @param context  The Context
+     * @param mine My Repository
+     * @param theirs Their Repository
      */
-    public Daemon(Context context, Repository mine, Repository theirs)
+    public Daemon(ServeStty instance, Context context, Repository mine, Repository theirs)
     {
         super(context, mine, theirs);
+        this.instance = instance;
     } // constructor
 
     /**
@@ -73,7 +78,7 @@ public class Daemon extends AbstractDaemon
         String system = "";
         try
         {
-            logger.trace("handshake");
+            logger.trace("Publisher listener handshake");
             send("HELO", "");
 
             String input = receive("", 5000);
@@ -541,7 +546,7 @@ public class Daemon extends AbstractDaemon
                             }
                             else
                             {
-                                response = ServeStty.getInstance().dumpStatistics();
+                                response = instance.dumpStatistics();
                                 response += dumpStatistics();
                             }
                             continue;

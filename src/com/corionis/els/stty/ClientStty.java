@@ -1,7 +1,6 @@
 package com.corionis.els.stty;
 
 import com.corionis.els.Context;
-import com.corionis.els.Main;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.repository.Repository;

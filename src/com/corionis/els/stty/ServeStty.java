@@ -32,11 +32,6 @@ import java.util.Vector;
 public class ServeStty extends Thread
 {
     /**
-     * The single instance of this class
-     */
-    private static ServeStty instance = null;
-
-    /**
      * The maximum connections allowed for this entire server instance
      */
     protected int maxConnections;
@@ -67,16 +62,20 @@ public class ServeStty extends Thread
     /**
      * Instantiates the ServeStty object and set it as a daemon so the Java
      * Virtual Machine does not wait for it to exit.
+     *
+     * @param aGroup The ThreadGroup for these connections
+     * @param aMaxConnections The maximum number of connections
+     * @param context The Contexts
+     * @param primaryServers Is this a primary or secondary server?
      */
-    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Context ctxt, boolean primaryServers)
+    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Context context, boolean primaryServers)
     {
         // instantiate this object in the specified thread group to
         // enforce the specified maximum connections limitation.
         super(aGroup, "stty." + aGroup.getName());
-        instance = this;
-        instance.cfg = config;
-        instance.context = ctxt;
-        instance.primaryServers = primaryServers;
+        this.context = context;
+        this.cfg = context.cfg;
+        this.primaryServers = primaryServers;
 
         // make it a daemon so the JVM does not wait for it to exit
         this.setDaemon(true);
@@ -85,14 +84,6 @@ public class ServeStty extends Thread
         this.allSessions = new Hashtable<String, Listener>();
         this.allSessionThreads = aGroup;
     } // constructor
-
-    /**
-     * Get this instance.
-     */
-    public static ServeStty getInstance()
-    {
-        return instance;
-    }
 
     /**
      * Add a connection for a service.
@@ -132,15 +123,15 @@ public class ServeStty extends Thread
             Connection theConnection;
             if (cfg.isPublisherListener())
             {
-                theConnection = new Connection(aSocket, "publisher", new com.corionis.els.stty.publisher.Daemon(context, context.publisherRepo, context.subscriberRepo));
+                theConnection = new Connection(this, aSocket, "publisher", new com.corionis.els.stty.publisher.Daemon(this, context, context.publisherRepo, context.subscriberRepo));
             }
             else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
             {
-                theConnection = new Connection(aSocket, "subscriber", new Daemon(context, context.subscriberRepo, context.publisherRepo));
+                theConnection = new Connection(this, aSocket, "subscriber", new Daemon(this, context, context.subscriberRepo, context.publisherRepo));
             }
             else if (cfg.isStatusServer())
             {
-                theConnection = new Connection(aSocket, "hintserver", new com.corionis.els.stty.hintServer.Daemon(context, context.hintsRepo, null));
+                theConnection = new Connection(this, aSocket, "hintserver", new com.corionis.els.stty.hintServer.Daemon(this, context, context.hintsRepo, null));
             }
             else
             {
@@ -173,7 +164,7 @@ public class ServeStty extends Thread
             throw new IllegalArgumentException("Port " + aPort + " already in use");
 
         // create a listener on the port
-        Listener listener = new Listener(allSessionThreads, host, aPort, cfg, context);
+        Listener listener = new Listener(allSessionThreads, this, host, aPort, context);
 
         // put it in the hashtable
         allSessions.put("listener:" + host + ":" + aPort, listener);

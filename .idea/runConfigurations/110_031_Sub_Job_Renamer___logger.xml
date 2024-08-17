@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="110-031 Sub-Job Renamer --logger" type="Application" factoryName="Application" folderName="110-00 Jobs Background">
+    <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
+    <module name="ELS" />
+    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug -j &quot;030 Sub-Job Renamer&quot; -F &quot;output/030 Sub-Job Renamer.log&quot; --logger" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml -Dsun.awt.disablegrab=true" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
+    <method v="2">
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/els.xml" target="stamp" />
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

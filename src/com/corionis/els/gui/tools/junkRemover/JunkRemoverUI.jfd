@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.1.0.0.283" Java: "17.0.6" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.3" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -68,7 +68,7 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonRun"
-								"text": new FormMessage( null, "JunkRemover.button.Run.text" )
+								"text": new FormMessage( null, "Z.run.ellipsis" )
 								"mnemonic": new FormMessage( null, "JunkRemover.button.Run.mnemonic" )
 								"toolTipText": new FormMessage( null, "JunkRemover.button.Run.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRunClicked", true ) )

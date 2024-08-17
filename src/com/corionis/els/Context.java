@@ -73,14 +73,14 @@ public class Context
         clone.fault = this.fault;
         clone.hints = this.hints;
         clone.hintKeys = this.hintKeys;
+        clone.hintsRepo = this.hintsRepo;
+        clone.hintsStty = this.hintsStty;
         clone.localMode = this.localMode;
         clone.main = this.main;
         clone.navigator = this.navigator;
         clone.publisherRepo = this.publisherRepo;
         clone.serveSftp = this.serveSftp;
         clone.serveStty = this.serveStty;
-        clone.hintsRepo = this.hintsRepo;
-        clone.hintsStty = this.hintsStty;
         clone.subscriberRepo = this.subscriberRepo;
         clone.timeout = this.timeout;
         if (this.tools != null)

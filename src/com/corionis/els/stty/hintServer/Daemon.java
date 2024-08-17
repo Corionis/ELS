@@ -1,6 +1,5 @@
 package com.corionis.els.stty.hintServer;
 
-import com.corionis.els.Main;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintKeys;
@@ -8,6 +7,7 @@ import com.corionis.els.repository.Repository;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
+import com.corionis.els.stty.ServeStty;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -37,15 +37,20 @@ public class Daemon extends AbstractDaemon
 
     private boolean fault = false;
     private boolean isTerminal = false;
+    private ServeStty instance = null;
 
     /**
      * Instantiate the Daemon service
      *
+     * @param instance The ServeStty
      * @param context  The Context
+     * @param mine My Repository
+     * @param theirs Their Repository
      */
-    public Daemon(Context context, Repository mine, Repository theirs)
+    public Daemon(ServeStty instance, Context context, Repository mine, Repository theirs)
     {
         super(context, mine, theirs);
+        this.instance = instance;
     } // constructor
 
     /**
@@ -87,6 +92,7 @@ public class Daemon extends AbstractDaemon
         String system = "";
         try
         {
+            logger.trace("Hint Server listener handshake");
             send("HELO", "");
 
             String input = receive("", 5000);

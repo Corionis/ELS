@@ -17,7 +17,8 @@ import java.util.Vector;
  */
 public class Connection extends Thread
 {
-    protected static Logger logger = LogManager.getLogger("applog");//
+    protected static Logger logger = LogManager.getLogger("applog");
+    private ServeStty instance = null;
 
     /**
      * The service for the connection
@@ -35,12 +36,15 @@ public class Connection extends Thread
      * server's thread group. The superclass constructor is called to create a
      * new thread to handle the connection request.
      *
+     * @param instance The ServeStty instance using this connection
      * @param aSocket  Socket for connection
+     * @param name The name for this connection
      * @param aService Service for connection
      */
-    public Connection(Socket aSocket, String name, AbstractDaemon aService)
+    public Connection(ServeStty instance, Socket aSocket, String name, AbstractDaemon aService)
     {
         super("stty." + name + (aService.context.trace ? ":" + Utils.formatAddresses(aSocket) : ""));
+        this.instance = instance;
         this.socket = aSocket;
         this.service = aService;
     } // constructor
@@ -97,11 +101,10 @@ public class Connection extends Thread
             }
 */
 
-            ServeStty cm = ServeStty.getInstance();
-            if (cm != null && cm.isAlive()) // && !service.localContext.timeout)
+            if (instance != null && instance.isAlive()) // && !service.localContext.timeout)
             {
                 logger.info("closing stty connection to: " + Utils.formatAddresses(socket));
-                Vector conns = cm.getAllConnections();
+                Vector conns = instance.getAllConnections();
                 conns.remove(this);
             }
 

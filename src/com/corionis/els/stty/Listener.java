@@ -24,6 +24,7 @@ public class Listener extends Thread
     private InetAddress addr;
     private Configuration cfg;
     private Context context;
+    private ServeStty instance = null;
 
     /**
      * The socket to listen on for the associated service
@@ -47,17 +48,21 @@ public class Listener extends Thread
      * the service to be removed from the server.
      *
      * @param group The thread group used for the listener.
+     * @param instance The ServeStty instance using this listener.
+     * @param host The hostname
      * @param aPort The port to listen on.
+     * @param ctxt The Context
      */
-    public Listener(ThreadGroup group, String host, int aPort, Configuration config, Context ctxt) throws Exception
+    public Listener(ThreadGroup group, ServeStty instance, String host, int aPort, Context ctxt) throws Exception
     {
         super(group, "listener:" + host + ":" + aPort);
 
         // setup this listener
-        this.cfg = config;
-        this.context = ctxt;
-        this.port = aPort;
+        this.instance = instance;
         addr = Inet4Address.getByName(host);
+        this.port = aPort;
+        this.context = ctxt;
+        this.cfg = ctxt.cfg;
 
         // create server socket for up to 5 concurrent pending connection requests
         listenSocket = new ServerSocket(this.port, 5, addr);
@@ -143,7 +148,7 @@ public class Listener extends Thread
                     }
                     else
                     {
-                        ServeStty.getInstance().addConnection(socket);
+                        instance.addConnection(socket);
                     }
                 }
                 else
