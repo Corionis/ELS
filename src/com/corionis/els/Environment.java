@@ -160,7 +160,7 @@ public class Environment
         // start the serveStty client for automation
         if (context.cfg.isRemoteOperation())
         {
-            context.clientStty = new ClientStty(context, false, true); //localContext.main.primaryServers);
+            context.clientStty = new ClientStty(context, false, true, false); //localContext.main.primaryServers);
             if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
             {
                 context.cfg.setRemoteType("-");

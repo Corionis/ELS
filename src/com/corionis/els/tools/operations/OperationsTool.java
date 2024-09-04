@@ -201,8 +201,8 @@ public class OperationsTool extends AbstractTool
                 subPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), subPath);
                 if (subPath != null && subPath.length() > 0)
                 {
-                    if (context.cfg.isOverrideSubscriberHost() && operation != Configuration.Operations.SubscriberListener)
-                        sb.append((" " + (glo ? "--override-host" : "-O")));
+                    if (!context.cfg.getOverrideSubscriberHost().isEmpty())
+                        sb.append(" " + (glo ? "--override-host" : "-O ") + context.cfg.getOverrideSubscriberHost());
                     sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subPath + "\"");
                 }
             }
@@ -509,7 +509,7 @@ public class OperationsTool extends AbstractTool
     @Override
     public boolean isToolHintServer()
     {
-        if (card.equals(Cards.HintServer) || card.equals(Cards.StatusQuit))
+        if (card.equals(Cards.HintServer))
             return true;
         return false;
     }
@@ -517,17 +517,17 @@ public class OperationsTool extends AbstractTool
     @Override
     public boolean isToolPublisher()
     {
-        if (card.equals(Cards.HintServer))
-            return false;
-        return true;
+        if (card.equals(Cards.Publisher) || card.equals(Cards.Terminal) || card.equals(Cards.SubscriberQuit) || card.equals(Cards.StatusQuit))
+            return true;
+        return false;
     }
 
     @Override
     public boolean isToolSubscriber()
     {
-        if (card.equals(Cards.HintServer) || card.equals(Cards.StatusQuit))
-            return false;
-        return true;
+        if (card.equals(Cards.Listener))
+            return true;
+        return false;
     }
 
     @Override

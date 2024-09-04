@@ -1,6 +1,7 @@
 package com.corionis.els.sftp;
 
 import com.corionis.els.Context;
+import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.repository.Repository;
@@ -38,6 +39,7 @@ import java.util.*;
 public class ServeSftp implements SftpErrorStatusDataHandler
 {
     private Context context;
+    private String hostListen;
     private String hostname;
     private int listenport;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -66,9 +68,25 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         myRepo = mine;
         theirRepo = theirs;
 
-        String address = myRepo.getLibraryData().libraries.listen;
-        if (address == null || address.isEmpty())
-            address = myRepo.getLibraryData().libraries.host;
+        String address = "";
+        if (!context.cfg.getOverrideSubscriberHost().isEmpty())
+        {
+            if (!context.cfg.getOverrideSubscriberHost().trim().equals("true"))
+            {
+                address = context.cfg.getOverrideSubscriberHost();
+                hostListen = context.cfg.gs("Z.custom");
+            }
+        }
+        else
+        {
+            address = myRepo.getLibraryData().libraries.listen;
+            hostListen = context.cfg.gs("Z.listen");
+            if (address == null || address.isEmpty())
+            {
+                address = myRepo.getLibraryData().libraries.host;
+                hostListen = context.cfg.gs("Z.host");
+            }
+        }
 
         hostname = Utils.parseHost(address);
         listenport = Utils.getPort(address) + ((primaryServers) ? 1 : 3);
@@ -229,7 +247,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
 
             // assemble listen IP(s)
             String ips = getIps();
-            logger.info("Sftp server is listening on: " + ips);
+            logger.info("Sftp server is listening on: " + ips.trim() + hostListen);
         }
         catch (IOException e)
         {
@@ -249,7 +267,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             if (sshd != null)
             {
                 String ips = getIps();
-                logger.debug("stopping sftp server on: " + ips);
+                logger.debug("stopping sftp server on: " + ips + hostListen);
                 List<AbstractSession> sessions = sshd.getActiveSessions();
                 if (sessions != null)
                 {

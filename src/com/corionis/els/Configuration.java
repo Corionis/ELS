@@ -86,7 +86,7 @@ public class Configuration
     private int operation = NOT_SET;
     private String[] originalArgs;
     private int overrideHintHost = -1;
-    private int overrideSubscriberHost = -1;
+    private String overrideSubscriberHost = "";
     private int overwrite = -1;
     private int preserveDates = -1;
     private int publishOperation = -1;
@@ -110,6 +110,7 @@ public class Configuration
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
     private String workingDirectory = "";
+
     public static enum Operations
     {
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
@@ -479,7 +480,10 @@ public class Configuration
         indicator(logger, SHORT, "  cfg: -n Navigator = ", navigator);
         indicator(logger, SHORT, "  cfg: -N Ignored files reported = ", ignoredReported);
         indicator(logger, SHORT, "  cfg: -o Overwrite = ", overwrite);
-        indicator(logger, SHORT, "  cfg: -O Override Subscriber host = ", overrideSubscriberHost);
+        if (!overrideSubscriberHost.isEmpty())
+        {
+            logger.info(SHORT, "  cfg: -O Override Subscriber host = " + overrideSubscriberHost);
+        }
         if (getPublisherLibrariesFileName().length() > 0)
         {
             logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
@@ -583,8 +587,8 @@ public class Configuration
         // -- Subscriber
         if (pr.getLastSubscriberOpenFile().length() > 0 && pr.isLastSubscriberIsOpen())
         {
-            if (pr.isLastOverrideSubscriberHost())
-                sb.append(" " + (glo ? "--override-host" : "-O"));
+            if (!pr.getLastOverrideSubscriber().isEmpty())
+                sb.append(" " + (glo ? "--override-host" : "-O ") + overrideSubscriberHost);
             sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
                     Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");
         }
@@ -1139,6 +1143,16 @@ public class Configuration
     }
 
     /**
+     * Get override of subscriber host value
+     *
+     * @return String "true" if -O | --override-host is enabled for listen address, address:ip if enabled as custom, otherwise empty string
+     */
+    public String getOverrideSubscriberHost()
+    {
+        return overrideSubscriberHost;
+    }
+
+    /**
      * Gets PatternLayout for log4j2
      * <p>
      * Call this method AFTER setDebugLevel() has been called.
@@ -1581,16 +1595,6 @@ public class Configuration
     public boolean isOverrideHintsHost()
     {
         return overrideHintHost == 1 ? true : false;
-    }
-
-    /**
-     * Returns true if -O | --override-host is enabled, otherwise false
-     *
-     * @return
-     */
-    public boolean isOverrideSubscriberHost()
-    {
-        return overrideSubscriberHost == 1 ? true : false;
     }
 
     /**
@@ -2186,9 +2190,15 @@ public class Configuration
                 case "--overwrite":
                     setOverwrite(true);
                     break;
-                case "-O":                                              // override Subscriber host (use listen)
+                case "-O":                                              // override Subscriber host (use listen if no argument)
                 case "--override-subscriber-host":
-                    setOverrideSubscriberHost(true);
+                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
+                    {
+                        setOverrideSubscriberHost(args[index + 1].trim());
+                        ++index;
+                    }
+                    else
+                        setOverrideSubscriberHost("true");
                     break;
                 case "-p":                                              // publisher JSON libraries file
                 case "--publisher-libraries":
@@ -2408,7 +2418,7 @@ public class Configuration
      */
     public void setCrossCheck(boolean crossCheck)
     {
-        this.crossCheck = crossCheck == true ? 1 : 0;
+        this.crossCheck = crossCheck ? 1 : 0;
     }
 
     public void setCurrentBundle(ResourceBundle bundle)
@@ -2440,7 +2450,7 @@ public class Configuration
      */
     public void setDryRun(boolean dryRun)
     {
-        this.dryRun = dryRun == true ? 1 : 0;
+        this.dryRun = dryRun ? 1 : 0;
     }
 
     /**
@@ -2450,7 +2460,7 @@ public class Configuration
      */
     public void setDuplicateCheck(boolean duplicateCheck)
     {
-        this.duplicateCheck = duplicateCheck == true ? 1 : 0;
+        this.duplicateCheck = duplicateCheck ? 1 : 0;
     }
 
     /**
@@ -2460,7 +2470,7 @@ public class Configuration
      */
     public void setEmptyDirectoryCheck(boolean emptyDirectoryCheck)
     {
-        this.emptyDirectoryCheck = emptyDirectoryCheck == true ? 1 : 0;
+        this.emptyDirectoryCheck = emptyDirectoryCheck ? 1 : 0;
     }
 
     /**
@@ -2490,7 +2500,7 @@ public class Configuration
      */
     public void setForceCollection(boolean forceCollection)
     {
-        this.forceCollection = forceCollection == true ? 1 : 0;
+        this.forceCollection = forceCollection ? 1 : 0;
     }
 
     /**
@@ -2500,7 +2510,7 @@ public class Configuration
      */
     public void setForceTargets(boolean forceTargets)
     {
-        this.forceTargets = forceTargets == true ? 1 : 0;
+        this.forceTargets = forceTargets ? 1 : 0;
     }
 
     /**
@@ -2520,7 +2530,7 @@ public class Configuration
      */
     public void setHintSkipMainProcess(boolean hintSkipMainProcess)
     {
-        this.hintSkipMainProcess = hintSkipMainProcess == true ? 1 : 0;
+        this.hintSkipMainProcess = hintSkipMainProcess ? 1 : 0;
     }
 
     /**
@@ -2550,7 +2560,7 @@ public class Configuration
      */
     public void setIgnoredReported(boolean ignoredReported)
     {
-        this.ignoredReported = ignoredReported == true ? 1 : 0;
+        this.ignoredReported = ignoredReported ? 1 : 0;
     }
 
     /**
@@ -2583,7 +2593,7 @@ public class Configuration
      */
     public void setKeepGoing(boolean keepGoing)
     {
-        this.keepGoing = keepGoing == true ? 1 : 0;
+        this.keepGoing = keepGoing ? 1 : 0;
     }
 
     /**
@@ -2623,7 +2633,7 @@ public class Configuration
      */
     public void setLogOverwrite(boolean logOverwrite)
     {
-        this.logOverwrite = logOverwrite == true ? 1 : 0;
+        this.logOverwrite = logOverwrite ? 1 : 0;
     }
 
     public void setLoggerView(boolean loggerView)
@@ -2658,7 +2668,7 @@ public class Configuration
      */
     public void setNavigator(boolean navigator)
     {
-        this.navigator = navigator == true ? 1 : 0;
+        this.navigator = navigator ? 1 : 0;
     }
 
     /**
@@ -2668,7 +2678,7 @@ public class Configuration
      */
     public void setNoBackFill(boolean noBackFill)
     {
-        this.noBackFill = noBackFill == true ? 1 : 0;
+        this.noBackFill = noBackFill ? 1 : 0;
     }
 
     public void setOperation(int operation)
@@ -2678,12 +2688,12 @@ public class Configuration
 
     public void setOverrideHintsHost(boolean overrideHintHost)
     {
-        this.overrideHintHost = overrideHintHost == true ? 1 : 0;
+        this.overrideHintHost = overrideHintHost ? 1 : 0;
     }
 
-    public void setOverrideSubscriberHost(boolean overrideSubscriberHost)
+    public void setOverrideSubscriberHost(String overrideSubscriberHost)
     {
-        this.overrideSubscriberHost = overrideSubscriberHost == true ? 1 : 0;
+        this.overrideSubscriberHost = overrideSubscriberHost;
     }
 
     /**
@@ -2691,7 +2701,7 @@ public class Configuration
      */
     public void setOverwrite(boolean sense)
     {
-        overwrite = sense == true ? 1 : 0;
+        overwrite = sense ? 1 : 0;
     }
 
     /**
@@ -2701,7 +2711,7 @@ public class Configuration
      */
     public void setPreserveDates(boolean preserveDates)
     {
-        this.preserveDates = preserveDates == true ? 1 : 0;
+        this.preserveDates = preserveDates ? 1 : 0;
     }
 
     /**
@@ -2711,7 +2721,7 @@ public class Configuration
      */
     public void setPublishOperation(boolean publishOperation)
     {
-        this.publishOperation = publishOperation == true ? 1 : 0;
+        this.publishOperation = publishOperation ? 1 : 0;
     }
 
     /**
@@ -2741,7 +2751,7 @@ public class Configuration
      */
     public void setQuitStatusServer(boolean quitStatusServer)
     {
-        this.quitStatusServer = quitStatusServer == true ? 1 : 0;
+        this.quitStatusServer = quitStatusServer ? 1 : 0;
     }
 
     /**
@@ -2751,7 +2761,7 @@ public class Configuration
      */
     public void setQuitSubscriberListener(boolean quitSubscriberListener)
     {
-        this.quitSubscriberListener = quitSubscriberListener == true ? 1 : 0;
+        this.quitSubscriberListener = quitSubscriberListener ? 1 : 0;
     }
 
     /**
@@ -2785,7 +2795,7 @@ public class Configuration
      */
     public void setRequestCollection(boolean requestCollection)
     {
-        this.requestCollection = requestCollection == true ? 1 : 0;
+        this.requestCollection = requestCollection ? 1 : 0;
     }
 
     /**
@@ -2795,7 +2805,7 @@ public class Configuration
      */
     public void setRequestTargets(boolean requestTargets)
     {
-        this.requestTargets = requestTargets == true ? 1 : 0;
+        this.requestTargets = requestTargets ? 1 : 0;
     }
 
     /**
@@ -2815,7 +2825,7 @@ public class Configuration
      */
     public void setSpecificExclude(boolean sense)
     {
-        this.specificExclude = sense == true ? 1 : 0;
+        this.specificExclude = sense ? 1 : 0;
     }
 
     /**
@@ -2825,7 +2835,7 @@ public class Configuration
      */
     public void setSpecificLibrary(boolean sense)
     {
-        this.specificLibrary = sense == true ? 1 : 0;
+        this.specificLibrary = sense ? 1 : 0;
     }
 
     /**
@@ -2853,7 +2863,7 @@ public class Configuration
      */
     public void setTargetsEnabled(boolean sense)
     {
-        targetsEnabled = sense == true ? 1 : 0;
+        targetsEnabled = sense ? 1 : 0;
     }
 
     /**
@@ -2886,7 +2896,7 @@ public class Configuration
      */
     public void setValidation(boolean validation)
     {
-        this.validation = validation == true ? 1 : 0;
+        this.validation = validation ? 1 : 0;
     }
 
     /**
@@ -2896,7 +2906,7 @@ public class Configuration
      */
     public void setWhatsNewAll(boolean isWhatsNewAll)
     {
-        this.whatsNewAll = isWhatsNewAll == true ? 1 : 0;
+        this.whatsNewAll = isWhatsNewAll ? 1 : 0;
     }
 
     /**

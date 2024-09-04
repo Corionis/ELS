@@ -197,7 +197,7 @@ public class NavHelp extends JDialog
 
         //======== this ========
         setName(context.cfg.gs("NavHelp.name"));
-        setTitle(context.cfg.gs("NavHelp.title"));
+        setTitle(context.cfg.gs("NavHelp.name"));
         setMinimumSize(new Dimension(100, 50));
         addWindowListener(new WindowAdapter() {
             @Override

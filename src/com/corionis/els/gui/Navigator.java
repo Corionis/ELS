@@ -677,7 +677,7 @@ public class Navigator
         if (context.cfg.getSubscriberCollectionFilename().length() > 0)
         {
             context.preferences.setLastSubscriberIsRemote(true);
-            context.preferences.setLastOverrideSubscriberHost(context.cfg.isOverrideSubscriberHost());
+            context.preferences.setLastOverrideSubscriber(context.cfg.getOverrideSubscriberHost());
             context.preferences.setLastSubscriberOpenFile(context.cfg.getSubscriberCollectionFilename());
             context.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(context.cfg.getSubscriberCollectionFilename(),
                     Utils.getSeparatorFromPath(context.cfg.getSubscriberCollectionFilename())));
@@ -685,7 +685,7 @@ public class Navigator
         else if (context.cfg.getSubscriberLibrariesFileName().length() > 0)
         {
             context.preferences.setLastSubscriberIsRemote(false);
-            context.preferences.setLastOverrideSubscriberHost(context.cfg.isOverrideSubscriberHost());
+            context.preferences.setLastOverrideSubscriber(context.cfg.getOverrideSubscriberHost());
             context.preferences.setLastSubscriberOpenFile(context.cfg.getSubscriberLibrariesFileName());
             context.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(context.cfg.getSubscriberLibrariesFileName(),
                     Utils.getSeparatorFromPath(context.cfg.getSubscriberLibrariesFileName())));
@@ -843,6 +843,9 @@ public class Navigator
                 jp.setBorder(context.mainFrame.textFieldLocation.getBorder());
 
                 JLabel lab = new JLabel(context.cfg.gs("Navigator.menu.Open.publisher.system.type"));
+                Font font = lab.getFont();
+                Font boldFont = new Font(font.getFontName(), Font.BOLD, font.getSize());
+                lab.setFont(boldFont);
 
                 JRadioButton rbCollection = new JRadioButton(context.cfg.gs("Navigator.menu.Open.publisher.collection.radio"));
                 rbCollection.setToolTipText(context.cfg.gs("Navigator.menu.Open.publisher.collection.radio.tooltip"));
@@ -971,6 +974,7 @@ public class Navigator
                         return context.cfg.gs("Navigator.menu.Open.subscriber.files");
                     }
                 });
+
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.subscriber"));
                 fc.setFileHidingEnabled(false);
                 File ld;
@@ -988,22 +992,196 @@ public class Navigator
                         fc.setSelectedFile(lf);
                 }
 
-                // Remote Connection checkbox accessory
+                // Subscriber Remote Connection checkbox accessory
                 JPanel jp = new JPanel();
                 GridBagLayout gb = new GridBagLayout();
                 jp.setLayout(gb);
+
                 jp.setBackground(UIManager.getColor("TextField.background"));
                 jp.setBorder(context.mainFrame.textFieldLocation.getBorder());
-                JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body>" +
-                        context.cfg.gs("Navigator.menu.Open.subscriber.connection.checkbox") + "</body></html>");
+
+                JLabel cbLabel = new JLabel(context.cfg.gs("Navigator.labelRemote.text"));
+                Font font = cbLabel.getFont();
+                Font boldFont = new Font(font.getFontName(), Font.BOLD, font.getSize());
+                cbLabel.setFont(boldFont);
+
+                JCheckBox cbIsRemote = new JCheckBox();
                 cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
                 cbIsRemote.setToolTipText(context.cfg.gs("Navigator.menu.Open.subscriber.connection.checkbox.tooltip"));
                 cbIsRemote.setSelected(context.preferences.isLastSubscriberIsRemote());
-                GridBagConstraints gbc = new GridBagConstraints();
-                gbc.insets = new Insets(0, 0, 0, 8);
-                gb.setConstraints(cbIsRemote, gbc);
-                jp.add(cbIsRemote);
+
+                JRadioButton hostButton = new JRadioButton(context.cfg.gs("Navigator.labelHostInternet.text"));
+                hostButton.setSelected(context.preferences.getLastOverrideSubscriber().isEmpty());
+
+                JLabel hostLabel = new JLabel();
+
+                JRadioButton listenButton = new JRadioButton(context.cfg.gs("Navigator.labelListenLan.text"));
+                listenButton.setSelected(context.preferences.getLastOverrideSubscriber().equals("true"));
+
+                JLabel listenLabel = new JLabel();
+
+                boolean custom = !context.preferences.getLastOverrideSubscriber().isEmpty() &&
+                        !context.preferences.getLastOverrideSubscriber().equals("true");
+                JRadioButton customButton = new JRadioButton(context.cfg.gs("Navigator.labelCustom.text"));
+                customButton.setSelected(custom);
+
+                ButtonGroup group = new ButtonGroup();
+                group.add(hostButton);
+                group.add(listenButton);
+                group.add(customButton);
+
+                JTextField customAddress = new JTextField();
+                if (custom)
+                    customAddress.setText(context.preferences.getLastOverrideSubscriber());
+                else
+                    customAddress.setText("");
+                customAddress.setEnabled(customButton.isSelected());
+
+                cbIsRemote.addActionListener(new AbstractAction()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        if (cbIsRemote.isSelected())
+                        {
+                            hostButton.setEnabled(true);
+                            hostLabel.setEnabled(true);
+                            listenButton.setEnabled(true);
+                            listenLabel.setEnabled(true);
+                            customButton.setEnabled(true);
+                            customAddress.setEnabled(customButton.isSelected());
+                        }
+                        else
+                        {
+                            hostButton.setEnabled(false);
+                            hostLabel.setEnabled(false);
+                            listenButton.setEnabled(false);
+                            listenLabel.setEnabled(false);
+                            customButton.setEnabled(false);
+                            customAddress.setEnabled(false);
+                        }
+                    }
+                });
+                if (cbIsRemote.isSelected())
+                {
+                    hostButton.setEnabled(true);
+                    hostLabel.setEnabled(true);
+                    listenButton.setEnabled(true);
+                    listenLabel.setEnabled(true);
+                    customButton.setEnabled(true);
+                    customAddress.setEnabled(customButton.isSelected());
+                }
+                else
+                {
+                    hostButton.setEnabled(false);
+                    hostLabel.setEnabled(false);
+                    listenButton.setEnabled(false);
+                    listenLabel.setEnabled(false);
+                    customButton.setEnabled(false);
+                    customAddress.setEnabled(false);
+                }
+
+                hostButton.addActionListener(new AbstractAction()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        if (hostButton.isSelected())
+                        {
+                            customAddress.setText("");
+                            customAddress.setEnabled(false);
+                        }
+                    }
+                });
+
+                listenButton.addActionListener(new AbstractAction()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        if (listenButton.isSelected())
+                        {
+                            customAddress.setText("");
+                            customAddress.setEnabled(false);
+                        }
+                    }
+                });
+
+                customButton.addActionListener(new AbstractAction()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        if (customButton.isSelected())
+                        {
+                            if (customAddress.getText().isEmpty())
+                            {
+                                if (!context.preferences.getLastOverrideSubscriber().trim().equals("true"))
+                                    customAddress.setText(context.preferences.getLastOverrideSubscriber());
+                            }
+                            customAddress.setEnabled(true);
+                        }
+                    }
+                });
+
+                jp.add(cbLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 4, 4, 4), 0, 0));
+                jp.add(cbIsRemote, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 4, 4, 4), 0, 0));
+                jp.add(hostButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 12, 4, 4), 0, 0));
+                jp.add(hostLabel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 4, 4, 4), 0, 0));
+                jp.add(listenButton, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 12, 4, 4), 0, 0));
+                jp.add(listenLabel, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 4, 4, 4), 0, 0));
+                jp.add(customButton, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 12, 4, 4), 0, 0));
+                jp.add(customAddress, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 4, 4), 0, 0));
                 fc.setAccessory(jp);
+
+                fc.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new PropertyChangeListener()
+                {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent propertyChangeEvent)
+                    {
+                        File selected = fc.getSelectedFile();
+                        logger.info(propertyChangeEvent.getPropertyName() + " :: " + selected);
+                        if (setFileChooserHostListen(fc, hostLabel, listenLabel))
+                            cbIsRemote.setEnabled(true);
+                        else
+                            cbIsRemote.setEnabled(false);
+                        if (cbIsRemote.isSelected())
+                        {
+                            hostButton.setEnabled(true);
+                            hostLabel.setEnabled(true);
+                            listenButton.setEnabled(true);
+                            listenLabel.setEnabled(true);
+                            customButton.setEnabled(true);
+                            customAddress.setEnabled(true);
+                        }
+                        else
+                        {
+                            hostButton.setEnabled(false);
+                            hostLabel.setEnabled(false);
+                            listenButton.setEnabled(false);
+                            listenLabel.setEnabled(false);
+                            customButton.setEnabled(false);
+                            customAddress.setEnabled(false);
+                        }
+                    }
+                });
+                setFileChooserHostListen(fc, hostLabel, listenLabel); // set initial values, if any
 
                 while (true)
                 {
@@ -1024,14 +1202,14 @@ public class Navigator
                             JOptionPane.showMessageDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                            break;
+                            continue;
                         }
                         if (file.isDirectory())
                         {
                             JOptionPane.showMessageDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.open.error.select.a.file.only"),
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                            break;
+                            continue;
                         }
 
                         context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
@@ -1065,19 +1243,37 @@ public class Navigator
                             return;
                         }
 
-                        // prompt for a host or listen remote connection
                         if (cbIsRemote.isSelected())
                         {
-                            // if listen is defined and not equal to host
-                            String listen = context.subscriberRepo.getLibraryData().libraries.listen;
-                            if (listen != null && !listen.isEmpty() &&
-                                    !listen.equalsIgnoreCase(context.subscriberRepo.getLibraryData().libraries.host))
+                            if (hostButton.isSelected())
                             {
-                                int hostListen = promptHostOrListen(context.subscriberRepo, true);
-                                if (hostListen < 0) // was it cancelled?
-                                    return;
-                                context.cfg.setOverrideSubscriberHost(hostListen == 0);
-                                context.preferences.setLastOverrideSubscriberHost(hostListen == 0);
+                                context.cfg.setOverrideSubscriberHost("");
+                                context.preferences.setLastOverrideSubscriber("");
+                            }
+                            else if (listenButton.isSelected())
+                            {
+                                context.cfg.setOverrideSubscriberHost("true");
+                                context.preferences.setLastOverrideSubscriber("true");
+                            }
+                            else
+                            {
+                                String host = Utils.parseHost(customAddress.getText());
+                                String port = Utils.parsePort(customAddress.getText());
+                                int p = -1;
+                                if (!port.isEmpty())
+                                    p = Integer.parseInt(port);
+                                if (!host.isEmpty() && p > 0 && p <= 65535)
+                                {
+                                    context.cfg.setOverrideSubscriberHost(customAddress.getText());
+                                    context.preferences.setLastOverrideSubscriber(customAddress.getText());
+                                }
+                                else
+                                {
+                                    JOptionPane.showMessageDialog(context.mainFrame,
+                                            context.cfg.gs("Navigator.menu.Open.valid.port") + file.getName(),
+                                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    continue;
+                                }
                             }
                         }
 
@@ -1123,7 +1319,7 @@ public class Navigator
                                         context.mainFrame.labelStatusMiddle.setText("");
                                         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-                                        context.clientStty = new ClientStty(context, false, true);
+                                        context.clientStty = new ClientStty(context, false, true, false);
                                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                                         {
                                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1314,6 +1510,7 @@ public class Navigator
                         return context.cfg.gs("Navigator.menu.Open.hint.tracking.files");
                     }
                 });
+
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.hint.tracking"));
                 fc.setFileHidingEnabled(false);
                 File ld;
@@ -1321,7 +1518,6 @@ public class Navigator
                     ld = new File(context.preferences.getLastHintTrackingOpenPath());
                 else
                     ld = new File(context.cfg.getWorkingDirectory());
-
                 if (ld.exists() && ld.isDirectory())
                     fc.setCurrentDirectory(ld);
 
@@ -1336,10 +1532,120 @@ public class Navigator
                 JPanel jp = new JPanel();
                 GridBagLayout gb = new GridBagLayout();
                 jp.setLayout(gb);
+
                 jp.setBackground(UIManager.getColor("TextField.background"));
                 jp.setBorder(context.mainFrame.textFieldLocation.getBorder());
-                JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body>" +
-                        context.cfg.gs("Navigator.menu.Open.hint.tracking.checkbox") + "</body></html>");
+
+                JLabel cbLabel = new JLabel(context.cfg.gs("Navigator.labelRemote.text"));
+                Font font = cbLabel.getFont();
+                Font boldFont = new Font(font.getFontName(), Font.BOLD, font.getSize());
+                cbLabel.setFont(boldFont);
+
+                JCheckBox cbIsRemote = new JCheckBox();
+                cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
+                cbIsRemote.setToolTipText(context.cfg.gs("Navigator.menu.Open.hint.tracking.checkbox.tooltip"));
+                cbIsRemote.setSelected(context.preferences.isLastHintTrackingIsRemote());
+
+                JRadioButton hostButton = new JRadioButton(context.cfg.gs("Navigator.labelHostInternet.text"));
+                hostButton.setSelected(!context.preferences.isLastOverrideHintHost());
+
+                JLabel hostLabel = new JLabel();
+
+                JRadioButton listenButton = new JRadioButton(context.cfg.gs("Navigator.labelListenLan.text"));
+                listenButton.setSelected(context.preferences.isLastOverrideHintHost());
+
+                JLabel listenLabel = new JLabel();
+
+                ButtonGroup group = new ButtonGroup();
+                group.add(hostButton);
+                group.add(listenButton);
+
+                cbIsRemote.addActionListener(new AbstractAction()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        if (cbIsRemote.isSelected())
+                        {
+                            hostButton.setEnabled(true);
+                            hostLabel.setEnabled(true);
+                            listenButton.setEnabled(true);
+                            listenLabel.setEnabled(true);
+                        }
+                        else
+                        {
+                            hostButton.setEnabled(false);
+                            hostLabel.setEnabled(false);
+                            listenButton.setEnabled(false);
+                            listenLabel.setEnabled(false);
+                        }
+                    }
+                });
+                if (cbIsRemote.isSelected())
+                {
+                    hostButton.setEnabled(true);
+                    hostLabel.setEnabled(true);
+                    listenButton.setEnabled(true);
+                    listenLabel.setEnabled(true);
+                }
+                else
+                {
+                    hostButton.setEnabled(false);
+                    hostLabel.setEnabled(false);
+                    listenButton.setEnabled(false);
+                    listenLabel.setEnabled(false);
+                }
+
+                jp.add(cbLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 4, 4, 4), 0, 0));
+                jp.add(cbIsRemote, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 4, 4, 4), 0, 0));
+                jp.add(hostButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 12, 4, 4), 0, 0));
+                jp.add(hostLabel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 4, 4, 4), 0, 0));
+                jp.add(listenButton, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 12, 4, 4), 0, 0));
+                jp.add(listenLabel, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 4, 4, 4), 0, 0));
+                fc.setAccessory(jp);
+
+                fc.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new PropertyChangeListener()
+                {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent propertyChangeEvent)
+                    {
+                        File selected = fc.getSelectedFile();
+                        logger.info(propertyChangeEvent.getPropertyName() + " :: " + selected);
+                        if (setFileChooserHostListen(fc, hostLabel, listenLabel))
+                        {
+                            cbIsRemote.setEnabled(true);
+                            hostButton.setEnabled(true);
+                            hostLabel.setEnabled(true);
+                            listenButton.setEnabled(true);
+                            listenLabel.setEnabled(true);
+                        }
+                        else
+                        {
+                            cbIsRemote.setEnabled(false);
+                            hostButton.setEnabled(false);
+                            hostLabel.setEnabled(false);
+                            listenButton.setEnabled(false);
+                            listenLabel.setEnabled(false);
+                        }
+                    }
+                });
+                setFileChooserHostListen(fc, hostLabel, listenLabel); // set initial values, if any
+
+/*
+                JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body><b>" +
+                        context.cfg.gs("Navigator.labelRemote.text") + "</b></body></html>");
                 cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
                 cbIsRemote.setToolTipText(context.cfg.gs("Navigator.menu.Open.hint.tracking.checkbox.tooltip"));
                 cbIsRemote.setSelected(context.preferences.isLastHintTrackingIsRemote());
@@ -1348,6 +1654,7 @@ public class Navigator
                 gb.setConstraints(cbIsRemote, gbc);
                 jp.add(cbIsRemote);
                 fc.setAccessory(jp);
+*/
 
                 while (true)
                 {
@@ -1383,43 +1690,36 @@ public class Navigator
                             context.preferences.setLastHintTrackingOpenPath(last.getAbsolutePath());
                             context.preferences.setLastHintTrackingIsRemote(cbIsRemote.isSelected());
                             context.preferences.setLastHintTrackingIsOpen(true);
-                            context.cfg.setHintsDaemonFilename(file.getAbsolutePath());
-                            context.cfg.setHintTrackerFilename("");
-
+                            String filename;
                             if (context.preferences.isLastHintTrackingIsRemote())
                             {
-                                // read the selected Hint Server repository
-                                try
-                                {
-                                    context.hintsRepo = new Repository(context, Repository.HINT_SERVER);
-                                    context.hintsRepo.read(context.cfg.getHintsDaemonFilename(), context.cfg.gs("Libraries.hint.server"), false);
-                                }
-                                catch (Exception e)
-                                {
-                                    context.mainFrame.labelStatusMiddle.setText("");
-                                    JOptionPane.showMessageDialog(context.mainFrame,
-                                            context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.hint.library") + e.getMessage(),
-                                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                    context.fault = false;
-                                    return;
-                                }
-
-                                // if listen is defined and not equal to host
-                                String listen = context.hintsRepo.getLibraryData().libraries.listen;
-                                if (listen != null && !listen.isEmpty() &&
-                                        !listen.equalsIgnoreCase(context.hintsRepo.getLibraryData().libraries.host))
-                                {
-                                    int hostListen = promptHostOrListen(context.hintsRepo, false);
-                                    if (hostListen < 0) // was it cancelled?
-                                        return;
-                                    context.cfg.setOverrideHintsHost(hostListen == 0);
-                                    context.preferences.setLastOverrideHintHost(hostListen == 0);
-                                }
+                                context.cfg.setHintsDaemonFilename(file.getAbsolutePath());
+                                context.cfg.setHintTrackerFilename("");
+                                filename = context.cfg.getHintsDaemonFilename();
                             }
                             else
                             {
                                 context.cfg.setHintsDaemonFilename("");
                                 context.cfg.setHintTrackerFilename(file.getAbsolutePath());
+                                filename = context.cfg.getHintTrackerFilename();
+                            }
+                            context.cfg.setOverrideHintsHost(listenButton.isSelected());
+                            context.preferences.setLastOverrideHintHost(listenButton.isSelected());
+
+                            // read the selected Hint Server repository
+                            try
+                            {
+                                context.hintsRepo = new Repository(context, Repository.HINT_SERVER);
+                                context.hintsRepo.read(filename, context.cfg.gs("Libraries.hint.server"), false);
+                            }
+                            catch (Exception e)
+                            {
+                                context.mainFrame.labelStatusMiddle.setText("");
+                                JOptionPane.showMessageDialog(context.mainFrame,
+                                        context.cfg.gs("Navigator.menu.Open.hint.error.opening.hint.library") + e.getMessage(),
+                                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                context.fault = false;
+                                return;
                             }
 
                             if (context.cfg.isHintTrackingEnabled() && context.cfg.isRemoteStatusServer())
@@ -3334,77 +3634,6 @@ public class Navigator
         setWorkerRunning(false);
     }
 
-    /**
-     * Prompt user whether to use the host or listen address for a remote connection
-     * @param repo The related Repository
-     * @param forSubscriber If for a subscriber then true, else false for Hint Server
-     * @return -1 = cancelled, 0 = listen, 1 = host
-     */
-    public int promptHostOrListen(Repository repo, boolean forSubscriber)
-    {
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagLayout layout = (GridBagLayout) panel.getLayout();
-
-        JLabel prompt = new JLabel(java.text.MessageFormat.format(context.cfg.gs("Navigator.connect.to.using"), repo.getLibraryData().libraries.description));
-
-        JLabel hostLabel = new JLabel(context.cfg.gs("Navigator.labelHostInternet.text"));
-
-        JRadioButton hostButton = new JRadioButton(" " + repo.getLibraryData().libraries.host);
-        boolean b = forSubscriber ? !context.preferences.isLastOverrideSubscriberHost() : !context.preferences.isLastOverrideHintHost();
-        hostButton.setSelected(b);
-
-        JLabel listenLabel = new JLabel(context.cfg.gs("Navigator.labelListenLan.text"));
-
-        JRadioButton listenButton = new JRadioButton(" " + repo.getLibraryData().libraries.listen);
-        b = forSubscriber ? context.preferences.isLastOverrideSubscriberHost() : context.preferences.isLastOverrideHintHost();
-        listenButton.setSelected(b);
-
-        ButtonGroup group = new ButtonGroup();
-        group.add(hostButton);
-        group.add(listenButton);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(4, 8, 4, 8);
-        gbc.anchor = GridBagConstraints.EAST;
-        layout.setConstraints(hostLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.insets = new Insets(4, 0, 4, 8);
-        gbc.anchor = GridBagConstraints.WEST;
-        layout.setConstraints(hostButton, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.insets = new Insets(4, 8, 4, 8);
-        gbc.anchor = GridBagConstraints.EAST;
-        layout.setConstraints(listenLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.insets = new Insets(4, 0, 4, 8);
-        gbc.anchor = GridBagConstraints.WEST;
-        layout.setConstraints(listenButton, gbc);
-
-        panel.add(hostLabel);
-        panel.add(hostButton);
-        panel.add(listenLabel);
-        panel.add(listenButton);
-
-        Object[] params = {prompt, panel};
-
-        // prompt user
-        int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.gs("Navigator.HostOrListen.title"), JOptionPane.OK_CANCEL_OPTION);
-        if (opt == JOptionPane.YES_OPTION)
-        {
-            if (hostButton.isSelected())
-                return 1;
-            if (listenButton.isSelected())
-                return 0;
-        }
-        return -1;
-    }
-
     public void quitByeRemotes(boolean elsListener, boolean hintStatusServer)
     {
         boolean closure = false;
@@ -3535,7 +3764,7 @@ public class Navigator
         if (context.cfg.isRemoteOperation())
         {
             // start the serveStty client for automation
-            context.clientStty = new ClientStty(context, false, true);
+            context.clientStty = new ClientStty(context, false, true, false);
             if (!context.clientStty.connect(publisherRepo, subscriberRepo))
             {
                 context.cfg.setRemoteType("-");
@@ -3730,6 +3959,28 @@ public class Navigator
     public void setBlockingProcessRunning(boolean blockingProcessRunning)
     {
         this.blockingProcessRunning = blockingProcessRunning;
+    }
+
+    private boolean setFileChooserHostListen(JFileChooser fc, JLabel hostField, JLabel listenField)
+    {
+        String host = "";
+        String listen = "";
+        try
+        {
+            Repository repo = new Repository(context, Repository.SUBSCRIBER);
+            repo.read(fc.getSelectedFile().getAbsolutePath(), "Subscriber", true);
+            host = repo.getLibraryData().libraries.host;
+            listen = repo.getLibraryData().libraries.listen;
+        }
+        catch (Exception e)
+        {
+            hostField.setText("");
+            listenField.setText("");
+            return false;
+        }
+        hostField.setText(host);
+        listenField.setText(listen);
+        return true;
     }
 
     private void setQuitTerminateVisibility()

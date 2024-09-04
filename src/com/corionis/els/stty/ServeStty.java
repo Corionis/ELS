@@ -155,7 +155,7 @@ public class ServeStty extends Thread
      * @param aPort Port for listener
      * @throws Exception
      */
-    protected void addListener(String host, int aPort) throws Exception
+    protected void addListener(String host, int aPort, String where) throws Exception
     {
         //Integer key = new Integer(aPort);   // hashtable key
 
@@ -170,7 +170,7 @@ public class ServeStty extends Thread
         allSessions.put("listener:" + host + ":" + aPort, listener);
 
         // log it
-        logger.info("Stty server is listening on: " + (host == null ? "localhost" : listener.getInetAddr()) + ":" + aPort);
+        logger.info("Stty server is listening on: " + (host == null ? "localhost" : listener.getInetAddr()) + ":" + aPort + where);
         context.main.setListening(true);
 
         // fire it up
@@ -303,10 +303,28 @@ public class ServeStty extends Thread
                 listenerRepo.getLibraryData() != null &&
                 listenerRepo.getLibraryData().libraries != null)
         {
-            String address = listenerRepo.getLibraryData().libraries.listen;
-            if (address == null || address.isEmpty())
-                address = listenerRepo.getLibraryData().libraries.host;
-            startServer(address);
+            String address;
+            String hostListen;
+            if (!context.cfg.getOverrideSubscriberHost().isEmpty())
+            {
+                if (context.cfg.getOverrideSubscriberHost().trim().equals("true"))
+                    throw new MungeException("Override Subscriber host invalid for listen: true");
+
+                address = context.cfg.getOverrideSubscriberHost();
+                hostListen = context.cfg.gs("Z.custom");
+            }
+            else
+            {
+                address = listenerRepo.getLibraryData().libraries.listen;
+                hostListen = context.cfg.gs("Z.listen");
+                if (address == null || address.isEmpty())
+                {
+                    address = listenerRepo.getLibraryData().libraries.host;
+                    hostListen = context.cfg.gs("Z.host");
+                }
+            }
+
+            startServer(address, hostListen);
         }
         else
         {
@@ -321,7 +339,7 @@ public class ServeStty extends Thread
      *
      * @throws Exception
      */
-    public void startServer(String listen) throws Exception
+    private void startServer(String listen, String where) throws Exception
     {
         String host = Utils.parseHost(listen);
         if (host == null || host.isEmpty())
@@ -329,15 +347,16 @@ public class ServeStty extends Thread
             host = null;
             logger.info("Host not defined, using default: localhost");
         }
-        listenPort = Utils.getPort(listen) + ((primaryServers) ? 0 : 2);
+
+        listenPort = (Utils.getPort(listen)) + ((primaryServers) ? 0 : 2);
         if (listenPort > 0)
         {
             this.start();
-            addListener(host, listenPort);
+            addListener(host, listenPort, where);
         }
-        if (listenPort < 1)
+        else
         {
-            logger.info("Stty is disabled");
+            logger.warn("Stty is disabled");
         }
     }
 

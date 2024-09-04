@@ -26,9 +26,11 @@ public class ClientStty
     protected TerminalGui gui = null;
     private Thread heartBeat = null;
     private boolean heartBeatEnabled = true;
+    private String hostListen = "";
     protected DataInputStream in = null;
     private ClientStty instance = null;
     private boolean isConnected = false;
+    private boolean isHintServer = false;
     private boolean isTerminal = false;
     private String myKey;
     private Repository myRepo;
@@ -39,18 +41,20 @@ public class ClientStty
     private transient Logger logger = LogManager.getLogger("applog");
 
     /**
-     * Instantiate a ClientStty.<br>
+     * Instantiate a ClientStty
      *
      * @param context          The Context
      * @param isManualTerminal True if an interactive client, false if an automated client
      * @param primaryServers   True if base servers, false if secondary servers for Publisher
+     * @param isHintServer     True if this client is connecting to a Hint Server, false for a Subscriber Listener
      */
-    public ClientStty(Context context, boolean isManualTerminal, boolean primaryServers)
+    public ClientStty(Context context, boolean isManualTerminal, boolean primaryServers, boolean isHintServer)
     {
         this.context = context;
         this.instance = this;
         this.isTerminal = isManualTerminal;
         this.primaryServers = primaryServers;
+        this.isHintServer = isHintServer;
     }
 
     /**
@@ -146,38 +150,39 @@ public class ClientStty
         {
             this.myKey = myRepo.getLibraryData().libraries.key;
 
+            String override = (isHintServer) ? (context.cfg.isOverrideHintsHost() ? "true" : "") : context.cfg.getOverrideSubscriberHost().trim();
+
             String address;
-            String hostListen;
-            boolean override = false;
-            if (this == context.clientStty)
-                override = context.cfg.isOverrideSubscriberHost();
-            else if (this == context.hintsStty)
-                override = context.cfg.isOverrideHintsHost();
-            if (override)
+            if (!override.isEmpty())
             {
-                address = this.theirRepo.getLibraryData().libraries.listen;
-                if (address == null || address.length() < 1)
-                    address = this.theirRepo.getLibraryData().libraries.host;
-                hostListen = context.cfg.gs("Z.listen");
+                if (override.equals("true"))
+                {
+                    address = theirRepo.getLibraryData().libraries.listen;
+                    if (address == null || address.isEmpty())
+                        address = theirRepo.getLibraryData().libraries.host;
+                    hostListen = context.cfg.gs("Z.listen");
+                }
+                else
+                {
+                    address = context.cfg.getOverrideSubscriberHost();
+                    hostListen = context.cfg.gs("Z.custom");
+                }
             }
             else
             {
-                address = this.theirRepo.getLibraryData().libraries.host;
+                address = theirRepo.getLibraryData().libraries.host;
                 hostListen = context.cfg.gs("Z.host");
             }
 
-            String host = Utils.parseHost(address);
-            if (host == null || host.isEmpty())
-            {
-                host = null;
-            }
-            int port = Utils.getPort(address) + ((primaryServers) ? 0 : 2);
-            logger.info("Opening stty connection to: " + (host == null ? "localhost" : host) + ":" + port + hostListen);
+            String hostname = Utils.parseHost(address);
+            int hostport = Utils.getPort(address) + ((primaryServers) ? 0 : 2);
+
+            logger.info("Opening stty connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport + hostListen);
 
             try
             {
                 this.socket = new Socket();
-                SocketAddress socketAddress = new InetSocketAddress(host, port);
+                SocketAddress socketAddress = new InetSocketAddress(hostname, hostport);
                 this.socket.connect(socketAddress, theirRepo.getLibraryData().libraries.timeout * 60 * 1000);
 
                 this.socket.setKeepAlive(true); // keep alive to avoid time-out

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.3.0.386" Java: "17.0.11" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.3" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -359,7 +359,7 @@ new FormModel {
 													"componentPopupMenu": new FormReference( "popupMenuBrowser" )
 													"showHorizontalLines": false
 													"showVerticalLines": false
-													"autoResizeMode": 4
+													"autoResizeMode": 1
 													"name": "tableCollectionOne"
 													"autoCreateRowSorter": true
 												} )
@@ -407,7 +407,7 @@ new FormModel {
 													"componentPopupMenu": new FormReference( "popupMenuBrowser" )
 													"showHorizontalLines": false
 													"showVerticalLines": false
-													"autoResizeMode": 4
+													"autoResizeMode": 1
 													"name": "tableSystemOne"
 													"autoCreateRowSorter": true
 												} )
@@ -469,7 +469,7 @@ new FormModel {
 													"componentPopupMenu": new FormReference( "popupMenuBrowser" )
 													"showHorizontalLines": false
 													"showVerticalLines": false
-													"autoResizeMode": 4
+													"autoResizeMode": 1
 													"name": "tableCollectionTwo"
 													"autoCreateRowSorter": true
 												} )
@@ -516,7 +516,7 @@ new FormModel {
 													"componentPopupMenu": new FormReference( "popupMenuBrowser" )
 													"showHorizontalLines": false
 													"showVerticalLines": false
-													"autoResizeMode": 4
+													"autoResizeMode": 1
 													"name": "tableSystemTwo"
 													"autoCreateRowSorter": true
 												} )
@@ -653,6 +653,7 @@ new FormModel {
 									"maximumSize": new java.awt.Dimension( 32, 30 )
 									"cursor": new java.awt.Cursor( 12 )
 									"iconTextGap": 0
+									"toolTipText": new FormMessage( null, "Navigator.labelLibrariesHelp.toolTipText" )
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "East"

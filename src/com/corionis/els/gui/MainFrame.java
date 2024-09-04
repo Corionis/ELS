@@ -1528,7 +1528,7 @@ public class MainFrame extends JFrame
                                             tableCollectionOne.setComponentPopupMenu(popupMenuBrowser);
                                             tableCollectionOne.setShowHorizontalLines(false);
                                             tableCollectionOne.setShowVerticalLines(false);
-                                            tableCollectionOne.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                                            tableCollectionOne.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
                                             tableCollectionOne.setName("tableCollectionOne");
                                             tableCollectionOne.setAutoCreateRowSorter(true);
                                             scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
@@ -1579,7 +1579,7 @@ public class MainFrame extends JFrame
                                             tableSystemOne.setComponentPopupMenu(popupMenuBrowser);
                                             tableSystemOne.setShowHorizontalLines(false);
                                             tableSystemOne.setShowVerticalLines(false);
-                                            tableSystemOne.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                                            tableSystemOne.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
                                             tableSystemOne.setName("tableSystemOne");
                                             tableSystemOne.setAutoCreateRowSorter(true);
                                             scrollPaneTableSystemOne.setViewportView(tableSystemOne);
@@ -1644,7 +1644,7 @@ public class MainFrame extends JFrame
                                             tableCollectionTwo.setComponentPopupMenu(popupMenuBrowser);
                                             tableCollectionTwo.setShowHorizontalLines(false);
                                             tableCollectionTwo.setShowVerticalLines(false);
-                                            tableCollectionTwo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                                            tableCollectionTwo.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
                                             tableCollectionTwo.setName("tableCollectionTwo");
                                             tableCollectionTwo.setAutoCreateRowSorter(true);
                                             scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
@@ -1694,7 +1694,7 @@ public class MainFrame extends JFrame
                                             tableSystemTwo.setComponentPopupMenu(popupMenuBrowser);
                                             tableSystemTwo.setShowHorizontalLines(false);
                                             tableSystemTwo.setShowVerticalLines(false);
-                                            tableSystemTwo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                                            tableSystemTwo.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
                                             tableSystemTwo.setName("tableSystemTwo");
                                             tableSystemTwo.setAutoCreateRowSorter(true);
                                             scrollPaneTableSystemTwo.setViewportView(tableSystemTwo);
@@ -1825,6 +1825,7 @@ public class MainFrame extends JFrame
                             labelLibrariesHelp.setMaximumSize(new Dimension(32, 30));
                             labelLibrariesHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                             labelLibrariesHelp.setIconTextGap(0);
+                            labelLibrariesHelp.setToolTipText(context.cfg.gs("Navigator.labelLibrariesHelp.toolTipText"));
                             panelHelp.add(labelLibrariesHelp);
                         }
                         panelLibsTop.add(panelHelp, BorderLayout.EAST);

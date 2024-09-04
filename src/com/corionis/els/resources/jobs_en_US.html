@@ -39,6 +39,11 @@
 </head>
 <body>
 <h2>Jobs</h2>
+<p>Jobs combine Tools into sequences of Tasks to define the connections required for each step.
+This allows Tools to be reused with different back-ups.</p>
+
+<p>&nbsp;</p>
+
 <p>Jobs execute defined Tasks in the sequence specified. A Task is a defined Tool with
 starting Origin(s) as arguments to the Tool.</p>
 
@@ -47,7 +52,8 @@ starting Origin(s) as arguments to the Tool.</p>
 The list of Tools is updated each time the button is clicked.</p>
 
 <h3>Task Origins</h3>
-<p>Select the publisher and/or subscriber accordingly by clicking the "..." button.</p>
+<p>Select the Library and connection type accordingly by clicking the "..." button.
+The options provided depend on the type of Task being defined.</p>
 
 <ul>
   <li>"From: [name]" is only shown if a previous task's Origins are available.</li>
@@ -55,13 +61,23 @@ The list of Tools is updated each time the button is clicked.</p>
   <li>"Specific publisher" allows selection of a publisher from the list of libraries</li>
   <li>"Any subscriber" will use any loaded subscriber</li>
   <li>"Local subscriber" allows selection of a local subscriber from the list of libraries</li>
-  <li>"Remote subscriber" allows selection of a remote subscriber from the list of libraries</li>
+  <li>"Remote subscriber (Host, Internet)" allows selection of a remote subscriber connecting on the Host address</li>
+  <li>"Remote subscriber (Listen, LAN)" allows selection of a remote subscriber connecting on the Listen address</li>
+  <li>"Remote subscriber (Custom)" allows selection of a remote subscriber connecting on a Custom address</li>
   <li>"Local Hint Tracker" enables Hint processing using the current ELS instance.</li>
-  <li>"Remote Hint Server" enables Hint processing using a separate remote Hint Server.</li>
+  <li>"Remote Hint Server (Host, Internet)" enables Hint processing connecting on the Host address.</li>
+  <li>"Remote Hint Server (Listen, LAN)" enables Hint processing connecting on the Listen Address.</li>
 </ul>
 
+<p>Remote Subscriber Listeners only listen on the Listen or Custom address. If the Listener value is not
+ defined for that Library the Host value is used. Any Custom address is required to be valid.</p>
+
+<p>&nbsp;</p>
+
 <p>Hints are defined in Operations so the Hint Tracker/Server cannot be changed in Jobs. But the
-type of connection must be set.</p>
+type of connection must be defined. Hint Servers only listen on the Listen address. If that value is not
+defined for that Library the Host value is used. Because there can be only one Hint Tracker/Server
+there is no Custom option as provided for remote Subscribers.</p>
 
 <p>&nbsp;</p>
 

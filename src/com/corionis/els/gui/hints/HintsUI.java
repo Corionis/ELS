@@ -160,6 +160,8 @@ public class HintsUI extends JDialog
                                     context.publisherRepo.getLibraryData().libraries.description);
                         }
                     }
+                    else
+                        publisherDisplayName = context.cfg.gs("HintsUI.not.loaded");
                     if (context.subscriberRepo != null)
                     {
                         HintKey hk = context.hintKeys.findKey(context.subscriberRepo.getLibraryData().libraries.key);
@@ -175,6 +177,8 @@ public class HintsUI extends JDialog
                             subscriberDisplayName = java.text.MessageFormat.format(context.cfg.gs("HintsUI.not.in.hint.keys"),
                                     context.subscriberRepo.getLibraryData().libraries.description);
                     }
+                    else
+                        subscriberDisplayName = context.cfg.gs("HintsUI.not.loaded");
 
                     setWidths();
 

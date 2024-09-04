@@ -31,7 +31,7 @@ public class Task implements Comparable, Serializable
     public String publisherKey = "";
     public String publisherPath = "";
     public String subscriberKey = "";
-    public boolean subscriberOverrideHost = false;
+    public String subscriberOverride = "";
     public String subscriberPath = "";
     public boolean subscriberRemote = false;
 
@@ -79,7 +79,7 @@ public class Task implements Comparable, Serializable
         task.setPublisherKey(this.getPublisherKey());
         task.setPublisherPath(this.getPublisherPath());
         task.setSubscriberKey(this.getSubscriberKey());
-        task.setSubscriberOverrideHost(this.isSubscriberOverrideHost());
+        task.setSubscriberOverride(this.getSubscriberOverride());
         task.setSubscriberPath(this.getSubscriberPath());
         task.setSubscriberRemote(this.isSubscriberRemote());
 
@@ -137,7 +137,7 @@ public class Task implements Comparable, Serializable
         }
 
         // start the serveStty client for automation
-        context.clientStty = new ClientStty(context, false, true);
+        context.clientStty = new ClientStty(context, false, true, false);
         if (!context.clientStty.connect(publisherRepo, subscriberRepo))
         {
             context.cfg.setRemoteType("-");
@@ -333,6 +333,11 @@ public class Task implements Comparable, Serializable
         return subscriberKey;
     }
 
+    public String getSubscriberOverride()
+    {
+        return subscriberOverride;
+    }
+
     public String getSubscriberPath()
     {
         return subscriberPath;
@@ -359,11 +364,6 @@ public class Task implements Comparable, Serializable
         if (getInternalName().equalsIgnoreCase(Job.INTERNAL_NAME) && getOrigins().size() == 0)
             return true;
         return false;
-    }
-
-    public boolean isSubscriberOverrideHost()
-    {
-        return subscriberOverrideHost;
     }
 
     public boolean isSubscriberRemote()
@@ -420,7 +420,7 @@ public class Task implements Comparable, Serializable
                 setPublisherKey(previousTask.getPublisherKey());
                 setSubscriberKey(previousTask.getSubscriberKey());
                 setHintsOverrideHost(previousTask.hintsOverrideHost);
-                setSubscriberOverrideHost(previousTask.subscriberOverrideHost);
+                setSubscriberOverride(previousTask.subscriberOverride);
                 setSubscriberRemote(previousTask.subscriberRemote);
                 setOrigins(previousTask.getOrigins());
                 hintsPath = previousTask.hintsPath;
@@ -459,7 +459,7 @@ public class Task implements Comparable, Serializable
 
             localContext.cfg.setSubscriberLibrariesFileName(subscriberPath);
             localContext.cfg.setSubscriberCollectionFilename("");
-            localContext.cfg.setOverrideSubscriberHost(isSubscriberOverrideHost());
+            localContext.cfg.setOverrideSubscriberHost(getSubscriberOverride());
 
             localContext.cfg.setHintsDaemonFilename("");
             localContext.cfg.setHintTrackerFilename("");
@@ -501,14 +501,14 @@ public class Task implements Comparable, Serializable
         this.localContext = context;
     }
 
-    public void setHintsKey(String hintsKey)
-    {
-        this.hintsKey = hintsKey;
-    }
-
     public void setDryRun(boolean sense)
     {
         this.dryRun = sense;
+    }
+
+    public void setHintsKey(String hintsKey)
+    {
+        this.hintsKey = hintsKey;
     }
 
     public void setHintsOverrideHost(boolean hintsOverrideHost)
@@ -556,9 +556,9 @@ public class Task implements Comparable, Serializable
         this.subscriberKey = subscriberKey;
     }
 
-    public void setSubscriberOverrideHost(boolean subscriberOverrideHost)
+    public void setSubscriberOverride(String subscriberOverride)
     {
-        this.subscriberOverrideHost = subscriberOverrideHost;
+        this.subscriberOverride = subscriberOverride;
     }
 
     public void setSubscriberPath(String subscriberPath)

@@ -3,6 +3,8 @@
 
 ## Current Short-List
 
+ * TEST with new blank configuration
+ * TEST File, Open Subscriber failure and retry
  * TEST switching repos in Navigator during Job
 
 RUN BUTTON

@@ -123,10 +123,10 @@ public class Main
                 !context.cfg.isStatusServer())
             context.cfg.setDefaultNavigator(true);
 
-        if (context.cfg.getOperation() != JOB_PROCESS)
+        if (context.cfg.getOperation() != JOB_PROCESS && context.preferences.isUseLastPublisherSubscriber())
         {
             // operating as the Navigator desktop application?
-            if (context.cfg.isNavigator() && context.preferences.isUseLastPublisherSubscriber() &&
+            if (context.cfg.isNavigator() &&
                     (context.cfg.getOperation() == NOT_REMOTE || context.cfg.getOperation() == PUBLISH_REMOTE))
             {
                 // no pub and sub?
@@ -153,7 +153,7 @@ public class Main
                         context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
                         if (context.preferences.isLastSubscriberIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
                             context.cfg.setRemoteType("P");
-                        context.cfg.setOverrideSubscriberHost(context.preferences.isLastOverrideSubscriberHost());
+                        context.cfg.setOverrideSubscriberHost(context.preferences.getLastOverrideSubscriber());
                     }
 
                     // use last hint keys?
@@ -221,7 +221,7 @@ public class Main
             if (context.publisherRepo != null && context.subscriberRepo != null)
             {
                 // start the clientStty
-                context.clientStty = new ClientStty(context, false, true);
+                context.clientStty = new ClientStty(context, false, true, false);
                 if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                 {
                     throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Main.remote.subscriber.failed.to.connect"),
@@ -1426,7 +1426,7 @@ public class Main
                             catchExceptions = true;
 
                             // start the hintsStty client connection to the Hint Status Server
-                            context.hintsStty = new ClientStty(context, false, true); //primaryServers);
+                            context.hintsStty = new ClientStty(context, false, true, true); //primaryServers);
                             if (!context.hintsStty.connect(repo, context.hintsRepo))
                             {
                                 msg = "";
@@ -1492,7 +1492,7 @@ public class Main
                 msg = (msg.length() > 0 ? msg : "") + e.getMessage();
                 logger.error(msg);
 
-                context.cfg.setHintKeysFile("");
+                //context.cfg.setHintKeysFile("");
                 context.cfg.setHintsDaemonFilename("");
                 context.cfg.setHintTrackerFilename("");
                 context.hintsRepo = null;

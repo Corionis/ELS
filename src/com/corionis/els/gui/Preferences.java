@@ -86,7 +86,7 @@ public class Preferences implements Serializable
     private String lastHintTrackingOpenFile = "";
     private String lastHintTrackingOpenPath = "";
     private boolean lastOverrideHintHost = false;
-    private boolean lastOverrideSubscriberHost = false;
+    private String lastOverrideSubscriber = "";
     private boolean lastPublisherIsOpen = false;
     private boolean lastPublisherIsWorkstation = false;
     private String lastPublisherOpenFile = "";
@@ -165,6 +165,7 @@ public class Preferences implements Serializable
     private boolean tooltipsLargeTables = true;
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
+
     /**
      * Constructor
      */
@@ -644,6 +645,11 @@ public class Preferences implements Serializable
         return lastHintTrackingOpenPath;
     }
 
+    public String getLastOverrideSubscriber()
+    {
+        return lastOverrideSubscriber;
+    }
+
     public String getLastPublisherOpenFile()
     {
         return lastPublisherOpenFile;
@@ -653,7 +659,6 @@ public class Preferences implements Serializable
     {
         return lastPublisherOpenPath;
     }
-    //private transient LookAndFeel laf = null;
 
     public String getLastSubscriberOpenFile()
     {
@@ -1120,11 +1125,6 @@ public class Preferences implements Serializable
         return lastOverrideHintHost;
     }
 
-    public boolean isLastOverrideSubscriberHost()
-    {
-        return lastOverrideSubscriberHost;
-    }
-
     public boolean isLastPublisherIsOpen()
     {
         return lastPublisherIsOpen;
@@ -1537,9 +1537,9 @@ public class Preferences implements Serializable
         this.lastOverrideHintHost = lastOverrideHintHost;
     }
 
-    public void setLastOverrideSubscriberHost(boolean lastOverrideSubscriberHost)
+    public void setLastOverrideSubscriber(String lastOverrideSubscriber)
     {
-        this.lastOverrideSubscriberHost = lastOverrideSubscriberHost;
+        this.lastOverrideSubscriber = lastOverrideSubscriber;
     }
 
     public void setLastPublisherIsOpen(boolean lastPublisherIsOpen)

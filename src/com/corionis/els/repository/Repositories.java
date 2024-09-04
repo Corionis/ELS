@@ -233,7 +233,6 @@ public class Repositories
         if (context.hintsRepo != null && context.hintsRepo.getLibraryData().libraries.key != null)
             dynamicHints = context.hintsRepo.isDynamic();
 
-
         repoList = new ArrayList<Repository>();
         metaList = new ArrayList<RepoMeta>();
 

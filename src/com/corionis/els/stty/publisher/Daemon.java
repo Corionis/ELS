@@ -460,7 +460,7 @@ public class Daemon extends AbstractDaemon
                                             }
 
                                             // start the serveStty client for automation
-                                            context.clientStty = new ClientStty(context, false, false);
+                                            context.clientStty = new ClientStty(context, false, false, false);
                                             if (!context.clientStty.connect(myRepo, theirRepo))
                                             {
                                                 throw new MungeException("Publisher stty client failed to connect");

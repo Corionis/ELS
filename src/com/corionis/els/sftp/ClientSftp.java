@@ -54,12 +54,20 @@ public class ClientSftp
         theirRepo = theirs;
 
         String address;
-        if (context.cfg.isOverrideSubscriberHost())
+        if (!context.cfg.getOverrideSubscriberHost().isEmpty())
         {
-            address = theirRepo.getLibraryData().libraries.listen;
-            if (address == null || address.isEmpty())
-                address = theirRepo.getLibraryData().libraries.host;
-            hostListen = context.cfg.gs("Z.listen");
+            if (context.cfg.getOverrideSubscriberHost().trim().equals("true"))
+            {
+                address = theirRepo.getLibraryData().libraries.listen;
+                if (address == null || address.isEmpty())
+                    address = theirRepo.getLibraryData().libraries.host;
+                hostListen = context.cfg.gs("Z.listen");
+            }
+            else
+            {
+                address = context.cfg.getOverrideSubscriberHost();
+                hostListen = context.cfg.gs("Z.custom");
+            }
         }
         else
         {
