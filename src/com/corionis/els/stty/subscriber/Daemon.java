@@ -3,7 +3,6 @@ package com.corionis.els.stty.subscriber;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintKeys;
-import com.corionis.els.hints.Hints;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.stty.ServeStty;
 import com.corionis.els.Context;
@@ -34,7 +33,7 @@ public class Daemon extends AbstractDaemon
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
-    private Hints hints = null;
+    //private Hints hintsHandler = null;
     private boolean isTerminal = false;
     private ServeStty instance = null;
 
@@ -134,7 +133,7 @@ public class Daemon extends AbstractDaemon
                 // validate with Authentication Keys if specified
                 if (context.authKeys != null)
                 {
-                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
+                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hintsHandler keys file
                     if (connectedKey != null)
                     {
                         // send my flavor
@@ -146,7 +145,7 @@ public class Daemon extends AbstractDaemon
                         context.timeout = false;
                     }
                 }
-                else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
+                else if (theirRepo != null && input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
                 {
                     // send my flavor
                     send(myRepo.getLibraryData().libraries.flavor, "");
@@ -191,10 +190,10 @@ public class Daemon extends AbstractDaemon
                 context.authKeys.read(context.cfg.getAuthKeysFile());
             }
 
-            if (context.cfg.isHintTrackingEnabled())
-            {
-                hints = new Hints(context, context.hintKeys);
-            }
+            //if (context.cfg.isHintTrackingEnabled())
+            //{
+            //    hintsHandler = new Hints(context, context.hintKeys);
+            //}
         }
         catch (Exception e)
         {
@@ -436,7 +435,7 @@ public class Daemon extends AbstractDaemon
                                         hint = gsonParser.fromJson(json, Hint.class);
                                         ArrayList<Hint> pending = new ArrayList<>();
                                         pending.add(hint);
-                                        response = context.hints.hintsMunge(pending); // process locally
+                                        response = context.hintsHandler.hintsMunge(pending); // process locally
                                     }
                                 }
                                 if (!valid)
@@ -673,8 +672,7 @@ public class Daemon extends AbstractDaemon
                         if (se.toString().contains("timed out"))
                             context.timeout = true;
                         connected = false;
-                        logger.debug("SocketException, timeout is: " + context.timeout);
-                        logger.error(Utils.getStackTrace(se));
+                        logger.debug("SocketException, timeout is: " + context.timeout + ", " + se.getMessage());
                         if (!context.cfg.isKeepGoing())
                         {
                             fault = true;

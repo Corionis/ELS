@@ -23,9 +23,9 @@ import javax.swing.*;
  *
  *  By default the text will be rendered using the Font and foreground color
  *  of its associated component. However, this class does allow you to override
- *  these properties. Also starting in JDK6 the desktop renderering hints will
+ *  these properties. Also starting in JDK6 the desktop renderering hintsHandler will
  *  be used to renderer the text. For versions not supporting the rendering
- *  hints antialiasing will be turned on.
+ *  hintsHandler antialiasing will be turned on.
  */
 public class TextIcon implements Icon, PropertyChangeListener
 {

@@ -2,7 +2,7 @@
   <configuration default="false" name="100-10_Status-Server-listener" type="Application" factoryName="Application" folderName="100-00 Navigator - Remote Hint Server - Local Backup">
     <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug --hint-server libraries/hint-server.json -K system/hint.keys -A system/authentication.keys -F output/100-10_Status-Server-listener.log" />
+    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug --hint-server &quot;libraries/Hint Server.json&quot; -K system/hint.keys -A system/authentication.keys -F output/100-10_Status-Server-listener.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml -Dsun.awt.disablegrab=true" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <method v="2">

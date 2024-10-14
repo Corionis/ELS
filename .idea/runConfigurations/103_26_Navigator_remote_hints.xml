@@ -2,7 +2,7 @@
   <configuration default="false" name="103-26_Navigator-remote-hints" type="Application" factoryName="Application" folderName="103-00 No Build 102">
     <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-C . --navigator -c debug -d debug -A system/authentication.keys -J --hint-server libraries/hint-server.json -k system/hint.keys --remote P -P libraries/publisher.json -O -s libraries/subscriber-one.json -F output/102-26_Navigator-remote-hints.log" />
+    <option name="PROGRAM_PARAMETERS" value="-C . --navigator -c debug -d debug -A system/authentication.keys -J --hint-server &quot;libraries/Hint Server.json&quot; -k system/hint.keys --remote P -P &quot;libraries/Publisher.json&quot; -O -s &quot;libraries/Subscriber One.json&quot; -F output/102-26_Navigator-remote-hints.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml -Dsun.awt.disablegrab=true" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <method v="2" />

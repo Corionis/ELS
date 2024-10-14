@@ -152,7 +152,7 @@ public class Main
                     {
                         context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
                         if (context.preferences.isLastSubscriberIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
-                            context.cfg.setRemoteType("P");
+                            context.cfg.setOperation("P");
                         context.cfg.setOverrideSubscriberHost(context.preferences.getLastOverrideSubscriber());
                     }
 
@@ -243,7 +243,7 @@ public class Main
             context.clientSftp = null;
             context.clientSftpMetadata = null;
             context.subscriberRepo = null;
-            context.cfg.setOperation(NOT_REMOTE);
+            context.cfg.setOperation("-");
             context.cfg.setSubscriberCollectionFilename("");
             context.cfg.setSubscriberLibrariesFileName("");
 
@@ -478,10 +478,10 @@ public class Main
             try
             {
                 context.cfg.parseCommandLine(args);
-                if (primaryExecution)
-                    context.cfg.configureWorkingDirectory();
-                else
+                if (!primaryExecution)
                     context.cfg.setWorkingDirectory(previousContext.cfg.getWorkingDirectory());
+                context.cfg.configureWorkingDirectory();
+                context.cfg.setOperation("");
             }
             catch (MungeException e)
             {
@@ -653,6 +653,11 @@ public class Main
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // connect to the hint status server if defined
+                        if (context.cfg.isHintTrackingEnabled())
+                        {
+                            context.cfg.disableHintTracking();
+                            logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
+                        }
                         setupHints(context.publisherRepo);
 
                         // start serveStty server
@@ -686,6 +691,11 @@ public class Main
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // connect to the hint status server if defined
+                        if (context.cfg.isHintTrackingEnabled())
+                        {
+                            context.cfg.disableHintTracking();
+                            logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
+                        }
                         setupHints(context.publisherRepo);
 
                         // start the serveStty client interactively
@@ -795,14 +805,19 @@ public class Main
                         {
                             throw new MungeException(context.cfg.gs(("Main.either.a.publisher.or.authentication.keys.file.is.required")));
                         }
-
                     }
+
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.VALIDATE);
 
                     // start servers
-                    if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
+                    if (context.subscriberRepo.isInitialized() && ((context.publisherRepo == null || context.publisherRepo.isInitialized())))
                     {
                         // connect to the hint status server if defined
+                        if (context.cfg.isHintTrackingEnabled())
+                        {
+                            context.cfg.disableHintTracking();
+                            logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
+                        }
                         setupHints(context.subscriberRepo);
 
                         // start serveStty server
@@ -819,7 +834,7 @@ public class Main
                     }
                     else
                     {
-                        throw new MungeException("Subscriber and publisher options are required for -r S");
+                        throw new MungeException("Subscriber and publisher or authentication options are required for -r S");
                     }
                     break;
 
@@ -836,6 +851,11 @@ public class Main
                     if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
                     {
                         // connect to the hint status server if defined
+                        if (context.cfg.isHintTrackingEnabled())
+                        {
+                            context.cfg.disableHintTracking();
+                            logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
+                        }
                         setupHints(context.subscriberRepo);
 
                         // start the serveStty client interactively
@@ -894,7 +914,7 @@ public class Main
                     // Get Hint Keys
                     context.hintKeys = new HintKeys(context);
                     context.hintKeys.read(context.cfg.getHintKeysFile());
-                    context.hints = new Hints(context, context.hintKeys);
+                    context.hintsHandler = new Hints(context, context.hintKeys);
 
                     // Get the Hint Status Server repository
                     context.hintsRepo = new Repository(context, Repository.HINT_SERVER);
@@ -927,7 +947,7 @@ public class Main
                     context.cfg.dump();
 
                     if (context.cfg.getHintHandlerFilename() == null || context.cfg.getHintHandlerFilename().length() == 0)
-                        throw new MungeException("-Q|--force-quit requires a either -h|--hints or -H|--hint-server");
+                        throw new MungeException("-Q|--force-quit requires a either -h|--hintsHandler or -H|--hint-server");
 
                     if (context.cfg.getPublisherFilename() == null || context.cfg.getPublisherFilename().length() == 0)
                         throw new MungeException("-Q|--force-quit requires a -p|-P publisher to connect from");
@@ -1097,7 +1117,7 @@ public class Main
                     {
                         try
                         {
-                            logger.info("NAVIGATOR SHUTDOWN HOOK");
+                            logger.trace("Navigator shutdown hook");
                         }
                         catch (Exception e)
                         {
@@ -1126,7 +1146,6 @@ public class Main
                                         job.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
                                 logger.info(msg);
                             }
-                            //logger.info(context.cfg.gs("Main.disconnecting"));
 
                             // optionally command status server to quit
                             if (context.hintsStty != null)
@@ -1235,6 +1254,7 @@ public class Main
 
             // get Publisher data
             repo.read(context.cfg.getPublisherFilename(), "Publisher", true);
+            context.preferences.setLastPublisherIsOpen(true);
         }
         else // is Repository.SUBSCRIBER
         {
@@ -1265,6 +1285,7 @@ public class Main
 
             // get Subscriber data
             repo.read(context.cfg.getSubscriberFilename(), "Subscriber", true);
+            context.preferences.setLastSubscriberIsOpen(true);
         }
 
         // -v|--validate option
@@ -1401,7 +1422,7 @@ public class Main
                     context.hintKeys = new HintKeys(context);
                     msg = context.cfg.gs("Main.exception.while.reading.hint.keys");
                     context.hintKeys.read(context.cfg.getHintKeysFile());
-                    context.hints = new Hints(context, context.hintKeys);
+                    context.hintsHandler = new Hints(context, context.hintKeys);
                     context.preferences.setLastHintKeysIsOpen(true);
                 }
                 else

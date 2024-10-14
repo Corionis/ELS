@@ -133,7 +133,7 @@ public class Preferences implements Serializable
     private int systemTwoSizeWidth = 80;
     private int systemTwoSortColumn = 1;
     private int systemTwoSortDirection = 0;
-    private int tabPlacement = JTabbedPane.TOP;
+    private int tabPlacement = 0; // top
     private int toolOperationsDividerConfigLocation = 142;
     private int toolsDuplicateFinderHeight = 470;
     private int toolsDuplicateFinderWidth = 570;
@@ -820,14 +820,16 @@ public class Preferences implements Serializable
                 place = JTabbedPane.TOP;
                 break;
             case 1:
-                place = JTabbedPane.BOTTOM;
-                break;
-            default:
-            case 2:
                 place = JTabbedPane.LEFT;
+                break;
+            case 2:
+                place = JTabbedPane.BOTTOM;
                 break;
             case 3:
                 place = JTabbedPane.RIGHT;
+                break;
+            default:
+                place = JTabbedPane.TOP;
                 break;
         }
         return place;

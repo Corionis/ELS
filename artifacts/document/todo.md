@@ -7,11 +7,11 @@
  * TEST File, Open Subscriber failure and retry
  * TEST switching repos in Navigator during Job
 
-RUN BUTTON
+   JOB RUN BUTTON
     Add validateRun() method to check task requirements; Jobs iterate their Tasks
 
 #### Short List
- * Another Regression Test from a scratch installation.
+ * Regression Test from a scratch installation.
    * No pre-defined JSON files.
  * Error handling
  * Statistics

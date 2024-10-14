@@ -71,7 +71,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
         };
 
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        context.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
 
         progressBarFile.setMinimum(0);
         progressBarFile.setMaximum(100);

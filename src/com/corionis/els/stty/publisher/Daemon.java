@@ -98,7 +98,7 @@ public class Daemon extends AbstractDaemon
                 // validate with Authentication Keys if specified
                 if (context.authKeys != null)
                 {
-                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
+                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hintsHandler keys file
                     if (connectedKey != null)
                     {
                         // send my flavor
@@ -109,7 +109,8 @@ public class Daemon extends AbstractDaemon
                         context.fault = false;
                         context.timeout = false;
                     }
-                } else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
+                }
+                else if (theirRepo != null && input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
                 {
                     // send my flavor
                     send(myRepo.getLibraryData().libraries.flavor, "");

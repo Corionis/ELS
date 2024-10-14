@@ -625,6 +625,7 @@ public class FileEditor extends JDialog
         cancelButton = new JButton();
 
         //======== this ========
+        setPreferredSize(new Dimension(560, 390));
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {

@@ -75,7 +75,7 @@ public class DuplicateFinderUI extends JDialog
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         adjustDupesTable();
-        context.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
     }
 
     private void actionCloseClicked(ActionEvent e)

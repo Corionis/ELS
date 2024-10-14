@@ -90,12 +90,12 @@ public class HintKeys
 
                 if (!context.cfg.isStatusServer() && !context.cfg.isNavigator())
                 {
-                    if (parts[1].equals(context.publisherRepo.getLibraryData().libraries.key))
+                    if (context.publisherRepo != null && parts[1].equals(context.publisherRepo.getLibraryData().libraries.key))
                     {
                         foundPublisher = true;
                     }
 
-                    if (parts[1].equals(context.subscriberRepo.getLibraryData().libraries.key))
+                    if (context.subscriberRepo != null && parts[1].equals(context.subscriberRepo.getLibraryData().libraries.key))
                     {
                         foundSubscriber = true;
                     }
@@ -115,7 +115,7 @@ public class HintKeys
         if (!context.cfg.isStatusServer() && !context.cfg.isNavigator())
         {
             String which = "";
-            if (!foundPublisher)
+            if (context.publisherRepo != null && !foundPublisher)
                 which = "publisher";
             if (context.subscriberRepo != null && !foundSubscriber)
                 which = "subscriber";

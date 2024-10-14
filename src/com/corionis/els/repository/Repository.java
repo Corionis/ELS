@@ -1038,4 +1038,11 @@ public class Repository implements Comparable
             throw new MungeException(context.cfg.gs("Z.error.writing") + getJsonFilename() + ": " + Utils.getStackTrace(fnf));
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return (libraryData != null && libraryData.libraries != null) ? libraryData.libraries.description : "";
+    }
+
 }

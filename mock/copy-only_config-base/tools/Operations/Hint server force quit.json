@@ -12,7 +12,7 @@
   "optListenerKeepGoing": false,
   "optListenerQuit": false,
   "optHints": "",
-  "optHintServer": "libraries/hint-server.json",
+  "optHintServer": "libraries/Hint Server.json",
   "optExportItems": "",
   "optIpWhitelist": "",
   "optKeys": "",

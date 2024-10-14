@@ -1,7 +1,7 @@
 {
   "configName": "Navigator Remote",
   "internalName": "Operations",
-  "operation": "PublishRemote",
+  "operation": "PublisherOperation",
   "card": "Publisher",
   "optAuthKeys": "",
   "optBlacklist": "",

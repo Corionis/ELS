@@ -1,7 +1,7 @@
 {
   "configName": "Local publish",
   "internalName": "Operations",
-  "operation": "NotRemote",
+  "operation": "PublisherOperation",
   "card": "Publisher",
   "optAuthKeys": "",
   "optBlacklist": "",

@@ -3,6 +3,7 @@ package com.corionis.els.jobs;
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Environment;
+import com.corionis.els.Utils;
 import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;
@@ -72,6 +73,7 @@ public class Task implements Comparable, Serializable
     public Task clone()
     {
         Task task = new Task(this.getInternalName(), this.getConfigName());
+        task.setContext(this.localContext);
         task.setHintsKey(this.getHintsKey());
         task.setHintsOverrideHost(this.isHintsOverrideHost());
         task.setHintsPath(this.getHintsPath());
@@ -140,7 +142,7 @@ public class Task implements Comparable, Serializable
         context.clientStty = new ClientStty(context, false, true, false);
         if (!context.clientStty.connect(publisherRepo, subscriberRepo))
         {
-            context.cfg.setRemoteType("-");
+            context.cfg.setOperation("-");
             if (context.navigator != null)
             {
                 JOptionPane.showMessageDialog(context.mainFrame,
@@ -168,7 +170,7 @@ public class Task implements Comparable, Serializable
         context.clientSftp = new ClientSftp(context, publisherRepo, subscriberRepo, true);
         if (!context.clientSftp.startClient("transfer"))
         {
-            context.cfg.setRemoteType("-");
+            context.cfg.setOperation("-");
             if (context.navigator != null)
             {
                 JOptionPane.showMessageDialog(context.mainFrame,
@@ -455,10 +457,11 @@ public class Task implements Comparable, Serializable
             localContext.cfg.setPublisherLibrariesFileName(publisherPath);
             localContext.cfg.setPublisherCollectionFilename("");
 
-            localContext.cfg.setRemoteType(remoteType);
+            localContext.cfg.setOperation(remoteType);
 
             localContext.cfg.setSubscriberLibrariesFileName(subscriberPath);
             localContext.cfg.setSubscriberCollectionFilename("");
+            setSubscriberRemote(subscriberRemote);
             localContext.cfg.setOverrideSubscriberHost(getSubscriberOverride());
 
             localContext.cfg.setHintsDaemonFilename("");
@@ -518,7 +521,7 @@ public class Task implements Comparable, Serializable
 
     public void setHintsPath(String hintsPath)
     {
-        this.hintsPath = hintsPath;
+        this.hintsPath = Utils.makeRelativePath(localContext.cfg.getWorkingDirectory(), hintsPath);
     }
 
     public void setHintsRemote(boolean isHintsRemote)
@@ -548,7 +551,7 @@ public class Task implements Comparable, Serializable
 
     public void setPublisherPath(String publisherPath)
     {
-        this.publisherPath = publisherPath;
+        this.publisherPath = Utils.makeRelativePath(localContext.cfg.getWorkingDirectory(), publisherPath);
     }
 
     public void setSubscriberKey(String subscriberKey)
@@ -563,7 +566,7 @@ public class Task implements Comparable, Serializable
 
     public void setSubscriberPath(String subscriberPath)
     {
-        this.subscriberPath = subscriberPath;
+        this.subscriberPath = Utils.makeRelativePath(localContext.cfg.getWorkingDirectory(), subscriberPath);
     }
 
     public void setSubscriberRemote(boolean isSubscriberRemote)

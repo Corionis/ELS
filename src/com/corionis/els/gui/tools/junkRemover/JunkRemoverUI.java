@@ -108,7 +108,7 @@ public class JunkRemoverUI extends AbstractToolDialog
         adjustJunkTable();
         loadConfigurations();
         context.navigator.enableDisableToolMenus(this, false);
-        context.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
     }
 
     private void actionAddRowClicked(ActionEvent e)
@@ -360,6 +360,12 @@ public class JunkRemoverUI extends AbstractToolDialog
                 if (origins != null && origins.size() > 0)
                 {
                     final JunkRemoverTool jrt = (JunkRemoverTool) configModel.getValueAt(index, 0);
+
+                    if (jrt.isDataChanged())
+                    {
+                        JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
 
                     // make dialog pieces
                     String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");

@@ -305,15 +305,7 @@ public class ServeStty extends Thread
         {
             String address;
             String hostListen;
-            if (!context.cfg.getOverrideSubscriberHost().isEmpty())
-            {
-                if (context.cfg.getOverrideSubscriberHost().trim().equals("true"))
-                    throw new MungeException("Override Subscriber host invalid for listen: true");
-
-                address = context.cfg.getOverrideSubscriberHost();
-                hostListen = context.cfg.gs("Z.custom");
-            }
-            else
+            if (context.cfg.getOverrideSubscriberHost().isEmpty() || context.cfg.getOverrideSubscriberHost().trim().equals("true"))
             {
                 address = listenerRepo.getLibraryData().libraries.listen;
                 hostListen = context.cfg.gs("Z.listen");
@@ -322,6 +314,11 @@ public class ServeStty extends Thread
                     address = listenerRepo.getLibraryData().libraries.host;
                     hostListen = context.cfg.gs("Z.host");
                 }
+            }
+            else
+            {
+                address = context.cfg.getOverrideSubscriberHost();
+                hostListen = context.cfg.gs("Z.custom");
             }
 
             startServer(address, hostListen);

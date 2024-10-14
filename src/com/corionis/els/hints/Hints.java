@@ -73,7 +73,7 @@ public class Hints
         String result = "false";
         boolean success = false;
 
-        HintKey hk = context.hints.findHintKey(repo);
+        HintKey hk = context.hintsHandler.findHintKey(repo);
         forIndex = hint.isFor(hk.system);
         if (forIndex >= -1)
         {
@@ -601,7 +601,7 @@ public class Hints
 
         if (context.cfg.isNavigator())
         {
-            context.navigator.checkForHints(true);
+            context.navigator.checkForHints();
             if (context.navigator.dialogHints != null && context.navigator.dialogHints.isVisible())
                 context.navigator.dialogHints.refresh();
         }

@@ -234,7 +234,7 @@ public class MainFrame extends JFrame
         tabbedPaneBrowserOne.setTabPlacement(tabPlacement);
         tabbedPaneBrowserTwo.setTabPlacement(tabPlacement);
 
-        if (tabPlacementIndex > 1) // left or right, rotate
+        if (tabPlacementIndex == 1 || tabPlacementIndex == 3) // left or right, rotate
         {
             // change browser tabs orientation to vertical
             JLabel label = new JLabel(context.cfg.gs("Navigator.panel.CollectionOne.tab.title"));
@@ -255,7 +255,7 @@ public class MainFrame extends JFrame
         }
         else // top or bottom
         {
-            // change browser tabs orientation to vertical
+            // change browser tabs orientation to horizontal
             JLabel label = new JLabel(context.cfg.gs("Navigator.panel.CollectionOne.tab.title"));
             label.setUI(new BasicLabelUI());
             tabbedPaneBrowserOne.setTabComponentAt(0, label);
@@ -329,7 +329,7 @@ public class MainFrame extends JFrame
 
     private void tabbedPaneMainStateChanged(ChangeEvent e)
     {
-        labelStatusMiddle.setText(" ");
+        labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
         int index = tabbedPaneMain.getSelectedIndex();
         if (index == 0)
         {
@@ -354,6 +354,27 @@ public class MainFrame extends JFrame
             context.mainFrame.menuTbDelete.setEnabled(sense);
             context.mainFrame.menuTbNewFolder.setEnabled(sense);
             context.mainFrame.menuTbRefresh.setEnabled(sense);
+
+            int size;
+            int tab = tabbedPaneBrowserOne.getSelectedIndex();
+            if (tab == 0)
+                size = tableCollectionOne.getRowCount();
+            else
+                size = tableSystemOne.getRowCount();
+            labelStatusLeft.setText(Utils.formatInteger(size) + " " +
+                    context.cfg.gs("Z.publisher") +
+                    (size > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
+
+            labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
+
+            tab = tabbedPaneBrowserTwo.getSelectedIndex();
+            if (tab == 0)
+                size = tableCollectionTwo.getRowCount();
+            else
+                size = tableSystemTwo.getRowCount();
+            labelStatusRight.setText(Utils.formatInteger(size) + " " +
+                    context.cfg.gs("Z.subscriber") +
+                    (size > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
 
             if (context.browser != null && sense == true)
                 context.browser.selectPanelNumber(context.browser.lastPanelNumber);
@@ -382,6 +403,10 @@ public class MainFrame extends JFrame
             context.mainFrame.menuTbDelete.setEnabled(false);
             context.mainFrame.menuTbNewFolder.setEnabled(false);
             context.mainFrame.menuTbRefresh.setEnabled(false);
+
+            labelStatusLeft.setText("");
+            labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
+            labelStatusRight.setText("");
 
             if (context.browser != null)
                 context.libraries.selectLastTab();
@@ -607,8 +632,6 @@ public class MainFrame extends JFrame
         buttonLibrariesAddIgnore = new JButton();
         buttonLibrariesRemoveIgnore = new JButton();
         vSpacer41 = new JPanel(null);
-        panelHintServerCard = new JPanel();
-        panelTargetsCard = new JPanel();
         panelXCard = new JPanel();
         panelYCard = new JPanel();
         locationsTab = new JPanel();
@@ -1008,6 +1031,7 @@ public class MainFrame extends JFrame
                 menuItemHints.setText(context.cfg.gs("Navigator.menuItemHints.text"));
                 menuItemHints.setMnemonic(context.cfg.gs("Navigator.menuItemHints.mnemonic").charAt(0));
                 menuItemHints.setIcon(new ImageIcon(getClass().getResource("/hints.png")));
+                menuItemHints.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0));
                 menuSystem.add(menuItemHints);
                 menuSystem.addSeparator();
 
@@ -2302,34 +2326,6 @@ public class MainFrame extends JFrame
                                         }
                                         generalOptions.add(panelLibraryCard, "Library");
 
-                                        //======== panelHintServerCard ========
-                                        {
-                                            panelHintServerCard.addComponentListener(new ComponentAdapter() {
-                                                @Override
-                                                public void componentShown(ComponentEvent e) {
-                                                    cardShown(e);
-                                                }
-                                            });
-                                            panelHintServerCard.setLayout(new GridBagLayout());
-                                            ((GridBagLayout)panelHintServerCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                                            ((GridBagLayout)panelHintServerCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
-                                        }
-                                        generalOptions.add(panelHintServerCard, "HintServer");
-
-                                        //======== panelTargetsCard ========
-                                        {
-                                            panelTargetsCard.addComponentListener(new ComponentAdapter() {
-                                                @Override
-                                                public void componentShown(ComponentEvent e) {
-                                                    cardShown(e);
-                                                }
-                                            });
-                                            panelTargetsCard.setLayout(new GridBagLayout());
-                                            ((GridBagLayout)panelTargetsCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                                            ((GridBagLayout)panelTargetsCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
-                                        }
-                                        generalOptions.add(panelTargetsCard, "Targets");
-
                                         //======== panelXCard ========
                                         {
                                             panelXCard.addComponentListener(new ComponentAdapter() {
@@ -2992,8 +2988,6 @@ public class MainFrame extends JFrame
     public JButton buttonLibrariesAddIgnore;
     public JButton buttonLibrariesRemoveIgnore;
     public JPanel vSpacer41;
-    public JPanel panelHintServerCard;
-    public JPanel panelTargetsCard;
     public JPanel panelXCard;
     public JPanel panelYCard;
     public JPanel locationsTab;

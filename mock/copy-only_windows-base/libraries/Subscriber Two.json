@@ -1,0 +1,43 @@
+{
+    "libraries": {
+        "description": "Subscriber Two",
+        "key": "cc155c0d-32d9-4640-8c20-b5fe6073e41d",
+        "host": "localhost:40500",
+        "listen": "localhost:40600",
+        "timeout": 0,
+        "flavor": "Linux",
+        "case_sensitive": false,
+        "temp_dated": false,
+        "temp_location": "output",
+        "terminal_allowed": false,
+        "ignore_patterns": [
+            "(?i)desktop\\.ini",
+            ".*\\.fuse.*",
+            ".*\\.srt",
+            "Thumbs\\.db",
+            "\\.DS_Store"
+        ],
+        "locations": [
+            {
+                "location": "test/subscriber-two",
+                "minimum": "40GB"
+            }
+        ],
+        "bibliography": [
+            {
+                "name": "Movies",
+                "sources": [
+                    "test/subscriber-two/media/Movies"
+                ],
+                "items": null
+            },
+            {
+                "name": "TV Shows",
+                "sources": [
+                    "test/subscriber-two/media/TV Shows"
+                ],
+                "items": null
+            }
+        ]
+    }
+}

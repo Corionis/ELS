@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-rt/bin/java -jar bin/ELS.jar -C . --navigator -c debug -d debug -J --hint-server libraries/hint-server.json -k system/hint.keys -P libraries/subscriber-one.json -S libraries/publisher.json -F output/100-27_Navigator-sub-remote-hints.log
+rt/bin/java -jar bin/ELS.jar -C . --navigator -c debug -d debug -J --hint-server "libraries/Hint Server.json" -k "system/hint.keys" -P "libraries/Subscriber One.json" -S "libraries/Publisher.json" -F output/100-27_Navigator-sub-remote-hints.log
 

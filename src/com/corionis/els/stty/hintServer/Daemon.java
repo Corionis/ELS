@@ -83,7 +83,7 @@ public class Daemon extends AbstractDaemon
     }
 
     /**
-     * Handshake using hints keys file (only) instead of point-to-point
+     * Handshake using hintsHandler keys file (only) instead of point-to-point
      *
      * @return String name of back-up system
      */
@@ -110,7 +110,7 @@ public class Daemon extends AbstractDaemon
                 // validate with Authentication Keys if specified
                 if (context.authKeys != null)
                 {
-                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
+                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hintsHandler keys file
                     if (connectedKey != null)
                     {
                         // send my flavor
@@ -126,7 +126,7 @@ public class Daemon extends AbstractDaemon
                         logger.error("Hint Server cannot find key: " + input);
                     }
                 }
-                else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
+                else if (theirRepo != null && input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
                 {
                     // send my flavor
                     send(myRepo.getLibraryData().libraries.flavor, "");
@@ -185,7 +185,7 @@ public class Daemon extends AbstractDaemon
         connected = true;
 
         String system = handshake();
-        if (system.length() == 0) // special handshake using hints keys file instead of point-to-point
+        if (system.length() == 0) // special handshake using hintsHandler keys file instead of point-to-point
         {
             logger.error("Connection to " + Utils.formatAddresses(socket) + " failed handshake");
         }
@@ -272,7 +272,7 @@ public class Daemon extends AbstractDaemon
                         {
                             String lib = getNextToken(t);
                             String itemPath = getNextToken(t);
-                            ArrayList<Hint> results = context.hints.checkConflicts(lib, itemPath);
+                            ArrayList<Hint> results = context.hintsHandler.checkConflicts(lib, itemPath);
                             if (results != null && results.size() > 0)
                             {
                                 String json = gsonBuilder.toJson(results);
@@ -368,7 +368,7 @@ public class Daemon extends AbstractDaemon
                             {
                                 String json = line.substring(7);
                                 Hint hint = gsonParser.fromJson(json, Hint.class);
-                                context.hints.writeOrUpdateHint(hint, null);
+                                context.hintsHandler.writeOrUpdateHint(hint, null);
                                 valid = true;
                                 response = "true";
                                 logger.info("Hint updated: " + hint.getLocalUtc(context));

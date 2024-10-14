@@ -238,7 +238,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
      */
     private void exportHints(ArrayList<NavTreeUserObject> transferData, NavTreeUserObject targetTuo) throws Exception
     {
-        // hints are for moves in the localContext of DnD/CCP
+        // hintsHandler are for moves in the localContext of DnD/CCP
         // copies to or within a collection are a basic add
         if (action == TransferHandler.MOVE)
         {

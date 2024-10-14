@@ -1,7 +1,7 @@
 {
   "configName": "Remote publish",
   "internalName": "Operations",
-  "operation": "PublishRemote",
+  "operation": "PublisherOperation",
   "card": "Publisher",
   "optAuthKeys": "",
   "optNoBackFill": false,
@@ -12,7 +12,7 @@
   "optListenerKeepGoing": false,
   "optListenerQuit": false,
   "optHints": "",
-  "optHintServer": "libraries/hint-server.json",
+  "optHintServer": "libraries/Hint Server.json",
   "optExportItems": "",
   "optIpWhitelist": "",
   "optKeys": "system/hint.keys",

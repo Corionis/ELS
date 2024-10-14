@@ -2,7 +2,7 @@
   <configuration default="false" name="062-22_Publisher-One-dryrun" type="Application" factoryName="Application" folderName="062-00 Local Hint Tracker - Remote Backup">
     <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-C . --hints libraries/hint-server.json -k system/hint.keys -c debug -d debug -r P -p libraries/publisher.json -O -s libraries/subscriber-one.json -T -m output/062-22_Publisher-One-dryrun_mismatches.txt -W output/062-22_Publisher-One-dryrun_whatsnew.txt -F output/062-22_Publisher-One-dryrun.log --dry-run" />
+    <option name="PROGRAM_PARAMETERS" value="-C . --hints &quot;libraries/Hint Server.json&quot; -k system/hint.keys -c debug -d debug -r P -p &quot;libraries/Publisher.json&quot; -O -s &quot;libraries/Subscriber One.json&quot; -T -m output/062-22_Publisher-One-dryrun_mismatches.txt -W output/062-22_Publisher-One-dryrun_whatsnew.txt -F output/062-22_Publisher-One-dryrun.log --dry-run" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <method v="2">

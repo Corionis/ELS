@@ -2,7 +2,7 @@
   "configName": "030 Sub-Job Renamer",
   "tasks": [
     {
-      "configName": "020 Multi-Renamer Publisher L",
+      "configName": "020 Multi-Renamer publisher L",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
@@ -12,7 +12,7 @@
       "publisherKey": "",
       "publisherPath": "",
       "subscriberKey": "",
-      "subscriberOverrideHost": false,
+      "subscriberOverride": "true",
       "subscriberPath": "",
       "subscriberRemote": false
     },
@@ -27,7 +27,7 @@
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
-      "subscriberOverrideHost": false,
+      "subscriberOverride": "true",
       "subscriberPath": "",
       "subscriberRemote": false
     }

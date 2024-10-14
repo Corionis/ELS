@@ -1,0 +1,48 @@
+{
+    "libraries": {
+        "description": "Publisher",
+        "key": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+        "host": "localhost:40700",
+        "listen": "localhost:40800",
+        "timeout": 0,
+        "flavor": "Linux",
+        "case_sensitive": false,
+        "temp_dated": false,
+        "temp_location": "output",
+        "terminal_allowed": false,
+        "ignore_patterns": [
+            "(?i)desktop\\.ini",
+            ".*\\.fuse.*",
+            ".*\\.srt",
+            "Thumbs\\.db",
+            "\\.DS_Store"
+        ],
+        "locations": [
+            {
+                "location": "test/publisher",
+                "minimum": "40GB"
+            },
+            {
+                "location": "test/subscriber-one/media/TV Shows",
+                "minimum": "40GB"
+            }
+        ],
+        "bibliography": [
+            {
+                "name": "Movies",
+                "sources": [
+                    "test/publisher/media/Movies"
+                ],
+                "items": null
+            },
+            {
+                "name": "TV Shows",
+                "sources": [
+                    "test/publisher/media/TV Shows",
+                    "test/publisher/more-media/TV Shows"
+                ],
+                "items": null
+            }
+        ]
+    }
+}

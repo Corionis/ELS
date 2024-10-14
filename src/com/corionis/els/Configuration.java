@@ -89,11 +89,11 @@ public class Configuration
     private String overrideSubscriberHost = "";
     private int overwrite = -1;
     private int preserveDates = -1;
-    private int publishOperation = -1;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
     private int quitStatusServer = -1;
     private int quitSubscriberListener = -1;
+    private String remoteArg = "";
     private int requestCollection = -1;
     private int requestTargets = -1;
     private ArrayList<String> selectedLibraryExcludes = new ArrayList<>();
@@ -110,12 +110,6 @@ public class Configuration
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
     private String workingDirectory = "";
-
-    public static enum Operations
-    {
-        NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
-        SubscriberTerminal, StatusServer, StatusServerQuit, SubscriberListenerQuit
-    }
 
     /**
      * Constructor
@@ -205,7 +199,6 @@ public class Configuration
         clone.overrideSubscriberHost = overrideSubscriberHost;
         clone.overwrite = overwrite;
         clone.preserveDates = preserveDates;
-        clone.publishOperation = publishOperation;
         clone.publisherCollectionFilename = publisherCollectionFilename;
         clone.publisherLibrariesFileName = publisherLibrariesFileName;
         clone.quitStatusServer = quitStatusServer;
@@ -277,7 +270,6 @@ public class Configuration
         overrideSubscriberHost = clone.overrideSubscriberHost;
         overwrite = clone.overwrite;
         preserveDates = clone.preserveDates;
-        publishOperation = clone.publishOperation;
         publisherCollectionFilename = clone.publisherCollectionFilename;
         publisherLibrariesFileName = clone.publisherLibrariesFileName;
         quitStatusServer = clone.quitStatusServer;
@@ -375,6 +367,17 @@ public class Configuration
         // change to working directory
         setWorkingDirectory(wd.getAbsolutePath());
         System.setProperty("user.dir", getWorkingDirectory());
+    }
+
+    /**
+     * Disable Hint Tracking/Server
+     * <p></p>
+     * Use BEFORE main.setupHints();
+     */
+    public void disableHintTracking()
+    {
+        this.hintTrackerFilename = "";
+        this.hintsDaemonFilename = "";
     }
 
     /**
@@ -1113,17 +1116,6 @@ public class Configuration
      */
     public int getOperation()
     {
-        if (this.operation == NOT_SET &&
-                getPublisherFilename().length() == 0 &&
-                getSubscriberFilename().length() == 0 &&
-                getHintsDaemonFilename().length() > 0)
-        {
-            return STATUS_SERVER;
-        }
-        else if (this.operation == NOT_SET)
-        {
-            return NOT_REMOTE;
-        }
         return this.operation;
     }
 
@@ -1626,7 +1618,7 @@ public class Configuration
      */
     public boolean isPublishOperation()
     {
-        return publishOperation == 1 ? true : false;
+        return (operation == NOT_REMOTE || operation == PUBLISH_REMOTE) ? true : false;
     }
 
     /**
@@ -1989,7 +1981,6 @@ public class Configuration
                     {
                         setExportTextFilename(args[index + 1].trim());
                         ++index;
-                        setPublishOperation(false);
                     }
                     else
                     {
@@ -2025,7 +2016,6 @@ public class Configuration
                 case "-G":                                              // tell listener to quit right now, then end
                 case "--listener-quit":
                     setQuitSubscriberListener(true);
-                    operation = SUBSCRIBER_LISTENER_FORCE_QUIT;
                     break;
                 case "-h":                                              // hint status tracker
                 case "--hints":
@@ -2034,7 +2024,6 @@ public class Configuration
                         setHintTrackerFilename(args[index + 1].trim());
                         verifyFileExistence(getHintTrackerFilename());
                         ++index;
-                        setPublishOperation(false);
                     }
                     else
                     {
@@ -2043,13 +2032,11 @@ public class Configuration
                     break;
                 case "-H":                                              // hint status server
                 case "--hint-server":
-                    // this.operation = STATUS_SERVER;  See getOperation()
                     if (index <= args.length - 2)
                     {
                         setHintsDaemonFilename(args[index + 1].trim());
                         verifyFileExistence(getHintsDaemonFilename());
                         ++index;
-                        setPublishOperation(false);
                     }
                     else
                     {
@@ -2062,7 +2049,6 @@ public class Configuration
                     {
                         setExportCollectionFilename(args[index + 1].trim());
                         ++index;
-                        setPublishOperation(false);
                     }
                     else
                     {
@@ -2084,12 +2070,10 @@ public class Configuration
                     break;
                 case "-j":                                             // Job
                 case "--job":
-                    this.operation = JOB_PROCESS;
                     if (index <= args.length - 2)
                     {
                         setJobName(args[index + 1].trim());
                         ++index;
-                        setPublishOperation(false);
                     }
                     else
                     {
@@ -2233,13 +2217,12 @@ public class Configuration
                 case "-Q":                                             // tell status server to quit right now, then end
                 case "--force-quit":
                     setQuitStatusServer(true);
-                    this.operation = STATUS_SERVER_FORCE_QUIT;
                     break;
                 case "-r":                                             // remote session
                 case "--remote":
                     if (index <= args.length - 2)
                     {
-                        setRemoteType(args[index + 1].trim());
+                        remoteArg = args[index + 1].trim();
                         ++index;
                     }
                     else
@@ -2681,9 +2664,49 @@ public class Configuration
         this.noBackFill = noBackFill ? 1 : 0;
     }
 
-    public void setOperation(int operation)
+    /**
+     * Sets the operation value based on the remote type
+     *
+     * @param remoteType the remote type, if empty string the command line argument is used
+     */
+    public void setOperation(String remoteType)
     {
-        this.operation = operation;
+        operation = NOT_SET;
+
+        if (remoteType.isEmpty())
+            remoteType = remoteArg; // use command line value
+
+        if (!remoteType.isEmpty())
+        {
+            if (remoteType.equalsIgnoreCase("P")) // 1
+                operation = PUBLISH_REMOTE;
+            else if (remoteType.equalsIgnoreCase("S")) // 2
+                operation = SUBSCRIBER_LISTENER;
+            else if (remoteType.equalsIgnoreCase("M")) // 3
+                operation = PUBLISHER_MANUAL;
+            else if (remoteType.equalsIgnoreCase("L")) // 4
+                operation = PUBLISHER_LISTENER;
+            else if (remoteType.equalsIgnoreCase("T")) // 5
+                operation = SUBSCRIBER_TERMINAL;
+            else if (!remoteType.equals("-"))
+                remoteType = "-";
+        }
+
+        if (getPublisherFilename().length() == 0 &&
+                getSubscriberFilename().length() == 0 &&
+                getHintsDaemonFilename().length() > 0)
+        {
+            operation = STATUS_SERVER;
+        }
+        if (!getJobName().isEmpty())
+            operation = JOB_PROCESS;
+        if (isQuitStatusServer())
+            operation = STATUS_SERVER_FORCE_QUIT;
+        if (isQuitSubscriberListener())
+            operation = SUBSCRIBER_LISTENER_FORCE_QUIT;
+
+        if (operation == NOT_SET)
+            operation = NOT_REMOTE;
     }
 
     public void setOverrideHintsHost(boolean overrideHintHost)
@@ -2712,16 +2735,6 @@ public class Configuration
     public void setPreserveDates(boolean preserveDates)
     {
         this.preserveDates = preserveDates ? 1 : 0;
-    }
-
-    /**
-     * Set if this is a publish operation
-     *
-     * @param publishOperation true/false
-     */
-    public void setPublishOperation(boolean publishOperation)
-    {
-        this.publishOperation = publishOperation ? 1 : 0;
     }
 
     /**
@@ -2762,30 +2775,6 @@ public class Configuration
     public void setQuitSubscriberListener(boolean quitSubscriberListener)
     {
         this.quitSubscriberListener = quitSubscriberListener ? 1 : 0;
-    }
-
-    /**
-     * Sets remote type
-     *
-     * @param type the remote type and remote flag
-     */
-    public void setRemoteType(String type)
-    {
-        this.operation = NOT_REMOTE;
-        if (type.equalsIgnoreCase("P")) // 1
-            this.operation = PUBLISH_REMOTE;
-        else if (type.equalsIgnoreCase("S")) // 2
-            this.operation = SUBSCRIBER_LISTENER;
-        else if (type.equalsIgnoreCase("M")) // 3
-            this.operation = PUBLISHER_MANUAL;
-        else if (type.equalsIgnoreCase("L")) // 4
-            this.operation = PUBLISHER_LISTENER;
-        else if (type.equalsIgnoreCase("T")) // 5
-            this.operation = SUBSCRIBER_TERMINAL;
-        else if (type.equalsIgnoreCase("J")) // 8
-            this.operation = JOB_PROCESS;
-        else if (!type.equals("-"))
-            type = "-";
     }
 
     /**

@@ -15,6 +15,22 @@
 
 <hr/>
 
+<h3>14 October 2024</h3>
+<ul>
+    <li>Added the ability to select a system directory for Libraries - Locations, Sources, Multi-source, and the temporary directory.</li>
+    <li>Adjusted Job Task Origins publisher/subscriber/hint server display and select list handling.</li>
+    <li>Removed the distinction between Local and Remote Publish from the Operations tool. That is now determined by the Subscriber connection.</li>
+    <li><i>Important:</i> The Operations value for Local and Remote Publish has changed. Previous Publisher values are invalid and <b>will cause an exception</b>.</li>
+    <li>Subscriber listener (--remote S) operations no longer require a Publisher if an Authentication Keys file is specified.</li>
+    <li>Subscriber operations do not require a Hint Server and will be ignored. Hints are handled by Publishers.</li>
+    <li>Removed Hint Tracker/Server combobox and file value from Operations so the Hint Tracker/Sever Origin is defined in a Job Task.</li>
+    <li><i>Important:</i> To enable the use of Hints in a Job Task define Hint Keys in the Operations Tool.</li>
+    <li>Fixed updating Jobs when a Library is renamed or its key is changed, or if Hint Keys are removed.</li>
+    <li>Fixed dynamic updating of the Browser and Hints dialog as Hints are added, run, etc.</li>
+    <li>Fixed restoring mnemonics, arrows, etc. on Cancel in Settings.</li>
+    <li>Changed the default Browser tab location from bottom to top and fixed a related bug.</li>
+</ul>
+
 <h3>4 September 2024</h3>
 <ul>
     <li>Changed Browser column resize policy.</li>

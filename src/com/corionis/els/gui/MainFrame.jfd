@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.3" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.4" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -1164,28 +1164,6 @@ new FormModel {
 												"$alignTop": true
 												"$hGap": 4
 											} ) {
-												name: "panelHintServerCard"
-												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
-											}, new FormLayoutConstraints( class java.lang.String ) {
-												"value": "HintServer"
-											} )
-											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-												"$columnSpecs": "0, 0"
-												"$rowSpecs": "0, 0, 0"
-												"$alignTop": true
-												"$hGap": 4
-											} ) {
-												name: "panelTargetsCard"
-												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
-											}, new FormLayoutConstraints( class java.lang.String ) {
-												"value": "Targets"
-											} )
-											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-												"$columnSpecs": "0, 0"
-												"$rowSpecs": "0, 0, 0"
-												"$alignTop": true
-												"$hGap": 4
-											} ) {
 												name: "panelXCard"
 												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
 											}, new FormLayoutConstraints( class java.lang.String ) {
@@ -1870,6 +1848,7 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemHints.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemHints.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/hints.png" )
+						"accelerator": static javax.swing.KeyStroke getKeyStroke( 115, 0, false )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator21"

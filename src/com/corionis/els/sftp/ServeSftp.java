@@ -1,9 +1,9 @@
 package com.corionis.els.sftp;
 
 import com.corionis.els.Context;
-import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.hints.HintKey;
+import com.corionis.els.hints.HintKeys;
 import com.corionis.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,15 +69,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         theirRepo = theirs;
 
         String address = "";
-        if (!context.cfg.getOverrideSubscriberHost().isEmpty())
-        {
-            if (!context.cfg.getOverrideSubscriberHost().trim().equals("true"))
-            {
-                address = context.cfg.getOverrideSubscriberHost();
-                hostListen = context.cfg.gs("Z.custom");
-            }
-        }
-        else
+        if (context.cfg.getOverrideSubscriberHost().isEmpty() || context.cfg.getOverrideSubscriberHost().trim().equals("true"))
         {
             address = myRepo.getLibraryData().libraries.listen;
             hostListen = context.cfg.gs("Z.listen");
@@ -87,11 +79,17 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 hostListen = context.cfg.gs("Z.host");
             }
         }
+        else
+        {
+            address = context.cfg.getOverrideSubscriberHost();
+            hostListen = context.cfg.gs("Z.custom");
+        }
 
         hostname = Utils.parseHost(address);
         listenport = Utils.getPort(address) + ((primaryServers) ? 1 : 3);
 
-        user = theirRepo.getLibraryData().libraries.key;
+        if (theirRepo != null)
+            user = theirRepo.getLibraryData().libraries.key;
         password = myRepo.getLibraryData().libraries.key;
     }
 
@@ -167,17 +165,17 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 public boolean authenticate(String s, String s1, ServerSession serverSession) throws PasswordChangeRequiredException, AsyncAuthException
                 {
                     boolean authenticated = false;
-
-                    if (context.hintKeys != null)
+                    HintKeys keys = (context.authKeys != null) ? context.authKeys : context.hintKeys;
+                    if (keys != null)
                     {
-                        HintKey connectedKey = context.hintKeys.findKey(password);  // look for matching key in hints keys file
+                        HintKey connectedKey = keys.findKey(password);  // look for matching key in hintsHandler keys file
                         if (connectedKey != null)
                         {
                             authenticated = true;
                             loginAttempts = 1;
                             loginAttemptAddress = "";
                             String them = "";
-                            HintKey theirKey = context.hintKeys.findKey(s);
+                            HintKey theirKey = keys.findKey(s);
                             if (theirKey != null)
                                 them = theirKey.system + " at ";
                             logger.info("Sftp server authenticated: " + them + serverSession.getClientAddress().toString());

@@ -151,6 +151,11 @@ public class ConfigModel extends DefaultTableModel
         return path;
     }
 
+    public ConfigModel getJobsConfigModel()
+    {
+        return jobsConfigModel;
+    }
+
     /**
      * Find all Job references for the old name and internal name & create a Conflict for each
      *
@@ -322,7 +327,10 @@ public class ConfigModel extends DefaultTableModel
             }
 
             if (changed)
+            {
                 context.navigator.loadJobsMenu();
+                context.libraries.loadJobs();
+            }
         }
         catch (Exception e)
         {
@@ -363,11 +371,9 @@ public class ConfigModel extends DefaultTableModel
      *
      * @param newName New name for Tool
      * @param index   ConfigModel row index
-     * @return success = true, cancelled = false
      */
-    protected boolean updateConfigName(String newName, int index)
+    protected void updateConfigName(String newName, int index)
     {
-        boolean success = false;
         if (index >= 0)
         {
             AbstractTool tool = (AbstractTool) getValueAt(index, 0);
@@ -376,7 +382,6 @@ public class ConfigModel extends DefaultTableModel
                 Job tmp = (Job) find(newName, tool);
                 if (tmp != null)
                 {
-                    success = false;
                     JOptionPane.showMessageDialog(theDialog,
                             context.cfg.gs(("Z.that.configuration.already.exists")),
                             theDialog.getTitle(), JOptionPane.WARNING_MESSAGE);
@@ -415,13 +420,11 @@ public class ConfigModel extends DefaultTableModel
 
                             tool.setConfigName(newName);
                             tool.setDataHasChanged();
-                            context.mainFrame.labelStatusMiddle.setText("");
-                            success = true;
+                            context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                         }
                         else
                         {
                             context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.rename") + context.cfg.gs("Z.cancelled"));
-                            success = false;
                         }
                     }
                 }
@@ -430,8 +433,6 @@ public class ConfigModel extends DefaultTableModel
 
         theDialog.getConfigItems().requestFocus();
         theDialog.getConfigItems().changeSelection(index, 0, false, false);
-
-        return success;
     }
 
     /**

@@ -12,7 +12,7 @@
   "optExportItems": "",
   "optExportText": "",
   "optForceQuit": false,
-  "optHintServer": "libraries/hint-server.json",
+  "optHintServer": "libraries/Hint Server.json",
   "optHintTracker": "",
   "optIgnored": false,
   "optIpWhitelist": "system/whitelist.txt",

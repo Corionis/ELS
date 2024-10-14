@@ -21,7 +21,7 @@
       "publisherKey": "_ANY_SERVER_",
       "publisherPath": "",
       "subscriberKey": "",
-      "subscriberOverrideHost": false,
+      "subscriberOverride": "true",
       "subscriberPath": "",
       "subscriberRemote": false
     }

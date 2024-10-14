@@ -8,5 +8,5 @@ cd "$base"
 
 cd ../..
 
-rt/Contents/Home/bin/java -jar bin/ELS.jar -C . -c debug -d debug --remote S --authorize sharkbait -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/030-21_Subscriber-listener.log
+rt/Contents/Home/bin/java -jar bin/ELS.jar -C . -c debug -d debug --remote S --authorize sharkbait -p "libraries/Publisher.json" -s "libraries/Subscriber One.json" -T -F output/030-21_Subscriber-listener.log
 

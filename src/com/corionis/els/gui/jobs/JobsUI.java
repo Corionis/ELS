@@ -157,7 +157,7 @@ public class JobsUI extends AbstractToolDialog
         repositories = getRepositories();
         loadConfigurations();
         context.navigator.enableDisableToolMenus(this, false);
-        context.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
     }
 
     private void actionCancelClicked(ActionEvent e)
@@ -425,6 +425,7 @@ public class JobsUI extends AbstractToolDialog
 
         if (currentTask != null)
         {
+            boolean anySelected = false;
             JComboBox combo = new JComboBox();
             final JTextField customAddress = new JTextField();
             final JLabel customLabel = new JLabel();
@@ -457,6 +458,7 @@ public class JobsUI extends AbstractToolDialog
                 }
             }
 
+            // title & tooltip
             if (command.equals("buttonPub"))
             {
                 if (currentTool.isToolPubOrSub())
@@ -487,8 +489,11 @@ public class JobsUI extends AbstractToolDialog
             if (command.equals("buttonPub") || currentTool.isToolPubOrSub()) // -------------------- Publisher or both
             {
                 combo.addItem(new ComboItem(id++, context.cfg.gs("JobsUI.any.publisher"), ANY_PUBLISHER));
-                if (currentTask.getPublisherKey().equals(Task.ANY_SERVER))
+                if (currentTask.getPublisherKey().equals(Task.ANY_SERVER) || currentTask.getPublisherKey().isEmpty())
+                {
                     selectedCombo = id - 1;
+                    anySelected = true;
+                }
 
                 combo.addItem(new ComboItem(id++, context.cfg.gs("JobsUI.publisher.specific"), SPECIFIC_PUBLISHER));
                 if (currentTask.getPublisherKey().length() > 0 &&
@@ -496,6 +501,7 @@ public class JobsUI extends AbstractToolDialog
                         !currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK))
                 {
                     selectedCombo = id - 1;
+                    anySelected = false;
                     RepoMeta repoMeta = repositories.findMetaPath(currentTask.publisherPath);
                     if (repoMeta != null)
                         path = repoMeta.path;
@@ -504,12 +510,24 @@ public class JobsUI extends AbstractToolDialog
 
             if (command.equals("buttonSub") || currentTool.isToolPubOrSub()) // ------------------- Subscriber or both
             {
-                combo.addItem(new ComboItem(id++, context.cfg.gs("JobsUI.any.subscriber"), ANY_SUBSCRIBER));
-                if (currentTask.getSubscriberKey().equals(Task.ANY_SERVER))
-                    selectedCombo = id - 1;
+                if (currentTool.isToolPublisher())
+                {
+                    if (!currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) ||
+                        (currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
+                        !((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.SubscriberQuit) &&
+                        !((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.Terminal)))
+                    {
+                        combo.addItem(new ComboItem(id++, context.cfg.gs("JobsUI.any.subscriber"), ANY_SUBSCRIBER));
+                        if (currentTask.getSubscriberKey().equals(Task.ANY_SERVER))
+                        {
+                            selectedCombo = id - 1;
+                            anySelected = true;
+                        }
 
-                text = context.cfg.gs("JobsUI.subscriber.local");
-                combo.addItem(new ComboItem(id++, text, LOCAL));
+                        text = context.cfg.gs("JobsUI.subscriber.local");
+                        combo.addItem(new ComboItem(id++, text, LOCAL));
+                    }
+                }
 
                 // listeners use the Listen port
                 if (!currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) ||
@@ -543,23 +561,34 @@ public class JobsUI extends AbstractToolDialog
                                 selectedCombo = id - 1; // custom
                         }
                         path = repoMeta.path;
+                        anySelected = false;
                     }
                 }
             }
 
-            if (command.equals("buttonHints")) // --------------------------------------------------- Hint Server
+            if (command.equals("buttonHints")) // --------------------------------------------------- Hint Tracker/Server
             {
+                if (currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
+                        ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.Publisher))
+                {
+                    text = context.cfg.gs(("JobsUI.hints.local.tracker"));
+                    combo.addItem(new ComboItem(id++, text, LOCAL));
+                    if (!currentTask.isHintsRemote() /*&& !((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.HintServer)*/)
+                        selectedCombo = id - 1;
+                }
+
                 if (!currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) ||
                         !((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.HintServer))
                 {
                     text = context.cfg.gs("JobsUI.hints.remote.host");
                     combo.addItem(new ComboItem(id++, text, REMOTE_HOST));
-                    selectedCombo = id - 1;
+                    if (currentTask.isHintsRemote() && !currentTask.isHintsOverrideHost())
+                        selectedCombo = id - 1;
                 }
 
                 text = context.cfg.gs("JobsUI.hints.remote.listen");
                 combo.addItem(new ComboItem(id++, text, REMOTE_LISTEN));
-                if (currentTask.isHintsOverrideHost())
+                if (currentTask.isHintsRemote() && currentTask.isHintsOverrideHost())
                     selectedCombo = id - 1;
 
                 RepoMeta repoMeta = repositories.findMetaPath(currentTask.hintsPath);
@@ -571,37 +600,20 @@ public class JobsUI extends AbstractToolDialog
                 selectedCombo = 0;
 
             // Build select vector
-            if (!command.equals("buttonHints"))
+            int vi = -1;
+            for (int i = 0; i < repositories.getRepoList().size(); ++i)
             {
-                int vi = -1;
-                for (int i = 0; i < repositories.getRepoList().size(); ++i)
-                {
-                    Repository repo = repositories.getRepoList().get(i);
-                    if (!repo.isDynamic()) // do not include dynamically-loaded repo
-                    {
-                        text = repo.getLibraryData().libraries.description;
-                        if (repo.getLibraryData().libraries.listen.equals(repo.getLibraryData().libraries.host))
-                            text += " *";
-                        vector.add(text);
-                        vectorRepositories.add(repo);
-                        ++vi;
-                        if (repo.getJsonFilename().equals(path))
-                            selectedList = vi;
-                    }
-                }
-            }
-            else // Hint Server
-            {
-                key = getHintsKey();
-                Repository repo = repositories.findRepoPath(currentTask.getHintsPath());
-                if (repo != null)
+                Repository repo = repositories.getRepoList().get(i);
+                if (!repo.isDynamic()) // do not include dynamically-loaded repo
                 {
                     text = repo.getLibraryData().libraries.description;
                     if (repo.getLibraryData().libraries.listen.equals(repo.getLibraryData().libraries.host))
                         text += " *";
                     vector.add(text);
                     vectorRepositories.add(repo);
-                    selectedList = 0;
+                    ++vi;
+                    if (repo.getJsonFilename().equals(path))
+                        selectedList = vi;
                 }
             }
 
@@ -627,14 +639,16 @@ public class JobsUI extends AbstractToolDialog
             if (selectedList >= 0)
                 list.setSelectedIndex(selectedList);
 
-            if (command.equals("buttonHints"))
+            if (/*command.equals("buttonHints") ||*/ anySelected)
                 list.setEnabled(false);
 
             combo.setSelectedIndex(selectedCombo);
 
             // Add combobox listener
             Object customObject = null;
-            if (command.equals("buttonSub") || currentTool.isToolPubOrSub())
+            customAddress.setToolTipText(context.cfg.gs("Navigator.menu.Open.valid.port.tooltip"));
+
+            if (command.equals("buttonPub") || command.equals("buttonSub") || currentTool.isToolPubOrSub())
             {
                 combo.addActionListener(new ActionListener()
                 {
@@ -646,8 +660,7 @@ public class JobsUI extends AbstractToolDialog
                         {
                             int selected = combo.getSelectedIndex();
                             ComboItem item = (ComboItem) combo.getItemAt(selected);
-                            if (item.type == CACHED_LAST_TASK || item.type == ANY_PUBLISHER ||
-                                    item.type == ANY_SUBSCRIBER || command.equals("buttonHints"))
+                            if (item.type == CACHED_LAST_TASK || item.type == ANY_PUBLISHER || item.type == ANY_SUBSCRIBER)
                                 list.setEnabled(false);
                             else
                             {
@@ -656,6 +669,7 @@ public class JobsUI extends AbstractToolDialog
                                 if (s < 0)
                                     list.setSelectedIndex(0);
                             }
+
                             // update custom state
                             customLabel.setEnabled(item.type == REMOTE_CUSTOM);
                             customAddress.setEnabled(item.type == REMOTE_CUSTOM);
@@ -668,33 +682,37 @@ public class JobsUI extends AbstractToolDialog
                                         override = "";
                                     if (override.isEmpty())
                                         override = context.preferences.getLastOverrideSubscriber();
-                                    if (override.trim().equals("true"))
+                                    if (override.trim().equals("true")) // check twice
                                         override = "";
                                     customAddress.setText(override);
+                                    customAddress.requestFocus();
                                 }
                             }
                         }
                     }
                 });
 
-                // set initial custom state
-                ComboItem item = (ComboItem) combo.getItemAt(selectedCombo);
-                customLabel.setEnabled(item.type == REMOTE_CUSTOM);
-                customAddress.setEnabled(item.type == REMOTE_CUSTOM);
-
-                customLabel.setText(context.cfg.gs("Navigator.labelCustom.text"));
-                if (item.type == REMOTE_CUSTOM)
+                if (command.equals("buttonSub"))
                 {
-                    String override = currentTask.subscriberOverride;
-                    if (override.isEmpty())
-                        override = context.preferences.getLastOverrideSubscriber();
-                    if (override.trim().equals("true"))
-                        override = "";
-                    customAddress.setText(override);
+                    // set initial custom state
+                    ComboItem item = (ComboItem) combo.getItemAt(selectedCombo);
+                    customLabel.setEnabled(item.type == REMOTE_CUSTOM);
+                    customAddress.setEnabled(item.type == REMOTE_CUSTOM);
+
+                    customLabel.setText(context.cfg.gs("Navigator.labelCustom.text"));
+                    if (item.type == REMOTE_CUSTOM)
+                    {
+                        String override = currentTask.subscriberOverride;
+                        if (override.isEmpty())
+                            override = context.preferences.getLastOverrideSubscriber();
+                        if (override.trim().equals("true"))
+                            override = "";
+                        customAddress.setText(override);
+                    }
+                    customPanel.add(customLabel, BorderLayout.WEST);
+                    customPanel.add(customAddress, BorderLayout.CENTER);
+                    customObject = customPanel;
                 }
-                customPanel.add(customLabel, BorderLayout.WEST);
-                customPanel.add(customAddress, BorderLayout.CENTER);
-                customObject = customPanel;
             }
 
             String comment = context.cfg.gs("JobsUI.list.comment");
@@ -705,7 +723,6 @@ public class JobsUI extends AbstractToolDialog
             list.requestFocus();
 
             Object[] params = {title, combo, pane, comment, customObject};
-
             while (true)
             {
                 // prompt user
@@ -749,18 +766,9 @@ public class JobsUI extends AbstractToolDialog
                             continue;
                         }
 
-                        if (command.equals("buttonHints"))
-                        {
-                            key = currentTask.getHintsKey();
-                            // because the Operation defines Hints
-                            path = currentTask.getHintsPath();
-                        }
-                        else
-                        {
-                            Repository repo = (Repository) vectorRepositories.get(index);
-                            key = repo.getLibraryData().libraries.key;
-                            path = repo.getJsonFilename();
-                        }
+                        Repository repo = (Repository) vectorRepositories.get(index);
+                        key = repo.getLibraryData().libraries.key;
+                        path = repo.getJsonFilename();
                     }
 
                     // Set remote and overrides
@@ -835,7 +843,20 @@ public class JobsUI extends AbstractToolDialog
 
                     if (command.equals("buttonHints")) // Hints
                     {
-                        if (item.type == REMOTE_HOST || item.type == REMOTE_LISTEN)
+                        if (item.type == LOCAL)
+                        {
+                            if (currentTask.isHintsRemote())
+                            {
+                                currentTask.setHintsRemote(false);
+                                currentJob.setDataHasChanged();
+                            }
+                            if (currentTask.isHintsOverrideHost())
+                            {
+                                currentTask.setHintsOverrideHost(false);
+                                currentJob.setDataHasChanged();
+                            }
+                        }
+                        else if (item.type == REMOTE_HOST || item.type == REMOTE_LISTEN)
                         {
                             if (!currentTask.isHintsRemote())
                             {
@@ -900,7 +921,7 @@ public class JobsUI extends AbstractToolDialog
                                     currentJob.setDataHasChanged();
                                 }
                             }
-                            else if (item.type == ANY_SUBSCRIBER || item.type == ANY_SUBSCRIBER || item.type == LOCAL ||
+                            else if (item.type == ANY_SUBSCRIBER || item.type == LOCAL ||
                                     item.type == REMOTE_HOST || item.type == REMOTE_LISTEN) // a subscriber selection
                             {
                                 if (doesNotMatch(currentTask.getSubscriberKey(), key) || !currentTask.getSubscriberPath().equals(path))
@@ -952,73 +973,7 @@ public class JobsUI extends AbstractToolDialog
                     if (currentTask.getHintsKey() == null || currentTask.getHintsKey().isEmpty())
                         currentTask.setHintsKey("");
 
-/*
-                // clear anything that no longer applies (Tool change)
-                boolean change = false;
-                if (!buttonPub.isShowing())
-                {
-                    if (currentTask.getPublisherKey().length() > 0)
-                    {
-                        currentTask.setPublisherKey("");
-                        change = true;
-                    }
-                    if (currentTask.getPublisherPath().length() > 0)
-                    {
-                        currentTask.setPublisherPath("");
-                        change = true;
-                    }
-                }
-                if (!buttonSub.isShowing())
-                {
-                    if (currentTask.getSubscriberKey().length() > 0)
-                    {
-                        currentTask.setSubscriberKey("");
-                        change = true;
-                    }
-                    if (currentTask.getSubscriberPath().length() > 0)
-                    {
-                        currentTask.setSubscriberPath("");
-                        change = true;
-                    }
-                    if (currentTask.isSubscriberOverrideHost())
-                    {
-                        currentTask.setSubscriberOverride(false);
-                        change = true;
-                    }
-                    if (currentTask.isSubscriberRemote())
-                    {
-                        currentTask.setSubscriberRemote(false);
-                        change = true;
-                    }
-                }
-                if (!buttonHints.isShowing())
-                {
-                    if (currentTask.getHintsKey().length() > 0)
-                    {
-                        currentTask.setHintsKey("");
-                        change = true;
-                    }
-                    if (currentTask.getHintsPath().length() > 0)
-                    {
-                        currentTask.setHintsPath("");
-                        change = true;
-                    }
-                    if (currentTask.isHintsOverrideHost())
-                    {
-                        currentTask.setHintsOverrideHost(false);
-                        change = true;
-                    }
-                    if (currentTask.isHintsRemote())
-                    {
-                        currentTask.setHintsRemote(false);
-                        change = true;
-                    }
-                }
-                if (change)
-                    currentJob.setDataHasChanged();
-*/
-
-                    loadOrigins(currentTask);
+                   loadOrigins(currentTask);
                     break;
                 }
                 else
@@ -1033,6 +988,11 @@ public class JobsUI extends AbstractToolDialog
         if (index >= 0)
         {
             Job job = (Job) configModel.getValueAt(index, 0);
+            if (job.isDataChanged())
+            {
+                JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                return;
+            }
             processJob(job);
         }
     }
@@ -1062,7 +1022,7 @@ public class JobsUI extends AbstractToolDialog
                 ArrayList<String> toolNames = new ArrayList<>();
                 for (AbstractTool tool : toolList)
                 {
-                    // exclude deleted by not "saved", i.e. removed yet
+                    // exclude deleted but not "saved", i.e. removed yet
                     boolean deleted = false;
                     for (int i = 0; i < deletedTools.size(); ++i)
                     {
@@ -1129,43 +1089,6 @@ public class JobsUI extends AbstractToolDialog
                         logger.error(msg);
                         JOptionPane.showMessageDialog(this, msg,
                                 context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-
-                    // is it a Hint Server?
-                    if (isOperationsCard(currentTask, OperationsTool.Cards.HintServer) || isOperationsCard(currentTask, OperationsTool.Cards.StatusQuit))
-                    {
-                        for (int i = 0; i < repositories.getMetaList().size(); ++i)
-                        {
-                            String path = (repositories.getMetaList().get(i)).path;
-                            if (path.endsWith(((OperationsTool) tool).getOptHintServer()))
-                            {
-                                currentTask.setHintsKey((repositories.getMetaList().get(i)).key);
-                                currentTask.setHintsPath((repositories.getMetaList().get(i)).path);
-                                break;
-                            }
-                        }
-                    }
-                    else if (currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool) tool).getOptHintTracker().length() > 0)
-                    {
-                        // does it use a Hint Tracker?
-                        currentTask.setHintsPath(((OperationsTool) tool).getOptHintTracker());
-                        RepoMeta meta = repositories.findMetaPath(((OperationsTool) tool).getOptHintTracker());
-                        if (meta != null)
-                        {
-                            currentTask.setHintsKey(meta.key);
-                            currentTask.setHintsPath(meta.path);
-                        }
-                    }
-                    else if (currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool) tool).getOptHintServer().length() > 0)
-                    {
-                        // does it use a Hint Server?
-                        currentTask.setHintsPath(((OperationsTool) tool).getOptHintServer());
-                        RepoMeta meta = repositories.findMetaPath(((OperationsTool) tool).getOptHintServer());
-                        if (meta != null)
-                        {
-                            currentTask.setHintsKey(meta.key);
-                            currentTask.setHintsPath(meta.path);
-                        }
                     }
 
                     currentJob.getTasks().add(currentTask);
@@ -1413,39 +1336,6 @@ public class JobsUI extends AbstractToolDialog
         return path;
     }
 
-    private String getHintsKey()
-    {
-        String key = "";
-        if (currentTool.isToolHintServer() && currentTask.getHintsKey() != null && currentTask.getHintsKey().length() > 0)
-        {
-            key = currentTask.getHintsKey();
-        }
-        else // get key from repository based on the path
-        {
-            String path = "";
-            if (currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME))
-                path = ((OperationsTool) currentTool).getHintsPath();
-            if (path.length() > 0)
-            {
-                File file = new File(path);
-                path = file.getAbsolutePath(); // absolute so default .../libraries not prepended
-                Repository repo = repositories.findRepoPath(path);
-                if (repo != null)
-                {
-                    key = repo.getLibraryData().libraries.key;
-                }
-                else
-                {
-                    // must be a non-default path, add it
-                    repo = repositories.addRepo(context, path, Repository.HINT_SERVER);
-                    if (repo != null)
-                        key = repo.getLibraryData().libraries.key;
-                }
-            }
-        }
-        return key;
-    }
-
     public String getOriginType(int type)
     {
         switch (type)
@@ -1487,15 +1377,6 @@ public class JobsUI extends AbstractToolDialog
                     context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
         }
         return repositories;
-    }
-
-    private boolean isOperationsCard(Task task, OperationsTool.Cards card)
-    {
-        AbstractTool tool = findTool(task);
-        assert(tool != null);
-        if (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool) tool).getCard().equals(card))
-            return true;
-        return false;
     }
 
     private void listTasksMouseClicked(MouseEvent e)
@@ -1680,11 +1561,15 @@ public class JobsUI extends AbstractToolDialog
             return;
         }
 
+        boolean needPublisher = currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
+                ((OperationsTool) currentTool).isToolSubscriber() &&
+                ((OperationsTool) currentTool).getOptAuthKeys().isEmpty();
         boolean needSubscriber = false;
         boolean needHints = currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
-                ((OperationsTool) currentTool).getOptHintServer().length() > 0;
+                ((((OperationsTool) currentTool).isToolHintServer() || ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.StatusQuit)) ||
+                (!((OperationsTool) currentTool).getOptKeys().isEmpty()));
 
-        if (currentTool.isToolPublisher()) // -------------------------------------------------------- Publisher
+        if (needPublisher || currentTool.isToolPublisher()) // -------------------------------------------------------- Publisher
         {
             value = "";
             boolean isSub = false;
@@ -1770,10 +1655,20 @@ public class JobsUI extends AbstractToolDialog
 
             buttonPub.setVisible(true);
             if (currentTool.isToolPubOrSub())
-                value = context.cfg.gs("JobsUI.select.publisher.or.subscriber");
+                value = context.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
             else
                 value = context.cfg.gs("JobsUI.select.publisher.tooltip");
             buttonPub.setToolTipText(value);
+
+            if (needSubscriber)
+            {
+                // not for these things
+                if (currentTool.isToolPubOrSub() ||
+                        (currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
+                                (((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.HintServer) ||
+                                ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.StatusQuit))))
+                    needSubscriber = false;
+            }
         }
 
         if (needSubscriber || currentTool.isToolSubscriber()) // ------------------------------------- Subscriber
@@ -1816,6 +1711,9 @@ public class JobsUI extends AbstractToolDialog
             buttonSub.setVisible(true);
             value = context.cfg.gs("JobsUI.select.subscriber.tooltip");
             buttonSub.setToolTipText(value);
+
+            if (currentTool.isToolSubscriber())
+                needHints = false;
         }
 
         if (needHints || currentTool.isToolHintServer()) // ------------------------------------------ Hint Server
@@ -1823,7 +1721,7 @@ public class JobsUI extends AbstractToolDialog
             value = "";
             labelHints.setVisible(true);
 
-            key = getHintsKey();
+            key = currentTask.getHintsKey();
             if (key.trim().length() == 0)
                 value = context.cfg.gs("JobsUI.select.hint.address");
             else
@@ -1831,7 +1729,7 @@ public class JobsUI extends AbstractToolDialog
                 RepoMeta repoMeta = repositories.findMetaPath(currentTask.getHintsPath());
                 if (repoMeta != null)
                 {
-                    if (currentTask.isHintsRemote())
+                    if (currentTask.isHintsRemote() || currentTask.isHintsOverrideHost())
                     {
                         value = context.cfg.gs("Z.remote.uppercase");
                         value += context.cfg.gs("Z.hint.server");
@@ -1842,9 +1740,9 @@ public class JobsUI extends AbstractToolDialog
                         value += context.cfg.gs("Z.hint.tracker");
                     }
                     value += ": " + repoMeta.description;
-                    if (currentTask.isHintsRemote())
+                    if (currentTask.isHintsRemote() || currentTask.isHintsOverrideHost())
                     {
-                        if (currentTask.isHintsOverrideHost())
+                        if (currentTask.isHintsOverrideHost() || currentTool.isToolHintServer())
                             value += context.cfg.gs("Z.listen");
                         else
                             value += context.cfg.gs("Z.host");
@@ -2042,7 +1940,6 @@ public class JobsUI extends AbstractToolDialog
         deletedTools = new ArrayList<AbstractTool>();
 
         configModel.saveJobsConfigurations(configModel);
-
         return true;
     }
 
@@ -2139,7 +2036,7 @@ public class JobsUI extends AbstractToolDialog
 
     // ================================================================================================================
 
-    // <editor-fold desc="Generated code (Fold)">
+    // <editor-fold desc="Generated code (Fold)">-
     // @formatter:off
 
     private void initComponents()

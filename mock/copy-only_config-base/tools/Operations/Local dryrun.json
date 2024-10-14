@@ -1,7 +1,7 @@
 {
   "configName": "Local dryrun",
   "internalName": "Operations",
-  "operation": "NotRemote",
+  "operation": "PublisherOperation",
   "card": "Publisher",
   "optAuthKeys": "",
   "optNoBackFill": false,

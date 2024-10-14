@@ -61,6 +61,7 @@ public class Job extends AbstractTool
 
     public String generateCommandline(boolean isDryRun)
     {
+        // generate-commandline
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
         String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
         String cmd = conf + (isDryRun ? (glo ? " --dry-run" : " -D") : "") + (glo ? " --job \"" : " -j \"") + getConfigName() + "\"";
@@ -386,7 +387,7 @@ public class Job extends AbstractTool
                         try
                         {
                             OperationsTool tool = (OperationsTool) task.getTool();
-                            if (tool.getOperation().equals(Configuration.Operations.StatusServer))
+                            if (tool.getOperation().equals(OperationsTool.Operations.StatusServer))
                                 skip = true;
                         }
                         catch (Exception e)

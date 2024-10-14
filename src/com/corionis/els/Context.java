@@ -30,7 +30,7 @@ public class Context
     public Configuration cfg = null;
     public Datastore datastore = null; // Hints datastore
     public boolean fault = false; // process fault indicator
-    public Hints hints = null;
+    public Hints hintsHandler = null;
     public HintKeys hintKeys = null;
     public Repository hintsRepo = null;
     public ClientStty hintsStty = null;
@@ -71,7 +71,7 @@ public class Context
         clone.cfg = (Configuration) this.cfg.clone();
         clone.datastore = this.datastore;
         clone.fault = this.fault;
-        clone.hints = this.hints;
+        clone.hintsHandler = this.hintsHandler;
         clone.hintKeys = this.hintKeys;
         clone.hintsRepo = this.hintsRepo;
         clone.hintsStty = this.hintsStty;

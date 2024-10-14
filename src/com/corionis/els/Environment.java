@@ -86,7 +86,7 @@ public class Environment
             Thread.sleep(3000); // wait for connection to be setup
         }
 
-        // hints
+        // hintsHandler
         if (hjfChanged)
         {
             setupHintTracking();
@@ -163,7 +163,7 @@ public class Environment
             context.clientStty = new ClientStty(context, false, true, false); //localContext.main.primaryServers);
             if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
             {
-                context.cfg.setRemoteType("-");
+                context.cfg.setOperation("-");
                 if (context.navigator != null)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame,
@@ -185,7 +185,7 @@ public class Environment
             context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, context.main.primaryExecution);
             if (!context.clientSftp.startClient("transfer"))
             {
-                context.cfg.setRemoteType("-");
+                context.cfg.setOperation("-");
                 if (context.navigator != null)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame,
@@ -197,7 +197,7 @@ public class Environment
         }
         else
         {
-            context.cfg.setRemoteType("-");
+            context.cfg.setOperation("-");
             context.clientStty = null;
             context.clientSftp = null;
         }

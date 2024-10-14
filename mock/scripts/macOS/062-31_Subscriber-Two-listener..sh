@@ -8,5 +8,5 @@ cd "$base"
 
 cd ../..
 
-rt/Contents/Home/bin/java -jar bin/ELS.jar -C . --hints libraries/hint-server.json -k system/hint.keys -c debug -d debug --remote S --authorize sharkbait -p libraries/publisher.json -S libraries/subscriber-two.json -T -F output/062-31_Subscriber-Two-listener.log
+rt/Contents/Home/bin/java -jar bin/ELS.jar -C . -k "system/hint.keys" -c debug -d debug --remote S --authorize sharkbait -p "libraries/Publisher.json" -S "libraries/Subscriber Two.json" -T -F output/062-31_Subscriber-Two-listener.log
 

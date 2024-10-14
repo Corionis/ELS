@@ -24,6 +24,14 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Generate command line dialog
+ * <br/> <br/>
+ * See also: <br/>
+ *      Configuration.generateCurrentCommandline() <br/>
+ *      Job.generateCommandline() <br/>
+ *      OperationsTool.generateCommandLine()
+ */
 @SuppressWarnings(value = "unchecked")
 public class Generator
 {
@@ -237,10 +245,13 @@ public class Generator
             {
                 generated = generateJobCommandline(tool, consoleLevel, debugLevel, overwrite, log, foreground);
             }
+/*
+    // this has been removed from OperationsUI; But OperationsTool.generateCommandLine() is used when running a Job
             else if (tool instanceof OperationsTool)
             {
                 generated = generateOperationsCommandline(tool, consoleLevel, debugLevel, overwrite, log);
             }
+*/
             // TODO EXTEND+ Add other command line generators here
         }
         catch (Exception e)
@@ -252,6 +263,7 @@ public class Generator
 
     private String generateJobCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log, boolean foreground) throws Exception
     {
+        // generate-commandline
         boolean glo = context.preferences.isGenerateLongOptions();
         String exec = "\"" + context.cfg.getExecutablePath() + "\"";
         String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
@@ -264,25 +276,6 @@ public class Generator
                 (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
 
         return cmd;
-    }
-
-    private String generateOperationsCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
-    {
-        boolean glo = context.preferences.isGenerateLongOptions();
-        String exec = "\"" + context.cfg.getExecutablePath() + "\"";
-        String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
-        // use localContext.preferences because the subscriber filename can change if requested from a remote listener
-        String opts = ((OperationsTool) tool).generateCommandLine(context.preferences.getLastPublisherOpenFile(), context.preferences.getLastSubscriberOpenFile(), dryRun);
-        String overOpt = overwriteLog ? (glo ? "--log-overwrite" : "-F") : (glo ? "--log-file" : "-f");
-        String cmd = exec + (jar.length() > 0 ? " -jar " + "\"" + jar + "\"" : "") +
-                " " + opts + (glo ? " --console-level " : " -c ") + consoleLevel +
-                (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
-        return cmd;
-    }
-
-    public String getGenerated()
-    {
-        return generated;
     }
 
     private String getTitle(AbstractTool tool)
@@ -512,11 +505,11 @@ public class Generator
                 generatedTextField.setText(generated);
             }
         });
-        if (!fileGenerate)
-            panelDryrun.add(checkboxDryrun);
 
         if (!fileGenerate)
         {
+            panelDryrun.add(checkboxDryrun);
+
             JPanel genSpacer1 = new JPanel();
             genSpacer1.setMinimumSize(new Dimension(22, 6));
             genSpacer1.setPreferredSize(new Dimension(22, 6));
@@ -625,6 +618,12 @@ public class Generator
                 @Override
                 public void actionPerformed(ActionEvent actionEvent)
                 {
+                    if (tool.isDataChanged())
+                    {
+                        JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner, context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
                     String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), tool.getConfigName());
                     Object[] params = {message};
 
@@ -651,11 +650,6 @@ public class Generator
                             JOptionPane.showOptionDialog(context.mainFrame, message, getTitle(tool),
                                     JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
                         }
-
-                        // close the dialog
-//                        Window w = SwingUtilities.getWindowAncestor(runButton);
-//                        if (w != null)
-//                            w.setVisible(false);
                     }
                 }
             });

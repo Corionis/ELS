@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.10" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.4" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -293,7 +293,7 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "showArrowseLabel"
-								"text": new FormMessage( null, "Settings.showArrowseLabel.text" )
+								"text": new FormMessage( null, "Settings.show.Arrows.Label.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridy": 7
 								"insets": #Insets1
@@ -416,7 +416,7 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "uselastPubSubCheckBox"
-								"toolTipText": new FormMessage( null, "Settings.uselastPubSubCheckBox.toolTipText" )
+								"toolTipText": new FormMessage( null, "Settings.use.last.PubSub.CheckBox.toolTipText" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
 								"gridy": 6
@@ -465,4 +465,3 @@ new FormModel {
 		} )
 	}
 }
-

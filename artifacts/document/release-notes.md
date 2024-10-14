@@ -141,13 +141,18 @@ upgrading for changes, additions and enhancements.
     "-C ." for the current directory.
 
 18. Added --marker "arg" to aid in identifying a running process. Any "arg" is ignored.
-    This option has no effect on ELS and is intended to help with scripting if needed.
+    This option has no effect on ELS and is intended to help with scripting.
 
-19. Added -O | --override-subscriber-host to use the listen address:port for out-going connections
-    to a Subscriber instead of the host. Used for LAN connections when host is used over the Internet.
+19. Added -O | --override-subscriber-host [address:port]. If address:port is defined that is used,
+    otherwise the Listen port is used for out-going connections to a Subscriber instead of the host.
+    Subscriber listeners use the Listen address unless the [address:port] is defined. If Listen is
+    not defined the Host is used. Outgoing connections use the Host address unless the -O option
+    for Listen or the [address:port] are defined.
 
 20. Added -J | --override-hint-host to use the listen address:port for out-going connections
-    to a Hint Server instead of the host. Used for LAN connections when host is used over the Internet.
+    to a Hint Server instead of the host. Used for outgoing LAN connections where host is used
+    over the Internet. Hint Server uses the Listen address. There is no optional [address:port]
+    because there can be only one.
 
 21. Added the --logger option for the -j | --job action to execute the Job in the foreground
     with ELS operating in Logger mode to display the Job log.

@@ -1,12 +1,14 @@
 package com.corionis.els.gui.tools.operations;
 
-import com.corionis.els.Configuration;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
-import com.corionis.els.gui.Generator;
 import com.corionis.els.gui.NavHelp;
 import com.corionis.els.gui.jobs.AbstractToolDialog;
 import com.corionis.els.gui.jobs.ConfigModel;
+import com.corionis.els.gui.jobs.Conflict;
+import com.corionis.els.gui.util.DisableJListSelectionModel;
+import com.corionis.els.jobs.Job;
+import com.corionis.els.jobs.Task;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.tools.AbstractTool;
@@ -40,7 +42,7 @@ public class OperationsUI extends AbstractToolDialog
     private int currentConfigIndex = -1;
     private OperationsTool currentTool;
     private String displayName;
-    private Window owner;
+    private boolean inUpdateOnChange = false;
     private boolean pickerAnyFile = false;
     private boolean pickerKeys = false;
     private boolean pickerFileMustExist = false;
@@ -52,12 +54,10 @@ public class OperationsUI extends AbstractToolDialog
     private Mode[] modes;
     private SwingWorker<Void, Void> worker;
     private OperationsTool workerOperation = null;
-    private boolean workerRunning = false;
 
     public OperationsUI(Window owner, Context context)
     {
         super(owner);
-        this.owner = owner;
         this.context = context;
         this.displayName = context.cfg.gs("Operations.displayName");
         initComponents();
@@ -66,34 +66,21 @@ public class OperationsUI extends AbstractToolDialog
 
     private void actionCancelClicked(ActionEvent e)
     {
-        if (workerRunning && worker != null)
+        if (checkForChanges())
         {
-            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("OperationsUI.stop.running.operation"),
-                    "Z.cancel.run", JOptionPane.YES_NO_OPTION);
+            Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
+            int reply = JOptionPane.showOptionDialog(this,
+                    context.cfg.gs("Z.cancel.all.changes"),
+                    getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                    null, opts, opts[1]);
             if (reply == JOptionPane.YES_OPTION)
             {
-                workerOperation.requestStop();
-                logger.info(java.text.MessageFormat.format(context.cfg.gs("OperationsUI.config.cancelled"), workerOperation.getConfigName()));
+                cancelChanges();
+                setVisible(false);
             }
         }
         else
-        {
-            if (checkForChanges())
-            {
-                Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
-                int reply = JOptionPane.showOptionDialog(this,
-                        context.cfg.gs("Z.cancel.all.changes"),
-                        getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-                        null, opts, opts[1]);
-                if (reply == JOptionPane.YES_OPTION)
-                {
-                    cancelChanges();
-                    setVisible(false);
-                }
-            }
-            else
-                setVisible(false);
-        }
+            setVisible(false);
     }
 
     private void actionCopyClicked(ActionEvent e)
@@ -174,14 +161,6 @@ public class OperationsUI extends AbstractToolDialog
         }
     }
 
-    private void actionGenerateClicked(ActionEvent evt)  // NOTE: Button disabled because it has no origins
-    {
-        if (configItems.isEditing())
-            configItems.getCellEditor().stopCellEditing();
-        Generator generator = new Generator(context, false);
-        generator.showDialog(this, currentTool, currentTool.getConfigName());
-    }
-
     private void actionHelpClicked(MouseEvent e)
     {
         helpDialog = new NavHelp(this, this, context, context.cfg.gs("OperationsUI.help"), "operations_" + context.preferences.getLocale() + ".html", false);
@@ -194,7 +173,7 @@ public class OperationsUI extends AbstractToolDialog
         if (configModel.find(context.cfg.gs("Z.untitled"), null) == null)
         {
             String message = context.cfg.gs("OperationsUI.mode.select.type");
-            String line = context.cfg.gs(("OperationsUI.mode.select.use.local.remote.publish.for.navigator"));
+            String line = context.cfg.gs(("OperationsUI.mode.select.use.publish.for.navigator"));
             Object[] params = {message, line, comboBoxMode};
             comboBoxMode.setSelectedIndex(0);
 
@@ -303,9 +282,11 @@ public class OperationsUI extends AbstractToolDialog
 
     private void actionSaveClicked(ActionEvent e)
     {
-        saveConfigurations();
-        savePreferences();
-        setVisible(false);
+        if (saveConfigurations())
+        {
+            savePreferences();
+            setVisible(false);
+        }
     }
 
     private void cancelChanges()
@@ -338,6 +319,99 @@ public class OperationsUI extends AbstractToolDialog
             }
         }
         return false;
+    }
+
+    /**
+     * Check for Hint Keys removal conflict in Hint-enabled Jobs
+     *
+     * @return int -1 = cancel, 0 = no conflicts, 1 = cleared
+     */
+    public int checkHintKeysConflicts()
+    {
+        int answer = 0;
+        JList<String> conflictJList = new JList<String>();
+
+        try
+        {
+            // get list of conflicts
+            int count = 0;
+            ArrayList<Conflict> conflicts = new ArrayList<>();
+            ConfigModel jobsConfigModel = configModel.getJobsConfigModel();
+
+            for (int i = 0; i < jobsConfigModel.getRowCount(); ++i)
+            {
+                Job job = (Job) jobsConfigModel.getValueAt(i, 0);
+
+                for (int j = 0; j < job.getTasks().size(); ++j)
+                {
+                    Task task = job.getTasks().get(j);
+                    if (task.getConfigName().equals(currentTool.getConfigName()) && !task.getHintsKey().isEmpty())
+                    {
+                        Conflict conflict = new Conflict();
+                        conflict.job = job;
+                        conflict.newName = null;
+                        conflict.taskNumber = j;
+                        conflicts.add(conflict);
+                        ++count;
+                    }
+                }
+            }
+
+            if (count > 0)
+            {
+                answer = -1;
+
+                // make list of displayable conflict names
+                ArrayList<String> conflictNames = new ArrayList<>();
+                for (Conflict conflict : conflicts)
+                {
+                    conflictNames.add(conflict.toString(context));
+                }
+                Collections.sort(conflictNames);
+
+                // add the Strings to the JList model
+                DefaultListModel<String> dialogList = new DefaultListModel<String>();
+                for (String name : conflictNames)
+                {
+                    dialogList.addElement(name);
+                }
+                conflictJList.setModel(dialogList);
+                conflictJList.setSelectionModel(new DisableJListSelectionModel());
+
+                String message = context.cfg.gs("References for \"" + currentTool.getConfigName() + "\" found in Jobs:       ");
+                JScrollPane pane = new JScrollPane();
+                pane.setViewportView(conflictJList);
+                String question = context.cfg.gs("OperationsUI.clear.hints");
+                Object[] params = {message, pane, question};
+
+                int opt = JOptionPane.showConfirmDialog(this, params, getTitle(), JOptionPane.OK_CANCEL_OPTION);
+                if (opt == JOptionPane.YES_OPTION)
+                {
+                    answer = 1;
+
+                    for (Conflict conflict : conflicts)
+                    {
+                        Job job = (Job) conflict.job;
+                        Task task = job.getTasks().get(conflict.taskNumber);
+                        task.setContext(context);
+                        task.setHintsRemote(false);
+                        task.setHintsOverrideHost(false);
+                        task.setHintsKey("");
+                        task.setHintsPath("");
+                        job.setDataHasChanged();
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            answer = -1;
+            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            logger.error(msg);
+            JOptionPane.showMessageDialog(this, msg, getTitle(), JOptionPane.ERROR_MESSAGE);
+        }
+
+        return answer;
     }
 
     private void filePicker(JButton button)
@@ -420,7 +494,7 @@ public class OperationsUI extends AbstractToolDialog
                         pickerFileMustExist = true;
                         pickerKeys = true;
                         break;
-                    case "hints":
+                    case "hintsHandler":
                     case "hints2":
                     case "hints3":
                     case "hints6":
@@ -480,18 +554,6 @@ public class OperationsUI extends AbstractToolDialog
                 break;
             case "hintkeys3":
                 fileName = textFieldOperationHintKeys3.getText();
-                break;
-            case "hints":
-                fileName = textFieldOperationHints.getText();
-                break;
-            case "hints2":
-                fileName = textFieldOperationHints2.getText();
-                break;
-            case "hints3":
-                fileName = textFieldOperationHints3.getText();
-                break;
-            case "hints6":
-                fileName = textFieldOperationHints6.getText();
                 break;
         }
 
@@ -620,22 +682,6 @@ public class OperationsUI extends AbstractToolDialog
                     case "hintkeys3":
                         textFieldOperationHintKeys3.setText(path);
                         textFieldOperationHintKeys3.postActionEvent();
-                        break;
-                    case "hints":
-                        textFieldOperationHints.setText(path);
-                        textFieldOperationHints.postActionEvent();
-                        break;
-                    case "hints2":
-                        textFieldOperationHints2.setText(path);
-                        textFieldOperationHints2.postActionEvent();
-                        break;
-                    case "hints3":
-                        textFieldOperationHints3.setText(path);
-                        textFieldOperationHints3.postActionEvent();
-                        break;
-                    case "hints6":
-                        textFieldOperationHints6.setText(path);
-                        textFieldOperationHints6.postActionEvent();
                         break;
                 }
             }
@@ -777,16 +823,15 @@ public class OperationsUI extends AbstractToolDialog
         //  * hint server has [objects]3
         //  * hint quit has [objects]6
         // See OperationsTool.Cards
-        modes = new Mode[9];
-        modes[0] = new Mode(context.cfg.gs("OperationsUI.mode.localPublish"), OperationsTool.Cards.Publisher, Configuration.Operations.NotRemote);
-        modes[1] = new Mode(context.cfg.gs("OperationsUI.mode.remotePublish"), OperationsTool.Cards.Publisher, Configuration.Operations.PublishRemote);
-        modes[2] = new Mode(context.cfg.gs("OperationsUI.mode.subscriberListener"), OperationsTool.Cards.Listener, Configuration.Operations.SubscriberListener);
-        modes[3] = new Mode(context.cfg.gs("OperationsUI.mode.hintServer"), OperationsTool.Cards.HintServer, Configuration.Operations.StatusServer);
-        modes[4] = new Mode(context.cfg.gs("OperationsUI.mode.publisherTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.PublisherManual);
-        modes[5] = new Mode(context.cfg.gs("OperationsUI.mode.publisherListener"), OperationsTool.Cards.Listener, Configuration.Operations.PublisherListener);
-        modes[6] = new Mode(context.cfg.gs("OperationsUI.mode.subscriberTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.SubscriberTerminal);
-        modes[7] = new Mode(context.cfg.gs("OperationsUI.mode.hintForceQuit"), OperationsTool.Cards.StatusQuit, Configuration.Operations.StatusServerQuit);
-        modes[8] = new Mode(context.cfg.gs("OperationsUI.mode.subscriberForceQuit"), OperationsTool.Cards.SubscriberQuit, Configuration.Operations.SubscriberListenerQuit);
+        modes = new Mode[8];
+        modes[0] = new Mode(context.cfg.gs("OperationsUI.mode.localPublish"), OperationsTool.Cards.Publisher, OperationsTool.Operations.PublisherOperation);
+        modes[1] = new Mode(context.cfg.gs("OperationsUI.mode.subscriberListener"), OperationsTool.Cards.Listener, OperationsTool.Operations.SubscriberListener);
+        modes[2] = new Mode(context.cfg.gs("OperationsUI.mode.hintServer"), OperationsTool.Cards.HintServer, OperationsTool.Operations.StatusServer);
+        modes[3] = new Mode(context.cfg.gs("OperationsUI.mode.publisherTerminal"), OperationsTool.Cards.Terminal, OperationsTool.Operations.PublisherManual);
+        modes[4] = new Mode(context.cfg.gs("OperationsUI.mode.publisherListener"), OperationsTool.Cards.Listener, OperationsTool.Operations.PublisherListener);
+        modes[5] = new Mode(context.cfg.gs("OperationsUI.mode.subscriberTerminal"), OperationsTool.Cards.Terminal, OperationsTool.Operations.SubscriberTerminal);
+        modes[6] = new Mode(context.cfg.gs("OperationsUI.mode.hintForceQuit"), OperationsTool.Cards.StatusQuit, OperationsTool.Operations.StatusServerQuit);
+        modes[7] = new Mode(context.cfg.gs("OperationsUI.mode.subscriberForceQuit"), OperationsTool.Cards.SubscriberQuit, OperationsTool.Operations.SubscriberListenerQuit);
 
         // make New combobox
         comboBoxMode = new JComboBox<>();
@@ -800,7 +845,7 @@ public class OperationsUI extends AbstractToolDialog
         initializeComboBoxes();
         loadConfigurations();
         context.navigator.enableDisableToolMenus(this, false);
-        context.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
     }
 
     private void initializeComboBoxes()
@@ -812,14 +857,6 @@ public class OperationsUI extends AbstractToolDialog
         comboBoxOperationHintKeys.removeAllItems();
         comboBoxOperationHintKeys.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintKeys.0.keys"));
         comboBoxOperationHintKeys.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintKeys.1.keysOnly"));
-
-        comboBoxOperationHintsAndServer.removeAllItems();
-        comboBoxOperationHintsAndServer.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.0.hints"));
-        comboBoxOperationHintsAndServer.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.1.hintServer"));
-
-        comboBoxOperationHintsAndServer2.removeAllItems();
-        comboBoxOperationHintsAndServer2.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.0.hints"));
-        comboBoxOperationHintsAndServer2.addItem(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.1.hintServer"));
     }
 
     private void libraryLoader(int which)
@@ -857,24 +894,20 @@ public class OperationsUI extends AbstractToolDialog
         loading = true;
         switch (currentTool.getOperation())
         {
-            case NotRemote:
-            case PublishRemote:
+            case PublisherOperation:
             case SubscriberListener:
                 currentTool.setOptKeys(context.cfg.getHintKeysFile());
                 if (context.cfg.getHintTrackerFilename().length() > 0)
                 {
                     comboBoxOperationHintKeys.setSelectedIndex(0);
-                    currentTool.setOptHintTracker(context.cfg.getHintTrackerFilename());
                 }
                 if (context.cfg.getHintsDaemonFilename().length() > 0)
                 {
                     comboBoxOperationHintKeys.setSelectedIndex(1);
-                    currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
                 }
                 break;
             case StatusServer:
                 currentTool.setOptKeys(context.cfg.getHintKeysFile());
-                currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
                 break;
             case PublisherManual:
                 break;
@@ -883,7 +916,6 @@ public class OperationsUI extends AbstractToolDialog
             case SubscriberTerminal:
                 break;
             case StatusServerQuit:
-                currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
                 break;
             case SubscriberListenerQuit:
                 break;
@@ -1183,7 +1215,6 @@ public class OperationsUI extends AbstractToolDialog
         {
             loading = true;
             int cardVar = 1;
-            //OperationsTool.Cards cardName = modes[getModeOperationIndex()].card;
             ((CardLayout) panelOperationCards.getLayout()).show(panelOperationCards, currentTool.getCard().name().toLowerCase());
             int moi = getModeOperationIndex();
             if (moi < 0)
@@ -1193,10 +1224,7 @@ public class OperationsUI extends AbstractToolDialog
             // populate card
             switch (currentTool.getOperation())
             {
-                case NotRemote:
-                    loadOptionsPublisher();
-                    break;
-                case PublishRemote:
+                case PublisherOperation:
                     loadOptionsPublisher();
                     break;
                 case SubscriberListener:
@@ -1239,15 +1267,6 @@ public class OperationsUI extends AbstractToolDialog
             textFieldOperationHintKeys3.setText("");
         }
 
-        if (currentTool.getOptHintServer().length() > 0)
-        {
-            textFieldOperationHints3.setText(currentTool.getOptHintServer());
-        }
-        else
-        {
-            textFieldOperationHints3.setText("");
-        }
-
         textFieldOperationAuthKeys3.setText(currentTool.getOptAuthKeys());
         checkBoxOperationKeepGoing3.setSelected(currentTool.isOptListenerKeepGoing());
         textFieldOperationBlacklist3.setText(currentTool.getOptBlacklist());
@@ -1260,14 +1279,7 @@ public class OperationsUI extends AbstractToolDialog
     private void loadOptionsHintsQuit()
     {
         // ### LEFT SIDE
-        if (currentTool.getOptHintServer().length() > 0)
-        {
-            textFieldOperationHints6.setText(currentTool.getOptHintServer());
-        }
-        else
-        {
-            textFieldOperationHints6.setText("");
-        }
+        // none
 
         // ### RIGHT SIDE
         // none
@@ -1302,21 +1314,6 @@ public class OperationsUI extends AbstractToolDialog
         else
         {
             textFieldOperationHintKeys2.setText("");
-        }
-        if (currentTool.getOptHintTracker().length() > 0)
-        {
-            comboBoxOperationHintsAndServer2.setSelectedIndex(0);
-            textFieldOperationHints2.setText(currentTool.getOptHintTracker());
-        }
-        else if (currentTool.getOptHintServer().length() > 0)
-        {
-            comboBoxOperationHintsAndServer2.setSelectedIndex(1);
-            textFieldOperationHints2.setText(currentTool.getOptHintServer());
-        }
-        else
-        {
-            comboBoxOperationHintsAndServer2.setSelectedIndex(0);
-            textFieldOperationHints2.setText("");
         }
         checkBoxOperationKeepGoing2.setSelected(currentTool.isOptListenerKeepGoing());
 
@@ -1378,21 +1375,6 @@ public class OperationsUI extends AbstractToolDialog
             comboBoxOperationHintKeys.setSelectedIndex(0);
             textFieldOperationHintKeys.setText("");
         }
-        if (currentTool.getOptHintTracker().length() > 0)
-        {
-            comboBoxOperationHintsAndServer.setSelectedIndex(0);
-            textFieldOperationHints.setText(currentTool.getOptHintTracker());
-        }
-        else if (currentTool.getOptHintServer().length() > 0)
-        {
-            comboBoxOperationHintsAndServer.setSelectedIndex(1);
-            textFieldOperationHints.setText(currentTool.getOptHintServer());
-        }
-        else
-        {
-            comboBoxOperationHintsAndServer.setSelectedIndex(0);
-            textFieldOperationHints.setText("");
-        }
         checkBoxOperationQuitStatus.setSelected(currentTool.isOptQuitStatus());
         checkBoxOperationKeepGoing.setSelected(currentTool.isOptListenerKeepGoing());
 
@@ -1414,26 +1396,7 @@ public class OperationsUI extends AbstractToolDialog
         checkBoxOperationIgnored.setSelected(currentTool.isOptIgnored());
     }
 
-    private void processTerminated(OperationsTool operation)
-    {
-        context.navigator.disableGui(false);
-        context.navigator.disableComponent(false, this);
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        workerRunning = false;
-
-        if (operation.isRequestStop())
-        {
-            logger.info(operation.getConfigName() + context.cfg.gs("Z.cancelled"));
-            context.mainFrame.labelStatusMiddle.setText(operation.getConfigName() + context.cfg.gs("Z.cancelled"));
-        }
-        else
-        {
-            logger.info(context.cfg.gs("OperationsUI.operation") + operation.getConfigName() + context.cfg.gs("Z.completed"));
-            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("OperationsUI.operation") + operation.getConfigName() + context.cfg.gs("Z.completed"));
-        }
-    }
-
-    private void saveConfigurations()
+    private boolean saveConfigurations()
     {
         OperationsTool tool = null;
         try
@@ -1450,12 +1413,26 @@ public class OperationsUI extends AbstractToolDialog
             }
             deletedTools = new ArrayList<AbstractTool>();
 
+            // validate changed tool JSON configuration files
+            for (int i = 0; i < configModel.getRowCount(); ++i)
+            {
+                tool = (OperationsTool) configModel.getValueAt(i, 0);
+                if (tool.isDataChanged())
+                {
+                    if (!validateTool(tool))
+                        return false;
+                }
+            }
+
             // write/update changed tool JSON configuration files
             for (int i = 0; i < configModel.getRowCount(); ++i)
             {
                 tool = (OperationsTool) configModel.getValueAt(i, 0);
                 if (tool.isDataChanged())
+                {
+                    validateTool(tool);
                     tool.write();
+                }
                 tool.setDataHasChanged(false);
             }
 
@@ -1473,6 +1450,7 @@ public class OperationsUI extends AbstractToolDialog
             else
                 logger.error(msg);
         }
+        return true;
     }
 
     public void savePreferences()
@@ -1487,6 +1465,10 @@ public class OperationsUI extends AbstractToolDialog
 
     private void updateOnChange(Object source)
     {
+        if (inUpdateOnChange)
+            return;
+
+        inUpdateOnChange = true;
         int cardVar = 1;  // 1 publisher; 2 listener, 3 hint server, 6 hint quit
         String name = null;
         int selection = -1;
@@ -1501,6 +1483,9 @@ public class OperationsUI extends AbstractToolDialog
                 switch (name.toLowerCase())
                 {
                     case "authkeys3":
+                        current = currentTool.getOptAuthKeys();
+                        currentTool.setOptAuthKeys(tf.getText());
+                        break;
                     case "authkeys":
                         current = currentTool.getOptAuthKeys();
                         currentTool.setOptAuthKeys(tf.getText());
@@ -1518,43 +1503,38 @@ public class OperationsUI extends AbstractToolDialog
                         current = currentTool.getOptExportText();
                         currentTool.setOptExportText(tf.getText());
                         break;
-                    case "hints2":
+                    case "hintkeys2":  // Listener
                         cardVar = 2;
-                    case "hints":
-                        selection = (cardVar == 2) ? comboBoxOperationHintsAndServer2.getSelectedIndex() :
-                                comboBoxOperationHintsAndServer.getSelectedIndex();
-                        if (selection == 0)
-                        {
-                            current = currentTool.getOptHintTracker();
-                            currentTool.setOptHintTracker(tf.getText());
-                        }
-                        else if (selection == 1)
-                        {
-                            current = currentTool.getOptHintServer();
-                            currentTool.setOptHintServer(tf.getText());
-                        }
-                        break;
-                    case "hints3":
-                    case "hints6":
-                        current = currentTool.getOptHintServer();
-                        currentTool.setOptHintServer(tf.getText());
-                        break;
-                    case "hintkeys2":
-                        cardVar = 2;
-                    case "hintkeys":
+                    case "hintkeys":  // Publisher
                         selection = (cardVar == 2) ? 0 : comboBoxOperationHintKeys.getSelectedIndex();
                         if (selection == 0)
                         {
                             current = currentTool.getOptKeys();
+                            if (!current.isEmpty() && tf.getText().isEmpty()) // has been cleared
+                            {
+                                if (checkHintKeysConflicts() < 0)
+                                {
+                                    inUpdateOnChange = false;
+                                    return;
+                                }
+                            }
                             currentTool.setOptKeys(tf.getText());
                         }
                         else if (selection == 1)
                         {
                             current = currentTool.getOptKeysOnly();
+                            if (!current.isEmpty() && tf.getText().isEmpty()) // has been cleared
+                            {
+                                if (checkHintKeysConflicts() < 0)
+                                {
+                                    inUpdateOnChange = false;
+                                    return;
+                                }
+                            }
                             currentTool.setOptKeysOnly(tf.getText());
                         }
                         break;
-                    case "hintkeys3":
+                    case "hintkeys3":  // Hint Status Server
                         current = currentTool.getOptKeys();
                         currentTool.setOptKeys(tf.getText());
                         break;
@@ -1679,28 +1659,6 @@ public class OperationsUI extends AbstractToolDialog
                 String value = "";
                 switch (name.toLowerCase())
                 {
-                    case "hints2":
-                        cardVar = 2;
-                    case "hints":
-                        if (currentTool.getOptHintTracker().length() > 0)
-                            current = 0;
-                        else if (currentTool.getOptHintServer().length() > 0)
-                            current = 1;
-                        if (index == 0)
-                        {
-                            value = (cardVar == 2) ? textFieldOperationHints2.getText() :
-                                    textFieldOperationHints.getText();
-                            currentTool.setOptHintTracker(value);
-                            currentTool.setOptHintServer("");
-                        }
-                        else if (index == 1)
-                        {
-                            value = (cardVar == 2) ? textFieldOperationHints2.getText() :
-                                    textFieldOperationHints.getText();
-                            currentTool.setOptHintServer(value);
-                            currentTool.setOptHintTracker("");
-                        }
-                        break;
                     case "keys2":
                         cardVar = 2;
                     case "keys":
@@ -1751,6 +1709,8 @@ public class OperationsUI extends AbstractToolDialog
 
         if (currentTool != null)
             updateTextFieldToolTips(cardVar);
+
+        inUpdateOnChange = false;
     }
 
     private void updateTextFieldToolTips(int carVar)
@@ -1809,18 +1769,6 @@ public class OperationsUI extends AbstractToolDialog
             textFieldOperationHintKeys2.setToolTipText(current);
 
         current = "";
-        if (carVar == 1)
-            selected = comboBoxOperationHintsAndServer.getSelectedIndex();
-        else
-            selected = comboBoxOperationHintsAndServer2.getSelectedIndex();
-        if (selected == 0)
-            current = currentTool.getOptHintTracker();
-        else if (selected == 1)
-            current = currentTool.getOptHintServer();
-        if (carVar == 1)
-            textFieldOperationHints.setToolTipText(current);
-        else
-            textFieldOperationHints2.setToolTipText(current);
     }
 
     private void updateState()
@@ -1840,6 +1788,27 @@ public class OperationsUI extends AbstractToolDialog
         }
     }
 
+    private boolean validateTool(OperationsTool tool)
+    {
+        if (tool.getCard().equals(OperationsTool.Cards.HintServer))
+        {
+            if (tool.getOptKeys().isEmpty())
+            {
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("OperationsUI.hint.status.server.requires.hint.keys") + tool.getConfigName());
+                textFieldOperationHintKeys3.requestFocus();
+                return false;
+            }
+
+            if (tool.getOptAuthKeys().isEmpty())
+            {
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("OperationsUI.hint.status.server.requires.authentication.keys") + tool.getConfigName());
+                textFieldOperationAuthKeys3.requestFocus();
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void windowClosing(WindowEvent e)
     {
         buttonOperationCancel.doClick();
@@ -1856,9 +1825,9 @@ public class OperationsUI extends AbstractToolDialog
     {
         String description;
         OperationsTool.Cards card;
-        Configuration.Operations operation;
+        OperationsTool.Operations operation;
 
-        public Mode(String description, OperationsTool.Cards card, Configuration.Operations operation)
+        public Mode(String description, OperationsTool.Cards card, OperationsTool.Operations operation)
         {
             this.description = description;
             this.card = card;
@@ -1953,17 +1922,14 @@ public class OperationsUI extends AbstractToolDialog
         vSpacer19 = new JPanel(null);
         labelOperationValidate = new JLabel();
         checkBoxOperationValidate = new JCheckBox();
-        comboBoxOperationHintsAndServer = new JComboBox<>();
-        textFieldOperationHints = new JTextField();
-        buttonOperationHintsFilePick = new JButton();
-        vSpacer18 = new JPanel(null);
         labelOperationKeepGoing = new JLabel();
         checkBoxOperationKeepGoing = new JCheckBox();
+        vSpacer18 = new JPanel(null);
+        labelOperationQuitStatusServer = new JLabel();
+        checkBoxOperationQuitStatus = new JCheckBox();
         vSpacer17 = new JPanel(null);
         labelOperationDuplicates = new JLabel();
         checkBoxOperationDuplicates = new JCheckBox();
-        labelOperationQuitStatusServer = new JLabel();
-        checkBoxOperationQuitStatus = new JCheckBox();
         vSpacer16 = new JPanel(null);
         labelOperationCrossCheck = new JLabel();
         checkBoxOperationCrossCheck = new JCheckBox();
@@ -2015,10 +1981,6 @@ public class OperationsUI extends AbstractToolDialog
         textFieldOperationHintKeys2 = new JTextField();
         buttonOperationHintKeysFilePick2 = new JButton();
         vSpacer24 = new JPanel(null);
-        comboBoxOperationHintsAndServer2 = new JComboBox<>();
-        textFieldOperationHints2 = new JTextField();
-        buttonOperationHintsFilePick2 = new JButton();
-        vSpacer25 = new JPanel(null);
         labelOperationKeepGoing2 = new JLabel();
         checkBoxOperationKeepGoing2 = new JCheckBox();
         vSpacer26 = new JPanel(null);
@@ -2028,10 +1990,6 @@ public class OperationsUI extends AbstractToolDialog
         textFieldOperationHintKeys3 = new JTextField();
         buttonOperationHintKeysFilePick3 = new JButton();
         vSpacer34 = new JPanel(null);
-        labelOperationHintKeyServer = new JLabel();
-        textFieldOperationHints3 = new JTextField();
-        buttonOperationHintsFilePick3 = new JButton();
-        vSpacer35 = new JPanel(null);
         label1 = new JLabel();
         textFieldOperationAuthKeys3 = new JTextField();
         buttonOperationAuthKeysFilePick3 = new JButton();
@@ -2053,11 +2011,7 @@ public class OperationsUI extends AbstractToolDialog
         panelCardQuit = new JPanel();
         labelOperationsQuitter = new JLabel();
         panelCardQuitHints = new JPanel();
-        vSpacer42 = new JPanel(null);
-        labelOperationHintKeyServer6 = new JLabel();
-        textFieldOperationHints6 = new JTextField();
-        buttonOperationHintsFilePick6 = new JButton();
-        vSpacer43 = new JPanel(null);
+        labelOperationsQuitHints = new JLabel();
         buttonBar = new JPanel();
         buttonOperationSave = new JButton();
         buttonOperationCancel = new JButton();
@@ -2235,6 +2189,7 @@ public class OperationsUI extends AbstractToolDialog
                                     labelOperationGettingStarted.setText(context.cfg.gs("OperationsUI.labelOperationGettingStarted.text"));
                                     labelOperationGettingStarted.setFont(labelOperationGettingStarted.getFont().deriveFont(labelOperationGettingStarted.getFont().getStyle() | Font.BOLD));
                                     labelOperationGettingStarted.setHorizontalAlignment(SwingConstants.CENTER);
+                                    labelOperationGettingStarted.setPreferredSize(new Dimension(630, 470));
                                     panelCardGettingStarted.add(labelOperationGettingStarted, BorderLayout.CENTER);
                                 }
                                 panelOperationCards.add(panelCardGettingStarted, "gettingStarted");
@@ -2750,49 +2705,17 @@ public class OperationsUI extends AbstractToolDialog
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
-                                    //---- comboBoxOperationHintsAndServer ----
-                                    comboBoxOperationHintsAndServer.setPrototypeDisplayValue(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer.prototypeDisplayValue"));
-                                    comboBoxOperationHintsAndServer.setModel(new DefaultComboBoxModel<>(new String[] {
-                                        "Hint Tracker:",
-                                        "Hint Server:"
-                                    }));
-                                    comboBoxOperationHintsAndServer.setMinimumSize(new Dimension(60, 30));
-                                    comboBoxOperationHintsAndServer.setName("hints");
-                                    comboBoxOperationHintsAndServer.addActionListener(e -> genericAction(e));
-                                    panelCardPublisher.add(comboBoxOperationHintsAndServer, new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
+                                    //---- labelOperationKeepGoing ----
+                                    labelOperationKeepGoing.setText(context.cfg.gs("OperationsUI.labelOperationKeepGoing.text"));
+                                    panelCardPublisher.add(labelOperationKeepGoing, new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 4, 4, 4), 0, 0));
 
-                                    //---- textFieldOperationHints ----
-                                    textFieldOperationHints.setMinimumSize(new Dimension(240, 30));
-                                    textFieldOperationHints.setName("hints");
-                                    textFieldOperationHints.setMaximumSize(new Dimension(32767, 30));
-                                    textFieldOperationHints.setPreferredSize(new Dimension(240, 30));
-                                    textFieldOperationHints.addFocusListener(new FocusAdapter() {
-                                        @Override
-                                        public void focusLost(FocusEvent e) {
-                                            genericTextFieldFocusLost(e);
-                                        }
-                                    });
-                                    textFieldOperationHints.addActionListener(e -> genericAction(e));
-                                    panelCardPublisher.add(textFieldOperationHints, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- buttonOperationHintsFilePick ----
-                                    buttonOperationHintsFilePick.setText("...");
-                                    buttonOperationHintsFilePick.setFont(buttonOperationHintsFilePick.getFont().deriveFont(buttonOperationHintsFilePick.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationHintsFilePick.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick.setPreferredSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick.setVerticalTextPosition(SwingConstants.TOP);
-                                    buttonOperationHintsFilePick.setIconTextGap(0);
-                                    buttonOperationHintsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                    buttonOperationHintsFilePick.setActionCommand("hintsFilePick");
-                                    buttonOperationHintsFilePick.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationHintsFilePick.toolTipText"));
-                                    buttonOperationHintsFilePick.setName("hints");
-                                    buttonOperationHintsFilePick.addActionListener(e -> genericAction(e));
-                                    panelCardPublisher.add(buttonOperationHintsFilePick, new GridBagConstraints(2, 10, 1, 1, 0.0, 0.0,
+                                    //---- checkBoxOperationKeepGoing ----
+                                    checkBoxOperationKeepGoing.setName("keepgoing");
+                                    checkBoxOperationKeepGoing.setToolTipText(context.cfg.gs("OperationsUI.checkBoxOperationKeepGoing.toolTipText"));
+                                    checkBoxOperationKeepGoing.addActionListener(e -> genericAction(e));
+                                    panelCardPublisher.add(checkBoxOperationKeepGoing, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2804,17 +2727,17 @@ public class OperationsUI extends AbstractToolDialog
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
-                                    //---- labelOperationKeepGoing ----
-                                    labelOperationKeepGoing.setText(context.cfg.gs("OperationsUI.labelOperationKeepGoing.text"));
-                                    panelCardPublisher.add(labelOperationKeepGoing, new GridBagConstraints(0, 11, 1, 1, 0.0, 0.0,
+                                    //---- labelOperationQuitStatusServer ----
+                                    labelOperationQuitStatusServer.setText(context.cfg.gs("OperationsUI.labelOperationQuitStatusServer.text"));
+                                    panelCardPublisher.add(labelOperationQuitStatusServer, new GridBagConstraints(0, 11, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 4, 4, 4), 0, 0));
 
-                                    //---- checkBoxOperationKeepGoing ----
-                                    checkBoxOperationKeepGoing.setName("keepgoing");
-                                    checkBoxOperationKeepGoing.setToolTipText(context.cfg.gs("OperationsUI.checkBoxOperationKeepGoing.toolTipText"));
-                                    checkBoxOperationKeepGoing.addActionListener(e -> genericAction(e));
-                                    panelCardPublisher.add(checkBoxOperationKeepGoing, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0,
+                                    //---- checkBoxOperationQuitStatus ----
+                                    checkBoxOperationQuitStatus.setName("quitstatusserver");
+                                    checkBoxOperationQuitStatus.setToolTipText(context.cfg.gs("OperationsUI.checkBoxOperationQuitStatus.toolTipText"));
+                                    checkBoxOperationQuitStatus.addActionListener(e -> genericAction(e));
+                                    panelCardPublisher.add(checkBoxOperationQuitStatus, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2837,20 +2760,6 @@ public class OperationsUI extends AbstractToolDialog
                                     checkBoxOperationDuplicates.setToolTipText(context.cfg.gs("OperationsUI.checkBoxOperationDuplicates.toolTipText"));
                                     checkBoxOperationDuplicates.addActionListener(e -> genericAction(e));
                                     panelCardPublisher.add(checkBoxOperationDuplicates, new GridBagConstraints(5, 11, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- labelOperationQuitStatusServer ----
-                                    labelOperationQuitStatusServer.setText(context.cfg.gs("OperationsUI.labelOperationQuitStatusServer.text"));
-                                    panelCardPublisher.add(labelOperationQuitStatusServer, new GridBagConstraints(0, 12, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 4, 4, 4), 0, 0));
-
-                                    //---- checkBoxOperationQuitStatus ----
-                                    checkBoxOperationQuitStatus.setName("quitstatusserver");
-                                    checkBoxOperationQuitStatus.setToolTipText(context.cfg.gs("OperationsUI.checkBoxOperationQuitStatus.toolTipText"));
-                                    checkBoxOperationQuitStatus.addActionListener(e -> genericAction(e));
-                                    panelCardPublisher.add(checkBoxOperationQuitStatus, new GridBagConstraints(1, 12, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2928,9 +2837,9 @@ public class OperationsUI extends AbstractToolDialog
                                     panelCardListener.setPreferredSize(new Dimension(824, 500));
                                     panelCardListener.setMinimumSize(new Dimension(0, 0));
                                     panelCardListener.setLayout(new GridBagLayout());
-                                    ((GridBagLayout)panelCardListener.getLayout()).rowHeights = new int[] {0, 0, 28, 34, 32, 0, 0, 0, 0, 0, 0, 0};
+                                    ((GridBagLayout)panelCardListener.getLayout()).rowHeights = new int[] {0, 0, 28, 34, 32, 0, 0, 0, 0, 0, 0};
                                     ((GridBagLayout)panelCardListener.getLayout()).columnWeights = new double[] {0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0};
-                                    ((GridBagLayout)panelCardListener.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                    ((GridBagLayout)panelCardListener.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                                     //---- hSpacer6 ----
                                     hSpacer6.setMinimumSize(new Dimension(154, 2));
@@ -3350,61 +3259,9 @@ public class OperationsUI extends AbstractToolDialog
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
-                                    //---- comboBoxOperationHintsAndServer2 ----
-                                    comboBoxOperationHintsAndServer2.setPrototypeDisplayValue(context.cfg.gs("OperationsUI.comboBoxOperationHintsAndServer2.prototypeDisplayValue"));
-                                    comboBoxOperationHintsAndServer2.setModel(new DefaultComboBoxModel<>(new String[] {
-                                        "Hint Tracker:",
-                                        "Hint Server:"
-                                    }));
-                                    comboBoxOperationHintsAndServer2.setName("hints2");
-                                    comboBoxOperationHintsAndServer2.addActionListener(e -> genericAction(e));
-                                    panelCardListener.add(comboBoxOperationHintsAndServer2, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 4, 4, 4), 0, 0));
-
-                                    //---- textFieldOperationHints2 ----
-                                    textFieldOperationHints2.setMinimumSize(new Dimension(240, 30));
-                                    textFieldOperationHints2.setName("hints2");
-                                    textFieldOperationHints2.setPreferredSize(new Dimension(240, 30));
-                                    textFieldOperationHints2.addFocusListener(new FocusAdapter() {
-                                        @Override
-                                        public void focusLost(FocusEvent e) {
-                                            genericTextFieldFocusLost(e);
-                                        }
-                                    });
-                                    textFieldOperationHints2.addActionListener(e -> genericAction(e));
-                                    panelCardListener.add(textFieldOperationHints2, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- buttonOperationHintsFilePick2 ----
-                                    buttonOperationHintsFilePick2.setText("...");
-                                    buttonOperationHintsFilePick2.setFont(buttonOperationHintsFilePick2.getFont().deriveFont(buttonOperationHintsFilePick2.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationHintsFilePick2.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick2.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick2.setPreferredSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick2.setVerticalTextPosition(SwingConstants.TOP);
-                                    buttonOperationHintsFilePick2.setIconTextGap(0);
-                                    buttonOperationHintsFilePick2.setHorizontalTextPosition(SwingConstants.LEADING);
-                                    buttonOperationHintsFilePick2.setActionCommand("hintsFilePick");
-                                    buttonOperationHintsFilePick2.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationHintsFilePick2.toolTipText"));
-                                    buttonOperationHintsFilePick2.setName("hints2");
-                                    buttonOperationHintsFilePick2.addActionListener(e -> genericAction(e));
-                                    panelCardListener.add(buttonOperationHintsFilePick2, new GridBagConstraints(2, 9, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- vSpacer25 ----
-                                    vSpacer25.setMinimumSize(new Dimension(4, 30));
-                                    vSpacer25.setPreferredSize(new Dimension(10, 30));
-                                    vSpacer25.setMaximumSize(new Dimension(20, 30));
-                                    panelCardListener.add(vSpacer25, new GridBagConstraints(3, 9, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
                                     //---- labelOperationKeepGoing2 ----
                                     labelOperationKeepGoing2.setText(context.cfg.gs("OperationsUI.labelOperationKeepGoing2.text"));
-                                    panelCardListener.add(labelOperationKeepGoing2, new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
+                                    panelCardListener.add(labelOperationKeepGoing2, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 4, 0, 4), 0, 0));
 
@@ -3412,7 +3269,7 @@ public class OperationsUI extends AbstractToolDialog
                                     checkBoxOperationKeepGoing2.setName("keepgoing2");
                                     checkBoxOperationKeepGoing2.setToolTipText(context.cfg.gs("OperationsUI.checkBoxOperationKeepGoing2.toolTipText"));
                                     checkBoxOperationKeepGoing2.addActionListener(e -> genericAction(e));
-                                    panelCardListener.add(checkBoxOperationKeepGoing2, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
+                                    panelCardListener.add(checkBoxOperationKeepGoing2, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 4), 0, 0));
 
@@ -3420,7 +3277,7 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer26.setMinimumSize(new Dimension(4, 30));
                                     vSpacer26.setPreferredSize(new Dimension(10, 30));
                                     vSpacer26.setMaximumSize(new Dimension(20, 30));
-                                    panelCardListener.add(vSpacer26, new GridBagConstraints(3, 10, 1, 1, 0.0, 0.0,
+                                    panelCardListener.add(vSpacer26, new GridBagConstraints(3, 9, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 4), 0, 0));
                                 }
@@ -3432,8 +3289,8 @@ public class OperationsUI extends AbstractToolDialog
                                     panelCardHintServer.setPreferredSize(new Dimension(824, 500));
                                     panelCardHintServer.setMinimumSize(new Dimension(0, 0));
                                     panelCardHintServer.setLayout(new GridBagLayout());
-                                    ((GridBagLayout)panelCardHintServer.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
-                                    ((GridBagLayout)panelCardHintServer.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                    ((GridBagLayout)panelCardHintServer.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0};
+                                    ((GridBagLayout)panelCardHintServer.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                                     //---- vSpacer41 ----
                                     vSpacer41.setMaximumSize(new Dimension(32767, 8));
@@ -3490,56 +3347,9 @@ public class OperationsUI extends AbstractToolDialog
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
-                                    //---- labelOperationHintKeyServer ----
-                                    labelOperationHintKeyServer.setText(context.cfg.gs("OperationsUI.labelOperationHintKeyServer.text"));
-                                    panelCardHintServer.add(labelOperationHintKeyServer, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- textFieldOperationHints3 ----
-                                    textFieldOperationHints3.setMinimumSize(new Dimension(240, 30));
-                                    textFieldOperationHints3.setName("hints3");
-                                    textFieldOperationHints3.setMaximumSize(new Dimension(240, 30));
-                                    textFieldOperationHints3.setPreferredSize(new Dimension(240, 30));
-                                    textFieldOperationHints3.addFocusListener(new FocusAdapter() {
-                                        @Override
-                                        public void focusLost(FocusEvent e) {
-                                            genericTextFieldFocusLost(e);
-                                        }
-                                    });
-                                    textFieldOperationHints3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(textFieldOperationHints3, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- buttonOperationHintsFilePick3 ----
-                                    buttonOperationHintsFilePick3.setText("...");
-                                    buttonOperationHintsFilePick3.setFont(buttonOperationHintsFilePick3.getFont().deriveFont(buttonOperationHintsFilePick3.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationHintsFilePick3.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick3.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick3.setPreferredSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick3.setVerticalTextPosition(SwingConstants.TOP);
-                                    buttonOperationHintsFilePick3.setIconTextGap(0);
-                                    buttonOperationHintsFilePick3.setHorizontalTextPosition(SwingConstants.LEADING);
-                                    buttonOperationHintsFilePick3.setActionCommand("hintsFilePick");
-                                    buttonOperationHintsFilePick3.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationHintsFilePick3.toolTipText"));
-                                    buttonOperationHintsFilePick3.setName("hints3");
-                                    buttonOperationHintsFilePick3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(buttonOperationHintsFilePick3, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- vSpacer35 ----
-                                    vSpacer35.setMinimumSize(new Dimension(10, 30));
-                                    vSpacer35.setPreferredSize(new Dimension(20, 30));
-                                    vSpacer35.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer35, new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
                                     //---- label1 ----
                                     label1.setText(context.cfg.gs("OperationsUI.labelOperationAuthKeys.text"));
-                                    panelCardHintServer.add(label1, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(label1, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3555,7 +3365,7 @@ public class OperationsUI extends AbstractToolDialog
                                         }
                                     });
                                     textFieldOperationAuthKeys3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(textFieldOperationAuthKeys3, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(textFieldOperationAuthKeys3, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3572,7 +3382,7 @@ public class OperationsUI extends AbstractToolDialog
                                     buttonOperationAuthKeysFilePick3.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationAuthKeysFilePick.toolTipText"));
                                     buttonOperationAuthKeysFilePick3.setName("authkeys3");
                                     buttonOperationAuthKeysFilePick3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(buttonOperationAuthKeysFilePick3, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(buttonOperationAuthKeysFilePick3, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3580,13 +3390,13 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer44.setMinimumSize(new Dimension(10, 30));
                                     vSpacer44.setPreferredSize(new Dimension(20, 30));
                                     vSpacer44.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer44, new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(vSpacer44, new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- labelOperationKeepGoing3 ----
                                     labelOperationKeepGoing3.setText(context.cfg.gs("OperationsUI.labelOperationKeepGoing3.text"));
-                                    panelCardHintServer.add(labelOperationKeepGoing3, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(labelOperationKeepGoing3, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3594,7 +3404,7 @@ public class OperationsUI extends AbstractToolDialog
                                     checkBoxOperationKeepGoing3.setName("keepgoing3");
                                     checkBoxOperationKeepGoing3.setToolTipText(context.cfg.gs("OperationsUI.checkBoxOperationKeepGoing3.toolTipText"));
                                     checkBoxOperationKeepGoing3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(checkBoxOperationKeepGoing3, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(checkBoxOperationKeepGoing3, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3602,7 +3412,7 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer36.setMinimumSize(new Dimension(10, 30));
                                     vSpacer36.setPreferredSize(new Dimension(20, 30));
                                     vSpacer36.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer36, new GridBagConstraints(3, 4, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(vSpacer36, new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3610,13 +3420,13 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer39.setMinimumSize(new Dimension(10, 30));
                                     vSpacer39.setPreferredSize(new Dimension(20, 30));
                                     vSpacer39.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer39, new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(vSpacer39, new GridBagConstraints(3, 4, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- labelOperationBlacklist3 ----
                                     labelOperationBlacklist3.setText(context.cfg.gs("OperationsUI.labelOperationBlacklist3.text"));
-                                    panelCardHintServer.add(labelOperationBlacklist3, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(labelOperationBlacklist3, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3632,7 +3442,7 @@ public class OperationsUI extends AbstractToolDialog
                                         }
                                     });
                                     textFieldOperationBlacklist3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(textFieldOperationBlacklist3, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(textFieldOperationBlacklist3, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3649,7 +3459,7 @@ public class OperationsUI extends AbstractToolDialog
                                     buttonOperationBlacklistFilePick3.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationBlacklistFilePick3.toolTipText"));
                                     buttonOperationBlacklistFilePick3.setName("blacklist3");
                                     buttonOperationBlacklistFilePick3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(buttonOperationBlacklistFilePick3, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(buttonOperationBlacklistFilePick3, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
@@ -3657,13 +3467,13 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer37.setMinimumSize(new Dimension(10, 30));
                                     vSpacer37.setPreferredSize(new Dimension(20, 30));
                                     vSpacer37.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer37, new GridBagConstraints(3, 6, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(vSpacer37, new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- labelOperationIpWhitelist3 ----
                                     labelOperationIpWhitelist3.setText(context.cfg.gs("OperationsUI.labelOperationIpWhitelist3.text"));
-                                    panelCardHintServer.add(labelOperationIpWhitelist3, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(labelOperationIpWhitelist3, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 4), 0, 0));
 
@@ -3679,7 +3489,7 @@ public class OperationsUI extends AbstractToolDialog
                                         }
                                     });
                                     textFieldOperationIpWhitelist3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(textFieldOperationIpWhitelist3, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(textFieldOperationIpWhitelist3, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 4), 0, 0));
 
@@ -3696,7 +3506,7 @@ public class OperationsUI extends AbstractToolDialog
                                     buttonOperationIpWhitelistFilePick3.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationIpWhitelistFilePick3.toolTipText"));
                                     buttonOperationIpWhitelistFilePick3.setName("ipwhitelist3");
                                     buttonOperationIpWhitelistFilePick3.addActionListener(e -> genericAction(e));
-                                    panelCardHintServer.add(buttonOperationIpWhitelistFilePick3, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(buttonOperationIpWhitelistFilePick3, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 4), 0, 0));
 
@@ -3704,7 +3514,7 @@ public class OperationsUI extends AbstractToolDialog
                                     vSpacer38.setMinimumSize(new Dimension(10, 30));
                                     vSpacer38.setPreferredSize(new Dimension(20, 30));
                                     vSpacer38.setMaximumSize(new Dimension(20, 30));
-                                    panelCardHintServer.add(vSpacer38, new GridBagConstraints(3, 7, 1, 1, 0.0, 0.0,
+                                    panelCardHintServer.add(vSpacer38, new GridBagConstraints(3, 6, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 4), 0, 0));
                                 }
@@ -3743,64 +3553,12 @@ public class OperationsUI extends AbstractToolDialog
                                     panelCardQuitHints.setName("hintserver");
                                     panelCardQuitHints.setPreferredSize(new Dimension(824, 500));
                                     panelCardQuitHints.setMinimumSize(new Dimension(0, 0));
-                                    panelCardQuitHints.setLayout(new GridBagLayout());
-                                    ((GridBagLayout)panelCardQuitHints.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                                    ((GridBagLayout)panelCardQuitHints.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                                    panelCardQuitHints.setLayout(new BorderLayout());
 
-                                    //---- vSpacer42 ----
-                                    vSpacer42.setMaximumSize(new Dimension(32767, 8));
-                                    vSpacer42.setMinimumSize(new Dimension(12, 8));
-                                    vSpacer42.setPreferredSize(new Dimension(10, 8));
-                                    panelCardQuitHints.add(vSpacer42, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- labelOperationHintKeyServer6 ----
-                                    labelOperationHintKeyServer6.setText(context.cfg.gs("OperationsUI.labelOperationHintKeyServer6.text"));
-                                    panelCardQuitHints.add(labelOperationHintKeyServer6, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- textFieldOperationHints6 ----
-                                    textFieldOperationHints6.setMinimumSize(new Dimension(240, 30));
-                                    textFieldOperationHints6.setName("hints6");
-                                    textFieldOperationHints6.setMaximumSize(new Dimension(240, 30));
-                                    textFieldOperationHints6.setPreferredSize(new Dimension(240, 30));
-                                    textFieldOperationHints6.addFocusListener(new FocusAdapter() {
-                                        @Override
-                                        public void focusLost(FocusEvent e) {
-                                            genericTextFieldFocusLost(e);
-                                        }
-                                    });
-                                    textFieldOperationHints6.addActionListener(e -> genericAction(e));
-                                    panelCardQuitHints.add(textFieldOperationHints6, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- buttonOperationHintsFilePick6 ----
-                                    buttonOperationHintsFilePick6.setText("...");
-                                    buttonOperationHintsFilePick6.setFont(buttonOperationHintsFilePick6.getFont().deriveFont(buttonOperationHintsFilePick6.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationHintsFilePick6.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick6.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick6.setPreferredSize(new Dimension(32, 24));
-                                    buttonOperationHintsFilePick6.setVerticalTextPosition(SwingConstants.TOP);
-                                    buttonOperationHintsFilePick6.setIconTextGap(0);
-                                    buttonOperationHintsFilePick6.setHorizontalTextPosition(SwingConstants.LEADING);
-                                    buttonOperationHintsFilePick6.setActionCommand("hintsFilePick");
-                                    buttonOperationHintsFilePick6.setToolTipText(context.cfg.gs("OperationsUI.buttonOperationHintsFilePick6.toolTipText"));
-                                    buttonOperationHintsFilePick6.setName("hints6");
-                                    buttonOperationHintsFilePick6.addActionListener(e -> genericAction(e));
-                                    panelCardQuitHints.add(buttonOperationHintsFilePick6, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
-
-                                    //---- vSpacer43 ----
-                                    vSpacer43.setMinimumSize(new Dimension(10, 30));
-                                    vSpacer43.setPreferredSize(new Dimension(20, 30));
-                                    vSpacer43.setMaximumSize(new Dimension(20, 30));
-                                    panelCardQuitHints.add(vSpacer43, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 4, 4), 0, 0));
+                                    //---- labelOperationsQuitHints ----
+                                    labelOperationsQuitHints.setText(context.cfg.gs("OperationsUI.labelOperationsQuitHints.text"));
+                                    labelOperationsQuitHints.setHorizontalAlignment(SwingConstants.CENTER);
+                                    panelCardQuitHints.add(labelOperationsQuitHints, BorderLayout.CENTER);
                                 }
                                 panelOperationCards.add(panelCardQuitHints, "statusquit");
                             }
@@ -3919,17 +3677,14 @@ public class OperationsUI extends AbstractToolDialog
     public JPanel vSpacer19;
     public JLabel labelOperationValidate;
     public JCheckBox checkBoxOperationValidate;
-    public JComboBox<String> comboBoxOperationHintsAndServer;
-    public JTextField textFieldOperationHints;
-    public JButton buttonOperationHintsFilePick;
-    public JPanel vSpacer18;
     public JLabel labelOperationKeepGoing;
     public JCheckBox checkBoxOperationKeepGoing;
+    public JPanel vSpacer18;
+    public JLabel labelOperationQuitStatusServer;
+    public JCheckBox checkBoxOperationQuitStatus;
     public JPanel vSpacer17;
     public JLabel labelOperationDuplicates;
     public JCheckBox checkBoxOperationDuplicates;
-    public JLabel labelOperationQuitStatusServer;
-    public JCheckBox checkBoxOperationQuitStatus;
     public JPanel vSpacer16;
     public JLabel labelOperationCrossCheck;
     public JCheckBox checkBoxOperationCrossCheck;
@@ -3981,10 +3736,6 @@ public class OperationsUI extends AbstractToolDialog
     public JTextField textFieldOperationHintKeys2;
     public JButton buttonOperationHintKeysFilePick2;
     public JPanel vSpacer24;
-    public JComboBox<String> comboBoxOperationHintsAndServer2;
-    public JTextField textFieldOperationHints2;
-    public JButton buttonOperationHintsFilePick2;
-    public JPanel vSpacer25;
     public JLabel labelOperationKeepGoing2;
     public JCheckBox checkBoxOperationKeepGoing2;
     public JPanel vSpacer26;
@@ -3994,10 +3745,6 @@ public class OperationsUI extends AbstractToolDialog
     public JTextField textFieldOperationHintKeys3;
     public JButton buttonOperationHintKeysFilePick3;
     public JPanel vSpacer34;
-    public JLabel labelOperationHintKeyServer;
-    public JTextField textFieldOperationHints3;
-    public JButton buttonOperationHintsFilePick3;
-    public JPanel vSpacer35;
     public JLabel label1;
     public JTextField textFieldOperationAuthKeys3;
     public JButton buttonOperationAuthKeysFilePick3;
@@ -4019,11 +3766,7 @@ public class OperationsUI extends AbstractToolDialog
     public JPanel panelCardQuit;
     public JLabel labelOperationsQuitter;
     public JPanel panelCardQuitHints;
-    public JPanel vSpacer42;
-    public JLabel labelOperationHintKeyServer6;
-    public JTextField textFieldOperationHints6;
-    public JButton buttonOperationHintsFilePick6;
-    public JPanel vSpacer43;
+    public JLabel labelOperationsQuitHints;
     public JPanel buttonBar;
     public JButton buttonOperationSave;
     public JButton buttonOperationCancel;

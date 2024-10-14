@@ -148,7 +148,7 @@ public class RenamerUI extends AbstractToolDialog
         numberFilter = new NumberFilter();
         pathFilter = new PathFilter();
         context.navigator.enableDisableToolMenus(this, false);
-        context.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
     }
 
     private void actionCancelClicked(ActionEvent e)
@@ -394,6 +394,12 @@ public class RenamerUI extends AbstractToolDialog
         {
             currentConfigIndex = index;
             RenamerTool tool = (RenamerTool) configModel.getValueAt(index, 0);
+
+            if (tool.isDataChanged())
+            {
+                JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
             try
             {

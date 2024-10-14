@@ -23,6 +23,8 @@ on the GitHub Project.
 
 ## &bull; Downloads
 
+**Note:** ELS 4.0 is in development therefore bugs are to be expected. The command line back-up component works well. The GUI is new.
+
 Use the buttons at the top of this page <img style="vertical-align:middle" src="assets/images/swoop-up-arrow.png" border="0"/> for your platform.
 
 ## &bull; Installation

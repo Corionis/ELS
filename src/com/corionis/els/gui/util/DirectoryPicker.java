@@ -15,6 +15,7 @@ public class DirectoryPicker
     public JButton browserSelectionButton;
     public JDialog dialog;
     public JTextField directoryPathTextField;
+    public JButton directorySelectionButton;;
     public JLabel minLabel;
     public JTextField minSize;
     public JOptionPane pane;
@@ -89,6 +90,16 @@ public class DirectoryPicker
         browserSelectionButton.setToolTipText(context.cfg.gs("Libraries.use.browser.selection"));
 
         panel.add(browserSelectionButton, new GridBagConstraints(6, 1, 1, 1, 0.0, 0.0,
+                GridBagConstraints.EAST, GridBagConstraints.BOTH,
+                new Insets(0, 0, 4, 4), 0, 0));
+
+        // Directory selection button
+        directorySelectionButton = new JButton(context.cfg.gs("Z.ellipsis"));
+        directorySelectionButton.setIconTextGap(0);
+        directorySelectionButton.setHorizontalTextPosition(SwingConstants.LEADING);
+        directorySelectionButton.setToolTipText(context.cfg.gs("Libraries.use.directory.picker.tooltip"));
+
+        panel.add(directorySelectionButton, new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH,
                 new Insets(0, 0, 4, 4), 0, 0));
 

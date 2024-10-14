@@ -8,5 +8,5 @@ cd "$base"
 
 cd ../..
 
-rt/Contents/Home/bin/java -jar bin/ELS.jar -C . -J --hint-server libraries/hint-server.json -k system/hint.keys -c debug -d debug -p libraries/publisher.json -s libraries/subscriber-one.json -T -m output/070-22_Publisher-One-dryrun_mismatches.txt -W output/070-22_Publisher-One-dryrun_whatsnew.txt -F output/070-22_Publisher-One-dryrun.log --dry-run
+rt/Contents/Home/bin/java -jar bin/ELS.jar -C . -J --hint-server "libraries/Hint Server.json" -k "system/hint.keys" -c debug -d debug -p "libraries/Publisher.json" -s "libraries/Subscriber One.json" -T -m output/070-22_Publisher-One-dryrun_mismatches.txt -W output/070-22_Publisher-One-dryrun_whatsnew.txt -F output/070-22_Publisher-One-dryrun.log --dry-run
 

@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-rt/bin/java -jar bin/ELS.jar -C . --navigator -c debug -d debug -p libraries/publisher.json -s libraries/subscriber-one.json -F output/080-27_Navigator-workstation.log
+rt/bin/java -jar bin/ELS.jar -C . --navigator -c debug -d debug -p "libraries/Publisher.json" -s "libraries/Subscriber One.json" -F output/080-27_Navigator-workstation.log
 

@@ -1,15 +1,18 @@
 package com.corionis.els.jobs;
 
+import com.corionis.els.Utils;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.corionis.els.Context;
-import com.corionis.els.gui.jobs.Conflict;
 import com.corionis.els.tools.AbstractTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
+import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,7 +23,6 @@ import java.util.Collections;
 public class Jobs
 {
     private Context context;
-    ArrayList<Conflict> conflicts = null;
     private Logger logger = LogManager.getLogger("applog");
 
     private Jobs()
@@ -39,6 +41,51 @@ public class Jobs
         jobList = scanJobs(jobList);
         Collections.sort(jobList);
         return jobList;
+    }
+
+    public void saveAllJobs(ArrayList<AbstractTool> jobList) throws Exception
+    {
+        boolean changed = false;
+        Job job = null;
+        if (jobList != null)
+        {
+            // write/update changed tool JSON configuration files
+            for (int i = 0; i < jobList.size(); ++i)
+            {
+                job = (Job) jobList.get(i);
+                if (job.isDataChanged())
+                {
+                    String status = job.validate(context.cfg);
+                    if (status.length() > 0)
+                    {
+                        JOptionPane.showMessageDialog(context.mainFrame, status, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                    }
+
+                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    String json = gson.toJson(job);
+                    String path = job.getDirectoryPath() + System.getProperty("file.separator") +
+                            Utils.scrubFilename(job.getConfigName()) + ".json";
+
+                    File f = new File(path);
+                    if (f != null)
+                    {
+                        f.getParentFile().mkdirs();
+                    }
+                    PrintWriter outputStream = new PrintWriter(path);
+                    outputStream.println(json);
+                    outputStream.close();
+
+                    changed = true;
+                    job.setDataHasChanged(false);
+                }
+            }
+
+            if (changed)
+            {
+                context.navigator.loadJobsMenu();
+                context.libraries.loadJobs();
+            }
+        }
     }
 
     private ArrayList<AbstractTool> scanJobs(ArrayList<AbstractTool> jobList) throws Exception
@@ -76,68 +123,6 @@ public class Jobs
                         Job job = builder.create().fromJson(json, Job.class);
                         if (job != null)
                             jobList.add(job);
-
-/* Brute-force adding paths from keys
-                        if (job != null)
-                        {
-                            boolean change = false;
-                            for (Task task : job.getTasks())
-                            {
-                                if (task.getPublisherKey() != null && task.getPublisherKey().length() > 0)
-                                {
-                                    if (task.getPublisherPath() == null || task.getPublisherPath().length() == 0)
-                                    {
-                                        Repository r = repositories.findRepo(task.getPublisherKey());
-                                        if (r != null)
-                                            task.setPublisherPath(r.getJsonFilename());
-                                        change = true;
-                                    }
-                                }
-
-                                if (task.getSubscriberKey() != null && task.getSubscriberKey().length() > 0)
-                                {
-                                    if (task.getSubscriberPath() == null || task.getSubscriberPath().length() == 0)
-                                    {
-                                        Repository r = repositories.findRepo(task.getSubscriberKey());
-                                        if (r != null)
-                                            task.setSubscriberPath(r.getJsonFilename());
-                                        change = true;
-                                    }
-                                }
-
-                                if (task.getHintsKey() != null && task.getHintsKey().length() > 0)
-                                {
-                                    if (task.getHintsPath() == null || task.getHintsPath().length() == 0)
-                                    {
-                                        Repository r = repositories.findRepo(task.getHintsKey());
-                                        if (r != null)
-                                            task.setHintsPath(r.getJsonFilename());
-                                        change = true;
-                                    }
-                                }
-                            }
-
-//                            if (change)
-                            {
-                                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                                String j = gson.toJson(job);
-                                String path = job.getDirectoryPath() + System.getProperty("file.separator") +
-                                        Utils.scrubFilename(job.getConfigName()) + ".json";
-                                try
-                                {
-                                    File f = new File((path));
-                                    PrintWriter outputStream = new PrintWriter((path));
-                                    outputStream.println(j);
-                                    outputStream.close();
-                                }
-                                catch (FileNotFoundException fnf)
-                                {
-                                    throw new MungeException(localContext.cfg.gs("Z.error.writing") + (path) + ": " + Utils.getStackTrace(fnf));
-                                }
-
-                            }
-                        }
-*/
 
                     }
                 }

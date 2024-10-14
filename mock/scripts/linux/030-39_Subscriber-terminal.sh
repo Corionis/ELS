@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug --remote T -p libraries/publisher.json -s libraries/subscriber-one.json -F output/030-39_Subscriber-terminal.log
+rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug --remote T -p "libraries/Publisher.json" -s "libraries/Subscriber One.json" -F output/030-39_Subscriber-terminal.log
 

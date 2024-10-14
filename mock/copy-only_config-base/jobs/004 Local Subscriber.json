@@ -21,8 +21,8 @@
       "publisherKey": "",
       "publisherPath": "",
       "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
-      "subscriberOverrideHost": false,
-      "subscriberPath": "/home/trh/Work/corionis/ELS/mock/libraries/subscriber-one.json",
+      "subscriberOverride": "true",
+      "subscriberPath": "libraries/Subscriber One.json",
       "subscriberRemote": false
     }
   ]

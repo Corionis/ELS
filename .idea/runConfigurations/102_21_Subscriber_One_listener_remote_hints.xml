@@ -2,7 +2,7 @@
   <configuration default="false" name="102-21_Subscriber-One-listener-remote-hints" type="Application" factoryName="Application" folderName="102-00 Navigator - Remote Hint Server - Remote Backup">
     <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug -J --hint-server libraries/hint-server.json -k system/hint.keys -A system/authentication.keys --listener-keep-going --remote S -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/102-21_Subscriber-listener-remomte-hints.log" />
+    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug -k system/hint.keys -A system/authentication.keys --listener-keep-going --remote S -p &quot;libraries/Publisher.json&quot; -s &quot;libraries/Subscriber One.json&quot; -T -F output/102-21_Subscriber-listener-remomte-hints.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml -Dsun.awt.disablegrab=true" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <method v="2">

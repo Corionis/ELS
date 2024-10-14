@@ -12,23 +12,26 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.net.URL;
-import java.util.ArrayList;
 
 public class HintsTableModel extends DefaultTableModel
 {
     private Context context;
-    public ArrayList<Hint> hints = null;
+    private HintsUI hintsUI;
     private ImageIcon iconGreen;
     private ImageIcon iconRed;
     private ImageIcon iconYellow;
     private Repositories repositories;
 
-    public HintsTableModel(Context context, Repositories repositories, ArrayList<Hint> hints)
+    private HintsTableModel()
+    {
+    }
+
+    public HintsTableModel(Context context, Repositories repositories, HintsUI hintsUI)
     {
         super();
         this.context = context;
-        this.hints = hints;
         this.repositories = repositories;
+        this.hintsUI = hintsUI;
         iconGreen = getIcon("hint-green.png");
         iconGreen.setDescription(context.cfg.gs("HintsUI.status.done"));
         iconRed = getIcon("hint-red.png");
@@ -156,16 +159,16 @@ public class HintsTableModel extends DefaultTableModel
     @Override
     public int getRowCount()
     {
-        return (hints == null) ? 0 : hints.size();
+        return (hintsUI == null || hintsUI.hints == null) ? 0 : hintsUI.hints.size();
     }
 
     @Override
     public Object getValueAt(int row, int column)
     {
         Object object = null;
-        if (row < hints.size())
+        if (row < hintsUI.hints.size())
         {
-            Hint hint = hints.get(row);
+            Hint hint = hintsUI.hints.get(row);
             switch (column)
             {
                 case 0:
@@ -237,7 +240,7 @@ public class HintsTableModel extends DefaultTableModel
     {
         if (object instanceof Boolean)
         {
-            Hint hint = hints.get(row);
+            Hint hint = hintsUI.hints.get(row);
             hint.selected = ((Boolean) object).booleanValue();
             int count = context.navigator.dialogHints.setButtons();
             context.navigator.dialogHints.labelStatus.setText(count + context.cfg.gs("HintsUI.hints.selected"));

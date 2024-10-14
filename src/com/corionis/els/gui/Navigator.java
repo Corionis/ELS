@@ -117,7 +117,7 @@ public class Navigator
                 String libName = tuo.getParentLibrary().getUserObject().name;
                 try
                 {
-                    hints = context.hints.checkConflicts(libName, tuo.getItemPath(libName, tuo.getPath()));
+                    hints = context.hintsHandler.checkConflicts(libName, tuo.getItemPath(libName, tuo.getPath()));
                     if (hints != null && hints.size() > 0)
                     {
                         logger.info(context.cfg.gs("NavTransferHandler.action.cancelled"));
@@ -143,16 +143,16 @@ public class Navigator
         return false;
     }
 
-    public int checkForHints(boolean checkOnly)
+    public int checkForHints()
     {
         int count = 0;
-        if (context.cfg.isHintTrackingEnabled() && context.hints != null)
+        if (context.cfg.isHintTrackingEnabled() && context.hintsHandler != null && context.publisherRepo != null)
         {
             try
             {
-                HintKey hk = context.hints.findHintKey(context.publisherRepo);
+                HintKey hk = context.hintsHandler.findHintKey(context.publisherRepo);
                 if (hk != null)
-                    count = context.hints.getCount(hk.system);
+                    count = context.hintsHandler.getCount(hk.system);
                 if (count > 0)
                 {
                     String text = "" + count + " " + context.cfg.gs("Navigator.hints.available");
@@ -471,7 +471,7 @@ public class Navigator
         context.subscriberRepo = null;
         context.cfg.setSubscriberCollectionFilename("");
         context.cfg.setSubscriberLibrariesFileName("");
-        context.cfg.setRemoteType("-");
+        context.cfg.setOperation("-");
     }
 
     public void disconnectSubscriber(boolean clear)
@@ -906,7 +906,7 @@ public class Navigator
                             disconnectSubscriber();
 
                             quitByeRemotes(false, true);
-                            context.hints = null;
+                            context.hintsHandler = null;
                             context.hintKeys = null;
                             context.cfg.setHintKeysFile("");
                             context.hintsRepo = null;
@@ -938,6 +938,10 @@ public class Navigator
                             context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
                             setQuitTerminateVisibility();
                             context.libraries.loadConfigurations();
+
+                            checkForHints();
+                            if (dialogHints != null && dialogHints.isVisible())
+                                dialogHints.refresh();
                         }
                         catch (Exception e)
                         {
@@ -1227,15 +1231,15 @@ public class Navigator
 
                             // this defines the value returned by localContext.cfg.isRemoteSession()
                             if (cbIsRemote.isSelected())
-                                context.cfg.setRemoteType("P"); // publisher to remote subscriber
+                                context.cfg.setOperation("P"); // publisher to remote subscriber
                             else
-                                context.cfg.setRemoteType("-"); // not remote
+                                context.cfg.setOperation("-"); // not remote
 
                             context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, !context.preferences.isLastSubscriberIsRemote());
                         }
                         catch (Exception e)
                         {
-                            context.mainFrame.labelStatusMiddle.setText("");
+                            context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                             JOptionPane.showMessageDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -1316,7 +1320,7 @@ public class Navigator
                                     if (context.preferences.isLastSubscriberIsRemote())
                                     {
                                         // start the serveStty client for automation
-                                        context.mainFrame.labelStatusMiddle.setText("");
+                                        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                                         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                                         context.clientStty = new ClientStty(context, false, true, false);
@@ -1327,7 +1331,7 @@ public class Navigator
                                             JOptionPane.showMessageDialog(context.mainFrame,
                                                     context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
                                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                            context.cfg.setRemoteType("-");
+                                            context.cfg.setOperation("-");
                                             context.fault = false;
                                             return;
                                         }
@@ -1343,7 +1347,7 @@ public class Navigator
                                         context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                                         if (!context.clientSftp.startClient("transfer"))
                                         {
-                                            context.mainFrame.labelStatusMiddle.setText("");
+                                            context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                             disconnectSubscriber();
                                             JOptionPane.showMessageDialog(context.mainFrame,
@@ -1357,7 +1361,7 @@ public class Navigator
                                         context.clientSftpMetadata = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                                         if (!context.clientSftpMetadata.startClient("metadata"))
                                         {
-                                            context.mainFrame.labelStatusMiddle.setText("");
+                                            context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                             disconnectSubscriber();
                                             JOptionPane.showMessageDialog(context.mainFrame,
@@ -1374,10 +1378,14 @@ public class Navigator
                                     context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
                                     context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
                                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
+                                    checkForHints();
+                                    if (dialogHints != null && dialogHints.isVisible())
+                                        dialogHints.refresh();
                                 }
                                 catch (Exception e)
                                 {
-                                    context.mainFrame.labelStatusMiddle.setText("");
+                                    context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                     disconnectSubscriber();
                                     JOptionPane.showMessageDialog(context.mainFrame,
@@ -1624,8 +1632,12 @@ public class Navigator
                         File selected = fc.getSelectedFile();
                         logger.info(propertyChangeEvent.getPropertyName() + " :: " + selected);
                         if (setFileChooserHostListen(fc, hostLabel, listenLabel))
-                        {
                             cbIsRemote.setEnabled(true);
+                        else
+                            cbIsRemote.setEnabled(false);
+
+                        if (cbIsRemote.isSelected())
+                        {
                             hostButton.setEnabled(true);
                             hostLabel.setEnabled(true);
                             listenButton.setEnabled(true);
@@ -1633,7 +1645,6 @@ public class Navigator
                         }
                         else
                         {
-                            cbIsRemote.setEnabled(false);
                             hostButton.setEnabled(false);
                             hostLabel.setEnabled(false);
                             listenButton.setEnabled(false);
@@ -1642,19 +1653,6 @@ public class Navigator
                     }
                 });
                 setFileChooserHostListen(fc, hostLabel, listenLabel); // set initial values, if any
-
-/*
-                JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body><b>" +
-                        context.cfg.gs("Navigator.labelRemote.text") + "</b></body></html>");
-                cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
-                cbIsRemote.setToolTipText(context.cfg.gs("Navigator.menu.Open.hint.tracking.checkbox.tooltip"));
-                cbIsRemote.setSelected(context.preferences.isLastHintTrackingIsRemote());
-                GridBagConstraints gbc = new GridBagConstraints();
-                gbc.insets = new Insets(0, 0, 0, 8);
-                gb.setConstraints(cbIsRemote, gbc);
-                jp.add(cbIsRemote);
-                fc.setAccessory(jp);
-*/
 
                 while (true)
                 {
@@ -1714,7 +1712,7 @@ public class Navigator
                             }
                             catch (Exception e)
                             {
-                                context.mainFrame.labelStatusMiddle.setText("");
+                                context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                                 JOptionPane.showMessageDialog(context.mainFrame,
                                         context.cfg.gs("Navigator.menu.Open.hint.error.opening.hint.library") + e.getMessage(),
                                         context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -1740,6 +1738,10 @@ public class Navigator
                             context.browser.setupHintTrackingButton();
                             setQuitTerminateVisibility();
                             context.libraries.loadConfigurations();
+
+                            checkForHints();
+                            if (dialogHints != null && dialogHints.isVisible())
+                                dialogHints.refresh();
                         }
                         catch (Exception e)
                         {
@@ -1831,6 +1833,10 @@ public class Navigator
                     context.preferences.setLastPublisherIsOpen(false);
                     setQuitTerminateVisibility();
                     context.libraries.loadConfigurations();
+
+                    checkForHints();
+                    if (dialogHints != null && dialogHints.isVisible())
+                        dialogHints.refresh();
                 }
             }
         });
@@ -1849,6 +1855,10 @@ public class Navigator
                     context.preferences.setLastSubscriberIsOpen(false);
                     disconnectSubscriber();
                     context.libraries.loadConfigurations();
+
+                    checkForHints();
+                    if (dialogHints != null && dialogHints.isVisible())
+                        dialogHints.refresh();
                 }
             }
         });
@@ -1876,7 +1886,7 @@ public class Navigator
                 {
                     // close Hint Keys and Hint Tracker/Server
                     quitByeRemotes(false, true);
-                    context.hints = null;
+                    context.hintsHandler = null;
                     context.hintKeys = null;
                     context.cfg.setHintKeysFile("");
                     context.hintsRepo = null;
@@ -1885,6 +1895,10 @@ public class Navigator
                     context.preferences.setLastHintKeysIsOpen(false);
                     context.browser.setupHintTrackingButton();
                     context.libraries.loadConfigurations();
+
+                    checkForHints();
+                    if (dialogHints != null && dialogHints.isVisible())
+                        dialogHints.refresh();
                 }
             }
         });
@@ -1910,6 +1924,10 @@ public class Navigator
                     context.preferences.setLastHintTrackingIsOpen(false);
                     context.browser.setupHintTrackingButton();
                     setQuitTerminateVisibility();
+
+                    checkForHints();
+                    if (dialogHints != null && dialogHints.isVisible())
+                        dialogHints.refresh();
                 }
             }
         });
@@ -3767,7 +3785,7 @@ public class Navigator
             context.clientStty = new ClientStty(context, false, true, false);
             if (!context.clientStty.connect(publisherRepo, subscriberRepo))
             {
-                context.cfg.setRemoteType("-");
+                context.cfg.setOperation("-");
                 if (context.navigator != null)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame,
@@ -3788,7 +3806,7 @@ public class Navigator
             context.clientSftp = new ClientSftp(context, publisherRepo, subscriberRepo, true);
             if (!context.clientSftp.startClient("transfer"))
             {
-                context.cfg.setRemoteType("-");
+                context.cfg.setOperation("-");
                 if (context.navigator != null)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame,
@@ -3867,7 +3885,7 @@ public class Navigator
                             context.mainFrame.labelAlertUpdateToolbar.setVisible(false);
                         }
 
-                        checkForHints(true);
+                        checkForHints();
                     }
 
                     if (context.preferences.isShowToolbar() && !isLogger())

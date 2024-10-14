@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.1.0.0.283" Java: "17.0.6" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.3" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.bundlePackage": "com.corionis.els.locales"
@@ -15,6 +15,7 @@ new FormModel {
 			"title": new FormMessage( null, "Sleep.title" )
 			"defaultCloseOperation": 0
 			"name": "sleepUI"
+			"preferredSize": new java.awt.Dimension( 560, 395 )
 			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "windowClosing", true ) )
 			addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentHidden", "windowHidden", true ) )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
@@ -166,7 +167,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 570, 470 )
+			"size": new java.awt.Dimension( 570, 465 )
 		} )
 	}
 }

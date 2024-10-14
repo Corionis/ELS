@@ -43,7 +43,13 @@ public class Settings extends JDialog
             public void actionPerformed(ActionEvent actionEvent)
             {
                 context.preferences.setLookAndFeel(laf);
+                textFieldAccentColor.setText(context.preferences.getAccentColor());
+                scaleCheckBox.setSelected(!context.preferences.isBinaryScale());
+                showArrowsCheckBox.setSelected(context.preferences.isShowArrows());
+                showMnemonicsCheckBox.setSelected(context.preferences.isShowMnemonics());
+                updateLookAndFeel(null);
                 refreshLookAndFeel(context.preferences.getLookAndFeel());
+
                 if (helpDialog != null && helpDialog.isVisible())
                     helpDialog.setVisible(false);
                 setVisible(false);
@@ -135,7 +141,7 @@ public class Settings extends JDialog
             {
                 if (actionEvent.getActionCommand().equals("comboBoxChanged"))
                 {
-                    context.mainFrame.setBrowserTabs(tabPlacementComboBox.getSelectedIndex());
+                    context.mainFrame.setBrowserTabs(tabPlacementComboBox.getSelectedIndex() );
                     context.browser.refreshAll();
                 }
             }
@@ -166,6 +172,7 @@ public class Settings extends JDialog
     {
         try
         {
+            setAccentColor();
             UIManager.put("ScrollBar.showButtons", showArrowsCheckBox.isSelected()); // show scrollbar up/down buttons
             UIManager.put("Component.hideMnemonics", !showMnemonicsCheckBox.isSelected()); // show/hide mnemonic letters
             Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
@@ -278,8 +285,8 @@ public class Settings extends JDialog
         tabPlacementComboBox.removeAllItems();
         model = tabPlacementComboBox.getModel();
         tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.top"));
-        tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.bottom"));
         tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.left"));
+        tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.bottom"));
         tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.right"));
         tabPlacementComboBox.setSelectedIndex(context.preferences.getTabPlacementIndex());
         tooltipLargeTableCheckBox.setSelected(context.preferences.isTooltipsLargeTables());
@@ -346,7 +353,7 @@ public class Settings extends JDialog
         context.preferences.setTooltipsLargeTables(tooltipLargeTableCheckBox.isSelected());
         context.preferences.setUseLastPublisherSubscriber(uselastPubSubCheckBox.isSelected());
 
-        context.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
         return true;
     }
 
@@ -665,7 +672,7 @@ public class Settings extends JDialog
                             new Insets(0, 0, 20, 5), 0, 0));
 
                         //---- showArrowseLabel ----
-                        showArrowseLabel.setText(context.cfg.gs("Settings.showArrowseLabel.text"));
+                        showArrowseLabel.setText(context.cfg.gs("Settings.show.Arrows.Label.text"));
                         apperancePanel.add(showArrowseLabel, new GridBagConstraints(0, 7, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
@@ -761,7 +768,7 @@ public class Settings extends JDialog
                             new Insets(0, 8, 20, 21), 0, 0));
 
                         //---- uselastPubSubCheckBox ----
-                        uselastPubSubCheckBox.setToolTipText(context.cfg.gs("Settings.uselastPubSubCheckBox.toolTipText"));
+                        uselastPubSubCheckBox.setToolTipText(context.cfg.gs("Settings.use.last.PubSub.CheckBox.toolTipText"));
                         browserPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));

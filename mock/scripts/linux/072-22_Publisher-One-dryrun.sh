@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-rt/bin/java -jar bin/ELS.jar -C . -J --hint-server libraries/hint-server.json -k system/hint.keys -c debug -d debug --remote P -p libraries/publisher.json -O -s libraries/subscriber-one.json -T -m output/072-22_Publisher-One-dryrun_mismatches.txt -W output/072-22_Publisher-One-dryrun_whatsnew.txt -F output/072-22_Publisher-One-dryrun.log --dry-run
+rt/bin/java -jar bin/ELS.jar -C . -J --hint-server "libraries/Hint Server.json" -k "system/hint.keys" -c debug -d debug --remote P -p "libraries/Publisher.json" -O -s "libraries/Subscriber One.json" -T -m output/072-22_Publisher-One-dryrun_mismatches.txt -W output/072-22_Publisher-One-dryrun_whatsnew.txt -F output/072-22_Publisher-One-dryrun.log --dry-run
 

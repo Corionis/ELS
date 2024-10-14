@@ -92,7 +92,7 @@ public class DownloadUpdater extends JFrame
         protected Void doInBackground() throws Exception
         {
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            context.mainFrame.labelStatusMiddle.setText("");
+            context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
             progressBar.setMinimum(0);
 
             installedPath = context.cfg.getInstalledPath();

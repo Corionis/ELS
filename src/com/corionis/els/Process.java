@@ -476,14 +476,14 @@ public class Process
             }
 
             // process ELS Hints locally, targets and no subscriber
-            if (context.hints != null && context.cfg.isTargetsEnabled() && !context.cfg.isRemoteOperation() &&
+            if (context.hintsHandler != null && context.cfg.isTargetsEnabled() && !context.cfg.isRemoteOperation() &&
                     (context.cfg.getPublisherLibrariesFileName().length() > 0 ||
                             context.cfg.getPublisherCollectionFilename().length() > 0) &&
                     (context.cfg.getSubscriberLibrariesFileName().length() == 0 &&
                             context.cfg.getSubscriberCollectionFilename().length() == 0))
             {
                 localHints = true; // skip munge
-                result = context.hints.hintsMunge(true);
+                result = context.hintsHandler.hintsMunge(true);
             }
 
             // process -e export text, publisher only
@@ -508,7 +508,7 @@ public class Process
             if (context.cfg.isHintTrackingEnabled() && context.cfg.isTargetsEnabled() &&
                     context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
             {
-                result = context.hints.hintsMunge(false);
+                result = context.hintsHandler.hintsMunge(false);
             }
 
             if (!result.toLowerCase().equals("fault"))
@@ -522,7 +522,8 @@ public class Process
                     }
                     else
                     {
-                        if (!context.cfg.isDuplicateCheck() && !context.cfg.isEmptyDirectoryCheck() && !context.cfg.isValidation())
+                        if (!context.cfg.isDuplicateCheck() && !context.cfg.isEmptyDirectoryCheck() && !context.cfg.isValidation() &&
+                            !context.cfg.getPublisherFilename().isEmpty() && !context.cfg.getSubscriberFilename().isEmpty())
                             logger.warn("Something missing? Make sure publisher and subscriber are specified for backup operation");
                     }
                 }

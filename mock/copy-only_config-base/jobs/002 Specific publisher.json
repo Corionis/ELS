@@ -19,9 +19,9 @@
         }
       ],
       "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
-      "publisherPath": "/home/trh/Work/corionis/ELS/mock/libraries/publisher.json",
+      "publisherPath": "libraries/Publisher.json",
       "subscriberKey": "",
-      "subscriberOverrideHost": false,
+      "subscriberOverride": "true",
       "subscriberPath": "",
       "subscriberRemote": false
     }

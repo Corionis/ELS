@@ -114,7 +114,7 @@ public class NavTransferHandler extends TransferHandler
     public boolean canImport(TransferHandler.TransferSupport info)
     {
         context.fault = false;
-        context.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
         if (info.getComponent() instanceof JTable)
         {
             JTable targetTable = (JTable) info.getComponent();
@@ -311,7 +311,7 @@ public class NavTransferHandler extends TransferHandler
     {
         if (context.browser.isHintTrackingButtonEnabled() && sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection"))
         {
-            context.hints.writeHint(act, context.preferences.isLastPublisherIsWorkstation(), sourceTuo, targetTuo);
+            context.hintsHandler.writeHint(act, context.preferences.isLastPublisherIsWorkstation(), sourceTuo, targetTuo);
         }
     }
 
@@ -702,7 +702,7 @@ public class NavTransferHandler extends TransferHandler
         {
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             logger.error(Utils.getStackTrace(e));
-            context.mainFrame.labelStatusMiddle.setText("");
+            context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Browser.error") + e.getMessage(),
                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
@@ -874,7 +874,7 @@ public class NavTransferHandler extends TransferHandler
         {
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             logger.error(Utils.getStackTrace(e));
-            context.mainFrame.labelStatusMiddle.setText("");
+            context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
             int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.delete.directory.error") +
                             e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),
                     context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
@@ -918,7 +918,7 @@ public class NavTransferHandler extends TransferHandler
             {
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 logger.error(Utils.getStackTrace(e), true);
-                context.mainFrame.labelStatusMiddle.setText("");
+                context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                 int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.delete.file.error") +
                                 e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);

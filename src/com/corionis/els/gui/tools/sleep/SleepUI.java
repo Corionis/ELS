@@ -102,7 +102,7 @@ public class SleepUI extends AbstractToolDialog
         numberFilter = new NumberFilter();
         setNumberFilter(textFieldTime);
         context.navigator.enableDisableToolMenus(this, false);
-        context.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
     }
 
     private void actionCancelClicked(ActionEvent e)
@@ -506,6 +506,7 @@ public class SleepUI extends AbstractToolDialog
         setTitle(context.cfg.gs("Sleep.title"));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setName("sleepUI");
+        setPreferredSize(new Dimension(560, 395));
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -518,7 +519,7 @@ public class SleepUI extends AbstractToolDialog
                 windowHidden(e);
             }
         });
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========

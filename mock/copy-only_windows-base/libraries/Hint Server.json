@@ -1,0 +1,30 @@
+{
+    "libraries": {
+        "description": "Hint Server",
+        "key": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
+        "host": "localhost:40100",
+        "listen": "localhost:40200",
+        "timeout": 0,
+        "flavor": "Linux",
+        "case_sensitive": false,
+        "temp_dated": false,
+        "temp_location": "output",
+        "terminal_allowed": false,
+        "ignore_patterns": [],
+        "locations": [
+            {
+                "location": "datastore",
+                "minimum": "40GB"
+            }
+        ],
+        "bibliography": [
+            {
+                "name": "Hint Status Datastore",
+                "sources": [
+                    "datastore"
+                ],
+                "items": null
+            }
+        ]
+    }
+}

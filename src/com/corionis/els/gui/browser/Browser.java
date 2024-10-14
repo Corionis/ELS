@@ -73,7 +73,7 @@ public class Browser
         {
             synchronized public void mouseClicked(MouseEvent mouseEvent)
             {
-                context.mainFrame.labelStatusMiddle.setText("");
+                context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
             }
         };
         component.addMouseListener(componentMouseListener);
@@ -1658,7 +1658,7 @@ public class Browser
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hints"))
+                if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hintsHandler"))
                 {
                     toggleHintTracking(!hintTrackingButtonEnabled);
                 }
@@ -2106,7 +2106,7 @@ public class Browser
         return treePath;
     }
 
-    private TreePath[] resetTreePaths(JTree tree, TreePath[] treePathArray)
+    public TreePath[] resetTreePaths(JTree tree, TreePath[] treePathArray)
     {
         if (treePathArray != null && treePathArray.length > 0)
         {
@@ -2127,7 +2127,7 @@ public class Browser
         return treePathArray;
     }
 
-    private ArrayList<TreePath> resetTreePaths(JTree tree, ArrayList<TreePath> treePaths)
+    public ArrayList<TreePath> resetTreePaths(JTree tree, ArrayList<TreePath> treePaths)
     {
         ArrayList<TreePath> reworkedPaths = null;
         if (tree != null && treePaths.size() > 0)
