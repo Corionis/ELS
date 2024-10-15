@@ -83,7 +83,7 @@ public class Daemon extends AbstractDaemon
     }
 
     /**
-     * Handshake using hintsHandler keys file (only) instead of point-to-point
+     * Handshake using hint keys file (only) instead of point-to-point
      *
      * @return String name of back-up system
      */
@@ -110,7 +110,7 @@ public class Daemon extends AbstractDaemon
                 // validate with Authentication Keys if specified
                 if (context.authKeys != null)
                 {
-                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hintsHandler keys file
+                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
                     if (connectedKey != null)
                     {
                         // send my flavor
@@ -185,7 +185,7 @@ public class Daemon extends AbstractDaemon
         connected = true;
 
         String system = handshake();
-        if (system.length() == 0) // special handshake using hintsHandler keys file instead of point-to-point
+        if (system.length() == 0) // special handshake using hints keys file instead of point-to-point
         {
             logger.error("Connection to " + Utils.formatAddresses(socket) + " failed handshake");
         }

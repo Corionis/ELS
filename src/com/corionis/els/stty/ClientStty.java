@@ -431,7 +431,7 @@ public class ClientStty
         {
             if (context.hintsRepo == null)
             {
-                logger.warn("-q requires a -h hintsHandler file");
+                logger.warn("-q requires a -h hints file");
                 context.fault = true;
             }
             try

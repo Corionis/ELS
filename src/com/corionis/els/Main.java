@@ -947,7 +947,7 @@ public class Main
                     context.cfg.dump();
 
                     if (context.cfg.getHintHandlerFilename() == null || context.cfg.getHintHandlerFilename().length() == 0)
-                        throw new MungeException("-Q|--force-quit requires a either -h|--hintsHandler or -H|--hint-server");
+                        throw new MungeException("-Q|--force-quit requires a either -h|--hints or -H|--hint-server");
 
                     if (context.cfg.getPublisherFilename() == null || context.cfg.getPublisherFilename().length() == 0)
                         throw new MungeException("-Q|--force-quit requires a -p|-P publisher to connect from");

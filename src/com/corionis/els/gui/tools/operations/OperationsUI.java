@@ -494,14 +494,6 @@ public class OperationsUI extends AbstractToolDialog
                         pickerFileMustExist = true;
                         pickerKeys = true;
                         break;
-                    case "hintsHandler":
-                    case "hints2":
-                    case "hints3":
-                    case "hints6":
-                        desc = context.cfg.gs("OperationsUI.els.hints.server.file");
-                        pickerAnyFile = true;
-                        pickerFileMustExist = true;
-                        break;
                 }
                 return desc;
             }

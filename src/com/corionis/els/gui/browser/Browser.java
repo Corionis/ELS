@@ -1658,7 +1658,7 @@ public class Browser
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hintsHandler"))
+                if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hints"))
                 {
                     toggleHintTracking(!hintTrackingButtonEnabled);
                 }

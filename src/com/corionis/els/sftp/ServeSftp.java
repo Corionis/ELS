@@ -168,7 +168,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                     HintKeys keys = (context.authKeys != null) ? context.authKeys : context.hintKeys;
                     if (keys != null)
                     {
-                        HintKey connectedKey = keys.findKey(password);  // look for matching key in hintsHandler keys file
+                        HintKey connectedKey = keys.findKey(password);  // look for matching key in hints keys file
                         if (connectedKey != null)
                         {
                             authenticated = true;

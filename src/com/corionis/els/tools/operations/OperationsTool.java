@@ -159,14 +159,14 @@ public class OperationsTool extends AbstractTool
         if (getOptKeysOnly().length() > 0)
             sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" + getOptKeysOnly() + "\"");
 
-        // --- hintsHandler & hint server
+        // --- hints & hint server
         if (operation.equals(Operations.StatusServer) && !hintPath.isEmpty())
         {
             hintPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), hintPath);
             if (context.cfg.isOverrideHintsHost() && operation != Operations.StatusServer)
-                sb.append((" " + (glo ? "--override-hintsHandler-host" : "-J")));
+                sb.append((" " + (glo ? "--override-hints-host" : "-J")));
             if (context.cfg.getHintsDaemonFilename().isEmpty())
-                sb.append(" " + (glo ? "--hintsHandler" : "-h") + " \"" + hintPath + "\"");
+                sb.append(" " + (glo ? "--hints" : "-h") + " \"" + hintPath + "\"");
             else
                 sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + hintPath + "\"");
         }

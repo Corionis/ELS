@@ -86,7 +86,7 @@ public class Environment
             Thread.sleep(3000); // wait for connection to be setup
         }
 
-        // hintsHandler
+        // hints
         if (hjfChanged)
         {
             setupHintTracking();

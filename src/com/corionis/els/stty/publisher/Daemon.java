@@ -98,7 +98,7 @@ public class Daemon extends AbstractDaemon
                 // validate with Authentication Keys if specified
                 if (context.authKeys != null)
                 {
-                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hintsHandler keys file
+                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
                     if (connectedKey != null)
                     {
                         // send my flavor
