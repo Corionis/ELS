@@ -1550,7 +1550,7 @@ public class Main
                 if (!context.cfg.isQuitStatusServer() && context.hintsStty.isConnected())
                 {
                     context.hintsStty.send("bye", "Sending bye command to remote Hint Status Server");
-                    Thread.sleep(3000);
+                    Thread.sleep(2500);
                 }
                 context.hintsStty.disconnect();
                 context.hintsStty = null;
@@ -1560,14 +1560,14 @@ public class Main
                 logger.trace("  sftp client");
                 context.clientSftp.stopClient();
                 context.clientSftp = null;
-                Thread.sleep(3000L);
+                Thread.sleep(2500L);
             }
             if (context.clientSftpMetadata != null)
             {
                 logger.trace("  sftp client transfer");
                 context.clientSftpMetadata.stopClient();
                 context.clientSftpMetadata = null;
-                Thread.sleep(3000L);
+                Thread.sleep(2500L);
             }
             if (context.serveSftp != null)
             {

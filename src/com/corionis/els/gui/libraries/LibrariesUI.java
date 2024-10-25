@@ -693,16 +693,18 @@ public class LibrariesUI
 
     private void actionOkClicked(ActionEvent e)
     {
-        LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+        int state = saveConfigurations();
+        if (state < 0)
+            return;
 
-        boolean changes = saveConfigurations();
+        LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
         savePreferences();
 
         int cci = configModel.findIndex(libMeta);
         if (cci >= 0)
             configItems.setRowSelectionInterval(cci, cci);
 
-        if (changes)
+        if (state > 0)
             mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.saved"));
         else
             mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.none"));
@@ -1661,7 +1663,12 @@ public class LibrariesUI
 
     public void genericTextFieldFocusLost(FocusEvent e)
     {
-        updateOnChange(e.getSource());
+        if (e.getOppositeComponent() instanceof JTable)
+        {
+            // ignore config selection changes to avoid invalid updates
+        }
+        else
+            updateOnChange(e.getSource());
     }
 
     public ArrayList<LibMeta> getDeletedLibraries()
@@ -1771,10 +1778,10 @@ public class LibrariesUI
                         currentLocationIndex = 0;
                         currentLibraryIndex = 0;
                         currentSourceIndex = 0;
-                        mf.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                         loadGeneralTab();
                     }
                 }
+                mf.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
             }
         });
 
@@ -2397,19 +2404,23 @@ public class LibrariesUI
         return false;
     }
 
-    private boolean saveConfigurations()
+    private int saveConfigurations()
     {
         LibMeta libMeta = null;
-        boolean changes = false;
+        int state = 0;
         try
         {
             for (int i = 0; i < configModel.getRowCount(); ++i)
             {
                 libMeta = (LibMeta) configModel.getValueAt(i, 0);
-                if (libMeta.key == null | libMeta.key.isEmpty())
+                if (libMeta.key == null || libMeta.key.isEmpty())
                 {
+                    currentConfigIndex = i;
+                    configItems.setRowSelectionInterval(i, i);
+                    loadGeneralTab();
                     JOptionPane.showMessageDialog(context.mainFrame, java.text.MessageFormat.format(context.cfg.gs("LibrariesUI.please.assign.a.key"), libMeta.description));
-                    return false;
+                    context.mainFrame.textFieldKey.requestFocus();
+                    return -1;
                 }
             }
 
@@ -2423,7 +2434,7 @@ public class LibrariesUI
                     file.delete();
                 }
                 libMeta.setDataHasChanged(false);
-                changes = true;
+                state = 1;
             }
 
             // write/update changed tool JSON configuration files
@@ -2438,7 +2449,7 @@ public class LibrariesUI
                     }
                     Arrays.sort(libMeta.repo.getLibraryData().libraries.bibliography);
                     libMeta.repo.write();
-                    changes = true;
+                    state = 1;
                 }
                 libMeta.setDataHasChanged(false);
             }
@@ -2463,7 +2474,7 @@ public class LibrariesUI
         configModel.setRowCount(0);
         biblioLibrariesTableModel.setRowCount(0);
         loadConfigurations();
-        return changes;
+        return state;
     }
 
     public void savePreferences()
@@ -2538,13 +2549,8 @@ public class LibrariesUI
                     switch (name.toLowerCase())
                     {
                         case "key":
-                            if (tf.getText().isEmpty())
-                            {
-                                JOptionPane.showMessageDialog(context.mainFrame, java.text.MessageFormat.format(context.cfg.gs("LibrariesUI.please.assign.a.key"), libMeta.description));
-                                return;
-                            }
                             current = libMeta.key;
-                            if (!tf.getText().equals(current))
+                            if (!tf.getText().isEmpty() && !current.isEmpty() && !tf.getText().equals(current))
                             {
                                 ArrayList<Conflict> conflicts = getJobKeyReferences(libMeta.key, tf.getText());
                                 if (!conflicts.isEmpty())
@@ -2552,6 +2558,7 @@ public class LibrariesUI
                                     if (!processJobKeyChanges(libMeta.key, conflicts))
                                     {
                                         tf.setText(libMeta.key); // restore old value
+                                        libMeta.setDataHasChanged();
                                         return;
                                     }
                                 }

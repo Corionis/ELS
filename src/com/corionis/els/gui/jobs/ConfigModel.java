@@ -93,7 +93,7 @@ public class ConfigModel extends DefaultTableModel
                 String message = context.cfg.gs("References for \"" + oldName + "\" found in Jobs:       ");
                 JScrollPane pane = new JScrollPane();
                 pane.setViewportView(conflictJList);
-                String question = context.cfg.gs(isRename ? "Rename" : "Delete") + context.cfg.gs(" the listed references?");
+                String question = context.cfg.gs(isRename ? "Rename" : "Delete") + context.cfg.gs("LibraryUI.the.listed.references");
                 Object[] params = {message, pane, question};
 
                 int opt = JOptionPane.showConfirmDialog(theDialog, params, theDialog.getTitle(), JOptionPane.OK_CANCEL_OPTION);

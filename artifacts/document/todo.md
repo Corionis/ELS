@@ -1,6 +1,10 @@
 
 # Project To Do
 
+ * Why does Hint Server fail if no publisher specified?
+
+ * Add web site diagram of the full-blown back-up sequence
+
 ## Current Short-List
 
  * TEST with new blank configuration

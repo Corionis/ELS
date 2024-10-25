@@ -73,7 +73,7 @@ public class ConfigModel extends DefaultTableModel
                 JScrollPane pane = new JScrollPane();
                 pane.setViewportView(conflictJList);
                 String question = (isRename ? context.cfg.gs("LibraryUI.rename") : context.cfg.gs("LibraryUI.delete")) +
-                        context.cfg.gs(("LibraryUI.the.listed.references") + "?");
+                        context.cfg.gs("LibraryUI.the.listed.references");
                 Object[] params = {message, pane, question};
 
                 int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, librariesUI.displayName, JOptionPane.OK_CANCEL_OPTION);

@@ -713,14 +713,17 @@ public class OperationsUI extends AbstractToolDialog
 
     /**
      * Generic TextField focus handler
-     * <b/>
-     * localContext.operations.genericTextFieldFocusLost
      *
      * @param e ActionEvent
      */
     public void genericTextFieldFocusLost(FocusEvent e)
     {
-        updateOnChange(e.getSource());
+        if (e.getOppositeComponent() instanceof JTable)
+        {
+            // ignore config selection changes to avoid invalid updates
+        }
+        else
+            updateOnChange(e.getSource());
     }
 
     public JTable getConfigItems()

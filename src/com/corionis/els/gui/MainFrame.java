@@ -356,25 +356,36 @@ public class MainFrame extends JFrame
             context.mainFrame.menuTbRefresh.setEnabled(sense);
 
             int size;
-            int tab = tabbedPaneBrowserOne.getSelectedIndex();
-            if (tab == 0)
-                size = tableCollectionOne.getRowCount();
+            int tab;
+            if (!context.cfg.isLoggerView())
+            {
+                tab = tabbedPaneBrowserOne.getSelectedIndex();
+                if (tab == 0)
+                    size = tableCollectionOne.getRowCount();
+                else
+                    size = tableSystemOne.getRowCount();
+                labelStatusLeft.setText(Utils.formatInteger(size) + " " +
+                        context.cfg.gs("Z.publisher") +
+                        (size > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
+            }
             else
-                size = tableSystemOne.getRowCount();
-            labelStatusLeft.setText(Utils.formatInteger(size) + " " +
-                    context.cfg.gs("Z.publisher") +
-                    (size > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
+                labelStatusLeft.setText("<html><body>&nbsp;</body></html>");
 
             labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
 
-            tab = tabbedPaneBrowserTwo.getSelectedIndex();
-            if (tab == 0)
-                size = tableCollectionTwo.getRowCount();
+            if (!context.cfg.isLoggerView())
+            {
+                tab = tabbedPaneBrowserTwo.getSelectedIndex();
+                if (tab == 0)
+                    size = tableCollectionTwo.getRowCount();
+                else
+                    size = tableSystemTwo.getRowCount();
+                labelStatusRight.setText(Utils.formatInteger(size) + " " +
+                        context.cfg.gs("Z.subscriber") +
+                        (size > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
+            }
             else
-                size = tableSystemTwo.getRowCount();
-            labelStatusRight.setText(Utils.formatInteger(size) + " " +
-                    context.cfg.gs("Z.subscriber") +
-                    (size > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
+                labelStatusRight.setText("<html><body>&nbsp;</body></html>");
 
             if (context.browser != null && sense == true)
                 context.browser.selectPanelNumber(context.browser.lastPanelNumber);

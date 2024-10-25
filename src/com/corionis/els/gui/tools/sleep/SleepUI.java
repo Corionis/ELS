@@ -299,7 +299,12 @@ public class SleepUI extends AbstractToolDialog
 
     private void genericTextFieldFocusLost(FocusEvent e)
     {
-        updateOnChange(e.getSource());
+        if (e.getOppositeComponent() instanceof JTable)
+        {
+            // ignore config selection changes to avoid invalid updates
+        }
+        else
+            updateOnChange(e.getSource());
     }
 
     public JTable getConfigItems()
