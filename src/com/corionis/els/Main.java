@@ -253,7 +253,10 @@ public class Main
                         "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (opt == JOptionPane.YES_OPTION)
+                {
+                    context.preferences.setLastSubscriberIsOpen(false);
                     context.fault = false;
+                }
                 return false;
             }
         }
@@ -1525,6 +1528,7 @@ public class Main
                             context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                     if (opt == JOptionPane.YES_OPTION)
                     {
+                        context.preferences.setLastHintTrackingIsOpen(false);
                         context.fault = false;
                         return;
                     }
