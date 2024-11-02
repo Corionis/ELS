@@ -257,8 +257,8 @@ public class Main
                     context.preferences.setLastSubscriberIsOpen(false);
                     context.fault = false;
                 }
-                return false;
             }
+            return false;
         }
         return true;
     }
