@@ -179,7 +179,7 @@ public class Listener extends Thread
         }
 
         if (logger != null)
-            logger.debug("stopping stty listener on: " + listenSocket.getLocalSocketAddress().toString() + ":" + listenSocket.getLocalPort());
+            logger.trace("stopping stty listener on: " + listenSocket.getLocalSocketAddress().toString() + ":" + listenSocket.getLocalPort());
 
         if (listenSocket != null && listenSocket.isBound())
         {

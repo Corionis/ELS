@@ -154,21 +154,21 @@ public class OperationsTool extends AbstractTool
             sb.append(" " + (glo ? "--quit-status" : "-q"));
 
         // --- hint keys
-        if (getOptKeys().length() > 0)
+        if (!getOptKeys().isEmpty())
             sb.append(" " + (glo ? "--keys" : "-k") + " \"" + getOptKeys() + "\"");
-        if (getOptKeysOnly().length() > 0)
+        if (!getOptKeysOnly().isEmpty())
             sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" + getOptKeysOnly() + "\"");
 
         // --- hints & hint server
-        if (operation.equals(Operations.StatusServer) && !hintPath.isEmpty())
+        if (!hintPath.isEmpty())
         {
             hintPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), hintPath);
-            if (context.cfg.isOverrideHintsHost() && operation != Operations.StatusServer)
+            if (context.cfg.isOverrideHintsHost() ) // && operation != Operations.StatusServer)
                 sb.append((" " + (glo ? "--override-hints-host" : "-J")));
-            if (context.cfg.getHintsDaemonFilename().isEmpty())
-                sb.append(" " + (glo ? "--hints" : "-h") + " \"" + hintPath + "\"");
-            else
+            if (task.isHintsRemote() || isToolHintServer())
                 sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + hintPath + "\"");
+            else
+                sb.append(" " + (glo ? "--hints" : "-h") + " \"" + hintPath + "\"");
         }
 
         // --- remote mode
@@ -201,7 +201,7 @@ public class OperationsTool extends AbstractTool
         // --- libraries
         if (operation != Operations.StatusServer)
         {
-            if (pubPath != null && pubPath.length() > 0)
+            if (!pubPath.isEmpty())
             {
                 pubPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pubPath);
                 sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + pubPath + "\"");
@@ -209,7 +209,7 @@ public class OperationsTool extends AbstractTool
             if (operation != Operations.StatusServerQuit)
             {
                 subPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), subPath);
-                if (subPath != null && subPath.length() > 0)
+                if (!subPath.isEmpty())
                 {
                     if (!context.cfg.getOverrideSubscriberHost().isEmpty())
                         sb.append(" " + (glo ? "--override-host" : "-O ") + context.cfg.getOverrideSubscriberHost());
@@ -225,7 +225,7 @@ public class OperationsTool extends AbstractTool
             case PublisherListener:
             case SubscriberListener:
                 sb.append(" " + (glo ? "--targets" : "-t"));
-                if (getOptTargets().length() > 0)
+                if (!getOptTargets().isEmpty())
                     sb.append(" \"" + getOptTargets() + "\"");
                 break;
             case PublisherManual:
@@ -239,17 +239,17 @@ public class OperationsTool extends AbstractTool
         // --- security
         if (getOptAuthorize() != null && getOptAuthorize().length > 0)
             sb.append(" " + (glo ? "--authorize" : "-a") + " \"" + getOptAuthorizeString() + "\"");
-        if (getOptAuthKeys().length() > 0)
+        if (!getOptAuthKeys().isEmpty())
             sb.append(" " + (glo ? "--auth-keys" : "-A") + " \"" + getOptAuthKeys() + "\"");
-        if (getOptBlacklist().length() > 0)
+        if (!getOptBlacklist().isEmpty())
             sb.append(" " + (glo ? "--blacklist" : "-B") + " \"" + getOptBlacklist() + "\"");
-        if (getOptIpWhitelist().length() > 0)
+        if (!getOptIpWhitelist().isEmpty())
             sb.append(" " + (glo ? "--ip-whitelist" : "-I") + " \"" + getOptIpWhitelist() + "\"");
 
         // --- exports
-        if (getOptExportText().length() > 0)
+        if (!getOptExportText().isEmpty())
             sb.append(" " + (glo ? "--export-text" : "-e") + " \"" + getOptExportText() + "\"");
-        if (getOptExportItems().length() > 0)
+        if (!getOptExportItems().isEmpty())
             sb.append(" " + (glo ? "--export-items" : "-i") + " \"" + getOptExportItems() + "\"");
 
         // --- include/exclude libraries
@@ -271,11 +271,11 @@ public class OperationsTool extends AbstractTool
         }
 
         // --- differences
-        if (getOptMismatches().length() > 0)
+        if (!getOptMismatches().isEmpty())
             sb.append(" " + (glo ? "--mismatches" : "-m") + " \"" + getOptMismatches() + "\"");
-        if (getOptWhatsNew().length() > 0)
+        if (!getOptWhatsNew().isEmpty())
             sb.append(" " + (glo ? "--whatsnew" : "-w") + " \"" + getOptWhatsNew() + "\"");
-        if (getOptWhatsNewAll().length() > 0)
+        if (!getOptWhatsNewAll().isEmpty())
             sb.append(" " + (glo ? "--whatsnew-all" : "-W") + " \"" + getOptWhatsNewAll() + "\"");
 
         // --- options

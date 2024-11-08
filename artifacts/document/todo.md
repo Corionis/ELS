@@ -1,9 +1,9 @@
 
 # Project To Do
 
- * Why does Hint Server fail if no publisher specified?
-
- * Add web site diagram of the full-blown back-up sequence
+ * TEST with keep going FALSE
+ * TEST executing in Navigator
+ * TEST non-Jon scripts
 
 ## Current Short-List
 

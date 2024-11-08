@@ -74,33 +74,18 @@ public class Connection extends Thread
      */
     public void run()
     {
-        boolean stop = false;
+        int status = 0;
         try
         {
             service.socket = socket;
-            stop = service.process();
+            status = service.process();
         }
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            stop = true;
         }
         finally
         {
-/*
-            // notify the ConnectionManager that this connection has closed
-            ServeStty cm = ServeStty.getInstance();
-            if (cm != null && cm.isAlive()) // && !service.localContext.timeout)
-            {
-                logger.debug("closing stty connection to: " + Utils.formatAddresses(socket));
-                cm.endConnection();
-                if (stop)
-                {
-                    cm.stopServer();
-                }
-            }
-*/
-
             if (instance != null && instance.isAlive()) // && !service.localContext.timeout)
             {
                 logger.info("closing stty connection to: " + Utils.formatAddresses(socket));
@@ -108,37 +93,31 @@ public class Connection extends Thread
                 conns.remove(this);
             }
 
-            if (stop)
+            if (status > 0)
             {
-                try // also done in Main.process() finally{ shutdownHook }
+                try
                 {
-                    if (service.context.main.primaryExecution)
+                    logger.trace("shutdown via stty");
+
+                    if (status == 2)
                     {
-                        logger.trace("shutdown via stty");
-
-                        // optionally command status server to quit
-                        if (service.context.main.context.hintsStty != null)
-                            service.context.main.context.hintsStty.quitStatusServer(service.context);  // do before stopping the services
-
-                        service.context.main.stopServices();
-                        sleep(2000);
-                        service.context.main.stopVerbiage();
+                        // exit triggers the shutdown hook
+                        // see Main isListening clause with Runtime.getRuntime().addShutdownHook()
+                        if (service.context.main.context.fault)
+                            logger.error("Exiting with error code");
+                        service.context.main.shutdown();
+                        System.exit(0);
                     }
-                    else
-                        service.context.main.restoreEnvironment();
-
-                    // halt kills the remaining threads
-                    // see Main isListening clause with Runtime.getRuntime().addShutdownHook()
-                    if (service.context.main.context.fault)
-                        logger.error("Exiting with error code");
-                    if (service.context.main.primaryExecution)
-                        Runtime.getRuntime().halt(service.context.main.context.fault ? 1 : 0);
                 }
                 catch (Exception e)
                 {
+                    service.context.fault = true;
                     logger.error(Utils.getStackTrace(e));
-                    if (service.context.main.primaryExecution)
-                        Runtime.getRuntime().halt(1);
+                    if (status == 2)
+                    {
+                        service.context.main.shutdown();
+                        //System.exit(0);
+                    }
                 }
             }
         }

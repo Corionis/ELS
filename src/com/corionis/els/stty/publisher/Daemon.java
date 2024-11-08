@@ -135,7 +135,7 @@ public class Daemon extends AbstractDaemon
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    public boolean process() throws Exception, IOException
+    public int process() throws Exception, IOException
     {
         int attempts = 0;
         int commandCount = 0;
@@ -168,7 +168,7 @@ public class Daemon extends AbstractDaemon
         if (system.length() == 0)
         {
             if (!context.cfg.isKeepGoing())
-                stop = true; // stop this daemon to avoid repeated attacks
+                status = 1;
             logger.error("Connection to " + Utils.formatAddresses(socket) + " failed handshake");
         }
         else
@@ -199,7 +199,7 @@ public class Daemon extends AbstractDaemon
             // prompt for & process interactive commands
             try
             {
-                while (stop == false)
+                while (status == 0)
                 {
                     try
                     {
@@ -207,7 +207,7 @@ public class Daemon extends AbstractDaemon
                         if (context.fault || context.timeout)
                         {
                             fault = true;
-                            stop = true;
+                            status = 1;
                             logger.warn("process fault, ending stty");
                             break;
                         }
@@ -221,11 +221,11 @@ public class Daemon extends AbstractDaemon
                             if (!context.cfg.isKeepGoing())
                             {
                                 fault = true; // exit on EOF
-                                stop = true;
+                                status = 2;
                                 logger.warn("EOF line. Process ended prematurely");
                             }
                             else
-                                logger.warn("EOF line. --listener-keep-going enabled");
+                                logger.info("EOF line, --listener-keep-going enabled");
                             break; // break read loop and let the connection be closed
                         }
 
@@ -272,9 +272,29 @@ public class Daemon extends AbstractDaemon
                             continue;
                         }
 
+                        // -------------- logout ------------------------------------
+                        if (theCommand.equalsIgnoreCase("logout"))
+                        {
+                            if (authorized)
+                            {
+                                authorized = false;
+                                prompt = basePrompt;
+                                continue;
+                            }
+                            else
+                            {
+                                if (context.cfg.isKeepGoing())
+                                    theCommand = "bye";
+                                else
+                                    theCommand = "quit";
+                            }
+                        }
+
                         // -------------- bye ---------------------------------------
                         if (theCommand.equalsIgnoreCase("bye"))
                         {
+                            out.flush();
+                            Thread.sleep(2500);
                             break;  // let the connection close
                         }
 
@@ -309,7 +329,7 @@ public class Daemon extends AbstractDaemon
 
                                 // otherwise it must be -S so do not scan
                                 myRepo.exportItems(true);
-                                Thread.sleep(3000);
+                                Thread.sleep(2500);
                                 Path jsonPath = Paths.get(context.cfg.getExportCollectionFilename()).toAbsolutePath();
                                 response = new String(Files.readAllBytes(jsonPath));
                             }
@@ -324,10 +344,10 @@ public class Daemon extends AbstractDaemon
                         if (theCommand.equalsIgnoreCase("fault"))
                         {
                             fault = true;
-                            stop = true;
+                            status = 1;
                             if (!context.timeout)
                                 send("End-Execution", trace ? "send End-Execution" : "");
-                            Thread.sleep(3000);
+                            Thread.sleep(2500);
                         }
 
                         // -------------- find --------------------------------------
@@ -445,7 +465,7 @@ public class Daemon extends AbstractDaemon
                                     if (line == null)
                                     {
                                         logger.info("EOF line");
-                                        stop = true;
+                                        status = 1;
                                         break; // exit on EOF
                                     }
 
@@ -483,33 +503,17 @@ public class Daemon extends AbstractDaemon
                             continue;
                         }
 
-                        // -------------- logout ------------------------------------
-                        if (theCommand.equalsIgnoreCase("logout"))
-                        {
-                            if (authorized)
-                            {
-                                authorized = false;
-                                prompt = basePrompt;
-                                continue;
-                            }
-                            else
-                            {
-                                theCommand = "quit";
-                                // let the logic fall through to the 'quit' handler below
-                            }
-                        }
-
                         // -------------- quit, exit --------------------------------
                         if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                         {
-                            send("End-Execution", trace ? "send End-Execution" : "");
-                            Thread.sleep(3000);
+                            out.flush();
+                            Thread.sleep(2500);
 
-                            // if this is the first command or keep going is not enabled then stop
-                            if (commandCount == 1 || !context.cfg.isKeepGoing())
-                                stop = true;
-                            else
+                            // if keep going is not enabled then stop
+                            if (context.cfg.isKeepGoing())
                                 logger.info("Ignoring quit command, --listener-keep-going enabled");
+                            else
+                                status = 1;
                             break; // break the loop
                         }
 
@@ -551,6 +555,15 @@ public class Daemon extends AbstractDaemon
                                 response += dumpStatistics();
                             }
                             continue;
+                        }
+
+                        // -------------- stop --------------------------------
+                        if (theCommand.equalsIgnoreCase("stop"))
+                        {
+                            send("End-Execution", trace ? "send End-Execution" : "");
+                            Thread.sleep(2500);
+                            status = 2;
+                            break; // break the loop
                         }
 
                         // -------------- return targets file -----------------------
@@ -610,7 +623,7 @@ public class Daemon extends AbstractDaemon
                         context.timeout = true;
                         fault = true;
                         connected = false;
-                        stop = true;
+                        status = 1;
                         logger.error("SocketTimeoutException: " + Utils.getStackTrace(toe));
                         break;
                     }
@@ -620,7 +633,7 @@ public class Daemon extends AbstractDaemon
                             context.timeout = true;
                         fault = true;
                         connected = false;
-                        stop = true;
+                        status = 1;
                         logger.debug("SocketException, timeout is: " + context.timeout);
                         logger.error(Utils.getStackTrace(se));
                         break;
@@ -629,14 +642,14 @@ public class Daemon extends AbstractDaemon
                     {
                         fault = true;
                         connected = false;
-                        stop = true;
+                        status = 1;
                         logger.error(Utils.getStackTrace(e));
                         try
                         {
                             if (!context.timeout)
                             {
                                 send(e.getMessage(), "Publisher exception");
-                                Thread.sleep(3000);
+                                Thread.sleep(2500);
                             }
                         }
                         catch (Exception ex)
@@ -653,7 +666,9 @@ public class Daemon extends AbstractDaemon
         }
         if (fault)
             context.fault = true;
-        return stop;
+        String statMsg = status == 0 ? "Success" : (status == 1 ? "Quit" : "Stop");
+        logger.trace("Hint Server session done, status = " + statMsg + ", fault = " + context.fault);
+        return status;
     } // process
 
     /**
@@ -677,7 +692,7 @@ public class Daemon extends AbstractDaemon
      */
     public void requestStop()
     {
-        this.stop = true;
+        status = 1;
         logger.debug("requesting stop for stty session on: " + socket.getInetAddress().toString() + ":" + socket.getPort());
     } // requestStop
 

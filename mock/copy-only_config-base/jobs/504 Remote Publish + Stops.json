@@ -1,0 +1,65 @@
+{
+  "configName": "504 Remote Publish + Stops",
+  "tasks": [
+    {
+      "configName": "Remote publish",
+      "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
+      "hintsOverrideHost": true,
+      "hintsPath": "libraries/Hint Server.json",
+      "hintsRemote": true,
+      "internalName": "Operations",
+      "origins": [],
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherPath": "libraries/Publisher.json",
+      "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+      "subscriberOverride": "true",
+      "subscriberPath": "libraries/Subscriber One.json",
+      "subscriberRemote": true
+    },
+    {
+      "configName": "1 minute",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "internalName": "Sleep",
+      "origins": [],
+      "publisherKey": "",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverride": "false",
+      "subscriberPath": "",
+      "subscriberRemote": false
+    },
+    {
+      "configName": "Subscriber force quit",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "internalName": "Operations",
+      "origins": [],
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherPath": "libraries/Publisher.json",
+      "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+      "subscriberOverride": "true",
+      "subscriberPath": "libraries/Subscriber One.json",
+      "subscriberRemote": true
+    },
+    {
+      "configName": "Hint server force quit",
+      "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
+      "hintsOverrideHost": true,
+      "hintsPath": "libraries/Hint Server.json",
+      "hintsRemote": true,
+      "internalName": "Operations",
+      "origins": [],
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherPath": "libraries/Publisher.json",
+      "subscriberKey": "",
+      "subscriberOverride": "",
+      "subscriberPath": "",
+      "subscriberRemote": false
+    }
+  ]
+}

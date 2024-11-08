@@ -307,20 +307,14 @@ public class Job extends AbstractTool
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
             String msg = null;
-            if (context.fault)
+/*
+            if (!context.main.isListening())
             {
-                msg = java.text.MessageFormat.format(context.cfg.gs("Job.ended.with.error"), job.getConfigName());
-                logger.error(msg);
+                msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
+                        job.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
+                logger.info(msg);
             }
-            else
-            {
-                if (!context.main.isListening())
-                {
-                    msg = java.text.MessageFormat.format(context.cfg.gs("Job.completed.job"),
-                            job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
-                    logger.info(msg);
-                }
-            }
+*/
             if (context.mainFrame != null)
                 context.mainFrame.labelStatusMiddle.setText(msg);
         }

@@ -440,7 +440,7 @@ public class ClientStty
                 {
                     logger.info("Sending quit command to Hint Status Server: " + context.hintsRepo.getLibraryData().libraries.description);
                     context.hintsStty.send("quit", "");
-                    Thread.sleep(3000);
+                    Thread.sleep(2500);
                     context.hintsStty.disconnect();
                     context.hintsStty = null;
                 }

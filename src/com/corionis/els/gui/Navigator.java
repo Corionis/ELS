@@ -667,16 +667,17 @@ public class Navigator
         else if (context.cfg.getPublisherLibrariesFileName().length() > 0)
         {
             context.preferences.setLastPublisherIsWorkstation(true);
-            context.preferences.setLastPublisherOpenPath(context.cfg.getPublisherLibrariesFileName());
+            context.preferences.setLastPublisherOpenFile(context.cfg.getPublisherLibrariesFileName());
             context.preferences.setLastPublisherOpenPath(Utils.getLeftPath(context.cfg.getPublisherLibrariesFileName(),
                     Utils.getSeparatorFromPath(context.cfg.getPublisherLibrariesFileName())));
         }
-        if (context.preferences.getLastPublisherOpenPath().equals(context.preferences.getLastPublisherOpenFile()))
-            context.preferences.setLastPublisherOpenPath(context.cfg.getWorkingDirectory());
+        if (!context.preferences.getLastPublisherOpenFile().isEmpty() &&
+                context.preferences.getLastPublisherOpenPath().equals(context.preferences.getLastPublisherOpenFile()))
+            context.preferences.setLastPublisherOpenPath("");
 
         if (context.cfg.getSubscriberCollectionFilename().length() > 0)
         {
-            context.preferences.setLastSubscriberIsRemote(true);
+            context.preferences.setLastSubscriberIsRemote(context.cfg.isRemoteSubscriber());
             context.preferences.setLastOverrideSubscriber(context.cfg.getOverrideSubscriberHost());
             context.preferences.setLastSubscriberOpenFile(context.cfg.getSubscriberCollectionFilename());
             context.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(context.cfg.getSubscriberCollectionFilename(),
@@ -684,14 +685,15 @@ public class Navigator
         }
         else if (context.cfg.getSubscriberLibrariesFileName().length() > 0)
         {
-            context.preferences.setLastSubscriberIsRemote(false);
+            context.preferences.setLastSubscriberIsRemote(context.cfg.isRemoteSubscriber());
             context.preferences.setLastOverrideSubscriber(context.cfg.getOverrideSubscriberHost());
             context.preferences.setLastSubscriberOpenFile(context.cfg.getSubscriberLibrariesFileName());
             context.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(context.cfg.getSubscriberLibrariesFileName(),
                     Utils.getSeparatorFromPath(context.cfg.getSubscriberLibrariesFileName())));
         }
-        if (context.preferences.getLastSubscriberOpenPath().equals(context.preferences.getLastSubscriberOpenFile()))
-            context.preferences.setLastSubscriberOpenPath(""); //localContext.cfg.getWorkingDirectory());
+        if (!context.preferences.getLastSubscriberOpenFile().isEmpty() &&
+                context.preferences.getLastSubscriberOpenPath().equals(context.preferences.getLastSubscriberOpenFile()))
+            context.preferences.setLastSubscriberOpenPath("");
 
         if (context.cfg.isHintTrackingEnabled())
         {
@@ -701,16 +703,15 @@ public class Navigator
             context.preferences.setLastHintTrackingOpenPath(Utils.getLeftPath(context.cfg.getHintHandlerFilename(),
                     Utils.getSeparatorFromPath(context.cfg.getHintHandlerFilename())));
             if (context.preferences.getLastHintKeysOpenPath().equals(context.preferences.getLastHintKeysOpenFile()))
-                context.preferences.setLastHintTrackingOpenPath(context.cfg.getWorkingDirectory());
+                context.preferences.setLastHintTrackingOpenPath("");
         }
         else if (context.cfg.getHintHandlerFilename().length() > 0)
         {
             // might be null in existing preferences.json
             context.preferences.setLastOverrideHintHost(context.cfg.isOverrideHintsHost());
-            if (context.preferences.getLastHintTrackingOpenFile() == null)
-                context.preferences.setLastHintTrackingOpenFile("");
-            if (context.preferences.getLastHintTrackingOpenPath() == null)
-                context.preferences.setLastHintTrackingOpenPath(context.cfg.getWorkingDirectory());
+            if (!context.preferences.getLastHintKeysOpenFile().isEmpty() &&
+                    context.preferences.getLastHintTrackingOpenPath().equals(context.preferences.getLastHintTrackingOpenFile()))
+                context.preferences.setLastHintTrackingOpenPath("");
         }
 
         if (!isLogger())
@@ -755,7 +756,7 @@ public class Navigator
             // set the GuiLogAppender localContext for a second invocation
             if (context.main.primaryExecution)
             {
-                GuiLogAppender appender = context.main.getGuiLogAppender();
+                GuiLogAppender appender = context.main.guiLogAppender;
                 appender.setContext(context);
                 // this causes the preBuffer to be appended to the Navigator Log panels
                 logger.info(context.cfg.gs("Navigator.appender.updated"));
@@ -823,7 +824,11 @@ public class Navigator
                 if (context.preferences.getLastPublisherOpenPath().length() > 0)
                     ld = new File(context.preferences.getLastPublisherOpenPath());
                 else
-                    ld = new File(context.cfg.getWorkingDirectory());
+                {
+                    ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
+                    if (!ld.exists())
+                        ld = new File(context.cfg.getWorkingDirectory());
+                }
                 if (ld.exists() && ld.isDirectory())
                     fc.setCurrentDirectory(ld);
 
@@ -985,7 +990,11 @@ public class Navigator
                 if (context.preferences.getLastSubscriberOpenPath().length() > 0)
                     ld = new File(context.preferences.getLastSubscriberOpenPath());
                 else
-                    ld = new File(context.cfg.getWorkingDirectory());
+                {
+                    ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
+                    if (!ld.exists())
+                        ld = new File(context.cfg.getWorkingDirectory());
+                }
                 if (ld.exists() && ld.isDirectory())
                     fc.setCurrentDirectory(ld);
 
@@ -1433,7 +1442,11 @@ public class Navigator
                 if (context.preferences.getLastHintKeysOpenPath().length() > 0)
                     ld = new File(context.preferences.getLastHintKeysOpenPath());
                 else
-                    ld = new File(context.cfg.getWorkingDirectory());
+                {
+                    ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "system");
+                    if (!ld.exists())
+                        ld = new File(context.cfg.getWorkingDirectory());
+                }
                 if (ld.exists() && ld.isDirectory())
                     fc.setCurrentDirectory(ld);
 
@@ -1525,7 +1538,11 @@ public class Navigator
                 if (context.preferences.getLastHintTrackingOpenPath().length() > 0)
                     ld = new File(context.preferences.getLastHintTrackingOpenPath());
                 else
-                    ld = new File(context.cfg.getWorkingDirectory());
+                {
+                    ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
+                    if (!ld.exists())
+                        ld = new File(context.cfg.getWorkingDirectory());
+                }
                 if (ld.exists() && ld.isDirectory())
                     fc.setCurrentDirectory(ld);
 
@@ -1889,10 +1906,11 @@ public class Navigator
                     context.hintsHandler = null;
                     context.hintKeys = null;
                     context.cfg.setHintKeysFile("");
+                    context.preferences.setLastHintKeysIsOpen(false);
                     context.hintsRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
-                    context.preferences.setLastHintKeysIsOpen(false);
+                    context.preferences.setLastHintTrackingIsOpen(false);
                     context.browser.setupHintTrackingButton();
                     context.libraries.loadConfigurations();
 
@@ -4099,11 +4117,12 @@ public class Navigator
                 }
             }
 
+            context.main.shutdown();
             System.exit(context.fault ? 1 : 0);
         }
         else
         {
-            GuiLogAppender appender = context.main.getGuiLogAppender();
+            GuiLogAppender appender = context.main.guiLogAppender;
             appender.setContext(context.main.previousContext);
         }
     }

@@ -151,7 +151,7 @@ public class Daemon extends AbstractDaemon
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    public boolean process() throws Exception
+    public int process() throws Exception
     {
         int commandCount = 0;
         String line;
@@ -187,6 +187,8 @@ public class Daemon extends AbstractDaemon
         String system = handshake();
         if (system.length() == 0) // special handshake using hints keys file instead of point-to-point
         {
+            if (!context.cfg.isKeepGoing())
+                status = 1;
             logger.error("Connection to " + Utils.formatAddresses(socket) + " failed handshake");
         }
         else
@@ -206,7 +208,7 @@ public class Daemon extends AbstractDaemon
 
             // prompt for & process interactive commands
             boolean isPing = false;
-            while (stop == false)
+            while (status == 0)
             {
                 try
                 {
@@ -214,7 +216,7 @@ public class Daemon extends AbstractDaemon
                     if (context.fault || context.timeout)
                     {
                         fault = true;
-                        stop = true;
+                        status = 1;
                         logger.warn("process fault, ending stty");
                         break;
                     }
@@ -230,6 +232,14 @@ public class Daemon extends AbstractDaemon
                     line = readStream(in, myKey);  // special readStream() variant for continuous server
                     if (line == null)
                     {
+                        if (!context.cfg.isKeepGoing())
+                        {
+                            fault = true; // exit on EOF
+                            status = 2;
+                            logger.warn("EOF line. Process ended prematurely");
+                        }
+                        else
+                            logger.info("EOF line, --listener-keep-going enabled");
                         break; // break read loop and let the connection be closed
                     }
 
@@ -258,9 +268,29 @@ public class Daemon extends AbstractDaemon
 
                     String theCommand = t.nextToken().trim();
 
+                    // -------------- logout ------------------------------------
+                    if (theCommand.equalsIgnoreCase("logout"))
+                    {
+                        if (authorized)
+                        {
+                            authorized = false;
+                            prompt = basePrompt;
+                            continue;
+                        }
+                        else
+                        {
+                            if (context.cfg.isKeepGoing())
+                                theCommand = "bye";
+                            else
+                                theCommand = "quit";
+                        }
+                    }
+
                     // -------------- bye ---------------------------------------
                     if (theCommand.equalsIgnoreCase("bye"))
                     {
+                        out.flush();
+                        Thread.sleep(2500);
                         break;  // let the connection close
                     }
 
@@ -379,33 +409,17 @@ public class Daemon extends AbstractDaemon
                         continue;
                     }
 
-                    // -------------- logout ------------------------------------
-                    if (theCommand.equalsIgnoreCase("logout"))
-                    {
-                        if (authorized)
-                        {
-                            authorized = false;
-                            prompt = basePrompt;
-                            continue;
-                        }
-                        else
-                        {
-                            theCommand = "quit";
-                            // let the logic fall through to the 'quit' handler below
-                        }
-                    }
-
                     // -------------- quit, exit --------------------------------
                     if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                     {
                         out.flush();
-                        Thread.sleep(3000);
+                        Thread.sleep(2500);
 
-                        // if this is the first command or keep going is not enabled then stop
-                        if (commandCount == 1 || !context.cfg.isKeepGoing())
-                            stop = true;
-                        else
+                        // if keep going is not enabled then stop
+                        if (context.cfg.isKeepGoing())
                             logger.info("Ignoring quit command, --listener-keep-going enabled");
+                        else
+                            status = 1;
                         break; // break the loop
                     }
 
@@ -433,6 +447,15 @@ public class Daemon extends AbstractDaemon
                         continue;
                     }
 
+                    // -------------- stop --------------------------------
+                    if (theCommand.equalsIgnoreCase("stop"))
+                    {
+                        out.flush();
+                        Thread.sleep(2500);
+                        status = 2;
+                        break; // break the loop
+                    }
+
                     response = "\r\nunknown command '" + theCommand + "\r\n";
 
                 } // try
@@ -441,7 +464,7 @@ public class Daemon extends AbstractDaemon
                     context.timeout = true;
                     fault = true;
                     connected = false;
-                    stop = true;
+                    status = 1;
                     logger.error("SocketTimeoutException: " + Utils.getStackTrace(toe));
                     break;
                 }
@@ -451,7 +474,7 @@ public class Daemon extends AbstractDaemon
                         context.timeout = true;
                     fault = true;
                     connected = false;
-                    stop = true;
+                    status = 1;
                     logger.debug("SocketException, timeout is: " + context.timeout);
                     logger.error(Utils.getStackTrace(se));
                     break;
@@ -460,14 +483,14 @@ public class Daemon extends AbstractDaemon
                 {
                     fault = true;
                     connected = false;
-                    stop = true;
+                    status = 1;
                     logger.error(Utils.getStackTrace(e));
                     try
                     {
                         if (!context.timeout)
                         {
                             send(e.getMessage(), "Hint Server exception");
-                            Thread.sleep(3000);
+                            Thread.sleep(2500);
                         }
                     }
                     catch (Exception ex)
@@ -479,7 +502,9 @@ public class Daemon extends AbstractDaemon
         }
         if (fault)
             context.fault = true;
-        return stop;
+        String statMsg = status == 0 ? "Success" : (status == 1 ? "Quit" : "Stop");
+        logger.trace("Hint Server session done, status = " + statMsg + ", fault = " + context.fault);
+        return status;
     } // process
 
     /**
@@ -554,7 +579,7 @@ public class Daemon extends AbstractDaemon
      */
     public void requestStop()
     {
-        this.stop = true;
+        status = 1;
         logger.debug("requesting stop for stty session on: " + Utils.formatAddresses(socket));
     } // requestStop
 

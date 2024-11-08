@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
@@ -58,10 +59,11 @@ public class Main
     public Date stamp = new Date(); // runtime stamp for this invocation
     public String whatsRunning = "";
 
-    private GuiLogAppender appender = null;
+    public GuiLogAppender guiLogAppender = null;
     private boolean catchExceptions = true;
     private boolean isListening = false; // listener mode
     private Job job = null;
+    private RollingFileAppender rollingFileAppender = null;
 
     /**
      * Hide default constructor
@@ -249,7 +251,7 @@ public class Main
 
             if (isStartupActive())
             {
-                int opt = JOptionPane.showConfirmDialog(getGuiLogAppender().getStartup(),
+                int opt = JOptionPane.showConfirmDialog(guiLogAppender.getStartup(),
                         "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (opt == JOptionPane.YES_OPTION)
@@ -414,22 +416,39 @@ public class Main
         return false;
     }
 
+    public void flushLogger()
+    {
+        if (rollingFileAppender != null)
+        {
+            rollingFileAppender.getManager().flush();
+            try
+            {
+                Thread.sleep(2500);
+            }
+            catch (InterruptedException ignore)
+            {
+                logger.error("OOPS!");
+            }
+        }
+    }
+
     /**
      * Get the GuiLogAppender from log4j
      *
      * @return GuiLogAppender custom logger for Navigator
      */
-    public GuiLogAppender getGuiLogAppender()
+    public void getAppenders()
     {
-        if (appender == null)
+        //if (appender == null)
         {
             LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
             AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
             LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
             Map<String, Appender> appenders = loggerConfig.getAppenders();
-            appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+            guiLogAppender = (GuiLogAppender) appenders.get("GuiLogAppender");
+            rollingFileAppender = (RollingFileAppender) appenders.get("applog");
         }
-        return appender;
+        //return appender;
     }
 
     public boolean isListening()
@@ -444,7 +463,7 @@ public class Main
      */
     public boolean isStartupActive()
     {
-        if (appender != null && appender.isStartupActive())
+        if (guiLogAppender != null && guiLogAppender.isStartupActive())
             return true;
         return false;
     }
@@ -520,8 +539,8 @@ public class Main
 
                 LoggerContext loggerContext = (LoggerContext) LogManager.getContext(!primaryExecution ? true : false);
                 loggerContext.reconfigure();
-                appender = getGuiLogAppender();
-                appender.setContext(context);
+                getAppenders();
+                guiLogAppender.setContext(context);
                 loggerContext.updateLoggers();
             }
             else // carry-over selected previous Context values
@@ -534,8 +553,8 @@ public class Main
                 context.cfg.setLogOverwrite(previousContext.cfg.isLogOverwrite());
 
                 LoggerContext loggerContext = (LoggerContext) LogManager.getContext(!primaryExecution ? true : false);
-                appender = getGuiLogAppender();
-                appender.setContext(context);
+                getAppenders();
+                guiLogAppender.setContext(context);
                 loggerContext.updateLoggers();
             }
 
@@ -949,21 +968,30 @@ public class Main
                     logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
-                    if (context.cfg.getHintHandlerFilename() == null || context.cfg.getHintHandlerFilename().length() == 0)
-                        throw new MungeException("-Q|--force-quit requires a either -h|--hints or -H|--hint-server");
-
                     if (context.cfg.getPublisherFilename() == null || context.cfg.getPublisherFilename().length() == 0)
                         throw new MungeException("-Q|--force-quit requires a -p|-P publisher to connect from");
+
+                    if (context.cfg.getHintsDaemonFilename() == null || context.cfg.getHintsDaemonFilename().length() == 0)
+                        throw new MungeException("-Q|--force-quit requires -H|--hint-server");
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
 
                     setupHints(context.publisherRepo);
-
-                    // force the cfg setting & let this process end normally
-                    // that will send the quit command to the hint status server
-                    context.cfg.setQuitStatusServer(true);
-
                     saveEnvironment();
+
+                    if (context.publisherRepo.isInitialized() && context.hintsStty.isConnected())
+                    {
+                        try
+                        {
+                            saveEnvironment();
+                            context.hintsStty.send("stop", "Sending stop command to Remote Hint Status Server");
+                            Thread.sleep(2500);
+                        }
+                        catch (Exception e)
+                        {
+                            // ignore any exception
+                        }
+                    }
                     break;
 
                 // --- -G|--listener-quit the remote subscriber
@@ -971,6 +999,9 @@ public class Main
                     whatsRunning = "ELS: Subscriber Listener Quit";
                     logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
+
+                    if (context.cfg.getPublisherFilename() == null || context.cfg.getPublisherFilename().length() == 0)
+                        throw new MungeException("-G|--listener-quit requires a -p|-P publisher to connect from");
 
                     if (context.cfg.getSubscriberFilename() == null || context.cfg.getSubscriberFilename().length() == 0)
                         throw new MungeException("-G|--listener-quit requires a -s|-S subscriber JSON file");
@@ -987,8 +1018,8 @@ public class Main
                             try
                             {
                                 saveEnvironment();
-                                context.clientStty.roundTrip("quit", "Sending remote quit command", 5000);
-                                Thread.sleep(3000);
+                                context.clientStty.send("stop", "Sending stop command to Remote Subscriber");
+                                Thread.sleep(2500);
                             }
                             catch (Exception e)
                             {
@@ -1069,7 +1100,7 @@ public class Main
                     else
                     {
                         if (isStartupActive())
-                            centerOn = appender.getStartup();
+                            centerOn = guiLogAppender.getStartup();
                     }
                     JOptionPane.showMessageDialog(centerOn, e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
@@ -1098,15 +1129,10 @@ public class Main
                     }
                 }
 
-                // optionally command status server to quit
-                if (context.hintsStty != null)
-                    context.hintsStty.quitStatusServer(context);  // do before stopping the necessary services
-
                 // stop any remaining services
                 if (primaryExecution)
                 {
-                    stopServices();
-                    stopVerbiage();
+                    shutdown();
                 }
                 else
                     restoreEnvironment();
@@ -1121,6 +1147,7 @@ public class Main
                         try
                         {
                             logger.trace("Navigator shutdown hook");
+
                         }
                         catch (Exception e)
                         {
@@ -1141,42 +1168,9 @@ public class Main
                     @Override
                     public void run()
                     {
-                        try // also done in Connection.run()
+                        if (primaryExecution)
                         {
-                            if (isListening && context.cfg.getOperation() == JOB_PROCESS)
-                            {
-                                String msg = java.text.MessageFormat.format(context.cfg.gs("Job.completed.job"),
-                                        job.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
-                                logger.info(msg);
-                            }
-
-                            // optionally command status server to quit
-                            if (context.hintsStty != null)
-                                context.hintsStty.quitStatusServer(context);  // do before stopping the services
-
-                            if (primaryExecution)
-                            {
-                                stopVerbiage();
-                                stopServices(); // must be called AFTER stopVerbiage()
-                            }
-                            else
-                                restoreEnvironment();
-
-                            // halt kills the remaining threads
-                            if (context.fault)
-                                logger.error("Exiting with error code");
-                            if (primaryExecution)
-                            {
-                                Runtime.getRuntime().halt(context.fault ? 1 : 0);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            logger.error(Utils.getStackTrace(e));
-                            if (primaryExecution)
-                            {
-                                Runtime.getRuntime().halt(1);
-                            }
+                            Runtime.getRuntime().halt(context.fault ? 1 : 0);
                         }
                     }
                 });
@@ -1214,8 +1208,12 @@ public class Main
         if (primaryExecution && context.fault)
         {
             logger.error("Exiting with error code");
+            flushLogger();
+
             Runtime.getRuntime().halt(1);
         }
+
+        //flushLogger();
     } // process
 
     /**
@@ -1523,7 +1521,7 @@ public class Main
 
                 if (isStartupActive())
                 {
-                    int opt = JOptionPane.showConfirmDialog(getGuiLogAppender().getStartup(),
+                    int opt = JOptionPane.showConfirmDialog(guiLogAppender.getStartup(),
                             "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
                             context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                     if (opt == JOptionPane.YES_OPTION)
@@ -1540,20 +1538,57 @@ public class Main
     }
 
     /**
+     * Shutdown services and display the stop verbiage
+     *
+     * Call BEFORE System.exit() as appropriate outside any shutDownHook()
+     */
+    public void shutdown()
+    {
+        try
+        {
+            logger.trace("shutdown via main");
+
+            if (job != null || context.environment.getContext().main.job != null)
+            {
+                Job theJob = (job != null) ? job : context.environment.getContext().main.job;
+                String msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
+                        theJob.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
+                logger.info(msg);
+            }
+
+            stopServices();
+            stopVerbiage();
+
+            if (context.fault)
+                logger.error("Exiting with error code");
+
+            flushLogger();
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+            flushLogger();
+        }
+    }
+
+    /**
      * Stop all service that are in use
      */
-    public void stopServices()
+    private void stopServices()
     {
-        logger.trace("stopServices(), " + whatsRunning);
+        logger.trace("stopServices(): " + whatsRunning);
 
         try
         {
-            // logout from any hint status server if not shutting it down
+            // disconnect from any hint status server if not shutting it down
             if (context.hintsStty != null)
             {
-                if (!context.cfg.isQuitStatusServer() && context.hintsStty.isConnected())
+                if (context.cfg.getOperation() != STATUS_SERVER_FORCE_QUIT)
                 {
-                    context.hintsStty.send("bye", "Sending bye command to remote Hint Status Server");
+                    if (context.cfg.isQuitStatusServer() && context.hintsStty.isConnected())
+                        context.hintsStty.send("quit", "Sending quit command to remote Hint Status Server");
+                    else if (context.hintsStty.isConnected())
+                        context.hintsStty.send("bye", "Sending bye command to remote Hint Status Server");
                     Thread.sleep(2500);
                 }
                 context.hintsStty.disconnect();
@@ -1564,14 +1599,14 @@ public class Main
                 logger.trace("  sftp client");
                 context.clientSftp.stopClient();
                 context.clientSftp = null;
-                Thread.sleep(2500L);
+                Thread.sleep(2500);
             }
             if (context.clientSftpMetadata != null)
             {
                 logger.trace("  sftp client transfer");
                 context.clientSftpMetadata.stopClient();
                 context.clientSftpMetadata = null;
-                Thread.sleep(2500L);
+                Thread.sleep(2500);
             }
             if (context.serveSftp != null)
             {
@@ -1604,8 +1639,8 @@ public class Main
      */
     public void stopVerbiage()
     {
-        if (!context.cfg.getConsoleLevel().equalsIgnoreCase(context.cfg.getDebugLevel()))
-            logger.info("log file has more details: " + context.cfg.getLogFileName());
+        //if (!context.cfg.getConsoleLevel().equalsIgnoreCase(context.cfg.getDebugLevel()))
+        //    logger.info("log file has more details: " + context.cfg.getLogFileName());
 
         Date done = new Date();
         long millis = Math.abs(done.getTime() - stamp.getTime());

@@ -279,7 +279,7 @@ public class ServeStty extends Thread
             }
             catch (InterruptedException e)
             {
-                logger.debug("stty interrupted, stop=" + ((_stop) ? "true" : "false"));
+                logger.trace("stty interrupted, stop=" + ((_stop) ? "true" : "false"));
                 _stop = true;
                 break;
             }

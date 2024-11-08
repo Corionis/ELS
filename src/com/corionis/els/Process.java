@@ -547,42 +547,39 @@ public class Process
                     logger.info("! Skipping main process, hint processing with -K | --keys-only enabled");
                 }
 
-                // tell remote end to exit
+                // Disconnect Subscriber
                 if (context.clientStty != null)
                 {
-                    String resp = "";
                     try
                     {
-                        // if a fault occurred tell any listener
-                        if (fault && context.clientStty.isConnected())
-                        {
-                            // ... this is done in Main.process finally clause ...
-                            //logger.warn("Sending remote fault command (2)");
-                            //resp = localContext.clientStty.roundTrip("fault");
-                        }
+                        if (!context.cfg.isKeepGoing())
+                            context.clientStty.send("quit", "Sending quit command to remote subscriber");
                         else
                         {
-                            if (!context.cfg.isKeepGoing())
-                                resp = context.clientStty.roundTrip("quit", "Sending quit command to remote subscriber", 5000);
-                            else
-                            {
-                                context.clientStty.send("bye", "Sending bye command to remote subsciber");
-                                resp = "End-Execution";
-                            }
-                            Thread.sleep(3000);
+                            context.clientStty.send("bye", "Sending bye command to remote subscriber");
                         }
+                        Thread.sleep(2500);
                     }
                     catch (Exception e)
                     {
-                        resp = null;
                     }
-                    if (resp != null && !resp.equalsIgnoreCase("End-Execution"))
+                }
+
+                // Disconnect Hint Server
+                if (context.hintsStty != null)
+                {
+                    try
                     {
-                        logger.warn("Remote subscriber might not have quit");
+                        if (context.cfg.isQuitStatusServer())
+                            context.hintsStty.send("quit", "Sending quit command to Hint Status Server");
+                        else
+                        {
+                            context.hintsStty.send("bye", "Sending bye command to Hint Status Server");
+                        }
+                        Thread.sleep(2500);
                     }
-                    else if (resp == null)
+                    catch (Exception e)
                     {
-                        logger.warn("Remote subscriber is in an unknown state");
                     }
                 }
             }

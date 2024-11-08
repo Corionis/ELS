@@ -2,7 +2,7 @@
   <configuration default="false" name="110-502 Remote publish job" type="Application" factoryName="Application" folderName="110-00 Jobs Background">
     <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-C . -c trace -d trace -j &quot;502 Remote Publish One&quot; -F &quot;output/110-502_Remote-publish-job.log&quot;" />
+    <option name="PROGRAM_PARAMETERS" value="-C . -c trace -d trace -j &quot;502 Remote Publish One&quot; -F &quot;output/502 Remote Publish One.log&quot;" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml -Dsun.awt.disablegrab=true" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <method v="2">

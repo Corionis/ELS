@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-rt/bin/java -jar bin/ELS.jar -C . -c debug -d debug -j "500 Subscribe One Listener" -F "output/500 Subscribe One Listener.log"
+rt/bin/java -jar bin/ELS.jar -C . -c info -d debug -j "500 Subscriber One Listener" -F "output/500 Subscriber One Listener.log"
 

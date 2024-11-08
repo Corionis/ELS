@@ -39,7 +39,7 @@ public abstract class AbstractDaemon
     protected int port;
     protected String response = "";
     protected Socket socket;
-    protected boolean stop = false;
+    protected int status = 0;
     protected Repository theirRepo;
 
     /**
@@ -169,7 +169,7 @@ public abstract class AbstractDaemon
     /**
      * Process a connection request to the Daemon service.
      */
-    public abstract boolean process() throws IOException, Exception;
+    public abstract int process() throws IOException, Exception;
 
     /**
      * Receive a response from the other end
@@ -216,7 +216,7 @@ public abstract class AbstractDaemon
      */
     public void requestStop()
     {
-        this.stop = true;
+        this.status = 1;
         logger.debug("requesting stop for stty session: " + Utils.formatAddresses(socket));
     }
 

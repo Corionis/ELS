@@ -206,6 +206,9 @@ upgrading for changes, additions and enhancements.
        2. Hint keys control:
           1. Which back-up systems are setup to process hints.
           2. Which systems are tracked and status maintained in the Hint datastore.
+          3. The Collection/Workstation radio button in File, Open Publisher designates whether
+             Hints are tracked, Collection, or not, Workstation, i.e. personal system used to
+            prepare Collection content.
 
  8. Modified the code for methodical exit code status values. Exit code 0 is normal, 1 indicates a
     fault occurred. Exit code 130 is returned if Ctrl-C is hit on the command line. Useful for error

@@ -355,7 +355,7 @@ public class Configuration
 
         // if "current directory" as a "." then get from system
         if (this.workingDirectory.equals("."))
-            setWorkingDirectory(System.getProperty("user.dir"));
+            setWorkingDirectory(new java.io.File(".").getCanonicalPath());
 
         // check & create working directory
         File wd = new File(getWorkingDirectory());

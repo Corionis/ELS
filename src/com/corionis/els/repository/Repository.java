@@ -732,7 +732,7 @@ public class Repository implements Comparable
             if (context.main.isStartupActive())
             {
                 logger.error(msg);
-                int opt = JOptionPane.showConfirmDialog(context.main.getGuiLogAppender().getStartup(),
+                int opt = JOptionPane.showConfirmDialog(context.main.guiLogAppender.getStartup(),
                         "<html><body>" + msg + "<br/><br/>Continue?</body></html>",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (opt == JOptionPane.YES_OPTION)

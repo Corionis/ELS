@@ -47,21 +47,6 @@
       "subscriberRemote": true
     },
     {
-      "configName": "1 minute",
-      "hintsKey": "",
-      "hintsOverrideHost": false,
-      "hintsPath": "",
-      "hintsRemote": false,
-      "internalName": "Sleep",
-      "origins": [],
-      "publisherKey": "",
-      "publisherPath": "",
-      "subscriberKey": "",
-      "subscriberOverride": "",
-      "subscriberPath": "",
-      "subscriberRemote": false
-    },
-    {
       "configName": "Hint server force quit",
       "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
       "hintsOverrideHost": true,
