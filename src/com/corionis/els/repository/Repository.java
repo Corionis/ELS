@@ -981,7 +981,7 @@ public class Repository implements Comparable
                             if (Files.notExists(Paths.get(lib.sources[j])))
                             {
                                 String msg = "bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist";
-                                if (context.cfg.isNavigator())
+                                if (context.cfg.isGui())
                                     logger.error(msg);
                                 else
                                     throw new MungeException(msg);

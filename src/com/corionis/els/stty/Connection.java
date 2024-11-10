@@ -99,14 +99,17 @@ public class Connection extends Thread
                 {
                     logger.trace("shutdown via stty");
 
-                    if (status == 2)
+                    if ((status == 1 && !service.context.cfg.isKeepGoing()) || status == 2)
                     {
                         // exit triggers the shutdown hook
                         // see Main isListening clause with Runtime.getRuntime().addShutdownHook()
                         if (service.context.main.context.fault)
                             logger.error("Exiting with error code");
+
                         service.context.main.shutdown();
-                        System.exit(0);
+
+                        if (!service.context.cfg.isLoggerView())
+                            System.exit(0);
                     }
                 }
                 catch (Exception e)
@@ -116,7 +119,8 @@ public class Connection extends Thread
                     if (status == 2)
                     {
                         service.context.main.shutdown();
-                        //System.exit(0);
+                        if (!service.context.cfg.isLoggerView())
+                            System.exit(0);
                     }
                 }
             }

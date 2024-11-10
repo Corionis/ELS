@@ -83,7 +83,7 @@ public class Environment
         if (scfChanged || slfChanged)
         {
             setupSubscriber();
-            Thread.sleep(2500); // wait for connection to be setup
+            Thread.sleep(1500); // wait for connection to be setup
         }
 
         // hints

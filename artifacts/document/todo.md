@@ -1,9 +1,9 @@
 
 # Project To Do
 
- * TEST with keep going FALSE
  * TEST executing in Navigator
- * TEST non-Jon scripts
+ * TEST non-Job scripts
+ * Review sleeps
 
 ## Current Short-List
 

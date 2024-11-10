@@ -58,12 +58,6 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 if (context.browser.navTransferHandler.getTransferWorker() != null &&
                         !context.browser.navTransferHandler.getTransferWorker().isDone())
                 {
-//                            try
-//                            {
-//                                Thread.sleep(2000);
-//                            }
-//                            catch (Exception e)
-//                            {}
                     logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
                     running = false;
                     cancel(true);

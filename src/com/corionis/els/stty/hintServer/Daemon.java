@@ -290,7 +290,7 @@ public class Daemon extends AbstractDaemon
                     if (theCommand.equalsIgnoreCase("bye"))
                     {
                         out.flush();
-                        Thread.sleep(2500);
+                        Thread.sleep(1500);
                         break;  // let the connection close
                     }
 
@@ -413,7 +413,7 @@ public class Daemon extends AbstractDaemon
                     if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                     {
                         out.flush();
-                        Thread.sleep(2500);
+                        Thread.sleep(1500);
 
                         // if keep going is not enabled then stop
                         if (context.cfg.isKeepGoing())
@@ -451,7 +451,7 @@ public class Daemon extends AbstractDaemon
                     if (theCommand.equalsIgnoreCase("stop"))
                     {
                         out.flush();
-                        Thread.sleep(2500);
+                        Thread.sleep(1500);
                         status = 2;
                         break; // break the loop
                     }
@@ -490,7 +490,7 @@ public class Daemon extends AbstractDaemon
                         if (!context.timeout)
                         {
                             send(e.getMessage(), "Hint Server exception");
-                            Thread.sleep(2500);
+                            Thread.sleep(1500);
                         }
                     }
                     catch (Exception ex)

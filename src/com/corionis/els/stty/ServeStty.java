@@ -374,7 +374,8 @@ public class ServeStty extends Thread
                         listener.requestStop();
                 }
             }
-            try { Thread.sleep(500L); } catch (Exception e) {};
+            try { Thread.sleep(500L); }
+            catch (Exception e) {};
             this.requestStop();
             allSessions = null;
         }

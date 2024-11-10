@@ -553,15 +553,14 @@ public class Process
                     try
                     {
                         if (!context.cfg.isKeepGoing())
-                            context.clientStty.send("quit", "Sending quit command to remote subscriber");
+                            context.clientStty.send("quit", context.cfg.gs("Process.sending.quit.command.to.remote.subscriber"));
                         else
-                        {
-                            context.clientStty.send("bye", "Sending bye command to remote subscriber");
-                        }
-                        Thread.sleep(2500);
+                            context.clientStty.send("bye", context.cfg.gs("Process.sending.bye.command.to.remote.subscriber"));
+                        Thread.sleep(1500);
                     }
                     catch (Exception e)
                     {
+                        //
                     }
                 }
 
@@ -571,15 +570,16 @@ public class Process
                     try
                     {
                         if (context.cfg.isQuitStatusServer())
-                            context.hintsStty.send("quit", "Sending quit command to Hint Status Server");
+                            context.hintsStty.send("quit", context.cfg.gs("Process.sending.quit.command.to.remote.hint.status.server"));
                         else
-                        {
-                            context.hintsStty.send("bye", "Sending bye command to Hint Status Server");
-                        }
-                        Thread.sleep(2500);
+                            context.hintsStty.send("bye", context.cfg.gs("Process.sending.bye.command.to.remote.hint.status.server"));
+                        Thread.sleep(1500);
+                        context.hintsStty.disconnect();
+                        context.hintsStty = null;
                     }
                     catch (Exception e)
                     {
+                        //
                     }
                 }
             }

@@ -399,7 +399,7 @@ public class Main
                 // give the OS a little more time
                 try
                 {
-                    Thread.sleep(2000);
+                    Thread.sleep(1500);
                 }
                 catch (Exception e1)
                 {
@@ -423,7 +423,7 @@ public class Main
             rollingFileAppender.getManager().flush();
             try
             {
-                Thread.sleep(2500);
+                Thread.sleep(500);
             }
             catch (InterruptedException ignore)
             {
@@ -578,7 +578,6 @@ public class Main
                 context.cfg.loadLocale("-");
             }
             else
-                //logger.trace("loaded locale: " + filePart);
                 localeAbbrev = filePart;
 
             // use preferences for empty publisher/subscriber/hint server arguments for Navigator
@@ -590,10 +589,6 @@ public class Main
 
             // pre-create working directory structure
             checkWorkingDirectories();
-
-            // logger mode is only for Jobs
-            if (context.cfg.getOperation() != JOB_PROCESS)
-                context.cfg.setLoggerView(false);
 
             //
             // an execution of this program can only be configured as one of these operations
@@ -985,7 +980,7 @@ public class Main
                         {
                             saveEnvironment();
                             context.hintsStty.send("stop", "Sending stop command to Remote Hint Status Server");
-                            Thread.sleep(2500);
+                            Thread.sleep(1500);
                         }
                         catch (Exception e)
                         {
@@ -1019,7 +1014,7 @@ public class Main
                             {
                                 saveEnvironment();
                                 context.clientStty.send("stop", "Sending stop command to Remote Subscriber");
-                                Thread.sleep(2500);
+                                Thread.sleep(1500);
                             }
                             catch (Exception e)
                             {
@@ -1046,7 +1041,7 @@ public class Main
                         context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                     }
 
-                    if (context.cfg.isLoggerView())
+                    if (context.cfg.isLoggerView() && primaryExecution)
                     {
                         context.navigator = new Navigator(context);
                         if (!context.fault)
@@ -1130,12 +1125,13 @@ public class Main
                 }
 
                 // stop any remaining services
-                if (primaryExecution)
+                if (primaryExecution && !context.cfg.isLoggerView())
                 {
                     shutdown();
                 }
                 else
                     restoreEnvironment();
+                flushLogger();
             }
             else if (!primaryExecution && !isListening && context.cfg.isNavigator())
             {
@@ -1147,7 +1143,6 @@ public class Main
                         try
                         {
                             logger.trace("Navigator shutdown hook");
-
                         }
                         catch (Exception e)
                         {
@@ -1190,6 +1185,7 @@ public class Main
                 }
                 catch (Exception e)
                 {
+                    //
                 }
 
                 String logFilename = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS-Updater.log";
@@ -1209,11 +1205,10 @@ public class Main
         {
             logger.error("Exiting with error code");
             flushLogger();
-
             Runtime.getRuntime().halt(1);
         }
 
-        //flushLogger();
+        flushLogger();
     } // process
 
     /**
@@ -1368,16 +1363,19 @@ public class Main
 
     public void restoreEnvironment()
     {
-        try
+        if (context.environment != null)
         {
-            context.environment.switchConnections();
-        }
-        catch (Exception e)
-        {
-            logger.error(context.cfg.gs("Z.exception") + System.getProperty("line.separator") + Utils.getStackTrace(e));
-            if (context.cfg.isNavigator())
-                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.exception") + Utils.getStackTrace(e),
-                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            try
+            {
+                context.environment.switchConnections();
+            }
+            catch (Exception e)
+            {
+                logger.error(context.cfg.gs("Z.exception") + System.getProperty("line.separator") + Utils.getStackTrace(e));
+                if (context.cfg.isNavigator())
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.exception") + Utils.getStackTrace(e),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
@@ -1548,7 +1546,7 @@ public class Main
         {
             logger.trace("shutdown via main");
 
-            if (job != null || context.environment.getContext().main.job != null)
+            if (job != null || (context.environment != null && context.environment.getContext().main.job != null))
             {
                 Job theJob = (job != null) ? job : context.environment.getContext().main.job;
                 String msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
@@ -1586,10 +1584,10 @@ public class Main
                 if (context.cfg.getOperation() != STATUS_SERVER_FORCE_QUIT)
                 {
                     if (context.cfg.isQuitStatusServer() && context.hintsStty.isConnected())
-                        context.hintsStty.send("quit", "Sending quit command to remote Hint Status Server");
+                        context.hintsStty.send("quit", context.cfg.gs("Process.sending.quit.command.to.remote.hint.status.server"));
                     else if (context.hintsStty.isConnected())
-                        context.hintsStty.send("bye", "Sending bye command to remote Hint Status Server");
-                    Thread.sleep(2500);
+                        context.hintsStty.send("bye", context.cfg.gs("Process.sending.bye.command.to.remote.hint.status.server"));
+                    Thread.sleep(1500);
                 }
                 context.hintsStty.disconnect();
                 context.hintsStty = null;
@@ -1599,14 +1597,14 @@ public class Main
                 logger.trace("  sftp client");
                 context.clientSftp.stopClient();
                 context.clientSftp = null;
-                Thread.sleep(2500);
+                Thread.sleep(1500);
             }
             if (context.clientSftpMetadata != null)
             {
                 logger.trace("  sftp client transfer");
                 context.clientSftpMetadata.stopClient();
                 context.clientSftpMetadata = null;
-                Thread.sleep(2500);
+                Thread.sleep(1500);
             }
             if (context.serveSftp != null)
             {

@@ -63,7 +63,7 @@ public class Job extends AbstractTool
     {
         // generate-commandline
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
-        String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
+        String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"" + (context.cfg.isLoggerView() ? " --logger" : "");
         String cmd = conf + (isDryRun ? (glo ? " --dry-run" : " -D") : "") + (glo ? " --job \"" : " -j \"") + getConfigName() + "\"";
         return cmd;
     }

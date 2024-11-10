@@ -17,17 +17,17 @@
       "subscriberRemote": true
     },
     {
-      "configName": "1 minute",
-      "hintsKey": "",
-      "hintsOverrideHost": false,
-      "hintsPath": "",
-      "hintsRemote": false,
-      "internalName": "Sleep",
+      "configName": "Hint server force quit",
+      "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
+      "hintsOverrideHost": true,
+      "hintsPath": "libraries/Hint Server.json",
+      "hintsRemote": true,
+      "internalName": "Operations",
       "origins": [],
-      "publisherKey": "",
-      "publisherPath": "",
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherPath": "libraries/Publisher.json",
       "subscriberKey": "",
-      "subscriberOverride": "false",
+      "subscriberOverride": "",
       "subscriberPath": "",
       "subscriberRemote": false
     },
@@ -45,21 +45,6 @@
       "subscriberOverride": "true",
       "subscriberPath": "libraries/Subscriber One.json",
       "subscriberRemote": true
-    },
-    {
-      "configName": "Hint server force quit",
-      "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
-      "hintsOverrideHost": true,
-      "hintsPath": "libraries/Hint Server.json",
-      "hintsRemote": true,
-      "internalName": "Operations",
-      "origins": [],
-      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
-      "publisherPath": "libraries/Publisher.json",
-      "subscriberKey": "",
-      "subscriberOverride": "",
-      "subscriberPath": "",
-      "subscriberRemote": false
     }
   ]
 }

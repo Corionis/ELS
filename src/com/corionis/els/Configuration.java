@@ -187,6 +187,7 @@ public class Configuration
         clone.logFileFullPath = logFileFullPath;
         clone.logFileName = logFileName;
         clone.logFilePath = logFilePath;
+        clone.loggerView = loggerView;;
         clone.logOverwrite = logOverwrite;
         clone.longScale = longScale;
         clone.marker = marker;
@@ -258,6 +259,7 @@ public class Configuration
         logFileFullPath = clone.logFileFullPath;
         logFileName = clone.logFileName;
         logFilePath = clone.logFilePath;
+        loggerView = clone.loggerView;
         logOverwrite = clone.logOverwrite;
         longScale = clone.longScale;
         marker = clone.marker;
@@ -427,10 +429,14 @@ public class Configuration
         }
         indicator(logger, SHORT, "  cfg: -E Empty directories = ", emptyDirectoryCheck);
         if (getLogFileName().length() > 0)
+        {
             logger.info(SHORT, "  cfg: -" + (isLogOverwrite() ? "F" : "f") + " Log filename = " + getLogFileName());
+        }
         indicator(logger, SHORT, "  cfg: -g Listener keep going = ", keepGoing);
         if (isQuitSubscriberListener())
+        {
             logger.info(SHORT, "  cfg: -G Subscriber listener FORCE QUIT now");
+        }
         if (hintTrackerFilename != null && hintTrackerFilename.length() > 0)
         {
             logger.info(SHORT, "  cfg: -h Hint Tracker: " + getHintTrackerFilename());
@@ -527,6 +533,8 @@ public class Configuration
         indicator(logger, SHORT, "  cfg: -x Cross-check = ", crossCheck);
         indicator(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
         indicator(logger, SHORT, "  cfg: -z Decimal scale = ", getLongScale() == 1024 ? -1 : 1);
+        if (loggerView)
+            logger.info(SHORT, "  cfg: --logger mode");
     }
 
     /**
@@ -538,6 +546,7 @@ public class Configuration
      */
     public String generateCurrentCommandline(String consoleLevel, String debugLevel, boolean overwriteLog, String log)
     {
+        // generate-commandline
         String opts;
         String exec = exec = "\"" + context.cfg.getExecutablePath() + "\"";
         String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
@@ -1516,6 +1525,16 @@ public class Configuration
     }
 
     /**
+     * Is the Navigator GUI to be used, either --logger view or Navigator?
+     *
+     * @return true if GUI is to be used
+     */
+    public boolean isGui()
+    {
+        return (loggerView || navigator == 1 ? true : false);
+    }
+
+    /**
      * Is a Hint Status Tracker or Status Server being used?
      *
      * @return true if so
@@ -2139,7 +2158,6 @@ public class Configuration
                     break;
                 case "--logger":
                     setLoggerView(true);
-                    setNavigator(true);
                     break;
                 case "-m":                                             // Mismatch output filename
                 case "--mismatches":
@@ -2698,11 +2716,12 @@ public class Configuration
         {
             operation = STATUS_SERVER;
         }
+
         if (!getJobName().isEmpty())
             operation = JOB_PROCESS;
-        if (isQuitStatusServer())
+        if (isQuitStatusServer() && operation == NOT_SET)
             operation = STATUS_SERVER_FORCE_QUIT;
-        if (isQuitSubscriberListener())
+        if (isQuitSubscriberListener() && operation == NOT_SET)
             operation = SUBSCRIBER_LISTENER_FORCE_QUIT;
 
         if (operation == NOT_SET)

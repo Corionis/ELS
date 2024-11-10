@@ -2293,7 +2293,7 @@ public class Navigator
                                         NavTreeNode createdNode = new NavTreeNode(context, tuo.node.getMyRepo(), tree);
                                         if (tuo.isRemote)
                                         {
-                                            Thread.sleep(500L); // give the remote time to register new hint file
+                                            Thread.sleep(1000L); // give the remote time to register new hint file
                                             SftpATTRS attrs = context.clientSftp.stat(path);
                                             createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null),
                                                     path, attrs.getSize(), attrs.getMTime(), true);
@@ -3648,14 +3648,16 @@ public class Navigator
 
             setBlockingProcessRunning(false);
 
-            if (!isLogger())
-                disableGui(false);
-
             if (originsArray != null && originsArray.size() == 8)
                 Origins.setAllOrigins(context, context.mainFrame, originsArray);
 
             if (!isLogger())
+            {
+                disableGui(false);
                 reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
+            }
+            else
+                context.main.shutdown();
         }
         catch (Exception e)
         {
@@ -4080,9 +4082,6 @@ public class Navigator
             context.mainFrame.dispose();
         }
 
-        if (context.main.primaryExecution)
-            context.main.stopVerbiage();
-
         // end the Navigator Swing thread
         if (!context.main.secondaryNavigator)
         {
@@ -4117,8 +4116,10 @@ public class Navigator
                 }
             }
 
-            context.main.shutdown();
-            System.exit(context.fault ? 1 : 0);
+            if (!context.cfg.isLoggerView())
+                context.main.shutdown();
+
+            System.exit(0);
         }
         else
         {

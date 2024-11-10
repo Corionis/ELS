@@ -141,6 +141,8 @@ public class OperationsTool extends AbstractTool
 
         String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
         sb.append(" " + conf);
+        if (context.cfg.isLoggerView())
+            sb.append(" --logger");
 
         if (dryRun)
             sb.append(" " + (glo ? "--dry-run" : "-D"));
