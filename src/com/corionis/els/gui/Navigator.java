@@ -785,9 +785,6 @@ public class Navigator
             context.cfg.setNavigator(true);
         }
 
-        if (!secondaryNavigator)
-            context.main.saveEnvironment();
-
         return !context.fault;
     }
 
@@ -3668,6 +3665,7 @@ public class Navigator
         {
             logger.info(job.getConfigName() + context.cfg.gs("Z.cancelled"));
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.cancelled"));
+            setWorkerRunning(false);
         }
         else
         {
@@ -3678,10 +3676,9 @@ public class Navigator
                 logger.info(msg);
                 context.mainFrame.labelStatusMiddle.setText(msg);
                 context.main.stopVerbiage();
+                setWorkerRunning(false);
             }
         }
-
-        setWorkerRunning(false);
     }
 
     public void quitByeRemotes(boolean elsListener, boolean hintStatusServer)

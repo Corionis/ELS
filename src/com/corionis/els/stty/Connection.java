@@ -78,6 +78,7 @@ public class Connection extends Thread
         try
         {
             service.socket = socket;
+            service.context.main.setListening(true);
             status = service.process();
         }
         catch (Exception e)

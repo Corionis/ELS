@@ -48,11 +48,14 @@ public class Context
 
     // Navigator
     public Browser browser = null;
-    public Environment environment;
     public LibrariesUI libraries;
     public MainFrame mainFrame = null;
     public Preferences preferences = null;
     public Progress progress = null;
+
+    public Context()
+    {
+    }
 
     /**
      * Clone Context
@@ -90,7 +93,6 @@ public class Context
 
         // Navigator
         clone.browser = this.browser;
-        clone.environment = this.environment;
         clone.libraries = this.libraries;
         clone.mainFrame = this.mainFrame;
         clone.preferences = this.preferences;

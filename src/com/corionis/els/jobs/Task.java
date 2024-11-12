@@ -2,7 +2,6 @@ package com.corionis.els.jobs;
 
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
-import com.corionis.els.Environment;
 import com.corionis.els.Utils;
 import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
@@ -10,7 +9,6 @@ import com.corionis.els.repository.Repository;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.stty.ClientStty;
 import com.corionis.els.tools.AbstractTool;
-import com.corionis.els.tools.operations.OperationsTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,7 +37,6 @@ public class Task implements Comparable, Serializable
     transient public Context localContext = null;
     transient public AbstractTool currentTool = null;
     transient public boolean dryRun = false; // set before calling process(task)
-    transient public Environment environment = null;
     transient public Task previousTask = null;
     transient public Repository publisherRepo = null;
     transient public String remoteType = null;
@@ -390,9 +387,7 @@ public class Task implements Comparable, Serializable
      */
     public boolean process(Context context) throws Exception
     {
-        // TODO handle this BEFORE COMMIT
-        this.environment = new Environment(context);
-        this.localContext = this.environment.getContext(); // use cloned Context
+        this.localContext = context;
         this.dryRun = dryRun;
 
         if (logger == null)
@@ -455,8 +450,8 @@ public class Task implements Comparable, Serializable
                 else if (getSubscriberKey().equals(Task.ANY_SERVER))
                     throw new MungeException("\"Any Server\" defined for Subscriber but no Subscriber specified");
 
-                if (!(currentTool instanceof OperationsTool))
-                    this.environment.switchConnections();
+//                if (!(currentTool instanceof OperationsTool))
+//                    this.environment.switchConnections();
             }
 
             localContext.cfg.setPublisherLibrariesFileName(publisherPath);

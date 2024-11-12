@@ -651,7 +651,6 @@ public class Main
                         setupHints(context.publisherRepo);
 
                         // the Process class handles the ELS process
-                        saveEnvironment();
                         process = new Process(context);
                         process.process();
                     }
@@ -686,8 +685,6 @@ public class Main
                         // start serveSftp server
                         context.serveSftp = new ServeSftp(context, context.publisherRepo, context.subscriberRepo, true);
                         context.serveSftp.startServer();
-
-                        saveEnvironment();
                     }
                     else
                     {
@@ -725,8 +722,6 @@ public class Main
                                 throw new MungeException("Publisher sftp transfer client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                             }
                         }
-
-                        saveEnvironment();
                     }
                     break;
 
@@ -782,7 +777,6 @@ public class Main
                             context.navigator = new Navigator(context);
                             if (!context.fault)
                             {
-                                saveEnvironment();
                                 context.navigator.run();
                             }
                         }
@@ -791,7 +785,6 @@ public class Main
                             if (commOk)
                             {
                                 // the Process class handles the ELS process
-                                saveEnvironment();
                                 process = new Process(context);
                                 process.process();
                             }
@@ -846,8 +839,6 @@ public class Main
                         // start serveSftp server
                         context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, true);
                         context.serveSftp.startServer();
-
-                        saveEnvironment();
                     }
                     else
                     {
@@ -894,8 +885,6 @@ public class Main
                             // start serveSftp server
                             context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, false);
                             context.serveSftp.startServer();
-
-                            saveEnvironment();
                         }
                     }
                     else
@@ -949,7 +938,6 @@ public class Main
                         context.serveStty = new ServeStty(sessionThreads, 100, context, true);
                         context.serveStty.startListening(context.hintsRepo);
                         isListening = true;
-                        saveEnvironment();
                     }
                     else
                     {
@@ -972,13 +960,11 @@ public class Main
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
 
                     setupHints(context.publisherRepo);
-                    saveEnvironment();
 
                     if (context.publisherRepo.isInitialized() && context.hintsStty.isConnected())
                     {
                         try
                         {
-                            saveEnvironment();
                             context.hintsStty.send("stop", "Sending stop command to Remote Hint Status Server");
                             Thread.sleep(1500);
                         }
@@ -1012,7 +998,6 @@ public class Main
                         {
                             try
                             {
-                                saveEnvironment();
                                 context.clientStty.send("stop", "Sending stop command to Remote Subscriber");
                                 Thread.sleep(1500);
                             }
@@ -1048,7 +1033,6 @@ public class Main
 
                     if (context.cfg.isLoggerView() && primaryExecution)
                     {
-                        saveEnvironment();
                         context.navigator = new Navigator(context);
                         if (!context.fault)
                         {
@@ -1068,7 +1052,6 @@ public class Main
 
                         // run the Job
                         whatsRunning += ", " + job.getConfigName();
-                        saveEnvironment();
                         job.process(context);
                     }
                     break;
@@ -1131,8 +1114,10 @@ public class Main
                 {
                     shutdown();
                 }
+/*
                 else
                     restoreEnvironment();
+*/
                 flushLogger();
             }
             else if (!primaryExecution && !isListening && context.cfg.isNavigator())
@@ -1363,41 +1348,14 @@ public class Main
         return input;
     }
 
-    public void restoreEnvironment()
-    {
-        if (context.environment != null)
-        {
-            try
-            {
-                context.environment.switchConnections();
-            }
-            catch (Exception e)
-            {
-                logger.error(context.cfg.gs("Z.exception") + System.getProperty("line.separator") + Utils.getStackTrace(e));
-                if (context.cfg.isNavigator())
-                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.exception") + Utils.getStackTrace(e),
-                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    /**
-     * Save original environment
-     */
-    public void saveEnvironment()
-    {
-        //if (primaryExecution && !secondaryNavigator)
-        {
-            if (context.environment != null)
-                context.environment = null; // suggest clean-up
-
-            context.environment = new Environment(context); // the initial environment only
-        }
-    }
-
     public void setListening(boolean listening)
     {
-        isListening = listening;
+        Context prev = context;
+        while (prev != null)
+        {
+            prev.main.isListening = listening;
+            prev = prev.main.previousContext;
+        }
     }
 
     /**
@@ -1548,12 +1506,18 @@ public class Main
         {
             logger.trace("shutdown via main");
 
-            if (job != null || (context.environment != null && context.environment.getContext().main.job != null))
+            //if (job != null || (context.environment != null && context.environment.getContext().main.job != null))
+            if (context.main.job != null || context.main.previousContext.main.job != null)
             {
-                Job theJob = (job != null) ? job : context.environment.getContext().main.job;
+                Job theJob = (job != null) ? job : context.main.previousContext.main.job; //context.environment.getContext().main.job;
                 String msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
                         theJob.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
                 logger.info(msg);
+                if (context.mainFrame != null)
+                {
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+                    context.navigator.setWorkerRunning(false);
+                }
             }
 
             stopServices();
