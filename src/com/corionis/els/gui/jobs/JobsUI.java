@@ -1726,7 +1726,7 @@ public class JobsUI extends AbstractToolDialog
                 value = context.cfg.gs("JobsUI.select.hint.address");
             else
             {
-                RepoMeta repoMeta = repositories.findMetaPath(currentTask.getHintsPath());
+                RepoMeta repoMeta = repositories.findMetaAdd(context, key, currentTask.getSubscriberPath(), Repository.HINT_SERVER);
                 if (repoMeta != null)
                 {
                     if (currentTask.isHintsRemote() || currentTask.isHintsOverrideHost())
@@ -1918,8 +1918,14 @@ public class JobsUI extends AbstractToolDialog
             logger.info(job.getConfigName() + context.cfg.gs("Z.cancelled"));
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
-        //else
-        //    context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.completed"));
+        else
+        {
+            String msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
+                    job.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
+            logger.info(msg);
+            context.mainFrame.labelStatusMiddle.setText(msg);
+            context.main.stopVerbiage();
+        }
 
         context.navigator.setWorkerRunning(false);
         context.navigator.disableGui(false);

@@ -390,6 +390,7 @@ public class Task implements Comparable, Serializable
      */
     public boolean process(Context context) throws Exception
     {
+        // TODO handle this BEFORE COMMIT
         this.environment = new Environment(context);
         this.localContext = this.environment.getContext(); // use cloned Context
         this.dryRun = dryRun;
@@ -443,12 +444,16 @@ public class Task implements Comparable, Serializable
                 publisherRepo = getRepo(localContext, getPublisherKey(), getPublisherPath(), true);
                 if (publisherRepo != null)
                     publisherPath = publisherRepo.getJsonFilename();
+                else if (getPublisherKey().equals(Task.ANY_SERVER))
+                    throw new MungeException("\"Any Server\" defined for Publisher but no Publisher specified");
 
                 remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && localContext.cfg.isRemoteOperation())) ? "P" : "-";
 
                 subscriberRepo = getRepo(localContext, getSubscriberKey(), getSubscriberPath(), false);
                 if (subscriberRepo != null)
                     subscriberPath = subscriberRepo.getJsonFilename();
+                else if (getSubscriberKey().equals(Task.ANY_SERVER))
+                    throw new MungeException("\"Any Server\" defined for Subscriber but no Subscriber specified");
 
                 if (!(currentTool instanceof OperationsTool))
                     this.environment.switchConnections();

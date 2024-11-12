@@ -540,6 +540,7 @@ public class OperationsTool extends AbstractTool
         // run the Operation
         logger.info(context.cfg.gs("Z.launching") + getConfigName());
         Main main = new Main(args, context, getConfigName());
+        // TODO context hacks BEFORE COMMIT
         context.main.setListening(main.isListening());
     }
 

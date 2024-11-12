@@ -62,7 +62,7 @@ public class Main
     public GuiLogAppender guiLogAppender = null;
     private boolean catchExceptions = true;
     private boolean isListening = false; // listener mode
-    private Job job = null;
+    public Job job = null;
     private RollingFileAppender rollingFileAppender = null;
 
     /**
@@ -1041,8 +1041,14 @@ public class Main
                         context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                     }
 
+                    Job tmpJob = new Job(context, "temp");
+                    job = tmpJob.load(context.cfg.getJobName());
+                    if (job == null)
+                        throw new MungeException("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
+
                     if (context.cfg.isLoggerView() && primaryExecution)
                     {
+                        saveEnvironment();
                         context.navigator = new Navigator(context);
                         if (!context.fault)
                         {
@@ -1061,10 +1067,6 @@ public class Main
                         context.transfer.initialize();
 
                         // run the Job
-                        Job tmpJob = new Job(context, "temp");
-                        job = tmpJob.load(context.cfg.getJobName());
-                        if (job == null)
-                            throw new MungeException("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
                         whatsRunning += ", " + job.getConfigName();
                         saveEnvironment();
                         job.process(context);
@@ -1384,7 +1386,7 @@ public class Main
      */
     public void saveEnvironment()
     {
-        if (primaryExecution && !secondaryNavigator)
+        //if (primaryExecution && !secondaryNavigator)
         {
             if (context.environment != null)
                 context.environment = null; // suggest clean-up
@@ -1648,6 +1650,8 @@ public class Main
             logger.fatal("Process completed normally");
         else
             logger.fatal("Process failed");
+
+        flushLogger();
     }
 
     /**

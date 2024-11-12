@@ -9,13 +9,13 @@ import javax.swing.*;
 
 public class Environment
 {
-    private Context context;
+    private Context context = null;
     private Logger logger = LogManager.getLogger("applog");
 
-    private Environment()
-    {
-        // hide default constructor
-    }
+//    public Environment()
+//    {
+         // hide default constructor
+//    }
 
     public Environment(Context context)
     {
@@ -30,6 +30,11 @@ public class Environment
     public Context getContext()
     {
         return context;
+    }
+
+    public void setContext(Context context)
+    {
+        this.context = context;
     }
 
 /*

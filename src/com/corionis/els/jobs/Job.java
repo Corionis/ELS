@@ -64,6 +64,24 @@ public class Job extends AbstractTool
         // generate-commandline
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
         String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"" + (context.cfg.isLoggerView() ? " --logger" : "");
+
+        // add defined publisher and subscriber for ANY SERVER if used
+        boolean setPub = false;
+        boolean setSub = false;
+        for (Task task : getTasks())
+        {
+            if (task.getPublisherKey().equals(Task.ANY_SERVER) && !setPub && context.publisherRepo != null)
+            {
+                conf += " -p \"" + context.publisherRepo.getJsonFilename() + "\"";
+                setPub = true;
+            }
+            if (task.getSubscriberKey().equals(Task.ANY_SERVER) && !setSub && context.subscriberRepo != null)
+            {
+                conf += " -s \"" + context.subscriberRepo.getJsonFilename() + "\"";
+                setSub = true;
+            }
+        }
+
         String cmd = conf + (isDryRun ? (glo ? " --dry-run" : " -D") : "") + (glo ? " --job \"" : " -j \"") + getConfigName() + "\"";
         return cmd;
     }
@@ -307,14 +325,6 @@ public class Job extends AbstractTool
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
             String msg = null;
-/*
-            if (!context.main.isListening())
-            {
-                msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
-                        job.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
-                logger.info(msg);
-            }
-*/
             if (context.mainFrame != null)
                 context.mainFrame.labelStatusMiddle.setText(msg);
         }

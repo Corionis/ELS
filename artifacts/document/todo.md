@@ -1,9 +1,8 @@
 
 # Project To Do
 
- * TEST executing in Navigator
- * TEST non-Job scripts
- * Review sleeps
+ * Context, Environment
+ * Save & Restore connections
 
 ## Current Short-List
 
