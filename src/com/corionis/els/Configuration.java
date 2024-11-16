@@ -3,6 +3,7 @@ package com.corionis.els;
 import com.corionis.els.gui.MainFrame;
 import com.corionis.els.gui.Preferences;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -393,7 +394,8 @@ public class Configuration
         String msg = "Arguments: ";
         for (int index = 0; index < originalArgs.length; ++index)
         {
-            msg = msg + originalArgs[index] + " ";
+            if (StringUtils.isAlphanumericSpace(originalArgs[index])) // handle JDK arguments bug
+                msg = msg + originalArgs[index] + " ";
         }
         logger.info(SHORT, msg);
 
@@ -548,8 +550,8 @@ public class Configuration
     {
         // generate-commandline
         String opts;
-        String exec = exec = "\"" + context.cfg.getExecutablePath() + "\"";
-        String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
+        String exec = context.cfg.getExecutablePath();
+        String jar = (Utils.isOsLinux() ? context.cfg.getElsJar() : "");
 
         Configuration cc = context.cfg;
         Preferences pr = context.preferences;
@@ -925,10 +927,13 @@ public class Configuration
 
     public String getExecutablePath()
     {
-        String exePath = getInstalledPath() + System.getProperty("file.separator") +
-                (Utils.isOsWindows() ? "ELS-Navigator.exe" :
-                        (Utils.isOsMac() ? "rt/Contents/Home/bin/java" :
-                                "rt/bin/java"));
+        String exePath = "\"" + getInstalledPath() + System.getProperty("file.separator");
+        if (Utils.isOsWindows())
+            exePath += "ELS-Navigator.exe\"";
+        else if (Utils.isOsMac())
+            exePath = "open -F -W -n -a " + getInstalledPath() + "/ELS-Navigator.app --args";
+        else
+            exePath += "rt/bin/java\"";
         return exePath;
     }
 
@@ -1138,7 +1143,8 @@ public class Configuration
         String cmd = "";
         for (int index = 0; index < originalArgs.length; ++index)
         {
-            cmd += originalArgs[index] + " ";
+            if (StringUtils.isAlphanumericSpace(originalArgs[index])) // handle JDK arguments bug
+                cmd += originalArgs[index] + " ";
         }
         return cmd;
     }
@@ -1900,7 +1906,6 @@ public class Configuration
 
         int index;
         originalArgs = args;
-
         for (index = 0; index < args.length; ++index)
         {
             switch (args[index])
@@ -2362,10 +2367,13 @@ public class Configuration
                     setLongScale(false);
                     break;
                 default:
-                    if (!args[index].endsWith(".exe"))
+                    if (StringUtils.isAlphanumericSpace(args[index])) // handle JDK arguments bug
                     {
-                        context.fault = true;
-                        throw new MungeException("Error: unknown option: " + args[index]);
+                        if (!args[index].endsWith(".exe") && !args[index].endsWith(".app"))
+                        {
+                            context.fault = true;
+                            throw new MungeException("Error: unknown option: " + args[index]);
+                        }
                     }
             }
         }

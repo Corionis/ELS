@@ -1505,9 +1505,7 @@ public class Main
         try
         {
             logger.trace("shutdown via main");
-
-            //if (job != null || (context.environment != null && context.environment.getContext().main.job != null))
-            if (context.main.job != null || context.main.previousContext.main.job != null)
+            if (context.main.job != null || (context.main.previousContext != null && context.main.previousContext.main.job != null))
             {
                 Job theJob = (job != null) ? job : context.main.previousContext.main.job; //context.environment.getContext().main.job;
                 String msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),

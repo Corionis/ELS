@@ -26,6 +26,8 @@ rm -rf ./output
 rm -rf ./system
 rm -rf ./tools
 
+cp -rpv ../artifacts/stage/macos/ELS/ELS-Navigator.app .
+cp -pv ../artifacts/stage/macos/ELS/ELS-Navigator.sh .
 cp -rpv ./copy-only_config-base/* .
 cp -rpv ./copy-only_linux-base/* .
 

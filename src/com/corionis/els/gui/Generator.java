@@ -265,8 +265,8 @@ public class Generator
     {
         // generate-commandline
         boolean glo = context.preferences.isGenerateLongOptions();
-        String exec = "\"" + context.cfg.getExecutablePath() + "\"";
-        String jar = (!Utils.isOsWindows() ? context.cfg.getElsJar() : "");
+        String exec = context.cfg.getExecutablePath();
+        String jar = (Utils.isOsLinux() ? context.cfg.getElsJar() : "");
         String opts = ((Job) tool).generateCommandline(dryRun);
         if (foreground)
             opts += " --logger";
@@ -617,7 +617,7 @@ public class Generator
             {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent)
-                {
+               {
                     if (tool.isDataChanged())
                     {
                         JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner, context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);

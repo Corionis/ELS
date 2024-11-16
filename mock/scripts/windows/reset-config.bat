@@ -26,6 +26,7 @@ rmdir /s /q .\system
 rmdir /s /q .\tools
 
 :NoDir
+copy ..\artifacts\stage\windows\ELS-Navigator.exe .
 xcopy /I /E .\copy-only_config-base .
 xcopy /I /E .\copy-only_windows-base .
 

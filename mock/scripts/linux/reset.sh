@@ -14,6 +14,7 @@ if [ "$1" != "-f" ]; then
     fi
 fi
 
+cp -p ../artifacts/stage/linux/ELS/ELS-Navigator.sh .
 ./reset-config.sh $1
 ./reset-test.sh $1
 

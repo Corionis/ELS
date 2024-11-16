@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.4" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.5" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -1621,8 +1621,8 @@ new FormModel {
 						name: "menuItemCopy"
 						"text": new FormMessage( null, "Navigator.menu.Copy.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Copy.mnemonic" )
-						"accelerator": &KeyStroke0 static javax.swing.KeyStroke getKeyStroke( 67, 130, false )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/copy.png" )
+						"accelerator": &KeyStroke0 static javax.swing.KeyStroke getKeyStroke( 67, 130, false )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemCut"

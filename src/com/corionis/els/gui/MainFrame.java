@@ -106,6 +106,15 @@ public class MainFrame extends JFrame
             UIManager.put("OptionPane.okButtonText", context.cfg.gs("Z.ok"));
             UIManager.put("OptionPane.yesButtonText", context.cfg.gs("Z.yes"));
 
+            if (Utils.isOsMac())
+            {
+                menuItemCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.META_DOWN_MASK));
+                menuItemCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.META_DOWN_MASK));
+                menuItemPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.META_DOWN_MASK));
+                menuItemFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.META_DOWN_MASK));
+                menuItemTouch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.META_DOWN_MASK));
+                menuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.META_DOWN_MASK));
+            }
         }
         catch(Exception ex)
         {
@@ -821,8 +830,8 @@ public class MainFrame extends JFrame
                 //---- menuItemCopy ----
                 menuItemCopy.setText(context.cfg.gs("Navigator.menu.Copy.text"));
                 menuItemCopy.setMnemonic(context.cfg.gs("Navigator.menu.Copy.mnemonic").charAt(0));
-                menuItemCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
                 menuItemCopy.setIcon(new ImageIcon(getClass().getResource("/copy.png")));
+                menuItemCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
                 menuEdit.add(menuItemCopy);
 
                 //---- menuItemCut ----

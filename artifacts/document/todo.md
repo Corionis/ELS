@@ -1,6 +1,7 @@
 
 # Project To Do
 
+ * Change macOS Generate Shortcut:  open -F -W -a ELS-Navigator.app --args -c debug -d debug
  * Context, Environment
  * Save & Restore connections
 
