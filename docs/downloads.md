@@ -29,8 +29,15 @@ Use the buttons at the top of this page <img style="vertical-align:middle" src="
 
 ## &bull; Installation
 
- * Using the ELS jar requires a Java 19+ JRE.
- * Using remote connections may require adjustments to network settings, firewalls, etc.
+ * ELS may be used with only the ELS jar. Requires a Java 19+ JRE.
+ * The other downloads contain an embedded Java JRE that will not interfere with any existing Java installation, native
+   launchers for macOS and Windows and other supporting files.
+ * The default configuration directory for Library and other files is: **[USER HOME]/.els/** which may be changed
+   using the `` -C [directory] `` option.
+ * The software installation directory may be the same as the configuration directory if desired. Updates only
+   replace the **bin/** and **rt/** directories and the original launcher script or program. Other directories
+   in the configuration directory are not changed.
+ * Using remote connections may require adjustments to network settings, firewalls, NAT, etc.
    which is beyond the scope of this document.
 
 The following downloads contain an embedded JRE for that platform.
@@ -38,7 +45,8 @@ The following downloads contain an embedded JRE for that platform.
 ### &nbsp;&nbsp;&nbsp; Linux tar
 
  * Unpack the .tar.gz anywhere you have write permissions.<br/>
-   Run ``` ./ELS-Navigator.sh ``` script in the root of that directory.
+ * In a terminal change to the  **[install directory]/bin/**<br/>
+   &nbsp;&nbsp;&nbsp;&nbsp;Run: ``` ./ELS-Navigator.sh ```
 
 ### &nbsp;&nbsp;&nbsp; macOS tar
 
@@ -66,6 +74,12 @@ The following downloads contain an embedded JRE for that platform.
 
 Use Help, Check for Updates ... to see if a new build is available.
 
+ELS contains a built-in Updater except for macOS. Mac users may download and replace the
+ELS.jar in the **[install directory]/bin/** directory or replace ELS using the .tar.
+
+For Windows users the Control Panel, Programs and Features, will not reflect the latest update
+when using the internal updater. 
+
 ### &nbsp;&nbsp;&nbsp; Linux and Windows
 
  * A dialog is displayed with Yes, No, and Changelist that will display the list of the latest changes.
@@ -73,14 +87,12 @@ Use Help, Check for Updates ... to see if a new build is available.
 
 ### &nbsp;&nbsp;&nbsp; macOS
 
- * A dialog is displayed with Changelist, No, and ELS website. Due to constraints there is no
+ * A dialog is displayed with Changelist, Cancel, and ELS website. Due to constraints there is no
    auto-updater for macOS. Mac users may download the latest ELS Jar or update ELS entirely 
    using the .mac.tar.gz.
- * If you see an error dialog saying it cannot be validated open a terminal, change to the installed directory:<br/>
-   ``xattr -d com.apple.quarantine ELS/rt/Contents/Home/bin/java``
 
 ## &bull; Configuration
 
  * By default ELS data files are store in your home directory in the **.els** subdirectory.
    * That may be changed with the -C \| \--config option.
- * If ELS is installed in a separate directory that folder may be replaced with an  update.
+ * If ELS is installed in a separate directory that folder may be replaced with an update.
