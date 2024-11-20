@@ -15,13 +15,13 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLongVersionString</key>
-	<string>Version 4.0.0, 15 November 2024</string>
+	<string>Version 4.0.0, 19 November 2024</string>
 	<key>CFBundleName</key>
 	<string>ELS-Navigator</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>Version 4.0.0, 15 November 2024</string>
+	<string>Version 4.0.0, 19 November 2024</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>

@@ -1,5 +1,0 @@
-<component name="ArtifactManager">
-  <artifact name="Use:  ant -f els.xml">
-    <root id="root" />
-  </artifact>
-</component>

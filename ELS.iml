@@ -26,6 +26,7 @@
       <excludeFolder url="file://$MODULE_DIR$/mock/datastore-backup" />
       <excludeFolder url="file://$MODULE_DIR$/mock/test-backup" />
       <excludeFolder url="file://$MODULE_DIR$/artifacts/stage/macos/ELS/rt" />
+      <excludeFolder url="file://$MODULE_DIR$/deploy-previous" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

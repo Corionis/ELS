@@ -325,7 +325,7 @@ public class Navigator
                         message = java.text.MessageFormat.format(Utils.isOsMac() ? mprompt : prompt,
                                 Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
                         Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
-                        Object[] mopts = {context.cfg.gs("Z.goto.website"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
+                        Object[] mopts = {context.cfg.gs("Z.goto.website"), context.cfg.gs("Z.cancel"), context.cfg.gs("Navigator.recent.changes")};
                         int reply = JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                                 JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null,
                                 Utils.isOsMac() ? mopts : opts, Utils.isOsMac() ? mopts[0] : opts[0]);

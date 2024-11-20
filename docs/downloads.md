@@ -38,14 +38,17 @@ The following downloads contain an embedded JRE for that platform.
 ### &nbsp;&nbsp;&nbsp; Linux tar
 
  * Unpack the .tar.gz anywhere you have write permissions.<br/>
-   Run ``` ELS-Navigator.sh ``` script in the root of that directory.
+   Run ``` ./ELS-Navigator.sh ``` script in the root of that directory.
 
 ### &nbsp;&nbsp;&nbsp; macOS tar
 
  * Unpack the .tar.gz anywhere you have write permissions.<br/>
-   Run ``` ELS-Navigator.sh ``` script in the root of that directory.
- * If you see an error dialog saying it cannot be validated open a terminal, change to the installed directory:<br/>
-   ``xattr -d com.apple.quarantine ELS/rt/Contents/Home/bin/java``
+ * In a terminal change directory to the **[install directory]/bin/**<br/>
+   &nbsp;&nbsp;&nbsp;&nbsp;Run: `` ./fix-permissions.sh `` to adjust the permissions of the executables.
+ * Change directory to the **[install directory]**<br/>
+   &nbsp;&nbsp;&nbsp;&nbsp;Run: ``` ./ELS-Navigator.sh ```
+ * Use ELS Navigator File, Generate to generate a desktop 'open' script for the current configuration
+   that will use the ELS-Navigator.app launcher app. 
 
 ### &nbsp;&nbsp;&nbsp; Windows installer
 

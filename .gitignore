@@ -48,3 +48,6 @@ hs_err_pid*
 /src/META-INF/services/javax.annotation.processing.Processor
 
 /mock/getLauncher.sh
+
+### Mac OS ###
+.DS_Store
