@@ -4,22 +4,11 @@ show_blog: false
 ---
 # Downloads & Updates
 
-## &bull; Supported Platforms
-
-Entertainment Library Synchronizer (ELS) runs on Linux, macOS and Windows. 
-
 ## &bull; Disclaimer
 
 Any software downloaded from this site is free and without warranty or guarantee of any
 kind expressed or implied. The software may not work or serve any intended or particular
 purpose. Use at your own risk. If you break it you own both parts.
-
-## &bull; Support
-
-If a bug is found please create an 
-<a href="{{ site.issues_url }}" target="_blank"><b>Issue <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a>
-on the GitHub Project.
-
 
 ## &bull; Downloads
 
