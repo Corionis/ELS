@@ -394,7 +394,7 @@ public class Configuration
         String msg = "Arguments: ";
         for (int index = 0; index < originalArgs.length; ++index)
         {
-            if (StringUtils.isAlphanumericSpace(originalArgs[index])) // handle JDK arguments bug
+            if (StringUtils.isAsciiPrintable(originalArgs[index])) // handle JDK arguments bug
                 msg = msg + originalArgs[index] + " ";
         }
         logger.info(SHORT, msg);
@@ -1143,7 +1143,7 @@ public class Configuration
         String cmd = "";
         for (int index = 0; index < originalArgs.length; ++index)
         {
-            if (StringUtils.isAlphanumericSpace(originalArgs[index])) // handle JDK arguments bug
+            if (StringUtils.isAsciiPrintable(originalArgs[index])) // handle JDK arguments bug
                 cmd += originalArgs[index] + " ";
         }
         return cmd;
@@ -2367,7 +2367,7 @@ public class Configuration
                     setLongScale(false);
                     break;
                 default:
-                    if (StringUtils.isAlphanumericSpace(args[index])) // handle JDK arguments bug
+                    if (StringUtils.isAsciiPrintable(args[index])) // handle JDK arguments bug
                     {
                         if (!args[index].endsWith(".exe") && !args[index].endsWith(".app"))
                         {

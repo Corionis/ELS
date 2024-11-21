@@ -159,7 +159,6 @@
         <copy file="mock/bin/update.info" tofile="out/els/dmg/ELS/bin/update.info" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.icns" todir="out/els/dmg/ELS/bin" preservelastmodified="true"/>
         <copy file="build/ELS.jar" todir="out/els/dmg/ELS/bin" preservelastmodified="true"/>
-        <copy file="build/build-stamp.properties" tofile="out/els/dmg/ELS/build-stamp.properties" />
         <echo message="MANUAL STEP: Copy out/els/dmg/ELS to MacOS, complete DMG build on MacOS" />
     </target>
 
@@ -175,7 +174,6 @@
         <copy file="mock/bin/update.info" tofile="out/els/mac.tar/ELS/bin/update.info" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.icns" todir="out/els/mac.tar/ELS/bin" preservelastmodified="true"/>
         <copy file="build/ELS.jar" todir="out/els/mac.tar/ELS/bin" preservelastmodified="true"/>
-        <!-- copy file="build/build-stamp.properties" tofile="out/els/mac.tar/ELS/build-stamp.properties" / -->
         <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.mac.tar.gz -C out/els/mac.tar ELS"/>
     </target>
 
