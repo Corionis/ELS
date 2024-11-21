@@ -34,7 +34,7 @@ The following downloads contain an embedded JRE for that platform.
 ### &nbsp;&nbsp;&nbsp; Linux tar
 
  * Unpack the .tar.gz anywhere you have write permissions.<br/>
- * In a terminal change to the  **[install directory]/bin/**<br/>
+ * In a terminal change to the  **[install directory]/**<br/>
    &nbsp;&nbsp;&nbsp;&nbsp;Run: ``` ./ELS-Navigator.sh ```
 
 ### &nbsp;&nbsp;&nbsp; macOS tar
