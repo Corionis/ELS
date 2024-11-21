@@ -469,32 +469,29 @@ public class Transfer
                 }
             }
 
-            if (!context.cfg.isLoggerView())
+            if (context.cfg.isNavigator() && !context.cfg.isLoggerView())
             {
-                if (context.cfg.isNavigator())
+                if (context.cfg.isRemoteOperation() && context.clientStty != null)
                 {
-                    if (context.cfg.isRemoteOperation() && context.clientStty != null)
+                    requestLibrary();
+                }
+            }
+            else
+            {
+                // get -s Subscriber libraries
+                if (context.cfg.getSubscriberLibrariesFileName().length() > 0)
+                {
+                    if (context.cfg.isRemoteOperation() && context.cfg.isRequestCollection())
                     {
-                        requestLibrary();
+                        requestCollection();
                     }
                 }
-                else
-                {
-                    // get -s Subscriber libraries
-                    if (context.cfg.getSubscriberLibrariesFileName().length() > 0)
-                    {
-                        if (context.cfg.isRemoteOperation() && context.cfg.isRequestCollection())
-                        {
-                            requestCollection();
-                        }
-                    }
 
-                    // get -t|T Targets
-                    if (context.cfg.isTargetsEnabled())
-                    {
-                        logger.info(context.cfg.gs("Transfer.requesting.subscriber.targets"));
-                        getStorageTargets();
-                    }
+                // get -t|T Targets
+                if (context.cfg.isTargetsEnabled())
+                {
+                    logger.info(context.cfg.gs("Transfer.requesting.subscriber.targets"));
+                    getStorageTargets();
                 }
             }
         }
