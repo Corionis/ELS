@@ -1328,30 +1328,6 @@ public class Navigator
 
                                     if (context.preferences.isLastSubscriberIsRemote())
                                     {
-                                        // start the serveStty client for automation
-                                        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
-                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-                                        context.clientStty = new ClientStty(context, false, true, false);
-                                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
-                                        {
-                                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                                            disconnectSubscriber();
-                                            JOptionPane.showMessageDialog(context.mainFrame,
-                                                    context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
-                                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                            context.cfg.setOperation("-");
-                                            context.fault = false;
-                                            return;
-                                        }
-
-                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                        if (context.clientStty.checkBannerCommands())
-                                        {
-                                            logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
-                                        }
-                                        context.transfer.requestLibrary();
-
                                         // start the serveSftp transfer client
                                         context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                                         if (!context.clientSftp.startClient("transfer"))
@@ -1379,6 +1355,30 @@ public class Navigator
                                             context.fault = false;
                                             return;
                                         }
+
+                                        // start the serveStty client for automation
+                                        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
+                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+                                        context.clientStty = new ClientStty(context, false, true, false);
+                                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                                        {
+                                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                            disconnectSubscriber();
+                                            JOptionPane.showMessageDialog(context.mainFrame,
+                                                    context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
+                                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                            context.cfg.setOperation("-");
+                                            context.fault = false;
+                                            return;
+                                        }
+
+                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                        if (context.clientStty.checkBannerCommands())
+                                        {
+                                            logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
+                                        }
+                                        context.transfer.requestLibrary();
                                     }
 
                                     // load the subscriber library

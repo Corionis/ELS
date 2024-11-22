@@ -1116,10 +1116,7 @@ public class Main
                 {
                     shutdown();
                 }
-/*
-                else
-                    restoreEnvironment();
-*/
+
                 flushLogger();
             }
             else if (!primaryExecution && !isListening && context.cfg.isNavigator())
