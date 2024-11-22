@@ -258,9 +258,11 @@ public class Main
                 {
                     context.preferences.setLastSubscriberIsOpen(false);
                     context.fault = false;
+                    return false;
                 }
             }
-            return false;
+            catchExceptions = false;
+            throw new MungeException(msg);
         }
         return true;
     }

@@ -139,20 +139,20 @@ public class Listener extends Thread
             try
             {
                 socket = listenSocket.accept(); // new socket
-                if (isListed(socket, true)) // if it is whitelisted or there is no whitelist
+                if (isListed(socket, false)) // blacklisted, disconnect
                 {
-                    if (isListed(socket, false)) // if it is blacklisted disconnect
-                    {
-                        socket.close();
-                        logger.warn("blacklisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
-                    }
-                    else
-                    {
-                        instance.addConnection(socket);
-                    }
+                    socket.close();
+                    logger.warn("blacklisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
                 }
-                else
+                else if (isListed(socket, true)) // if it is whitelisted or there is no whitelist
+                {
+                    instance.addConnection(socket);
+                }
+                else // not whitelisted, disconnect
+                {
+                    socket.close();
                     logger.warn("not whitelisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
+                }
             }
             catch (SocketTimeoutException e)
             {

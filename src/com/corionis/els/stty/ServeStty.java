@@ -116,8 +116,7 @@ public class ServeStty extends Thread
                 logger.info(e);
             }
         }
-        else
-        // if limit has not been reached
+        else // if limit has not been reached
         {
             // create a connection thread for this request
             Connection theConnection;
