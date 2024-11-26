@@ -3625,17 +3625,23 @@ public class Navigator
             {
                 if (job.usesPublisher())
                 {
-                    if (context.progress != null)
-                        context.progress.update(context.cfg.gs("Navigator.scanning.publisher"));
-                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false, false);
-                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false, false);
+                    if (context.publisherRepo != null)
+                    {
+                        if (context.progress != null)
+                            context.progress.update(context.cfg.gs("Navigator.scanning.publisher"));
+                        context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false, false);
+                        context.browser.deepScanSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false, false);
+                    }
                 }
                 if (job.usesSubscriber())
                 {
-                    if (context.progress != null)
-                        context.progress.update(context.cfg.gs("Navigator.scanning.subscriber"));
-                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteOperation(), false);
-                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteOperation(), false);
+                    if (context.subscriberRepo != null)
+                    {
+                        if (context.progress != null)
+                            context.progress.update(context.cfg.gs("Navigator.scanning.subscriber"));
+                        context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteOperation(), false);
+                        context.browser.deepScanSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteOperation(), false);
+                    }
                 }
             }
 
@@ -4121,7 +4127,6 @@ public class Navigator
                     Object[] opts = {context.cfg.gs("Z.ok")};
                     JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                             JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
-                    return;
                 }
             }
 
