@@ -29,6 +29,9 @@ import java.util.*;
 
 @SuppressWarnings(value = "unchecked")
 
+/**
+ * Libraries tab
+ */
 public class LibrariesUI
 {
     public JTable configItems;

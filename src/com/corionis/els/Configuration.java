@@ -225,78 +225,6 @@ public class Configuration
     }
 
     /**
-     * Restore Configuration from saved clone
-     *
-     * @return "this" Configuration Object
-     */
-    public Configuration cloneRestore(Configuration clone)
-    {
-        defaultNavigator = clone.defaultNavigator;
-        authKeysFile = clone.authKeysFile;
-        authorizedPassword = clone.authorizedPassword;
-        blacklist = clone.blacklist;
-        consoleLevel = clone.consoleLevel;
-        consoleSet = clone.consoleSet;
-        context = clone.context;
-        crossCheck = clone.crossCheck;
-        currentBundle = clone.currentBundle;
-        debugLevel = clone.debugLevel;
-        debugSet = clone.debugSet;
-        dryRun = clone.dryRun;
-        duplicateCheck = clone.duplicateCheck;
-        emptyDirectoryCheck = clone.emptyDirectoryCheck;
-        exportCollectionFilename = clone.exportCollectionFilename;
-        exportTextFilename = clone.exportTextFilename;
-        forceCollection = clone.forceCollection;
-        forceTargets = clone.forceTargets;
-        hintKeysFile = clone.hintKeysFile;
-        hintSkipMainProcess = clone.hintSkipMainProcess;
-        hintTrackerFilename = clone.hintTrackerFilename;
-        hintsDaemonFilename = clone.hintsDaemonFilename;
-        ignoredReported = clone.ignoredReported;
-        iplist = clone.iplist;
-        jobName = clone.jobName;
-        keepGoing = clone.keepGoing;
-        logFileFullPath = clone.logFileFullPath;
-        logFileName = clone.logFileName;
-        logFilePath = clone.logFilePath;
-        loggerView = clone.loggerView;
-        logOverwrite = clone.logOverwrite;
-        longScale = clone.longScale;
-        marker = clone.marker;
-        mismatchFilename = clone.mismatchFilename;
-        navigator = clone.navigator;
-        noBackFill = clone.noBackFill;
-        operation = clone.operation;
-        originalArgs = clone.originalArgs;
-        overrideHintHost = clone.overrideHintHost;
-        overrideSubscriberHost = clone.overrideSubscriberHost;
-        overwrite = clone.overwrite;
-        preserveDates = clone.preserveDates;
-        publisherCollectionFilename = clone.publisherCollectionFilename;
-        publisherLibrariesFileName = clone.publisherLibrariesFileName;
-        quitStatusServer = clone.quitStatusServer;
-        quitSubscriberListener = clone.quitSubscriberListener;
-        requestCollection = clone.requestCollection;
-        requestTargets = clone.requestTargets;
-        selectedLibraryExcludes = (ArrayList<String>) clone.selectedLibraryExcludes.clone();
-        selectedLibraryNames = (ArrayList<String>) clone.selectedLibraryNames.clone();
-        specificExclude = clone.specificExclude;
-        specificLibrary = clone.specificLibrary;
-        subscriberCollectionFilename = clone.subscriberCollectionFilename;
-        subscriberLibrariesFileName = clone.subscriberLibrariesFileName;
-        targetsEnabled = clone.targetsEnabled;
-        targetsFilename = clone.targetsFilename;
-        updateFailed = clone.updateFailed;
-        updateSuccessful = clone.updateSuccessful;
-        validation = clone.validation;
-        whatsNewAll = clone.whatsNewAll;
-        whatsNewFilename = clone.whatsNewFilename;
-        workingDirectory = clone.workingDirectory;
-        return this;
-    }
-
-    /**
      * Configure the logging configuration
      * <br/>
      * Sets the logFullPath and logPath based on configuration.
@@ -925,6 +853,16 @@ public class Configuration
         return selectedLibraryExcludes;
     }
 
+    /**
+     * Get the path to the executable that runs ELS.
+     * <br/>
+     * Depends on the operating system:<br/>
+     *  * Linux is rt/bin/java
+     *  * Windows is ELS-Navigator.exe
+     *  * macOS is an "open" to ELS-Navigator.app
+     *
+     * @return
+     */
     public String getExecutablePath()
     {
         String exePath = "\"" + getInstalledPath() + System.getProperty("file.separator");
@@ -1013,6 +951,15 @@ public class Configuration
         return path;
     }
 
+    /**
+     * Get the path to the software installation directory
+     * <br/>
+     * The software installation directory may be either combined or
+     * separate from the runtime configuration directory where all the
+     * supporting data files are stored.
+     *
+     * @return Path to software directory
+     */
     public String getInstalledPath()
     {
         String path = Main.class.getResource("Main.class").toExternalForm();
@@ -1583,6 +1530,11 @@ public class Configuration
         return logOverwrite == 1 ? true : false;
     }
 
+    /**
+     * Is ELS running in --logger view?
+     *
+     * @return True if --logger mode
+     */
     public boolean isLoggerView()
     {
         return loggerView;
@@ -1609,6 +1561,11 @@ public class Configuration
         return noBackFill == 1 ? true : false;
     }
 
+    /**
+     * Is the Hint Server host value overridden so the listen value should be used?
+     *
+     * @return True if the listen value is to be used
+     */
     public boolean isOverrideHintsHost()
     {
         return overrideHintHost == 1 ? true : false;
@@ -1686,6 +1643,11 @@ public class Configuration
         return quitSubscriberListener == 1 ? true : false;
     }
 
+    /**
+     * Is either a remote Subscriber or Hint Server active?
+     *
+     * @return True if active
+     */
     public boolean isRemoteActive()
     {
         if (isRemoteStatusServer())
@@ -1715,6 +1677,11 @@ public class Configuration
         return (getOperation() == PUBLISH_REMOTE);
     }
 
+    /**
+     * Is this instance operating as a remote Hint Server?
+     *
+     * @return True if this is a remote Hint Server
+     */
     public boolean isRemoteStatusServer()
     {
         if (context.hintsStty != null && context.hintsStty.isConnected())
@@ -1722,6 +1689,11 @@ public class Configuration
         return false;
     }
 
+    /**
+     * Is this instance operating as a remote Subscriber?
+     *
+     * @return True if a remote Subscriber
+     */
     public boolean isRemoteSubscriber()
     {
         if (context.clientStty != null && context.clientStty.isConnected())
@@ -2430,6 +2402,11 @@ public class Configuration
         this.crossCheck = crossCheck ? 1 : 0;
     }
 
+    /**
+     * Set the current resource bundle for translations
+     *
+     * @param bundle
+     */
     public void setCurrentBundle(ResourceBundle bundle)
     {
         currentBundle = bundle;
@@ -2446,6 +2423,10 @@ public class Configuration
         debugSet = true;
     }
 
+    /**
+     * Set this instance as defaulting to Navigator mode
+     * @param defaultNavigator
+     */
     public void setDefaultNavigator(boolean defaultNavigator)
     {
         this.defaultNavigator = defaultNavigator;
@@ -2645,6 +2626,11 @@ public class Configuration
         this.logOverwrite = logOverwrite ? 1 : 0;
     }
 
+    /**
+     * Set this instance as operating in --logger mode
+     *
+     * @param loggerView
+     */
     public void setLoggerView(boolean loggerView)
     {
         this.loggerView = loggerView;
@@ -2736,18 +2722,27 @@ public class Configuration
             operation = NOT_REMOTE;
     }
 
+    /**
+     * Set that this instance is overriding the Hint Server host to use the listen value instead
+     *
+     * @param overrideHintHost
+     */
     public void setOverrideHintsHost(boolean overrideHintHost)
     {
         this.overrideHintHost = overrideHintHost ? 1 : 0;
     }
 
+    /**
+     * Set the this instance is overriding the Subscriber host to use the listen value instead
+     * @param overrideSubscriberHost
+     */
     public void setOverrideSubscriberHost(String overrideSubscriberHost)
     {
         this.overrideSubscriberHost = overrideSubscriberHost;
     }
 
     /**
-     * Sets overwrite mode
+     * Sets file overwrite mode
      */
     public void setOverwrite(boolean sense)
     {
@@ -2892,6 +2887,11 @@ public class Configuration
         this.targetsFilename = targetsFilename;
     }
 
+    /**
+     * Set that an attempted update failed
+     *
+     * @param updateFailed
+     */
     public void setUpdateFailed(boolean updateFailed)
     {
         this.updateFailed = updateFailed;
@@ -2947,6 +2947,12 @@ public class Configuration
         this.workingDirectory = workingDirectory;
     }
 
+    /**
+     * Verify that a file exists and is readable
+     *
+     * @param file
+     * @throws MungeException
+     */
     private void verifyFileExistence(String file) throws MungeException
     {
         String filename;

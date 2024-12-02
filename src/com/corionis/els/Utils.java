@@ -138,39 +138,6 @@ public class Utils
         return 0;
     }
 
-    public static ArrayList<TreePath> compressTreePaths(ArrayList<TreePath> list)
-    {
-        // list MUST be sorted before calling this method
-
-        ArrayList<TreePath> compressedList = new ArrayList<>();
-
-        for (int i = 0; i < list.size(); ++i)
-        {
-            TreePath tp1 = list.get(i);
-            if (list.size() > i + 1)
-            {
-                TreePath tp2 = list.get(i + 1);
-                String[] sa1 = getTreePathStringArray(tp1);
-                String[] sa2 = getTreePathStringArray(tp2);
-                int max = Integer.min(sa1.length, sa2.length);
-                boolean match = true;
-                for (int j = 0; j < max; ++j)
-                {
-                    if (sa1[j].compareTo(sa2[j]) != 0)
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if (!match)
-                    compressedList.add(tp1);
-            }
-            else
-                compressedList.add(tp1);
-        }
-        return compressedList;
-    }
-
     /**
      * Concatenate the values of a String array into one String with optional divider
      *
@@ -631,8 +598,8 @@ public class Utils
     /**
      * Get a Point to position component centered on it's parent
      *
-     * @param component
-     * @param parent
+     * @param parent The parent Window
+     * @param window The current Window
      * @return Point
      */
     public static Point getRelativePosition(Window parent, Window window)

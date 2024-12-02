@@ -1885,8 +1885,8 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSettings"
-						"text": new FormMessage( null, "Navigator.menu.Settings.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.Settings.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Preferences.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemPreferences.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/settings.png" )
 					} )
 				} )

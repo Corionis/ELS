@@ -418,6 +418,9 @@ public class Main
         return false;
     }
 
+    /**
+     * Flush the log4j2 buffers
+     */
     public void flushLogger()
     {
         if (rollingFileAppender != null)
@@ -429,13 +432,13 @@ public class Main
             }
             catch (InterruptedException ignore)
             {
-                logger.error("OOPS!");
+                logger.error("OOPS! ");
             }
         }
     }
 
     /**
-     * Get the GuiLogAppender from log4j
+     * Get the GuiLogAppender from log4j2
      *
      * @return GuiLogAppender custom logger for Navigator
      */
@@ -453,6 +456,11 @@ public class Main
         //return appender;
     }
 
+    /**
+     * Is this instance a listener?
+     *
+     * @return true if a listener
+     */
     public boolean isListening()
     {
         return isListening;
@@ -470,6 +478,12 @@ public class Main
         return false;
     }
 
+    /**
+     * Make a relative path based on the current working directory
+     *
+     * @param path
+     * @return A path relative to the working directory, if possible
+     */
     public String makeRelativeWorkingPath(String path)
     {
         if (path != null && path.length() > 0)
@@ -1347,6 +1361,11 @@ public class Main
         return input;
     }
 
+    /**
+     * Walk through all nested Contexts and set isListening for this process
+     *
+     * @param listening
+     */
     public void setListening(boolean listening)
     {
         Context prev = context;
@@ -1358,7 +1377,7 @@ public class Main
     }
 
     /**
-     * Setup hint keys & tracking, connect to hint server if specified
+     * Setup hint keys & tracking, connect to Hint Server if specified
      * <br/><br/>
      * Hint Keys are required for Hint Tracking/Daemon.<br/><br/>
      * Will connect to a Hint Server, if specified, or local Hint Tracker, if specified.

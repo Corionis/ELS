@@ -46,10 +46,17 @@
 </p>
 <br/>
 <p>
-    The changes that tracked are rename, move and delete. Additions or copies are a normal part
+    The actions that tracked are rename, move and delete. Additions or copies are a normal part
     of ELS back-up operations and do not involve Hints.
 </p>
 <br/>
+<p>The advantages of using Hints are:</p>
+<ol>
+    <li>Provides an asynchronous way to keep back-ups matched, i.e. not all back-ups
+        have to be available at the time the action is taken.</li>
+    <li>Optimizes back-up operations. For example most back-up systems would delete the
+        original file when renamed and re-copy the renamed version. Same for a move action.</li>
+</ol>
 <p>
     When enabled Hints are automatically created when any tracked action is performed on
     a Library. Hints are not tracked on System tab content.
@@ -120,7 +127,7 @@
 </p>
 <br/>
 <p>
-    Once all back-ups participating in Hints have executed a Hint the Hint is removed.
+    Once all back-ups participating in Hints have executed a Hint it is automatically removed.
 </p>
 
 <br/>

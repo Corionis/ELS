@@ -39,16 +39,13 @@
 <body>
 <h2>Whitelist</h2>
 <p>The Whitelist is a simple list of IPv4 IP addresses that are allowed to connect
-    to this instance when it is operating as a publisher or subscriber listener.</p>
+    to this instance when it is operating as a Subscriber or Hint Server listener.</p>
 
-<p>The Whitelist is generally more useful than the Blacklist because it avoids
-    hacking attempts if a hacker finds the port used by ELS.</p>
-
-<p>The Whitelist, if defined, is evaluated first, then the Blacklist if defined. The
+<p>The Blacklist, if defined, is evaluated first then the Whitelist if defined. The
     check is performed when a incoming connection is made but before the authentication
     handshake is attempted between the systems. If the check fails the socket is
     summarily closed and the occurrence is logged.</p>
-
+    <br/>
 <i><b>Note:</b></i>
 <p>This option must be defined on the command line with the <blockquote>-I | --ip-whitelist [file]</blockquote> option
 or in a listener Operation for them to be used. These Navigator dialogs only edit the files.</p>

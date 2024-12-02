@@ -40,7 +40,7 @@
 <body>
 <h2>Jobs</h2>
 <p>Jobs combine Tools into sequences of Tasks to define the connections required for each step.
-This allows Tools to be reused with different back-ups.</p>
+This allows a Tool to be reused with different Jobs.</p>
 
 <p>&nbsp;</p>
 
@@ -48,7 +48,7 @@ This allows Tools to be reused with different back-ups.</p>
 starting Origin(s) as arguments to the Tool.</p>
 
 <h3>Tasks</h3>
-<p>The Add button for Tasks displays a list of Tools that have been created previously.
+<p>The Add button for Tasks displays a list of Tools that have been previously created.
 The list of Tools is updated each time the button is clicked.</p>
 
 <h3>Task Origins</h3>
@@ -63,19 +63,18 @@ The options provided depend on the type of Task being defined.</p>
   <li>"Local subscriber" allows selection of a local subscriber from the list of libraries</li>
   <li>"Remote subscriber (Host, Internet)" allows selection of a remote subscriber connecting on the Host address</li>
   <li>"Remote subscriber (Listen, LAN)" allows selection of a remote subscriber connecting on the Listen address</li>
-  <li>"Remote subscriber (Custom)" allows selection of a remote subscriber connecting on a Custom address</li>
+  <li>"Remote subscriber (Custom)" allows entry of a remote subscriber connecting with a Custom host or IP address:port</li>
   <li>"Local Hint Tracker" enables Hint processing using the current ELS instance.</li>
   <li>"Remote Hint Server (Host, Internet)" enables Hint processing connecting on the Host address.</li>
   <li>"Remote Hint Server (Listen, LAN)" enables Hint processing connecting on the Listen Address.</li>
 </ul>
 
 <p>Remote Subscriber Listeners only listen on the Listen or Custom address. If the Listener value is not
- defined for that Library the Host value is used. Any Custom address is required to be valid.</p>
+ defined for that Library the Host value is used. Any Custom address must be valid.</p>
 
 <p>&nbsp;</p>
 
-<p>Hints are defined in Operations so the Hint Tracker/Server cannot be changed in Jobs. But the
-type of connection must be defined. Hint Servers only listen on the Listen address. If that value is not
+<p>The type of connection must be defined. Hint Servers only listen on the Listen address. If that value is not
 defined for that Library the Host value is used. Because there can be only one Hint Tracker/Server
 there is no Custom option as provided for remote Subscribers.</p>
 
@@ -90,7 +89,7 @@ are used when the Job is executed.
     the publisher and subscriber arguments <u>must be added if necessary.</u></li>
 </ul>
 
-<p>The Origins Add button uses <i><b>whatever</b> is currently selected in the Browser</i>. That means
+<p>The Origins Add button uses <i>whatever is currently selected in the Browser</i>. That means
 combinations can be assembled that do not necessarily make sense or will execute correctly. For instance
 selecting subscriber libraries in the Browser, but choosing a different subscriber for the Job that does not
 have matching libraries.</p>
@@ -98,7 +97,7 @@ have matching libraries.</p>
 <p>&nbsp;</p>
 
 <p>Some tasks, such as the Renamer, can use the Origins of a previous task. When previous Origins
-are available a "From: [name]" selection is added as the first entry in the combobox. That entry
+are available a "From: [name]" selection is added as the first entry in the <b>...</b> combobox. That entry
 is the most recent task capable of providing Origins prior to the current task. A series of these
 tasks may be defined to perform complex operations.</p>
 
@@ -106,20 +105,20 @@ tasks may be defined to perform complex operations.</p>
 <p>The Run button will execute the currently-selected Job in the currently-running ELS instance.</p>
 
 <h3>Generate/Run ...</h3>
-<p>The Generate button creates a command line to execute the currently-selected job.</p>
+<p>Creates a command line to execute the currently-selected job.</p>
 
 <p>&nbsp;</p>
 
 <p>Edit as desired. Select the Copy button to copy the command line to the clipboard.
 Select the Shortcut ... button to create a desktop shortcut, or the Run ... button to
-execute the Job in a new instance of ELS.</p>
+execute the Job in a new instance of ELS either in the foreground or background.</p>
 
 <p>&nbsp;</p>
 
 <b>Note:</b><br/>
 <p>Depending on your choices additional parameters may be required for the
 Job to run correctly. In particular, if <b>Any publisher</b> or <b>Any subscriber</b> has
-been selected for any Tasks in the job then -p and/or -s parameters <i>will</i> needed.</p>
+been selected for any Tasks in the job then -p and/or -s parameters <i>will be</i> needed.</p>
 
 <br/>
 <br/>

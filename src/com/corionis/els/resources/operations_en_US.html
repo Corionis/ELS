@@ -54,34 +54,25 @@
 
 <p>
 &bull; Named configurations may be executed by adding the Operation as a Task in a Job.
-<!--
-Named configurations may be executed:
-<ul>
-  <li>Using the Run button</li>
-  <li>Added as a Task in a Job</li>
-  <li>With a command line copy or shortcut using the Generate button</li>
-</ul>
--->
 </p>
 <br/>
 <p>
-  The publisher and subscriber for execution come from, respectively:
+  In a Job the publisher and subscriber for execution come from:
 </p>
 <p>
   &bull; The currently-loaded libraries in the ELS Navigator Browser when the Task Origin option ANY is used.
 </p>
 <p>
-  &bull; From the defined Task Origins in a Job.
+  &bull; As parameters -p|-P and -s|-S in the command line when the Task Origin option ANY is used.
 </p>
 <p>
-  &bull; As parameters in the command line -p|-P and -s|-S when the Task Origin option ANY is used.
+  &bull; From the defined Task Origins in a Job.
 </p>
 
 <h3>Operational Modes</h3>
-<p>ELS may be executed in one of the following modes and as a task in a Job..</p>
+<p>ELS may be executed in one of the following modes as a Task in a Job..</p>
 <ul>
-  <li>Local publish : Back-up with all storage connected to the local system.</li>
-  <li>Remote publish : Back-up using two systems over a LAN or Internet.</li>
+  <li>Local or Remote publish : Back-up based on the Task Origins.</li>
   <li>Subscriber listener : The subscribe-side for remote publish.</li>
   <li>Hint status server : Track manual changes between remote back-up systems.</li>
   <li>Publisher terminal* : Manual terminal for a remote publisher listener.</li>
@@ -93,7 +84,7 @@ Named configurations may be executed:
 
 <p>For remote operations both computers use copies of the each other's JSON library files.</p>
 
-<h3>Options</h3>
+<h3>Options in Alphabetical Order</h3>
 <p>Listed alphabetically. The single-letter and long variations are shown. Which options
 appear depends on the selected mode.</p>
 

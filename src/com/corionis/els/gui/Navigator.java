@@ -105,6 +105,13 @@ public class Navigator
         this.context.navigator = this;
     }
 
+    /**
+     * Check for action conflicts with existing Hints
+     *
+     * @param tuo The NavTreeUserObject of the action
+     * @param action The action being taken
+     * @return True if a conflict exists
+     */
     public boolean checkForConflicts(NavTreeUserObject tuo, String action)
     {
         if (tuo.type == NavTreeUserObject.REAL)
@@ -143,6 +150,13 @@ public class Navigator
         return false;
     }
 
+    /**
+     * Check if there are Hints pending for this Publisher
+     * <br/>
+     * Also displays the notification icon if Hints are pending.
+     *
+     * @return The count of pending Hints
+     */
     public int checkForHints()
     {
         int count = 0;
@@ -382,6 +396,12 @@ public class Navigator
         return true;
     }
 
+    /**
+     * Disable a Component and all its sub-components
+     *
+     * @param disable True to disable, false to enable
+     * @param component Component to operate on
+     */
     public void disableComponent(boolean disable, Component component)
     {
         boolean enable = !disable;
@@ -399,6 +419,11 @@ public class Navigator
         }
     }
 
+    /**
+     * Disable the Navigator GUI while a process is executing
+     *
+     * @param disable True to disable, false to enable
+     */
     public void disableGui(boolean disable)
     {
         boolean enable = !disable;
@@ -468,6 +493,9 @@ public class Navigator
 
     }
 
+    /**
+     * Disconnect a Subscribe, clear Subscriber tab and reset the relevant configuration values
+     */
     public void disconnectSubscriber()
     {
         disconnectSubscriber(true);
@@ -477,6 +505,10 @@ public class Navigator
         context.cfg.setOperation("-");
     }
 
+    /**
+     * Disconnect a Subscribe, clear Subscriber tab
+     * @param clear
+     */
     public void disconnectSubscriber(boolean clear)
     {
         quitByeRemotes(true, false);
@@ -487,6 +519,12 @@ public class Navigator
         setQuitTerminateVisibility();
     }
 
+    /**
+     * Enable/disable System menu items when one of the System menu editors is in use
+     *
+     * @param type Which type of editor is being used
+     * @param enable True to enable items, false to disable appropriate items
+     */
     public void enableDisableSystemMenus(FileEditor.EditorTypes type, boolean enable)
     {
         if (enable)
@@ -540,6 +578,12 @@ public class Navigator
         }
     }
 
+    /**
+     * Enable/disable Tool menu items when one of the Tools is in use
+     *
+     * @param dialog The Tool dialog being used
+     * @param enable True to enable items, false to disable appropriate items
+     */
     public void enableDisableToolMenus(AbstractToolDialog dialog, boolean enable)
     {
         context.mainFrame.menuItemJunk.setEnabled(enable);
@@ -590,6 +634,12 @@ public class Navigator
         }
     }
 
+    /**
+     * Execute an external program and log and monitor its execution
+     *
+     * @param commandLine The command line to execute
+     * @return True if an exception occurred, otherwise false
+     */
     public boolean execExternalExe(String commandLine)
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
@@ -637,6 +687,13 @@ public class Navigator
         return false;
     }
 
+    /**
+     * Find the index of a menu item, used for Bookmarks and Jobs
+     *
+     * @param menu Which menu is being used
+     * @param item The JMenuItem selected
+     * @return Menu item index or -1 if not found
+     */
     private int findMenuItemIndex(JMenu menu, JMenuItem item)
     {
         for (int i = 0; i < menu.getItemCount(); ++i)
@@ -788,6 +845,9 @@ public class Navigator
         return !context.fault;
     }
 
+    /**
+     * Initialize the main menu items, listeners and handlers
+     */
     private void initializeMainMenu()
     {
         // --- Main Menu ------------------------------------------
@@ -3302,26 +3362,51 @@ public class Navigator
 
     }
 
+    /**
+     * Is a blocking process running?
+     *
+     * @return True if additional processes blocked from running
+     */
     public boolean isBlockingProcessRunning()
     {
         return blockingProcessRunning;
     }
 
+    /**
+     * Is this instance running in --logger mode?
+     * <br/>
+     * A short convenience method
+     *
+     * @return True if operating in --logger mode
+     */
     public boolean isLogger()
     {
         return context.cfg.isLoggerView();
     }
 
+    /**
+     * Is this instance an Updater process?
+     *
+     * @return True if this is operating as the Updater
+     */
     public boolean isUpdaterProcess()
     {
         return updaterProcess;
     }
 
+    /**
+     * Is a worker process thread running?
+     *
+     * @return True is a worker is executing
+     */
     public boolean isWorkerRunning()
     {
         return workerRunning;
     }
 
+    /**
+     * Load the Bookmarks menu items
+     */
     public void loadBookmarksMenu()
     {
         JMenu menu = context.mainFrame.menuBookmarks;
@@ -3369,6 +3454,9 @@ public class Navigator
         }
     }
 
+    /**
+     * Load the Jobs menu items
+     */
     public void loadJobsMenu()
     {
         final int OffsetCount = 2; // number of static Job menu items
@@ -3460,6 +3548,10 @@ public class Navigator
         }
     }
 
+    /**
+     * Process a Job inside this instance in a worker thread
+     * @param job The Job to run
+     */
     private void processJob(Job job)
     {
         // validate job tasks and origins
@@ -3534,6 +3626,9 @@ public class Navigator
             JOptionPane.showMessageDialog(context.mainFrame, status, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
     }
 
+    /**
+     * Process a Job in --logger mode in the foreground
+     */
     private void processLoggerJob()
     {
         try
@@ -3614,6 +3709,12 @@ public class Navigator
         }
     }
 
+    /**
+     * Job process terminated handler
+     *
+     * @param job The Job that completed
+     * @param isDryRun If running in dry-run mode
+     */
     private void processTerminated(Job job, boolean isDryRun)
     {
         try
@@ -3687,6 +3788,12 @@ public class Navigator
         }
     }
 
+    /**
+     * Quit or Bye remote connections
+     *
+     * @param elsListener Quite/bye a Subscriber listen?
+     * @param hintStatusServer Quit/bye a Hint Status Server listener?
+     */
     public void quitByeRemotes(boolean elsListener, boolean hintStatusServer)
     {
         boolean closure = false;
@@ -3775,6 +3882,9 @@ public class Navigator
         }
     }
 
+    /**
+     * Read the bookmarks.json file
+     */
     public void readBookmarks()
     {
         try
@@ -3789,6 +3899,15 @@ public class Navigator
         }
     }
 
+    /**
+     * Reconnect a remote after a Job has run that may have changed connections.
+     *
+     * @param context The Context of the process
+     * @param publisherRepo The Publisher repository used
+     * @param subscriberRepo The Subscriber repository used
+     * @return True if successful, otherwise false
+     * @throws Exception
+     */
     public boolean reconnectRemote(Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
     {
         // is this necessary?
@@ -3868,6 +3987,12 @@ public class Navigator
         return true;
     }
 
+    /**
+     * Setup and Run the Navigator GUI
+     *
+     * @return The process status
+     * @throws Exception
+     */
     public int run() throws Exception
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -3956,6 +4081,12 @@ public class Navigator
         return 0;
     }
 
+    /**
+     * Select a Library Source from the Browser
+     *
+     * @param tuo
+     * @return Path to new Source
+     */
     private String selectLibrarySource(NavTreeUserObject tuo)
     {
         String path = "";
@@ -4009,11 +4140,23 @@ public class Navigator
         return path;
     }
 
+    /**
+     * Set that a process blocking additional processes is running
+     * @param blockingProcessRunning
+     */
     public void setBlockingProcessRunning(boolean blockingProcessRunning)
     {
         this.blockingProcessRunning = blockingProcessRunning;
     }
 
+    /**
+     * Set host & listen fields text for a JFileChooser
+     *
+     * @param fc The JFileChooser
+     * @param hostField Host field label
+     * @param listenField Listen field label
+     * @return True if successful
+     */
     private boolean setFileChooserHostListen(JFileChooser fc, JLabel hostField, JLabel listenField)
     {
         String host = "";
@@ -4036,6 +4179,9 @@ public class Navigator
         return true;
     }
 
+    /**
+     * Set the visibility of the Quit & Stop Remove(s) menu option
+     */
     private void setQuitTerminateVisibility()
     {
         if (context.cfg.isRemoteActive())
@@ -4044,29 +4190,34 @@ public class Navigator
             context.mainFrame.menuItemQuitTerminate.setVisible(false);
     }
 
-    private void setTableEnabled(boolean disable, JTable table)
-    {
-        for (int i = 0; i < table.getRowCount(); ++i)
-        {
-            for (int j = 0; j < table.getColumnCount(); ++j)
-            {
-                Component comp = table.getComponentAt(i, j);
-                comp.setEnabled(disable);
-            }
-        }
-    }
-
+    /**
+     * Set that this is operating in Updater mode
+     *
+     * @param updaterJar
+     */
     public void setUpdaterProcess(String updaterJar)
     {
         this.updaterJar = updaterJar;
         this.updaterProcess = true;
     }
 
+    /**
+     * Set the a worker thread is executing
+     *
+     * @param sense
+     */
     public void setWorkerRunning(boolean sense)
     {
         workerRunning = sense;
     }
 
+    /**
+     * Stop this instance of Navigator
+     * <br/>
+     * Disconnects remotes as appropriate.
+     * Saves Preferences.
+     * Executes the Updater if initiated.
+     */
     public void stop()
     {
         //if (context.cfg.isRemoteActive())

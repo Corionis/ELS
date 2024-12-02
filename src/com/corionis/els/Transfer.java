@@ -1,6 +1,5 @@
 package com.corionis.els;
 
-import com.corionis.els.gui.browser.NavTreeUserObject;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
@@ -565,6 +564,15 @@ public class Transfer
         return fits;
     }
 
+    /**
+     * Make a local or remote directory
+     *
+     * @param path Path to item
+     * @param isDir Is the item a directory? If not the end component will be removed
+     * @param isRemote Is the item remote?
+     * @return
+     * @throws Exception
+     */
     public boolean makeDirs(String path, boolean isDir, boolean isRemote) throws Exception
     {
         boolean sense = true;
@@ -779,32 +787,13 @@ public class Transfer
         return libAltered;
     }
 
-    public String readTextFile(NavTreeUserObject tuo) throws Exception
-    {
-        String content = "";
-        List<String> lines = null;
-        if (tuo.isRemote)
-        {
-            String path = "\"" + tuo.path + "\"";
-            context.clientStty.send("read " + path, "Read text file " + path);
-            content = context.clientStty.receive("Reading", 10000);
-            if (content.equalsIgnoreCase("false"))
-                content = "";
-        }
-        else
-        {
-            content = Utils.readString(tuo.path);
-        }
-        return content;
-    }
-
     /**
      * Remove a file, local or remote
      *
-     * @param sftp
-     * @param path     the full from path
-     * @param isDir    if this specific path is a directory
-     * @param isRemote if this specific path is remote
+     * @param sftp     The sftp channel to use
+     * @param path     The full from path
+     * @param isDir    If this specific path is a directory
+     * @param isRemote If this specific path is remote
      */
     public void remove(ClientSftp sftp, String path, boolean isDir, boolean isRemote) throws Exception
     {
@@ -1011,6 +1000,14 @@ public class Transfer
         return toItem;
     }
 
+    /**
+     * Touch a file data & time, local or remote
+     *
+     * @param path          Path to file
+     * @param isRemote      Is path remote?
+     * @return The milliseconds representation of the data & time used
+     * @throws Exception
+     */
     public long touch(String path, boolean isRemote) throws Exception
     {
         long millis = System.currentTimeMillis();

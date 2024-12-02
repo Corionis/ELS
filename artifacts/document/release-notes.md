@@ -8,6 +8,7 @@ of all types of media across multiple storage devices easier. Originally built f
 media collections ELS 4.0 adds a new dimension to library-based, multi-device, cross-platform
 file management. Using the built-in capabilities of ELS the Navigator provides a
 visual tool for curating a collection either locally or remotely.
+
 Tools and jobs are provided to make performing repetitive tasks easier. And the original
 back-up tool is built-in of course.
 
@@ -31,7 +32,6 @@ __Features:__
         * Operations
         * Renamer
         * Sleep
-        * External tools support
      * Named jobs of sequenced named tools to automate repetitive tasks
  * BackUp
      * Configure named ELS back-ups with different configurations
@@ -56,7 +56,6 @@ upgrading for changes, additions and enhancements.
  1. When upgrading to ELS 4.0.0 from previous versions be sure to complete all Hint
     processing ***prior to the upgrade***. Ensure the Hint Tracking datastore is empty. The 
     syntax used in the .els Hint files has been updated.
- 2. FILE LOCATIONS & ~/.els directory !!!!!!!!!!!!
 
 ### Enhancements
 

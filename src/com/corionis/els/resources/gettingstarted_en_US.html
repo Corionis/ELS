@@ -43,12 +43,12 @@
 <p>ELS uses a publisher/subscriber paradigm to present a collection of logical libraries from a
 local publisher to a subscriber, or back-up. The subscriber may be local, with all storage devices
 attached, or remote using another ELS instance operating as a Subscriber Listener.</p>
-
+<br/>
 <p>Each logical library may span multiple storage devices. This is the same approach used by
 modern media streaming systems, such as Plex, but is also useful for anyone producing large
 volumes of content, videos, music, images, data, etc. Each storage Location may specify a "Minimum
 Free Space". A library is defined as a Bibliography of Sources used by the library.</p>
-
+<br/>
 <p>ELS may be run in a variety of modes. The visible mode is this ELS Navigator. However, several
 other command line modes are available to automate ELS operations. ELS started as a command line
 back-up tool. The addition of the Navigator desktop application in Version 4 added significant
@@ -67,7 +67,7 @@ functionality.</p>
 the Browser are used by the Tools and Jobs. Selections may be changed while working with Tools and Jobs,
 e.g. using the Duplicate Finder select the Publisher and click "Run ...", then select the Subscriber and
 click "Run ..." again.</p>
-
+<br/>
 <p>The Publisher and Subscriber tabs present the logical library structure. The System tabs present that
 computer's entire directory tree.</p>
 
@@ -75,16 +75,16 @@ computer's entire directory tree.</p>
 <p>Libraries are the core of ELS that define the parameters of an ELS instance. Those include
 how to access ELS remotely, which files to ignore, minimum storage space for each location,
 and the names and source(s) of each logical library.</p>
-
+<br/>
 <h3>Remote Subscribers and Hints</h3>
 <p>If a Subscriber is remote or Hints will be used Hint Keys and Authentication Keys are required. Use
 the System menu selections to define those using the keys from the Publisher and Subscriber libraries.</p>
-
+<br/>
 <p>Authentication Keys define Libraries that are allowed to connect to this ELS. Those may include publishers,
 subscribers and Navigators.</p>
-
+<br/>
 <p>Hint Keys defined which publishers and subscribers are involved in Hint tracking.</p>
-
+<br/>
 <p>Blacklist and Whitelist define which IP addresses are allowed to connect
 to this ELS. Optional, but a good way to avoid hack attempts.</p>
 
@@ -92,25 +92,28 @@ to this ELS. Optional, but a good way to avoid hack attempts.</p>
 <p>Various Tools are provided to make building and maintaining libraries easier. The Duplicate Finder
 and Empty Directory Finder are used manually. The other Tools may be run by themselves or combined
 into Jobs.</p>
+<br/>
+<p>Tools define something to do. Tasks in Jobs define where to do it.</p>
 
 <h3>Jobs</h3>
 <p>Jobs are combinations of one or more Tools. Jobs are composed of Tasks which are a Tool with selections
-for the Publisher, Subscriber, and Hint Server as required.</p>
+for the Publisher, Subscriber, and Hint Server as required. Some Tools also use Origin path lists to
+define exactly what is to be operated on.</p>
 
 <h3>Ways to Execute ELS</h3>
 <p>ELS is a multi-faceted tool that may be executed in a variety of ways.</p>
 
 <h4>From Navigator</h4>
-<p>The provided start-up script executes the ELS Navigator user interface with no arguments.
-That tells Navigator to use the previous publisher, subscriber, etc.</p>
-
+<p>The provided start-up mechanism for each supported operating system executes the ELS Navigator user
+interface with no arguments. That tells Navigator to use the previous publisher, subscriber, etc.</p>
+<br/>
 <p>Inside Navigator there are two execution tools:</p>
 
 <ul>
     <li>File, Generate will generate a command line for the current configuration
     including loaded publisher, subscriber, etc. That command line may be copied to
     the clipboard or used to create a desktop shortcut.<br/><br/></li>
-    <li>Jobs, Manage has two options:<br/><br/></li>
+    <li>Jobs, Manage has two options:<br/></li>
     <ol>
         <li>Run ... that will execute the selected Job inside the current Navigator.<br/><br/></li>
         <li>Generate / Run ... will generate a command line for the current Job and
@@ -128,10 +131,18 @@ That tells Navigator to use the previous publisher, subscriber, etc.</p>
     <li>Defining a Job inside Navigator then executing it from the command line.</li>
 </ul>
 
-<h4>Note for Linux users</h4>
+<h4>Note for Linux and macOS users:</h4>
 <p>When executing ELS from the command line with cron, or a task scheduler, set the
 -c | --console-level to Off so it only logs to the -d | --debug-level file and not
 stdout to avoid cron error messages.</p>
+
+<h3>Remote Configurations</h3>
+When using remote publishers and/or subscribers the order of execution is:
+<ol>
+    <li>Hint Server, if used.</li>
+    <li>Subscriber(s).</li>
+    <li>Publisher.</li>
+</ol>
 
 <br/>
 <br/>

@@ -123,6 +123,11 @@ public class MainFrame extends JFrame
         }
     }
 
+    /**
+     * Adjust/restore a browser table's columns
+     *
+     * @param table
+     */
     private void adjustTableColumns(JTable table)
     {
         for (int i = 0; i < table.getColumnCount(); ++i)
@@ -157,6 +162,11 @@ public class MainFrame extends JFrame
         }
     }
 
+    /**
+     * Check the various dialogs for its change flag
+     *
+     * @return True if changes are pending
+     */
     private boolean changesCheckAll()
     {
         boolean changes = false;
@@ -176,6 +186,9 @@ public class MainFrame extends JFrame
         return changes;
     }
 
+    /**
+     * Go to a dialog if its changes are pending
+     */
     private void changesGotoUnsaved()
     {
         // TODO EXTEND+ Add other Tool checkForChanges() here
@@ -229,6 +242,11 @@ public class MainFrame extends JFrame
         }
     }
 
+    /**
+     * Set the browser tabs orientation and labels
+     *
+     * @param tabPlacementIndex
+     */
     public void setBrowserTabs(int tabPlacementIndex)
     {
         int tabPlacement;
@@ -283,12 +301,22 @@ public class MainFrame extends JFrame
         }
     }
 
+    /**
+     * Window closing event handler
+     *
+     * @param e
+     */
     private void thisWindowClosing(WindowEvent e)
     {
         if (verifyClose())
             context.navigator.stop();
     }
 
+    /**
+     * Check for pending changes and prompt user accordingly
+     *
+     * @return True if no pending changes and user approves close
+     */
     public boolean verifyClose()
     {
         if (changesCheckAll())
@@ -336,6 +364,10 @@ public class MainFrame extends JFrame
         context.libraries.cardShown(e);
     }
 
+    /**
+     * Enable/disable menu options depending on which tab is selected
+     * @param e
+     */
     private void tabbedPaneMainStateChanged(ChangeEvent e)
     {
         labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
@@ -1082,8 +1114,8 @@ public class MainFrame extends JFrame
                 menuSystem.addSeparator();
 
                 //---- menuItemSettings ----
-                menuItemSettings.setText(context.cfg.gs("Navigator.menu.Settings.text"));
-                menuItemSettings.setMnemonic(context.cfg.gs("Navigator.menu.Settings.mnemonic").charAt(0));
+                menuItemSettings.setText(context.cfg.gs("Navigator.menu.Preferences.text"));
+                menuItemSettings.setMnemonic(context.cfg.gs("Navigator.menuItemPreferences.mnemonic").charAt(0));
                 menuItemSettings.setIcon(new ImageIcon(getClass().getResource("/settings.png")));
                 menuSystem.add(menuItemSettings);
             }

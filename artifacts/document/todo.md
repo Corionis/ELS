@@ -17,18 +17,9 @@
  * Statistics
  * Test scripts, and match run profiles to o/s scripts
 
-#### Documentation
-  * Normalize the use of Library instead of Collection
-  * Remote operations: Start Hint Server, then Subscriber, then Publisher
-  * Tools define something to do. Tasks in Jobs define where to do it.
-    * That way Tools may be reused for different publishers and subscribers 
-      * "Any Publisher" and "Any Subscriber" in Job, Task, Origins require command line options
-        for those arguments.
-    * The Run button in Tools use the current publisher, subscriber, hints, etc.
-    * The Run buttons in Jobs use the definitions of the Tasks and Tools.
-
 #### Thoughts
  * Opens possibility of the Hint Status Server optionally auto-pushing new Hints to systems in Hint Keys.
+ * ELS is going to need "reconnect" logic if a remote Subscriber or Hint Server connection fails.
 
 ### Should Workstation/Collection be in the JSON file?
  * Controls whether a Hint is created
