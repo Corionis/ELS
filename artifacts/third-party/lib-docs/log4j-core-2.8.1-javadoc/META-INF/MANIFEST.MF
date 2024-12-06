@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Built-By: rgoers
-Build-Jdk: 1.7.0_80
-Created-By: Apache Maven
-

@@ -1,0 +1,32 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Apache MINA SSHD
+
+
+From: 'QOS.ch' (http://www.qos.ch)
+
+  - JCL 1.2 implemented over SLF4J (http://www.slf4j.org) org.slf4j:jcl-over-slf4j:jar:1.7.36
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'Simple Logging Facade for Java' (https://www.slf4j.org/)
+
+  - SLF4J API Module (http://www.slf4j.org/slf4j-api) org.slf4j:slf4j-api:jar:1.7.36:compile
+    License: MIT style  (http://www.slf4j.org/license.html)
+
+
+From: 'The Apache Software Foundation' (https://www.apache.org/)
+
+  - Apache Mina SSHD :: Common support utilities (https://www.apache.org/sshd/sshd-common/) org.apache.sshd:sshd-common:jar:2.14.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Mina SSHD :: Core (https://www.apache.org/sshd/sshd-core/) org.apache.sshd:sshd-core:jar:2.14.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+
+
+
