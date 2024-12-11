@@ -278,10 +278,9 @@ public class Process
                                     }
                                     else
                                     {
+                                        logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
                                         if (context.cfg.getWhatsNewFilename().length() > 0)
                                         {
-                                            logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
-
                                             /*
                                              * Unless the -W or --whatsnew-all option is used:
                                              * Only show the left side of mismatches file. And Only show it once.
@@ -323,7 +322,7 @@ public class Process
                                         /* If the group is switching, process the current one. */
                                         if (context.transfer.isNewGrouping(item))
                                         {
-                                            // There is a new group - process the old group
+                                            // There is a new group - process the previous group
                                             logger.info("Switching groups from " + context.transfer.getLastGroupName() + " to " + context.transfer.getCurrentGroupName());
                                             context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite());
                                             totalSize = 0L;

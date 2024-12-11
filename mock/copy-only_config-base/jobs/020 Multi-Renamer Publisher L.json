@@ -14,10 +14,10 @@
           "type": 6
         }
       ],
-      "publisherKey": "_ANY_SERVER_",
-      "publisherPath": "",
+      "publisherKey": "ea30da9c-1823-4d33-b316-d66f6c892c3c",
+      "publisherPath": "libraries/Publisher.json",
       "subscriberKey": "",
-      "subscriberOverride": "true",
+      "subscriberOverride": "",
       "subscriberPath": "",
       "subscriberRemote": false
     },

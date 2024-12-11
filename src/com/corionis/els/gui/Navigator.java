@@ -511,6 +511,7 @@ public class Navigator
      */
     public void disconnectSubscriber(boolean clear)
     {
+        context.preferences.setLastSubscriberIsOpen(false);
         quitByeRemotes(true, false);
         NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
         root.loadTable();
@@ -950,12 +951,16 @@ public class Navigator
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
-                            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
+                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         if (file.isDirectory())
                         {
-                            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.open.error.select.a.file.only"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.open.error.select.a.file.only"),
+                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
 
@@ -967,7 +972,6 @@ public class Navigator
                             if (r != JOptionPane.YES_OPTION)
                                 break;
 
-                            context.preferences.setLastSubscriberIsOpen(false);
                             disconnectSubscriber();
 
                             quitByeRemotes(false, true);
@@ -1010,7 +1014,9 @@ public class Navigator
                         }
                         catch (Exception e)
                         {
+                            logger.error(Utils.getStackTrace(e));
                             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Open.publisher.error.opening.publisher.library") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            context.fault = false;
                             break;
                         }
                     }
@@ -1308,6 +1314,7 @@ public class Navigator
                         }
                         catch (Exception e)
                         {
+                            logger.error(Utils.getStackTrace(e));
                             context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                             JOptionPane.showMessageDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
@@ -1360,6 +1367,7 @@ public class Navigator
                                 return;
 
                             disconnectSubscriber(false);
+                            context.preferences.setLastSubscriberIsOpen(true);
                             try
                             {
                                 Thread.sleep(1000); // give the communications a moment to close
@@ -1454,6 +1462,7 @@ public class Navigator
                                 }
                                 catch (Exception e)
                                 {
+                                    logger.error(Utils.getStackTrace(e));
                                     context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                     disconnectSubscriber();
@@ -1550,9 +1559,11 @@ public class Navigator
                         }
                         catch (Exception e)
                         {
+                            logger.error(Utils.getStackTrace(e));
                             JOptionPane.showMessageDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.hint.keys.error.opening.hint.keys") + e.getMessage(),
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            context.fault = false;
                             break;
                         }
                     }
@@ -1789,6 +1800,7 @@ public class Navigator
                             }
                             catch (Exception e)
                             {
+                                logger.error(Utils.getStackTrace(e));
                                 context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                                 JOptionPane.showMessageDialog(context.mainFrame,
                                         context.cfg.gs("Navigator.menu.Open.hint.error.opening.hint.library") + e.getMessage(),
@@ -1822,6 +1834,7 @@ public class Navigator
                         }
                         catch (Exception e)
                         {
+                            logger.error(Utils.getStackTrace(e));
                             JOptionPane.showMessageDialog(context.mainFrame, e.getMessage(),
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
@@ -1929,7 +1942,6 @@ public class Navigator
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (r == JOptionPane.YES_OPTION)
                 {
-                    context.preferences.setLastSubscriberIsOpen(false);
                     disconnectSubscriber();
                     context.libraries.loadConfigurations();
 

@@ -462,7 +462,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
             if (tuo != null)
             {
                 context.mainFrame.textFieldLocation.setText(tuo.getDisplayPath());
-                context.browser.printProperties(tuo);
+                context.browser.propertiesPrint(tuo);
             }
         }
     }
