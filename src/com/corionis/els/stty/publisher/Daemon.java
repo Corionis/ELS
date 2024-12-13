@@ -491,7 +491,7 @@ public class Daemon extends AbstractDaemon
                                                 logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
                                             }
                                         }
-                                        response = transfer.copyGroup(group, totalSize, true);
+                                        response = transfer.copyGroup(group, totalSize, true, null, null);
                                         group.clear();
                                     }
                                     else

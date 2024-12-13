@@ -55,6 +55,7 @@ public class Main
     public String operationName = ""; // secondary invocation name
     public Context previousContext = null; // the previous Context during a secondary invocation
     public boolean primaryExecution = true;
+    public Process process = null;
     public boolean secondaryNavigator = false;
     public Date stamp = new Date(); // runtime stamp for this invocation
     public String whatsRunning = "";
@@ -504,7 +505,6 @@ public class Main
      */
     public void process(String[] args)
     {
-        Process process;
         ThreadGroup sessionThreads = null;
 
         context.cfg = new Configuration(context);
@@ -669,6 +669,7 @@ public class Main
                         // the Process class handles the ELS process
                         process = new Process(context);
                         process.process();
+                        process = null;
                     }
                     break;
 
@@ -803,6 +804,7 @@ public class Main
                                 // the Process class handles the ELS process
                                 process = new Process(context);
                                 process.process();
+                                process = null;
                             }
                         }
                     }

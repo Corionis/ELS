@@ -16,17 +16,23 @@ import java.util.ArrayList;
  */
 public class Process
 {
+    private Marker SHORT = MarkerManager.getMarker("SHORT");
+    private Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
     private Context context;
+    private String currentWhatsNew = "";
     private int differentSizes = 0;
     private int errorCount = 0;
     private boolean fault = false;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isInitialized = false;
     private boolean justScannedPublisher = false;
-    private transient Logger logger = LogManager.getLogger("applog");
+    private PrintWriter mismatchFile = null;
     private long totalDirectories = 0;
     private long totalItems = 0;
+    private int warnings = 0;
+    private PrintWriter whatsNewFile = null;
     private long whatsNewTotal = 0;
+    private transient Logger logger = LogManager.getLogger("applog");
 
     /**
      * Hide default constructor
@@ -136,6 +142,11 @@ public class Process
         context.publisherRepo.exportText();
     }
 
+    public int getWarnings()
+    {
+        return warnings;
+    }
+
     /**
      * Munge two collections
      * <p>
@@ -145,62 +156,26 @@ public class Process
      */
     private void munge() throws Exception
     {
-        PrintWriter mismatchFile = null;
-        PrintWriter whatsNewFile = null;
-        String currentWhatsNew = "";
         String currLib = "";
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
-        Marker SHORT = MarkerManager.getMarker("SHORT");
-        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
 
-        String header = "Munging collections " + context.publisherRepo.getLibraryData().libraries.description + " to " +
+        String header = context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description + (context.cfg.isDryRun() ? " (--dry-run)" : "");
 
-        // setup the -m mismatch output file
-        if (context.cfg.getMismatchFilename().length() > 0)
+        if (mismatchFile != null)
         {
-            String where = Utils.getWorkingFile(context.cfg.getMismatchFilename());
-            where = Utils.pipe(where);
-            where = Utils.unpipe(context.publisherRepo, where);
-            try
-            {
-                mismatchFile = new PrintWriter(where);
-                mismatchFile.println(header);
-                mismatchFile.println("");
-                logger.info("Writing to Mismatches file " + where);
-            }
-            catch (FileNotFoundException fnf)
-            {
-                fault = true;
-                String s = "File not found exception for Mismatches output file " + where;
-                logger.error(s);
-                throw new MungeException(s);
-            }
+            mismatchFile.println("Munging collections: " + header);
+            mismatchFile.println("");
         }
 
-        // setup the -w What's New output file
-        if (context.cfg.getWhatsNewFilename().length() > 0)
+        if (whatsNewFile != null)
         {
-            String where = Utils.getWorkingFile(context.cfg.getWhatsNewFilename());
-            where = Utils.pipe(where);
-            where = Utils.unpipe(context.publisherRepo, where);
-            try
-            {
-                whatsNewFile = new PrintWriter(where);
-                whatsNewFile.println("What's New");
-                logger.info("Writing to What's New file " + where);
-            }
-            catch (FileNotFoundException fnf)
-            {
-                fault = true;
-                String s = "File not found exception for What's New output file " + where;
-                logger.error(s);
-                throw new MungeException(s);
-            }
+            whatsNewFile.println("What's New: " + header);
         }
 
         logger.info(header);
+
         try
         {
             for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
@@ -214,10 +189,10 @@ public class Process
                 // if processing all libraries, or this one was specified on the command line with -l,
                 // and it has not been excluded with -L
                 if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(subLib.name)) &&
-                        (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(subLib.name))) 
+                        (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(subLib.name)))
                 {
                     // if the subscriber has included and not excluded this library
-                    if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE)) 
+                    if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE))
                     {
                         String n = subLib.name.replaceFirst(context.subscriberRepo.SUB_EXCLUDE, "");
                         logger.info("Skipping subscriber library: " + n);
@@ -279,53 +254,48 @@ public class Process
                                     else
                                     {
                                         logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
-                                        if (context.cfg.getWhatsNewFilename().length() > 0)
-                                        {
-                                            /*
-                                             * Unless the -W or --whatsnew-all option is used:
-                                             * Only show the left side of mismatches file. And Only show it once.
-                                             * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
-                                             * Big Bang Theory
-                                             * Lucifer
-                                             * Legion
-                                             */
-                                            if (!item.getLibrary().equals(currLib))
-                                            {
-                                                // If not first time display and reset the whatsNewTotal
-                                                if (!currLib.equals(""))
-                                                {
-                                                    whatsNewFile.println("    --------------------------------");
-                                                    whatsNewFile.println("    Number of " + currLib + " = " + whatsNewTotal);
-                                                    whatsNewFile.println("    ================================");
-                                                    whatsNewTotal = 0;
-                                                }
-                                                currLib = item.getLibrary();
-                                                whatsNewFile.println("");
-                                                whatsNewFile.println(currLib);
-                                                whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
-                                            }
-                                            String path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
-                                            if (context.cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
-                                            {
-                                                whatsNewFile.println("    " + (context.cfg.isWhatsNewAll() ? item.getItemPath() : path));
-                                                currentWhatsNew = path;
-                                                whatsNewTotal++;
-                                            }
-                                        }
-
-                                        if (context.cfg.getMismatchFilename().length() > 0)
-                                        {
-                                            assert mismatchFile != null;
-                                            mismatchFile.println(item.getFullPath());
-                                        }
 
                                         /* If the group is switching, process the current one. */
                                         if (context.transfer.isNewGrouping(item))
                                         {
                                             // There is a new group - process the previous group
                                             logger.info("Switching groups from " + context.transfer.getLastGroupName() + " to " + context.transfer.getCurrentGroupName());
-                                            context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite());
+                                            context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite(), whatsNewFile, mismatchFile);
                                             totalSize = 0L;
+
+                                            if (context.cfg.getWhatsNewFilename().length() > 0)
+                                            {
+                                                /*
+                                                 * Unless the -W or --whatsnew-all option is used:
+                                                 * Only show the left side of mismatches file. And Only show it once.
+                                                 * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
+                                                 * Big Bang Theory
+                                                 * Lucifer
+                                                 * Legion
+                                                 */
+                                                if (!item.getLibrary().equals(currLib))
+                                                {
+                                                    // If not first time display and reset the whatsNewTotal
+                                                    if (!currLib.equals(""))
+                                                    {
+                                                        whatsNewFile.println("    --------------------------------");
+                                                        whatsNewFile.println("    Number of " + currLib + " = " + whatsNewTotal);
+                                                        whatsNewFile.println("    ================================");
+                                                        whatsNewTotal = 0;
+                                                    }
+                                                    currLib = item.getLibrary();
+                                                    whatsNewFile.println("");
+                                                    whatsNewFile.println(currLib);
+                                                    whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
+                                                }
+                                                String path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
+                                                if (context.cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
+                                                {
+                                                    whatsNewFile.println("    " + (context.cfg.isWhatsNewAll() ? item.getItemPath() : path));
+                                                    currentWhatsNew = path;
+                                                    whatsNewTotal++;
+                                                }
+                                            }
 
                                             // Flush the output files
                                             if (context.cfg.getWhatsNewFilename().length() > 0)
@@ -354,6 +324,7 @@ public class Process
                     else
                     {
                         logger.warn("Subscribed publisher library " + subLib.name + " not found");
+                        ++warnings;
                     }
                 }
                 else
@@ -377,7 +348,7 @@ public class Process
                 {
                     // Process the last group
                     logger.info("Processing last group " + context.transfer.getCurrentGroupName());
-                    context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite());
+                    context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite(), whatsNewFile, mismatchFile);
                 }
                 catch (Exception e)
                 {
@@ -393,8 +364,11 @@ public class Process
             if (mismatchFile != null)
             {
                 mismatchFile.println("----------------------------------------------------");
+                mismatchFile.println("Warnings   : " + getWarnings());
+                mismatchFile.println("Errors     : " + errorCount);
                 mismatchFile.println("Total items: " + context.transfer.getGrandTotalItems());
                 mismatchFile.println("Total size : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true, context.cfg.getLongScale()));
+                mismatchFile.println("");
                 mismatchFile.close();
             }
             if (whatsNewFile != null)
@@ -402,6 +376,10 @@ public class Process
                 whatsNewFile.println("    --------------------------------");
                 whatsNewFile.println("    Total for " + currLib + " = " + whatsNewTotal);
                 whatsNewFile.println("    ================================");
+                whatsNewFile.println("");
+                whatsNewFile.println("Warnings   : " + getWarnings());
+                whatsNewFile.println("Errors     : " + errorCount);
+                whatsNewFile.println("");
                 whatsNewFile.close();
             }
         }
@@ -446,6 +424,7 @@ public class Process
         logger.info(SHORT, "# Directories      : " + totalDirectories);
         logger.info(SHORT, "# Files            : " + totalItems);
         logger.info(SHORT, "# Copies           : " + context.transfer.getCopyCount() + ((!context.cfg.isDryRun() && context.transfer.getCopyCount() > 0) ? ", " + context.transfer.getGrandTotalOriginalLocation() + " of which went to original locations" : "") + (context.cfg.isDryRun() ? " (--dry-run)" : ""));
+        logger.info(SHORT, "# Warnings         : " + getWarnings());
         logger.info(SHORT, "# Errors           : " + errorCount);
         logger.info(SHORT, "# Items processed  : " + context.transfer.getGrandTotalItems());
         logger.info(SHORT, "# Total size       : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true, context.cfg.getLongScale()));
@@ -472,6 +451,46 @@ public class Process
                 context.transfer = new Transfer(context);
                 context.transfer.initialize();
                 isInitialized = true;
+            }
+
+            // setup the -m mismatch output file
+            if (context.cfg.getMismatchFilename().length() > 0)
+            {
+                String where = Utils.getWorkingFile(context.cfg.getMismatchFilename());
+                where = Utils.pipe(where);
+                where = Utils.unpipe(context.publisherRepo, where);
+                try
+                {
+                    mismatchFile = new PrintWriter(where);
+                    logger.info("Writing to Mismatches file " + where);
+                }
+                catch (FileNotFoundException fnf)
+                {
+                    fault = true;
+                    String s = "File not found exception for Mismatches output file " + where;
+                    logger.error(s);
+                    throw new MungeException(s);
+                }
+            }
+
+            // setup the -w What's New output file
+            if (context.cfg.getWhatsNewFilename().length() > 0)
+            {
+                String where = Utils.getWorkingFile(context.cfg.getWhatsNewFilename());
+                where = Utils.pipe(where);
+                where = Utils.unpipe(context.publisherRepo, where);
+                try
+                {
+                    whatsNewFile = new PrintWriter(where);
+                    logger.info("Writing to What's New file " + where);
+                }
+                catch (FileNotFoundException fnf)
+                {
+                    fault = true;
+                    String s = "File not found exception for What's New output file " + where;
+                    logger.error(s);
+                    throw new MungeException(s);
+                }
             }
 
             // process ELS Hints locally, targets and no subscriber
@@ -522,8 +541,8 @@ public class Process
                     else
                     {
                         if (!context.cfg.isDuplicateCheck() && !context.cfg.isEmptyDirectoryCheck() && !context.cfg.isValidation() &&
-                            !context.cfg.getPublisherFilename().isEmpty() && !context.cfg.getSubscriberFilename().isEmpty())
-                            logger.warn("Something missing? Make sure publisher and subscriber are specified for backup operation");
+                                !context.cfg.getPublisherFilename().isEmpty() && !context.cfg.getSubscriberFilename().isEmpty())
+                            logger.warn("Something missing? Make sure publisher, subscriber and -T option are specified for backup operation");
                     }
                 }
             }
@@ -662,6 +681,11 @@ public class Process
                 }
             }
         }
+    }
+
+    public void setWarnings(int warnings)
+    {
+        this.warnings = warnings;
     }
 
 } // Process

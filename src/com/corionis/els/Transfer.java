@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
@@ -119,7 +120,8 @@ public class Transfer
      * @param overwrite whether to overwrite any existing target file
      * @throws MungeException the els exception
      */
-    public String copyGroup(ArrayList<Item> group, long totalSize, boolean overwrite) throws Exception
+    public String copyGroup(ArrayList<Item> group, long totalSize, boolean overwrite,
+                            PrintWriter whatsNewFile, PrintWriter mismatchFile) throws Exception
     {
         String response = "";
         if (!context.cfg.isTargetsEnabled())
@@ -161,11 +163,23 @@ public class Transfer
 
                         grandTotalItems = grandTotalItems + 1;
                         grandTotalSize = grandTotalSize + groupItem.getSize();
+
+                        if (mismatchFile != null)
+                            mismatchFile.println(to);
                     }
                     else
                     {
-                        throw new MungeException(MessageFormat.format(context.cfg.gs("Transfer.no.space.on.any.target.location"),
-                                group.get(0).getLibrary(), lastGroupName, Utils.formatLong(totalSize, false, context.cfg.getLongScale())));
+                        response = MessageFormat.format(context.cfg.gs("Transfer.no.space.on.any.target.location"),
+                                group.get(0).getLibrary(), lastGroupName,
+                                Utils.formatLong(totalSize, false, context.cfg.getLongScale()), groupItem.getItemShortName());
+                        logger.warn(response);
+                        if (context.main.process != null)
+                            context.main.process.setWarnings(context.main.process.getWarnings() + 1);
+                        if (whatsNewFile != null)
+                            whatsNewFile.println("    " + response);
+                        if (mismatchFile != null)
+                            mismatchFile.println("Warning: " + response);
+                        break;
                     }
                 }
             }
@@ -515,6 +529,8 @@ public class Transfer
         if (i < 0)
         {
             logger.warn(context.cfg.gs("Transfer.no.subdirectory.in.path") + publisherItem.getItemPath());
+            if (context.main.process != null)
+                context.main.process.setWarnings(context.main.process.getWarnings() + 1);
             return true;
         }
         String path = publisherItem.getItemPath().substring(0, i);

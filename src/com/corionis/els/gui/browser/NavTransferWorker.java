@@ -271,7 +271,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             if (directory == null || directory.length() == 0)
             {
                 throw new MungeException(MessageFormat.format(context.cfg.gs("Transfer.no.space.on.any.target.location"),
-                        targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(batchSize, false, context.cfg.getLongScale())));
+                        targetRepo.getLibraryData().libraries.description, targetTuo.name,
+                        Utils.formatLong(batchSize, false, context.cfg.getLongScale()), sourceTuo.name));
             }
         }
         else if (targetTuo.type == NavTreeUserObject.DRIVE || targetTuo.type == NavTreeUserObject.HOME)
@@ -291,7 +292,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         if (checkSpace && !context.transfer.itFits(targetRepo, directory, targetTuo.isRemote, batchSize, 0, false))
         {
             throw new MungeException(MessageFormat.format(context.cfg.gs("Transfer.no.space.on.any.target.location"),
-                    targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(batchSize, false, context.cfg.getLongScale())));
+                    targetRepo.getLibraryData().libraries.description, targetTuo.name,
+                    Utils.formatLong(batchSize, false, context.cfg.getLongScale()), sourceTuo.name));
         }
 
         int dirPos = Utils.rightIndexOf(sourceTuo.path, sourceSep, (targetTuo.isDir ? 0 : depth));
