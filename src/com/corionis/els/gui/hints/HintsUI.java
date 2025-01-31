@@ -3,10 +3,7 @@ package com.corionis.els.gui.hints;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
-import com.corionis.els.gui.bookmarks.Bookmark;
 import com.corionis.els.gui.browser.BrowserTableCellRenderer;
-import com.corionis.els.gui.browser.NavTreeNode;
-import com.corionis.els.gui.browser.NavTreeUserObject;
 import com.corionis.els.hints.Hint;
 import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintStatus;
@@ -22,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.tree.TreePath;
 
 public class HintsUI extends JDialog
 {
@@ -356,7 +352,7 @@ public class HintsUI extends JDialog
         {
             try
             {
-                String result = context.hintsHandler.hintsMunge(pendingFor, isPublisher, model);
+                String result = context.hintsHandler.hintsMunge(pendingFor, isPublisher, model, null);
                 if (!result.toLowerCase().equals("false"))
                 {
                     if (context.preferences.isAutoRefresh())
@@ -761,7 +757,7 @@ public class HintsUI extends JDialog
                     //---- tableHints ----
                     tableHints.setFillsViewportHeight(true);
                     tableHints.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                    tableHints.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                    tableHints.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
                     tableHints.setShowHorizontalLines(false);
                     tableHints.setShowVerticalLines(false);
                     tableHints.setAutoCreateRowSorter(true);

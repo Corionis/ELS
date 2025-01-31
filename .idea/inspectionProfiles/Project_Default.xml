@@ -1,6 +1,14 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="ExtractMethodRecommender" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="maxParameters" value="2" />
+    </inspection_tool>
+    <inspection_tool class="LoggingSimilarMessage" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="PointlessBooleanExpression" enabled="false" level="WARNING" enabled_by_default="false">
+      <option name="m_ignoreExpressionsContainingConstants" value="true" />
+    </inspection_tool>
+    <inspection_tool class="RedundantLengthCheck" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="SizeReplaceableByIsEmpty" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoredTypes">
         <set>
@@ -8,5 +16,6 @@
         </set>
       </option>
     </inspection_tool>
+    <inspection_tool class="UnnecessaryToStringCall" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>

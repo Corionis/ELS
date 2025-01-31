@@ -54,12 +54,15 @@ public class Transfer
     /**
      * Copy a file, local or remote
      *
-     * @param from      the full from path
-     * @param to        the full to path
-     * @param isRemote  true/false
-     * @param overwrite true/false
+     * @param sftp          Which sftp to use
+     * @param from          The from path
+     * @param filetime      The from file FileTime
+     * @param to            The to path
+     * @param isRemote       true/false
+     * @param overwrite     true/false
      */
-    public synchronized void copyFile(ClientSftp sftp, String from, FileTime filetime, String to, boolean isRemote, boolean overwrite) throws Exception
+    public synchronized void copyFile(ClientSftp sftp, String from, FileTime filetime, String to,
+                                      boolean isRemote, boolean overwrite) throws Exception
     {
         if (isRemote)
         {
@@ -69,8 +72,10 @@ public class Transfer
         }
         else
         {
-            if (to.matches("^\\\\[a-zA-Z]:.*"))
+            from = Utils.getFullPathLocal(from);
+            if (to.matches("^\\\\[a-zA-Z]:.*") || to.matches("^/[a-zA-Z]:.*"))
                 to = to.substring(1);
+            to = Utils.getFullPathLocal(to);
             File f = new File(to);
             if (f != null)
             {
@@ -223,11 +228,11 @@ public class Transfer
         if (isRemote && !context.localMode)
         {
             // remote subscriber
-            space = context.clientStty.availableSpace(path);
+            space = context.clientStty.availableSpace(context.cfg.getFullPathSubscriber(path));
         }
         else
         {
-            space = Utils.availableSpace(path);
+            space = Utils.availableSpace(Utils.getFullPathLocal(path));
         }
         return space;
     }
@@ -388,7 +393,7 @@ public class Transfer
         // see if there is an "original" directory the new content will fit in
         if (!context.cfg.isNoBackFill())
         {
-            path = targetRepo.hasDirectory(library, Utils.pipe(sourceRepo, itemPath));
+            path = targetRepo.hasDirectory(library, Utils.pipe(itemPath));
             if (path != null)
             {
                 // check size of item(s) to be copied
@@ -479,6 +484,9 @@ public class Transfer
                     {
                         logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
                     }
+
+                    String directory = context.clientStty.getWorkingDirectoryRemote();
+                    context.cfg.setWorkingDirectorySubscriber(directory);
                 }
             }
 
@@ -599,8 +607,9 @@ public class Transfer
         }
         else
         {
-            if (create.matches("^\\\\[a-zA-Z]:.*"))
+            if (create.matches("^\\\\[a-zA-Z]:.*") || create.matches("^/[a-zA-Z]:.*"))
                 create = create.substring(1);
+            create = Utils.getFullPathLocal(create);
             File f = new File(create);
             if (f != null)
             {
@@ -642,7 +651,7 @@ public class Transfer
             repo.scan(toLib.name);
         }
 
-        Collection collection = repo.getMapItem(fromLib, Utils.pipe(repo, hint.fromItemPath));
+        Collection collection = repo.getMapItem(fromLib, Utils.pipe(hint.fromItemPath));
         if (collection != null)
         {
             Iterator it = collection.iterator();
@@ -680,7 +689,7 @@ public class Transfer
                             // remove the physical directory; should be empty at this point
                             if (!context.cfg.isDryRun())
                             {
-                                File prevDir = new File(fromItem.getFullPath());
+                                File prevDir = new File(Utils.getFullPathLocal(fromItem.getFullPath()));
                                 if (Utils.removeDirectoryTree(prevDir))
                                 {
                                     logger.warn(context.cfg.gs("Transfer.previous.directory.was.not.empty") + fromItem.getFullPath());
@@ -736,20 +745,16 @@ public class Transfer
      */
     public synchronized void moveFile(String from, FileTime filetime, String to, boolean overwrite) throws Exception
     {
-        Path fromPath = Paths.get(from).toRealPath();
-        Path toPath = Paths.get(to);
-        File f = new File(to);
+        Path fromPath = Paths.get(Utils.getFullPathLocal(from));
+        Path toPath = Paths.get(Utils.getFullPathLocal(to));
+        File f = new File(Utils.getFullPathLocal(to));
         if (f != null)
         {
             f.getParentFile().mkdirs();
         }
+        Files.move(fromPath, toPath, (overwrite) ? REPLACE_EXISTING : null);
         if (context.cfg.isPreserveDates() && filetime != null)
-            Files.move(fromPath, toPath, (overwrite) ? REPLACE_EXISTING : null);
-        else
-        {
-            Files.move(fromPath, toPath, (overwrite) ? REPLACE_EXISTING : null);
             touch(to, false);
-        }
     }
 
     /**
@@ -766,7 +771,7 @@ public class Transfer
 
         // see if it still exists
         String fromPath = repo.normalizePath(repo.getLibraryData().libraries.flavor, fromItem.getFullPath());
-        File fromFile = new File(fromPath);
+        File fromFile = new File(Utils.getFullPathLocal(fromPath));
         if (fromFile.exists())
         {
             String toPath = repo.normalizePath(repo.getLibraryData().libraries.flavor, toItem.getFullPath());
@@ -780,7 +785,7 @@ public class Transfer
             }
 
             // perform move / rename
-            File toFile = new File(toPath);
+            File toFile = new File(Utils.getFullPathLocal(toPath));
             if (toFile.exists())
             {
                 logger.info(context.cfg.gs("Transfer.target.exists.will.overwrite") + toItem.getFullPath());
@@ -806,23 +811,34 @@ public class Transfer
     /**
      * Remove a file, local or remote
      *
-     * @param sftp     The sftp channel to use
      * @param path     The full from path
-     * @param isDir    If this specific path is a directory
      * @param isRemote If this specific path is remote
      */
-    public void remove(ClientSftp sftp, String path, boolean isDir, boolean isRemote) throws Exception
+    public void remove(String path, boolean isRemote) throws Exception
     {
         if (isRemote)
         {
-            sftp.remove(path, isDir);
+            String response = context.clientStty.roundTrip("remove \"" + path + "\"", "", 10000);
+            if (response != null && !response.equals("true"))
+                logger.warn("Remote delete failed: " + path);
+            //sftp.remove(context.cfg.getFullRemotePath(path), isDir);  This does not follow symbolic links
         }
         else
         {
-            if (path.matches("^\\\\[a-zA-Z]:.*"))
-                path = path.substring(1);
-            Path fromPath = Paths.get(path).toRealPath();
-            Files.delete(fromPath);
+            try
+            {
+                if (path.matches("^\\\\[a-zA-Z]:.*") || path.matches("^/[a-zA-Z]:.*"))
+                    path = path.substring(1);
+                Path fromPath = Paths.get(Utils.getFullPathLocal(path));
+                Files.delete(fromPath);
+            }
+            catch (Exception e)
+            {
+                if (!(e instanceof java.nio.file.NoSuchFileException)) // ignore file not found exceptions
+                {
+                    logger.error(Utils.getStackTrace(e));
+                }
+            }
         }
     }
 
@@ -844,7 +860,7 @@ public class Transfer
             return false;
         }
 
-        Collection collection = repo.getMapItem(fromLib, Utils.pipe(repo, hint.fromItemPath));
+        Collection collection = repo.getMapItem(fromLib, Utils.pipe(hint.fromItemPath));
         if (collection != null)
         {
             Iterator it = collection.iterator();
@@ -853,7 +869,6 @@ public class Transfer
                 for (int i = 0; i < collection.size(); ++i) // generally there is only one
                 {
                     Integer j = (Integer) it.next();
-
                     Item fromItem = fromLib.items.elementAt(j);
 
                     if (fromItem.isDirectory())
@@ -866,7 +881,7 @@ public class Transfer
                         {
                             // remove the physical directory
                             String rmPath = repo.normalizePath(repo.getLibraryData().libraries.flavor, fromItem.getFullPath());
-                            File rmdir = new File(rmPath);
+                            File rmdir = new File(Utils.getFullPathLocal(rmPath));
                             if (Utils.removeDirectoryTree(rmdir))
                             {
                                 logger.warn(context.cfg.gs("Transfer.previous.directory.was.not.empty") + fromItem.getFullPath());
@@ -885,7 +900,7 @@ public class Transfer
                         else
                         {
                             String rmPath = repo.normalizePath(repo.getLibraryData().libraries.flavor, fromItem.getFullPath());
-                            File rmFile = new File(rmPath);
+                            File rmFile = new File(Utils.getFullPathLocal(rmPath));
                             if (rmFile.delete())
                             {
                                 logger.info(context.cfg.gs("Transfer.rm.file") + "\"" + fromItem.getFullPath() + "\"");
@@ -924,9 +939,9 @@ public class Transfer
         }
         else
         {
-            if (to.matches("^\\\\[a-zA-Z]:.*"))
+            if (to.matches("^\\\\[a-zA-Z]:.*") || to.matches("^/[a-zA-Z]:.*"))
                 to = to.substring(1);
-            Files.move(Paths.get(from), Paths.get(to), StandardCopyOption.ATOMIC_MOVE);
+            Files.move(Paths.get(Utils.getFullPathLocal(from)), Paths.get(Utils.getFullPathLocal(to)), StandardCopyOption.ATOMIC_MOVE);
         }
     }
 
@@ -942,8 +957,9 @@ public class Transfer
         if (context.cfg.isRemoteOperation())
         {
             // request collection data from remote subscriber
-            String location = context.clientStty.retrieveRemoteData("collection",
-                    context.cfg.gs("Transfer.requesting.subscriber.collection"), -1);
+            String log = MessageFormat.format(context.cfg.gs("Transfer.requesting.subscriber.collection"),
+                    context.subscriberRepo.getLibraryData().libraries.description);
+            String location = context.clientStty.retrieveRemoteData("collection", log, -1);
             if (location == null || location.length() < 1)
                 throw new MungeException(context.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"));
             context.cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
@@ -953,7 +969,7 @@ public class Transfer
     }
 
     /**
-     * Request the remote end send it's library JSON for the Navigator
+     * Request the remote end send its library JSON for the Navigator
      *
      * @throws Exception
      */
@@ -962,8 +978,9 @@ public class Transfer
         if (context.cfg.isRemoteOperation())
         {
             // request collection data from remote subscriber
-            String location = context.clientStty.retrieveRemoteData("library",
-                    context.cfg.gs("Transfer.requesting.subscriber.library"), 20000);
+            String log = MessageFormat.format(context.cfg.gs("Transfer.requesting.subscriber.library"),
+                    context.subscriberRepo.getLibraryData().libraries.description);
+            String location = context.clientStty.retrieveRemoteData("library", log, 20000);
             if (location == null || location.length() < 1)
                 throw new MungeException(context.cfg.gs("Transfer.could.not.retrieve.remote.library.file"));
             context.cfg.setSubscriberCollectionFilename(""); // clear so the library file will be used
@@ -1033,9 +1050,9 @@ public class Transfer
         }
         else
         {
-            if (path.matches("^\\\\[a-zA-Z]:.*"))
+            if (path.matches("^\\\\[a-zA-Z]:.*") || path.matches("^/[a-zA-Z]:.*"))
                 path = path.substring(1);
-            Path file = Paths.get(path);
+            Path file = Paths.get(Utils.getFullPathLocal(path));
             FileTime ft = FileTime.fromMillis(millis);
             Files.setLastModifiedTime(file, ft);
         }

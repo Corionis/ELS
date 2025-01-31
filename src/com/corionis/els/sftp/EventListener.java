@@ -119,7 +119,7 @@ public class EventListener implements SftpEventListener
     @Override
     public void open(ServerSession session, String remoteHandle, Handle localHandle) throws IOException
     {
-        logger.debug("Sftp: open " + localHandle.getFile().toString());
+        logger.info("Sftp: open " + localHandle.getFile().toString());
     }
 
     @Override

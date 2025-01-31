@@ -14,7 +14,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +109,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 //            else
 //                localContext.progress = null;
 
-        // iterate the selected source row's user object
+            // iterate the selected source row's user object
             for (NavTreeUserObject sourceTuo : transferData)
             {
                 if (!isRunning())
@@ -160,6 +159,9 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         }
         if (isCancelled())
             logger.trace(context.cfg.gs("NavTransferWorker.cancelled"));
+
+        context.progress.redraw();
+
         return null;
     }
 
@@ -174,13 +176,13 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         String msg = (running) ? context.cfg.gs("Transfer.of.complete") : context.cfg.gs("Transfer.of.cancelled");
         msg = MessageFormat.format(msg, filesToCopy);
         long now = System.currentTimeMillis();
-        long diff = now - context.progress.getStartTime() ;
+        long diff = now - context.progress.getStartTime();
         diff = diff / 1000; // convert to seconds
         if (diff > 0)
         {
             String duration = Utils.formatDuration(diff);
             msg += ": " + Utils.formatLong(context.progress.getTotalBytesCopied(), false, context.cfg.getLongScale()) + ", " +
-                    duration + ", " + Utils.formatRate(context.progress.getAverageBps(), context.cfg.getLongScale());
+                    duration + ", average " + Utils.formatRate(context.progress.getAverageBps(), context.cfg.getLongScale());
         }
         context.mainFrame.labelStatusMiddle.setText(msg);
         logger.info(msg);
@@ -193,6 +195,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         if (context.progress != null)
         {
             context.progress.done();
+            context.progress.dispose();
             context.progress = null;
         }
 
@@ -296,6 +299,14 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                     Utils.formatLong(batchSize, false, context.cfg.getLongScale()), sourceTuo.name));
         }
 
+        if (Utils.isRelativePath(directory))
+        {
+            if (targetRepo.getPurpose() == Repository.PUBLISHER)
+                directory = Utils.getFullPathLocal(directory);
+            else if (targetRepo.getPurpose() == Repository.SUBSCRIBER)
+                directory = context.cfg.getFullPathSubscriber(directory);
+        }
+
         int dirPos = Utils.rightIndexOf(sourceTuo.path, sourceSep, (targetTuo.isDir ? 0 : depth));
         filename = sourceTuo.path.substring(dirPos);
         filename = Utils.pipe(filename);
@@ -345,6 +356,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         if (toNode == null)
         {
             toNode = (NavTreeNode) sourceTuo.node.clone();
+            toNode.setMyRepo(targetTuo.node.getMyRepo());
             toNode.setMyTree(targetTuo.node.getMyTree());
             toNode.setMyTable(targetTuo.node.getMyTable());
             toNode.setMyStatus(targetTuo.node.getMyStatus());
@@ -359,10 +371,13 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         toTuo.node = toNode;
         toTuo.path = path;
         toTuo.isRemote = !targetIsPublisher && context.cfg.isRemoteOperation();
-        toTuo.file = new File(path);
-        if (!toTuo.isRemote || (toTuo.isRemote && !context.cfg.isPreserveDates()))
-            toTuo.fileTime = FileTime.fromMillis(toTuo.file.lastModified());
+        toTuo.fileTime = sourceTuo.fileTime;
         toNode.setAllowsChildren(toTuo.isDir);
+
+        if (toNode.getMyRepo().getPurpose() == Repository.PUBLISHER)
+            toTuo.file = new File(Utils.getFullPathLocal(path));
+        else if (toNode.getMyRepo().getPurpose() == Repository.SUBSCRIBER)
+            toTuo.file = new File(context.cfg.getFullPathSubscriber(path));
 
         // add the new node on the target
         if (!exists && !context.cfg.isDryRun())
@@ -392,7 +407,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 {
                     ++depth;
                     if ((error = transferDirectory(childTuo, targetTree, toNodeTuo)) == true)
-                    --depth;
+                        --depth;
                 }
                 else
                 {
@@ -454,13 +469,9 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 if (!context.cfg.isDryRun())
                 {
                     if (action == TransferHandler.MOVE)
-                    {
                         context.transfer.moveFile(sourceTuo.path, sourceTuo.fileTime, path, true);
-                    }
                     else
-                    {
                         context.transfer.copyFile(context.clientSftpMetadata, sourceTuo.path, sourceTuo.fileTime, path, false, true);
-                    }
                     setupToNode(sourceTuo, targetTuo, path);
                 }
             }
@@ -484,12 +495,13 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                     Files.createDirectories(Paths.get(dir));
                     context.clientSftpMetadata.get(sourceTuo.path, path);
 
-                    setupToNode(sourceTuo, targetTuo, path);
                     if (context.preferences.isPreserveFileTimes())
-                        Files.setLastModifiedTime(Paths.get(path), sourceTuo.fileTime);
+                        Files.setLastModifiedTime(Paths.get(Utils.getFullPathLocal(path)), sourceTuo.fileTime);
+
+                    setupToNode(sourceTuo, targetTuo, path);
                 }
             }
-            else if (sourceTuo.isRemote && targetTuo.isRemote)
+            else // if (sourceTuo.isRemote && targetTuo.isRemote)
             {
                 // send command to remote
                 logger.info(context.cfg.gs("Z.remote.uppercase") + msg);
@@ -498,11 +510,13 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                     String command;
                     if (action == TransferHandler.MOVE)
                     {
-                        command = "move \"" + sourceTuo.path + "\" \"" + path + "\"";
+                        command = "move \"" + context.cfg.getFullPathSubscriber(sourceTuo.path) +
+                                "\" \"" + context.cfg.getFullPathSubscriber(path) + "\"";
                     }
                     else
                     {
-                        command = "copy \"" + sourceTuo.path + "\" \"" + path + "\"";
+                        command = "copy \"" + context.cfg.getFullPathSubscriber(sourceTuo.path) +
+                                "\" \"" + context.cfg.getFullPathSubscriber(path) + "\"";
                     }
                     String response = context.clientStty.roundTrip(command, "Sending command: " + command, -1);
                     if (response.equalsIgnoreCase("true"))

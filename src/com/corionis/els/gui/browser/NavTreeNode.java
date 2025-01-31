@@ -26,18 +26,18 @@ import java.util.List;
 public class NavTreeNode extends DefaultMutableTreeNode
 {
     private final boolean traceActions = false; // dev-debug
+    public Context context;
     public SortFoldersBeforeFiles sortFoldersBeforeFiles;
     public SortTreeAlphabetically sortTreeAlphabetically;
-    public Context context;
     private boolean forceReload = false;
     private boolean loaded = false;
-    private transient Logger logger = LogManager.getLogger("applog");
     private Repository myRepo;
     private JLabel myStatus;
     private JTable myTable;
     private JTree myTree;
     private boolean refresh = true;
     private boolean shown = true;
+    private transient Logger logger = LogManager.getLogger("applog");
 
     private NavTreeNode()
     {
@@ -78,19 +78,6 @@ public class NavTreeNode extends DefaultMutableTreeNode
         }
     }
 
-    @Override
-    public Object clone()
-    {
-        NavTreeNode object = new NavTreeNode(context, myRepo, myTree);
-        object.loaded = this.loaded;
-        object.refresh = this.refresh;
-        object.shown = this.shown;
-        NavTreeUserObject tuo = (NavTreeUserObject) this.getUserObject().clone();
-        tuo.node = this;
-        object.setUserObject(tuo);
-        return object;
-    }
-
     public ArrayList<NavTreeUserObject> addChildUserObjectsToList(ArrayList<NavTreeUserObject> list)
     {
         for (int i = 0; i < getChildCount(); ++i)
@@ -104,6 +91,19 @@ public class NavTreeNode extends DefaultMutableTreeNode
             }
         }
         return list;
+    }
+
+    @Override
+    public Object clone()
+    {
+        NavTreeNode object = new NavTreeNode(context, myRepo, myTree);
+        object.loaded = this.loaded;
+        object.refresh = this.refresh;
+        object.shown = this.shown;
+        NavTreeUserObject tuo = (NavTreeUserObject) this.getUserObject().clone();
+        tuo.node = this;
+        object.setUserObject(tuo);
+        return object;
     }
 
     public int deepGetFileCount()
@@ -360,6 +360,11 @@ public class NavTreeNode extends DefaultMutableTreeNode
         return index;
     }
 
+    public boolean isForceReload()
+    {
+        return forceReload;
+    }
+
     @Override
     public boolean isLeaf()
     {
@@ -367,11 +372,6 @@ public class NavTreeNode extends DefaultMutableTreeNode
         if (tuo != null)
             return !tuo.isDir;
         return false;
-    }
-
-    public boolean isForceReload()
-    {
-        return forceReload;
     }
 
     public boolean isLoaded()
@@ -423,7 +423,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
 
                     myTable.updateUI();
                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                 }
+                }
                 catch (Exception e)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTreeNode.swing.worker.fault.during.get.of") +
@@ -501,6 +501,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
     {
         NavTreeUserObject myTuo;
         List<NavTreeNode> nodeArray;
+        String path = "undefined";
 
         nodeArray = new ArrayList<NavTreeNode>();
         myTuo = (NavTreeUserObject) getUserObject();
@@ -526,38 +527,43 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     {
                         if (myTuo.isRemote)
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.getDisplayPath());
-                            scanRemote(myTuo, myTuo.getPath(), nodeArray, recursive);
+                            path = context.cfg.getFullPathSubscriber(myTuo.getPath());
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.drive") + path);
+                            scanRemote(myTuo, path, nodeArray, recursive);
                         }
                         else
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.getDisplayPath());
-                            scanLocal(new File(myTuo.getPath()).getAbsoluteFile(), nodeArray, recursive);
+                            path = Utils.getFullPathLocal(myTuo.getPath());
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.drive") + path);
+                            scanLocal(new File(path), nodeArray, recursive);
                         }
                     }
                     break;
                 case NavTreeUserObject.HOME:
-                    File file = new File(myTuo.getPath());
+                    File file = new File(Utils.getFullPathLocal(myTuo.getPath()));
                     if (file.isDirectory())
                     {
-                        logger.info(context.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.getDisplayPath());
-                        scanLocal(file.getAbsoluteFile(), nodeArray, recursive);
+                        path = file.getPath();
+                        logger.info(context.cfg.gs("NavTreeNode.scanning.home.directory") + path);
+                        scanLocal(file, nodeArray, recursive);
                     }
                     break;
                 case NavTreeUserObject.LIBRARY:
                     if (myTuo.sources != null && myTuo.sources.length > 0)
                     {
-                        for (String path : myTuo.sources)
+                        for (String source : myTuo.sources)
                         {
                             if (myTuo.isRemote)
                             {
+                                path = context.cfg.getFullPathSubscriber(source);
                                 logger.info(context.cfg.gs("NavTreeNode.scanning.remote.library") + path);
                                 scanRemote(myTuo, path, nodeArray, recursive);
                             }
                             else
                             {
+                                path = Utils.getFullPathLocal(source);
                                 logger.info(context.cfg.gs("NavTreeNode.scanning.local.library") + path);
-                                scanLocal(new File(path).getAbsoluteFile(), nodeArray, recursive);
+                                scanLocal(new File(path), nodeArray, recursive);
                             }
                         }
                     }
@@ -567,13 +573,15 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     {
                         if (myTuo.isRemote)
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.getDisplayPath());
-                            scanRemote(myTuo, myTuo.getPath(), nodeArray, recursive);
+                            path = myTuo.getPath();
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.directory") + path);
+                            scanRemote(myTuo, path, nodeArray, recursive);
                         }
                         else
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.getDisplayPath());
-                            scanLocal(myTuo.file.getAbsoluteFile(), nodeArray, recursive);
+                            path = myTuo.file.getPath();
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.directory") + path);
+                            scanLocal(myTuo.file, nodeArray, recursive);
                         }
                     }
                     break;
@@ -582,7 +590,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
         catch (Exception e)
         {
             String msg = context.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") +
-                    context.subscriberRepo.getLibraryData().libraries.description;
+                    context.subscriberRepo.getLibraryData().libraries.description + ", " + path;
             logger.error(msg);
             context.fault = true;
             JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -595,11 +603,11 @@ public class NavTreeNode extends DefaultMutableTreeNode
         if (file.isDirectory())
         {
             File[] files = FileSystemView.getFileSystemView().getFiles(file, (Utils.isOsMac() ? true : false));
-            logger.info(Utils.formatInteger(files.length) + context.cfg.gs("NavTreeNode.received.entries.from") + file.getAbsolutePath());
+            logger.info(Utils.formatInteger(files.length) + context.cfg.gs("NavTreeNode.received.entries.from") + file.getPath());
             for (File entry : files)
             {
                 NavTreeNode node = new NavTreeNode(context, myRepo, myTree);
-                NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getName(), entry);
+                NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getName(), file.getPath(), entry);
                 node.setNavTreeUserObject(tuo);
                 if (!entry.isDirectory())
                     node.setVisible(false);
@@ -616,12 +624,19 @@ public class NavTreeNode extends DefaultMutableTreeNode
         }
     }
 
-    protected void scanRemote(NavTreeUserObject myTuo, String target, List<NavTreeNode> nodeArray, boolean recursive) throws Exception
+    protected void scanRemote(NavTreeUserObject myTuo, String directory, List<NavTreeNode> nodeArray, boolean recursive) throws Exception
     {
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        Vector listing = context.clientSftp.listDirectory(target);
+        Vector listing = context.clientSftp.listDirectory(directory);
         logger.info(Utils.formatInteger(listing.size()) + context.cfg.gs("NavTreeNode.received.entries.from") + myTuo.getDisplayPath());
+
+        if (directory.matches("^\\\\[a-zA-Z]:.*") || directory.matches("^/[a-zA-Z]:.*"))
+            directory = directory.substring(1);
+
+        if (directory.endsWith("/") || directory.endsWith("\\"))
+            directory = directory.substring(0, directory.length() - 1);
+
         for (int i = 0; i < listing.size(); ++i)
         {
             ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
@@ -631,21 +646,29 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 String longname = entry.getLongname();
                 if (longname.matches("(?i).*OWNER\\@.*GROUP\\@.*") ||
                         (longname.matches("(?i).*Administrators.*BUILTIN.*")) ||
+                        (longname.matches("(?i).*NTUSER\\.DAT.*")) ||
                         (longname.matches("(?i).*TrustedInstaller.*NT SERVICE.*") &&
                                 !(entry.getFilename().toLowerCase().startsWith("program files") || entry.getFilename().toLowerCase().equals("windows"))) ||
-                        entry.getFilename().equals("BOOTNXT") ||
-                        entry.getFilename().equals("ProgramData") ||
                         entry.getFilename().equalsIgnoreCase("$Recycle.Bin") ||
-                        entry.getFilename().equals("Documents and Settings"))
+                        entry.getFilename().equalsIgnoreCase("$SysReset") ||
+                        entry.getFilename().equalsIgnoreCase("$WINRE_BACKUP_PARTITION.MARKER") ||
+                        entry.getFilename().equals("BOOTNXT") ||
+                        entry.getFilename().equals("Documents and Settings") ||
+                        entry.getFilename().equals("DumpStack.log.tmp") ||
+                        entry.getFilename().equals("pagefile.sys") ||
+                        entry.getFilename().equals("PerfLogs") ||
+                        entry.getFilename().equals("ProgramData") ||
+                        entry.getFilename().equals("swapfile.sys") ||
+                        entry.getFilename().equals("System Volume Information"))
                     continue;
 
-                SftpATTRS a = entry.getAttrs();
+                String path = Utils.pipe(directory + context.subscriberRepo.getSeparator() + entry.getFilename());
+                path = Utils.unpipe(myRepo, path);
+                SftpATTRS attr = entry.getAttrs();
                 NavTreeNode node = new NavTreeNode(context, myRepo, myTree);
-                NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),
-                        target + context.subscriberRepo.getSeparator() + entry.getFilename(),
-                        a.getSize(), a.getMTime(), a.isDir());
+                NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(), path, attr.getSize(), attr.getMTime(), attr.isDir());
                 node.setNavTreeUserObject(tuo);
-                if (!a.isDir())
+                if (!attr.isDir())
                     node.setVisible(false);
                 else
                 {
@@ -728,6 +751,11 @@ public class NavTreeNode extends DefaultMutableTreeNode
         }
     }
 
+    public void setMyRepo(Repository myRepo)
+    {
+        this.myRepo = myRepo;
+    }
+
     public void setMyStatus(JLabel myStatus)
     {
         this.myStatus = myStatus;
@@ -790,17 +818,17 @@ public class NavTreeNode extends DefaultMutableTreeNode
             {
                 if (context.preferences.isSortCaseInsensitive())
                 {
-                    return ((NavTreeNode)b).getUserObject().name.compareToIgnoreCase(((NavTreeNode)a).getUserObject().name);
+                    return ((NavTreeNode) b).getUserObject().name.compareToIgnoreCase(((NavTreeNode) a).getUserObject().name);
                 }
-                return ((NavTreeNode)b).getUserObject().name.compareTo(((NavTreeNode)a).getUserObject().name);
+                return ((NavTreeNode) b).getUserObject().name.compareTo(((NavTreeNode) a).getUserObject().name);
             }
             else
             {
                 if (context.preferences.isSortCaseInsensitive())
                 {
-                    return ((NavTreeNode)a).getUserObject().name.compareToIgnoreCase(((NavTreeNode)b).getUserObject().name);
+                    return ((NavTreeNode) a).getUserObject().name.compareToIgnoreCase(((NavTreeNode) b).getUserObject().name);
                 }
-                return ((NavTreeNode)a).getUserObject().name.compareTo(((NavTreeNode)b).getUserObject().name);
+                return ((NavTreeNode) a).getUserObject().name.compareTo(((NavTreeNode) b).getUserObject().name);
             }
         }
     }
@@ -809,7 +837,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
     {
         public int compare(Object a, Object b)
         {
-            return (((NavTreeNode)a).getUserObject().isDir && !((NavTreeNode)b).getUserObject().isDir) ? -1 : 0;
+            return (((NavTreeNode) a).getUserObject().isDir && !((NavTreeNode) b).getUserObject().isDir) ? -1 : 0;
         }
     }
 

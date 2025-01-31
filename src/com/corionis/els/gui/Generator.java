@@ -291,6 +291,7 @@ public class Generator
 
     public void showDialog(JDialog owner, AbstractTool tool, String configName)
     {
+        context.mainFrame.labelStatusMiddle.setText("");
         String messasge = "<html><body>" + context.cfg.gs((fileGenerate ? "Generator.generate" : "Generator.generate.run")) +
                 " <b>" + configName + "</b><br/>&nbsp;<br/></body></html>";
 

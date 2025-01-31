@@ -3,12 +3,23 @@
 
 ## Current Short-List
 
+ !! Different launch techniques open multiple Hints 
+ ! Test with pub and sub collections NOT in configuration directory
+ ! Analyze use of clientSftpMetadata & clientSftp
+ ! Test with full paths in JSON
+ ! Test with pub and sub collections in different places
+ ! Test terminals
+
  * TEST with new blank configuration
  * TEST File, Open Subscriber failure and retry
  * TEST switching repos in Navigator during Job
 
    JOB RUN BUTTON
     Add validateRun() method to check task requirements; Jobs iterate their Tasks
+
+ * Add Hint processing to Tools as needed
+ * Add Preference to not allow standard sftp sessions; stty not connected
+ * Optimize remote Hint processing by sending all pending Hints at once
 
 #### Short List
  * Regression Test from a scratch installation.

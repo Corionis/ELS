@@ -458,7 +458,7 @@ public class RenamerUI extends AbstractToolDialog
                             }
                         };
 
-                        if (worker !=null)
+                        if (worker != null)
                         {
                             workerRunning = true;
                             worker.addPropertyChangeListener(new PropertyChangeListener()
@@ -859,7 +859,6 @@ public class RenamerUI extends AbstractToolDialog
             if (origins != null && origins.size() > 0)
             {
                 workerTask = new Task(renamer.getInternalName(), renamer.getConfigName());
-                workerTask.setContext(context);
                 workerTask.setDryRun(isDryRun);
                 workerTask.setOrigins(origins);
 
@@ -867,6 +866,9 @@ public class RenamerUI extends AbstractToolDialog
                     workerTask.setSubscriberKey(Task.ANY_SERVER);
                 else
                     workerTask.setPublisherKey(Task.ANY_SERVER);
+
+                if (context.cfg.isHintTrackingEnabled())
+                    workerTask.setHintsKey(Task.ANY_SERVER);
 
                 workerTask.process(context);
             }

@@ -12,6 +12,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class HintsTableModel extends DefaultTableModel
 {
@@ -126,7 +129,10 @@ public class HintsTableModel extends DefaultTableModel
                 name = context.cfg.gs("HintsUI.header.author");
                 break;
             case 3:
-                name = context.cfg.gs("HintsUI.header.utc");
+                TimeZone timeZone = TimeZone.getDefault();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("z");
+                String abbreviation = dateFormat.format(new Date());
+                name = context.cfg.gs("HintsUI.header.utc") + " (" + abbreviation + ")";;
                 break;
             case 4:
                 name = context.cfg.gs("HintsUI.header.action");

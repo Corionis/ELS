@@ -31,10 +31,10 @@ import java.util.*;
  * SFTP server class
  * <br/>
  *  See:<br/>
- *  https://mina.apache.org/sshd-project  <br/>
- *  https://github.com/apache/mina-sshd/blob/master/docs/sftp.md  <br/>
- *  https://javadoc.io/doc/org.apache.sshd  <br/>
- *  https://javadoc.io/doc/org.apache.sshd/sshd-sftp/latest/index.html  <br/>
+ *  <a href="https://mina.apache.org/sshd-project">sshd-project</a>  <br/>
+ *  <a href="https://javadoc.io/doc/org.apache.sshd">sshd</a>  <br/>
+ *  <a href="https://github.com/apache/mina-sshd/blob/master/docs/sftp.md">sftp</a>  <br/>
+ *  <a href="https://javadoc.io/doc/org.apache.sshd/sshd-sftp/latest/index.html">sshd-sftp</a>  <br/>
  */
 public class ServeSftp implements SftpErrorStatusDataHandler
 {
@@ -240,6 +240,8 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             sshd.getProperties().put("idle-timeout", tout); // sftp idle time-out
             Object o = sshd.getProperties().get("idle-timeout");
             logger.trace("sftp idle timeout is " + o.toString());
+
+            sshd.getProperties().put("sftp-auto-follow-links", true);
 
             // run the SFTP server
             sshd.start();

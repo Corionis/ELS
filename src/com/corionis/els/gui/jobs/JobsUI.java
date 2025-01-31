@@ -328,6 +328,10 @@ public class JobsUI extends AbstractToolDialog
                     int reply = JOptionPane.showConfirmDialog(this, message, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)
                     {
+                        for (Origin origin : origins)
+                        {
+                            origin.setLocation(context.cfg.makeRelativePathSubscriber(origin.getLocation()));
+                        }
                         currentTask.addOrigins(origins);
                         currentJob.setDataHasChanged();
                         loadOrigins(currentTask);
@@ -1078,7 +1082,6 @@ public class JobsUI extends AbstractToolDialog
                 if (index >= 0)
                 {
                     currentTask = new Task(tool.getInternalName(), tool.getConfigName());
-                    currentTask.setContext(context);
                     try
                     {
                         currentTool = currentTask.getTool();
@@ -1092,7 +1095,6 @@ public class JobsUI extends AbstractToolDialog
                     }
 
                     currentJob.getTasks().add(currentTask);
-                    currentTask.setContext(context);
                     currentJob.setDataHasChanged();
                     loadTasks(-1);
                     listTasks.setSelectedIndex(currentJob.getTasks().size() - 1);
@@ -1767,7 +1769,10 @@ public class JobsUI extends AbstractToolDialog
             {
                 Origin origin = currentTask.getOrigins().get(i);
                 String ot = getOriginType(origin.getType());
-                String id = getOriginType(origin.getType()) + (ot.length() > 0 ? ": " : "") + origin.getLocation();
+                String path = origin.getLocation();
+                if (path.matches("^\\\\[a-zA-Z]:.*") || path.matches("^/[a-zA-Z]:.*"))
+                    path = path.substring(1);
+                String id = getOriginType(origin.getType()) + (ot.length() > 0 ? ": " : "") + path;
                 model.addElement(id);
             }
             if (listOrigins.getModel().getSize() > 0)

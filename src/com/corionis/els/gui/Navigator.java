@@ -18,6 +18,7 @@ import com.corionis.els.hints.HintKey;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Origins;
+import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.stty.ClientStty;
@@ -57,6 +58,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.*;
 
 import static com.corionis.els.gui.system.FileEditor.EditorTypes.*;
@@ -819,8 +821,8 @@ public class Navigator
             {
                 GuiLogAppender appender = context.main.guiLogAppender;
                 appender.setContext(context);
-                // this causes the preBuffer to be appended to the Navigator Log panels
-                logger.info(context.cfg.gs("Navigator.appender.updated"));
+                // this causes the preBuffer to be appended to the Navigator Log panel
+                logger.debug(context.cfg.gs("Navigator.appender.updated"));
             }
 
             // disable back-fill because we never know what combination of items might be selected
@@ -987,18 +989,18 @@ public class Navigator
 
                         try
                         {
-                            context.preferences.setLastPublisherOpenFile(file.getAbsolutePath());
-                            context.preferences.setLastPublisherOpenPath(last.getAbsolutePath());
+                            context.preferences.setLastPublisherOpenFile(file.getPath());
+                            context.preferences.setLastPublisherOpenPath(last.getPath());
                             context.preferences.setLastPublisherIsWorkstation(isWorkstation);
                             context.preferences.setLastPublisherIsOpen(true);
                             if (isWorkstation)
                             {
                                 context.cfg.setPublisherCollectionFilename("");
-                                context.cfg.setPublisherLibrariesFileName(file.getAbsolutePath());
+                                context.cfg.setPublisherLibrariesFileName(file.getPath());
                             }
                             else
                             {
-                                context.cfg.setPublisherCollectionFilename(file.getAbsolutePath());
+                                context.cfg.setPublisherCollectionFilename(file.getPath());
                                 context.cfg.setPublisherLibrariesFileName("");
                             }
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
@@ -1235,7 +1237,7 @@ public class Navigator
                     public void propertyChange(PropertyChangeEvent propertyChangeEvent)
                     {
                         File selected = fc.getSelectedFile();
-                        logger.info(propertyChangeEvent.getPropertyName() + " :: " + selected);
+                        logger.debug(propertyChangeEvent.getPropertyName() + " :: " + selected);
                         if (setFileChooserHostListen(fc, hostLabel, listenLabel))
                             cbIsRemote.setEnabled(true);
                         else
@@ -1291,8 +1293,8 @@ public class Navigator
                             continue;
                         }
 
-                        context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
-                        context.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
+                        context.preferences.setLastSubscriberOpenFile(file.getPath());
+                        context.preferences.setLastSubscriberOpenPath(last.getPath());
                         context.preferences.setLastSubscriberIsRemote(cbIsRemote.isSelected());
                         context.preferences.setLastSubscriberIsOpen(true);
                         boolean closeRemote = context.cfg.isRemoteSubscriber();
@@ -1300,7 +1302,7 @@ public class Navigator
                         // read the selected local repository
                         try
                         {
-                            context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
+                            context.cfg.setSubscriberLibrariesFileName(file.getPath());
                             context.cfg.setSubscriberCollectionFilename("");
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
 
@@ -1379,7 +1381,9 @@ public class Navigator
 
                         if (context.preferences.isLastSubscriberIsRemote())
                         {
-                            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Transfer.requesting.subscriber.library"));
+                            context.mainFrame.labelStatusMiddle.setText(
+                                    MessageFormat.format(context.cfg.gs("Transfer.requesting.subscriber.library"),
+                                    context.subscriberRepo.getLibraryData().libraries.description));
                             context.mainFrame.repaint();
                             context.mainFrame.labelStatusMiddle.repaint();
                         }
@@ -1446,8 +1450,14 @@ public class Navigator
                                         {
                                             logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
                                         }
+
+                                        String directory = context.clientStty.getWorkingDirectoryRemote();
+                                        context.cfg.setWorkingDirectorySubscriber(directory);
+
                                         context.transfer.requestLibrary();
                                     }
+                                    else
+                                        context.cfg.setWorkingDirectorySubscriber(context.cfg.getWorkingDirectory());
 
                                     // load the subscriber library
                                     setQuitTerminateVisibility();
@@ -1550,10 +1560,10 @@ public class Navigator
 
                         try
                         {
-                            context.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
-                            context.preferences.setLastHintKeysOpenPath(last.getAbsolutePath());
+                            context.preferences.setLastHintKeysOpenFile(file.getPath());
+                            context.preferences.setLastHintKeysOpenPath(last.getPath());
                             context.preferences.setLastHintKeysIsOpen(true);
-                            context.cfg.setHintKeysFile(file.getAbsolutePath());
+                            context.cfg.setHintKeysFile(file.getPath());
                             context.main.setupHints(context.publisherRepo);
                             //context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                         }
@@ -1772,21 +1782,21 @@ public class Navigator
 
                         try
                         {
-                            context.preferences.setLastHintTrackingOpenFile(file.getAbsolutePath());
-                            context.preferences.setLastHintTrackingOpenPath(last.getAbsolutePath());
+                            context.preferences.setLastHintTrackingOpenFile(file.getPath());
+                            context.preferences.setLastHintTrackingOpenPath(last.getPath());
                             context.preferences.setLastHintTrackingIsRemote(cbIsRemote.isSelected());
                             context.preferences.setLastHintTrackingIsOpen(true);
                             String filename;
                             if (context.preferences.isLastHintTrackingIsRemote())
                             {
-                                context.cfg.setHintsDaemonFilename(file.getAbsolutePath());
+                                context.cfg.setHintsDaemonFilename(file.getPath());
                                 context.cfg.setHintTrackerFilename("");
                                 filename = context.cfg.getHintsDaemonFilename();
                             }
                             else
                             {
                                 context.cfg.setHintsDaemonFilename("");
-                                context.cfg.setHintTrackerFilename(file.getAbsolutePath());
+                                context.cfg.setHintTrackerFilename(file.getPath());
                                 filename = context.cfg.getHintTrackerFilename();
                             }
                             context.cfg.setOverrideHintsHost(listenButton.isSelected());
@@ -2345,6 +2355,7 @@ public class Navigator
                         String reply = "";
                         if (path.length() > 0)
                         {
+                            path = Utils.getFullPathLocal(path);
                             reply = JOptionPane.showInputDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.New.folder.for") + path + ": ",
                                     context.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE);
@@ -2372,7 +2383,7 @@ public class Navigator
                                         }
                                         else
                                         {
-                                            createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null), new File(path));
+                                            createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null), path, new File(path));
                                         }
                                         createdNode.setNavTreeUserObject(createdTuo);
                                         createdNode.setAllowsChildren(true);
@@ -2515,7 +2526,6 @@ public class Navigator
 
                                     NavTreeUserObject orig = (NavTreeUserObject) tuo.clone();
                                     orig.node = tuo.node;
-
                                     tuo.path = to;
                                     tuo.name = reply;
                                     if (tuo.file != null)
@@ -2949,7 +2959,10 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 enableDisableSystemMenus(Hints, false);
-                dialogHints = new HintsUI(context);
+                if (dialogHints != null && dialogHints.isShowing())
+                    dialogHints.toFront();
+                else
+                    dialogHints = new HintsUI(context);
             }
         });
 
@@ -2959,7 +2972,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (fileeditor != null && fileeditor.isVisible())
+                if (fileeditor != null && fileeditor.isShowing())
                     fileeditor.requestFocus();
                 else
                     fileeditor = new FileEditor(context, Authentication);
@@ -2972,7 +2985,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (fileeditor != null && fileeditor.isVisible())
+                if (fileeditor != null && fileeditor.isShowing())
                     fileeditor.requestFocus();
                 else
                     fileeditor = new FileEditor(context, HintKeys);
@@ -2985,7 +2998,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (fileeditor != null && fileeditor.isVisible())
+                if (fileeditor != null && fileeditor.isShowing())
                     fileeditor.requestFocus();
                 else
                     fileeditor = new FileEditor(context, FileEditor.EditorTypes.BlackList);
@@ -2998,7 +3011,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (fileeditor != null && fileeditor.isVisible())
+                if (fileeditor != null && fileeditor.isShowing())
                     fileeditor.requestFocus();
                 else
                     fileeditor = new FileEditor(context, WhiteList);
@@ -3511,7 +3524,7 @@ public class Navigator
                     {
                         try
                         {
-                            String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                            String json = new String(Files.readAllBytes(Paths.get(entry.getPath())));
                             if (json != null)
                             {
                                 Job job = builder.create().fromJson(json, Job.class);
@@ -3962,11 +3975,13 @@ public class Navigator
             }
 
             // check for opening commands from Subscriber
-            // *** might change cfg options for subscriber and targets that are handled below ***
             if (context.clientStty.checkBannerCommands())
             {
                 logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
             }
+
+            String directory = context.clientStty.getWorkingDirectoryRemote();
+            context.cfg.setWorkingDirectorySubscriber(directory);
 
             // start the serveSftp transfer client
             context.clientSftp = new ClientSftp(context, publisherRepo, subscriberRepo, true);
@@ -3995,8 +4010,65 @@ public class Navigator
                 return false;
             }
         }
+        else
+            context.cfg.setWorkingDirectorySubscriber(context.cfg.getWorkingDirectory());
 
         return true;
+    }
+
+    public String reduceCollectionPath(NavTreeUserObject tuo)
+    {
+        String path = null;
+        Repository repo = null;
+        if (tuo.node.getMyTree().getName().contains("Collection"))
+        {
+            repo = tuo.getRepo();
+            if (repo != null)
+            {
+                String tuoPath = (repo.getLibraryData().libraries.case_sensitive) ? tuo.path : tuo.path.toLowerCase();
+                if (tuoPath.length() == 0)
+                {
+                    path = "";   // tuo.name;
+                }
+                else
+                {
+                    tuoPath = Utils.pipe(tuoPath);
+                    for (Library lib : repo.getLibraryData().libraries.bibliography)
+                    {
+                        for (String source : lib.sources)
+                        {
+                            String sourcePath = source;
+                            if (!Utils.isRelativePath(tuoPath))
+                            {
+                                if (repo.getPurpose() == Repository.PUBLISHER)
+                                    sourcePath = Utils.getFullPathLocal(sourcePath);
+                                else if (repo.getPurpose() == Repository.SUBSCRIBER)
+                                    sourcePath = context.cfg.getFullPathSubscriber(sourcePath);
+                                if (sourcePath.matches("^\\\\[a-zA-Z]:.*") || sourcePath.matches("^/[a-zA-Z]:.*"))
+                                    sourcePath = sourcePath.substring(1);
+                            }
+                            sourcePath = (repo.getLibraryData().libraries.case_sensitive) ? sourcePath : sourcePath.toLowerCase();
+                            sourcePath = Utils.pipe(sourcePath);
+                            if (tuoPath.startsWith(sourcePath))
+                            {
+                                path = tuo.path.substring(sourcePath.length() + 1);
+                                break;
+                            }
+                        }
+                        if (path != null)
+                            break;
+                    }
+                }
+            }
+        }
+        if (path == null)
+            path = tuo.path;
+        else
+        {
+            if (repo != null)
+                path = Utils.unpipe(path, repo.getSeparator());
+        }
+        return path;
     }
 
     /**
@@ -4176,7 +4248,7 @@ public class Navigator
         try
         {
             Repository repo = new Repository(context, Repository.SUBSCRIBER);
-            repo.read(fc.getSelectedFile().getAbsolutePath(), "Subscriber", true);
+            repo.read(fc.getSelectedFile().getPath(), "Subscriber", true);
             host = repo.getLibraryData().libraries.host;
             listen = repo.getLibraryData().libraries.listen;
         }

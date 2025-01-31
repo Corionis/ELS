@@ -209,16 +209,16 @@ public class Datastore
         else
             throw new MungeException("Hint Status Tracker/Server repo first library contains no sources: " + statusLibrary.name);
 
-        File dir = new File(statusDirectory);
+        File dir = new File(Utils.getFullPathLocal(statusDirectory));
         if (dir.exists())
         {
             if (!dir.isDirectory())
                 throw new MungeException("Status directory is not a directory: " + statusDirectory);
-            logger.info("Using library \'" + statusLibrary.name + "\" source directory \"" + dir.getAbsolutePath() + "\" for Hint tracking datastore");
+            logger.info("Using library '" + statusLibrary.name + "\" source directory \"" + dir + "' for Hint tracking datastore");
         }
         else
         {
-            logger.info("Creating new library \'" + statusLibrary.name + "\" source directory \"" + dir.getAbsolutePath() + "\" for Hint tracking datastore");
+            logger.info("Creating new library '" + statusLibrary.name + "\" source directory \"" + dir + "' for Hint tracking datastore");
             dir.mkdirs();
         }
 
@@ -343,12 +343,7 @@ public class Datastore
 
     public void write() throws Exception
     {
-        String path = statusFullPath;
-        if (Utils.isRelativePath(path))
-        {
-            path = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + path;
-        }
-
+        String path = Utils.getFullPathLocal(statusFullPath);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(hints);
         try

@@ -2022,7 +2022,7 @@ public class Preferences implements Serializable
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Error writing: " + (f != null ? f.getAbsolutePath() : "preferences file,") + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Error writing: " + (f != null ? f.getPath() : "preferences file,") + " trace: " + Utils.getStackTrace(fnf));
         }
 
         // restore long paths

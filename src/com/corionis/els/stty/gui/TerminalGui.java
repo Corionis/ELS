@@ -64,8 +64,8 @@ public class TerminalGui implements WindowListener, ActionListener
                     commandField.requestFocus();
                     break;
                 case "command":
-                    String cmd = commandField.getText();
-                    if (cmd.trim().equalsIgnoreCase("bye"))
+                    String cmd = commandField.getText().trim();
+                    if (cmd.equalsIgnoreCase("bye") || cmd.equalsIgnoreCase("quit"))
                     {
                         send(cmd);
                         frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));

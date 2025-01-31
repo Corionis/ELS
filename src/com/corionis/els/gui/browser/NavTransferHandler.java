@@ -373,13 +373,8 @@ public class NavTransferHandler extends TransferHandler
             {
                 for (int i = 0; i < lib.sources.length; ++i)
                 {
-                    File source = new File(lib.sources[i]);
-                    String srcPath = source.getAbsolutePath();
-//                    if (matchPathToLibrarySource(pathElements, srcPath))
-                    {
-                        libName = lib.name;
-                        break;
-                    }
+                    libName = lib.name;
+                    break;
                 }
                 if (libName != null)
                     break;
@@ -764,7 +759,7 @@ public class NavTransferHandler extends TransferHandler
                                 actionList.add(tuo);
                             }
                             else
-                                logger.warn(context.cfg.gs("Z.cannot.find") + file.getAbsolutePath());
+                                logger.warn(context.cfg.gs("Z.cannot.find") + file.getPath());
                         }
                         else
                             logger.warn(context.cfg.gs("NavTransferHandler.empty.element") + i);
@@ -866,7 +861,7 @@ public class NavTransferHandler extends TransferHandler
                 // remove directory itself
                 if (!context.cfg.isDryRun())
                 {
-                    context.transfer.remove(context.clientSftpMetadata, sourceTuo.path, true, sourceTuo.isRemote);
+                    context.transfer.remove(sourceTuo.path, sourceTuo.isRemote);
                 }
             }
         }
@@ -901,7 +896,7 @@ public class NavTransferHandler extends TransferHandler
 
             if (!context.cfg.isDryRun())
             {
-                context.transfer.remove(context.clientSftpMetadata, sourceTuo.path, false, sourceTuo.isRemote);
+                context.transfer.remove(sourceTuo.path, sourceTuo.isRemote);
                 logger.info(msg); // not printed if file is missing
             }
         }
@@ -934,6 +929,7 @@ public class NavTransferHandler extends TransferHandler
 
     private void reset()
     {
+        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         action = TransferHandler.NONE;
         actionList = null;
         isDrop = false;

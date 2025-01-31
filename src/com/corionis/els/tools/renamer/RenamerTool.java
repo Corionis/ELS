@@ -436,7 +436,7 @@ public class RenamerTool extends AbstractTool
         }
 
         // only subscribers can be remote
-        if (task.subscriberRepo != null && getCfg().isRemoteOperation())
+        if (task.subscriberRepo != null && getCfg().isRemoteSubscriber())
             setRemote(true);
 
         for (int i = 0; i < task.origins.size(); ++i)
@@ -507,7 +507,7 @@ public class RenamerTool extends AbstractTool
                 {
                     if (isRenameAllowed)
                     {
-                        String fileName = FilenameUtils.getName(path);
+                        String fileName = FilenameUtils.getName(context.cfg.getFullPathSubscriber(path));
                         String change = rename(path, fileName, true);
                         if (!path.equals(change))
                         {
@@ -518,7 +518,7 @@ public class RenamerTool extends AbstractTool
                     pathIsDir = true;
                 }
 
-                listing = context.clientSftp.listDirectory(path);
+                listing = context.clientSftp.listDirectory(context.cfg.getFullPathSubscriber(path));
                 for (int i = 0; i < listing.size(); ++i)
                 {
                     if (isRequestStop())
@@ -547,12 +547,12 @@ public class RenamerTool extends AbstractTool
             }
             else // is local
             {
-                File loc = new File(path);
+                File loc = new File(Utils.getFullPathLocal(path));
                 if (loc.isDirectory())
                 {
                     if (isRenameAllowed)
                     {
-                        String change = rename(loc.getAbsolutePath(), loc.getName(), true);
+                        String change = rename(loc.getPath(), loc.getName(), true);
                         if (!path.equals(change))
                         {
                             path = change;
@@ -560,7 +560,7 @@ public class RenamerTool extends AbstractTool
                         }
                     }
                     isFirst = false;
-                    files = FileSystemView.getFileSystemView().getFiles(loc.getAbsoluteFile(), true);
+                    files = FileSystemView.getFileSystemView().getFiles(loc, true);
                 }
                 else
                 {
@@ -576,11 +576,11 @@ public class RenamerTool extends AbstractTool
                     File entry = files[i];
                     if (entry.isDirectory() && isRecursive())
                     {
-                        scan(entry.getAbsolutePath(), false, true);
+                        scan(entry.getPath(), false, true);
                     }
                     else
                     {
-                        String change = rename(entry.getAbsolutePath(), entry.getName(), entry.isDirectory());
+                        String change = rename(entry.getPath(), entry.getName(), entry.isDirectory());
                         if (!path.equals(change) && isFirst)
                         {
                             path = change;

@@ -387,7 +387,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                         labelHelp.setEnabled(true);
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-                        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+                        worker = new SwingWorker<Void, Void>()
                         {
                             @Override
                             protected Void doInBackground() throws Exception
@@ -633,7 +633,6 @@ public class JunkRemoverUI extends AbstractToolDialog
             if (origins != null && origins.size() > 0)
             {
                 workerTask = new Task(jrt.getInternalName(), jrt.getConfigName());
-                workerTask.setContext(context);
                 workerTask.setDryRun(isDryRun);
                 workerTask.setOrigins(origins);
 
@@ -641,6 +640,9 @@ public class JunkRemoverUI extends AbstractToolDialog
                     workerTask.setSubscriberKey(Task.ANY_SERVER);
                 else
                     workerTask.setPublisherKey(Task.ANY_SERVER);
+
+                if (context.cfg.isHintTrackingEnabled())
+                    workerTask.setHintsKey(Task.ANY_SERVER);
 
                 workerTask.process(context);
             }

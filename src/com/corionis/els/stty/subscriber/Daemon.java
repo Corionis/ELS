@@ -64,20 +64,20 @@ public class Daemon extends AbstractDaemon
     public void exportLibrary(String filename) throws MungeException
     {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        File outFile = new File(filename);
+        File outFile = new File(Utils.getFullPathLocal(filename));
         outFile.getParentFile().mkdirs();
         logger.info("Writing library file " + filename);
         Repository repo = myRepo.cloneNoItems(); // clone with no items
         String json = gson.toJson(repo.getLibraryData());
         try
         {
-            PrintWriter outputStream = new PrintWriter(filename);
+            PrintWriter outputStream = new PrintWriter(outFile.getPath());
             outputStream.println(json);
             outputStream.close();
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Exception while writing library file " + filename + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Exception while writing library file " + outFile.getPath() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -379,7 +379,7 @@ public class Daemon extends AbstractDaemon
                                 // otherwise it must be -S so do not scan
                                 myRepo.exportItems(true);
                                 Thread.sleep(1500);
-                                Path jsonPath = Paths.get(context.cfg.getExportCollectionFilename()).toAbsolutePath();
+                                Path jsonPath = Paths.get(Utils.getFullPathLocal(context.cfg.getExportCollectionFilename()));
                                 response = new String(Files.readAllBytes(jsonPath));
                             }
                             catch (MungeException e)
@@ -403,8 +403,9 @@ public class Daemon extends AbstractDaemon
                                     try
                                     {
                                         valid = true;
-                                        File f = new File(from);
-                                        context.transfer.copyFile(context.clientSftp, from, Files.getLastModifiedTime(f.toPath(), LinkOption.NOFOLLOW_LINKS), to, false, true);
+                                        File f = new File(Utils.getFullPathLocal(from));
+                                        context.transfer.copyFile(context.clientSftp, Utils.getFullPathLocal(from),
+                                                Files.getLastModifiedTime(f.toPath()), Utils.getFullPathLocal(to), false, true);
                                     }
                                     catch (Exception e)
                                     {
@@ -418,6 +419,13 @@ public class Daemon extends AbstractDaemon
                             {
                                 response = (isTerminal ? "copy command requires a 2 arguments, from and to\r\n" : "false");
                             }
+                            continue;
+                        }
+
+                        // -------------- directory ------------------------
+                        if (theCommand.equalsIgnoreCase("directory"))
+                        {
+                            response = context.cfg.getWorkingDirectory();
                             continue;
                         }
 
@@ -523,8 +531,9 @@ public class Daemon extends AbstractDaemon
                                     try
                                     {
                                         valid = true;
-                                        File f = new File(from);
-                                        context.transfer.moveFile(from, Files.getLastModifiedTime(f.toPath(), LinkOption.NOFOLLOW_LINKS), to, true);
+                                        File f = new File(Utils.getFullPathLocal(from));
+                                        context.transfer.moveFile(Utils.getFullPathLocal(from), Files.getLastModifiedTime(f.toPath()),
+                                                Utils.getFullPathLocal(to), true);
                                     }
                                     catch (Exception e)
                                     {
@@ -551,12 +560,30 @@ public class Daemon extends AbstractDaemon
                                 if (filename.length() > 0)
                                 {
                                     valid = true;
-                                    response = Utils.readString(filename);
+                                    response = Utils.readString(Utils.getFullPathLocal(filename));
                                 }
                             }
                             if (!valid)
                             {
                                 response = (isTerminal ? "read command requires a 1 argument, filename\r\n" : "false");
+                            }
+                            continue;
+                        }
+
+                        // -------------- remove ----------------------
+                        if (theCommand.equalsIgnoreCase("remove"))
+                        {
+                            String location = "";
+                            if (t.hasMoreTokens())
+                            {
+                                location = t.nextToken();
+                                context.transfer.remove(location, false);
+                                logger.info("  deleted: " + Utils.getFullPathLocal(location));
+                                response = "true";
+                            }
+                            else
+                            {
+                                response = "false";
                             }
                             continue;
                         }
@@ -568,7 +595,7 @@ public class Daemon extends AbstractDaemon
                             if (t.hasMoreTokens())
                             {
                                 location = t.nextToken();
-                                long space = Utils.availableSpace(location);
+                                long space = Utils.availableSpace(Utils.getFullPathLocal(location));
                                 logger.info("  space: " + Utils.formatLong(space, true, context.cfg.getLongScale()) + " at " + location);
                                 if (isTerminal)
                                 {
@@ -617,7 +644,7 @@ public class Daemon extends AbstractDaemon
                             {
                                 if (context.cfg.getTargetsFilename().length() > 0)
                                 {
-                                    response = new String(Files.readAllBytes(Paths.get(context.cfg.getTargetsFilename())));
+                                    response = new String(Files.readAllBytes(Paths.get(Utils.getFullPathLocal(context.cfg.getTargetsFilename()))));
                                 }
                                 else
                                 {
@@ -646,19 +673,25 @@ public class Daemon extends AbstractDaemon
 
                             response += "  auth \"password\" = access Authorized commands, enclose password with quotes\r\n" +
                                     "  collection = get collection data from remote, can take a few moments to scan\r\n" +
+                                    "  library = get library data from remote\r\n" +
                                     "  space \"[location]\" = free space at location on remote\r\n" +
                                     "  targets = get targets file from remote\r\n" +
                                     "\r\n  help or ? = this list\r\n" +
-                                    "  logout = exit current level\r\n" +
                                     "  bye = disconnect and leave remote end running\r\n" +
+                                    "  copy \"[from]\" \"[to]\" = copy file from to\r\n" +
+                                    "  directory = get working directory\r\n" +
+                                    "  drives = get available drives\r\n" +
+                                    "  logout = exit current level\r\n" +
+                                    "  move \"[from]\" \"[to]\" = move file from to\r\n" +
                                     "  quit, exit = disconnect and quit remote end\r\n" +
+                                    "  remove \"[from]\" = remove file from\r\n" +
+                                    "  stop = force stop of remote and end\r\n" +
                                     "\r\n";
                             // @formatter:on
                             continue;
                         }
 
                         response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
-
                     }
                     catch (SocketTimeoutException toe)
                     {
@@ -691,7 +724,7 @@ public class Daemon extends AbstractDaemon
                     }
                     catch (Exception e)
                     {
-                        connected = false;
+                        //connected = false;
                         logger.error("Subscriber Listener exception");
                         logger.error(Utils.getStackTrace(e));
                         try

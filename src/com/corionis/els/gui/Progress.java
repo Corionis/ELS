@@ -282,7 +282,7 @@ public class Progress extends JFrame implements SftpProgressMonitor
         }
     }
 
-    private void redraw()
+    public void redraw()
     {
         Graphics gfx = progressTextField.getGraphics();
         if (gfx != null)
@@ -371,26 +371,29 @@ public class Progress extends JFrame implements SftpProgressMonitor
     }
 
     /**
-     * Update the status String with new file number, size and name.
+     * Update the status String with file number, size and name.
      * @param fileNumber The counter for the file number
      * @param size The size of the file
      * @param name The name of the name
      */
     public synchronized void update(int fileNumber, long size, String name)
     {
-        this.fileNumber = fileNumber;
-        this.progressMax = size;
-        progressMaxDivisor = this.progressMax / 100;
-        this.name = name;
-        String status = " " + context.cfg.gs("NavTransferHandler.progress.file") +
-                " " + fileNumber +
-                " (" + Utils.formatLong(size, false, context.cfg.getLongScale()) +
-                ") " + context.cfg.gs("NavTransferHandler.progress.of") +
-                " " + totalFilesToCopy +
-                " (" + Utils.formatLong(totalFilesBytes, false, context.cfg.getLongScale()) +
-                "): " + name;
-        progressTextField.setToolTipText(name);
-        update(status);
+        if (fileNumber > 0)
+        {
+            this.fileNumber = fileNumber;
+            this.progressMax = size;
+            progressMaxDivisor = this.progressMax / 100;
+            this.name = name;
+            String status = " " + context.cfg.gs("NavTransferHandler.progress.file") +
+                    " " + fileNumber +
+                    " (" + Utils.formatLong(size, false, context.cfg.getLongScale()) +
+                    ") " + context.cfg.gs("NavTransferHandler.progress.of") +
+                    " " + totalFilesToCopy +
+                    " (" + Utils.formatLong(totalFilesBytes, false, context.cfg.getLongScale()) +
+                    "): " + name;
+            progressTextField.setToolTipText(name);
+            update(status);
+        }
     }
 
     /**

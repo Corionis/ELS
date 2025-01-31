@@ -330,13 +330,20 @@ public class Daemon extends AbstractDaemon
                                 // otherwise it must be -S so do not scan
                                 myRepo.exportItems(true);
                                 Thread.sleep(2500);
-                                Path jsonPath = Paths.get(context.cfg.getExportCollectionFilename()).toAbsolutePath();
+                                Path jsonPath = Paths.get(Utils.getFullPathLocal(context.cfg.getExportCollectionFilename()));
                                 response = new String(Files.readAllBytes(jsonPath));
                             }
                             catch (MungeException e)
                             {
                                 logger.error(e.getMessage());
                             }
+                            continue;
+                        }
+
+                        // -------------- directory ------------------------
+                        if (theCommand.equalsIgnoreCase("directory"))
+                        {
+                            response = context.cfg.getWorkingDirectory();
                             continue;
                         }
 
@@ -486,11 +493,16 @@ public class Daemon extends AbstractDaemon
                                             {
                                                 throw new MungeException("Publisher stty client failed to connect");
                                             }
+
                                             if (context.clientStty.checkBannerCommands())
                                             {
                                                 logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
                                             }
+
+                                            String directory = context.clientStty.getWorkingDirectoryRemote();
+                                            context.cfg.setWorkingDirectorySubscriber(directory);
                                         }
+
                                         response = transfer.copyGroup(group, totalSize, true, null, null);
                                         group.clear();
                                     }
@@ -524,7 +536,7 @@ public class Daemon extends AbstractDaemon
                             if (t.hasMoreTokens())
                             {
                                 location = t.nextToken();
-                                long space = Utils.availableSpace(location);
+                                long space = Utils.availableSpace(Utils.getFullPathLocal(location));
                                 logger.info("  space: " + Utils.formatLong(space, true, context.cfg.getLongScale()) + " at " + location);
                                 if (isTerminal)
                                 {

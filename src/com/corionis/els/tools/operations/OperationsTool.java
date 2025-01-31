@@ -720,17 +720,17 @@ public class OperationsTool extends AbstractTool
 
     public void write() throws Exception
     {
-        setOptAuthKeys(context.main.makeRelativeWorkingPath(getOptAuthKeys()));
-        setOptBlacklist(context.main.makeRelativeWorkingPath(getOptBlacklist()));
-        setOptExportItems(context.main.makeRelativeWorkingPath(getOptExportItems()));
-        setOptExportText(context.main.makeRelativeWorkingPath(getOptExportText()));
-        setOptIpWhitelist(context.main.makeRelativeWorkingPath(getOptIpWhitelist()));
-        setOptKeys(context.main.makeRelativeWorkingPath(getOptKeys()));
-        setOptKeysOnly(context.main.makeRelativeWorkingPath(getOptKeysOnly()));
-        setOptMismatches(context.main.makeRelativeWorkingPath(getOptMismatches()));
-        setOptTargets(context.main.makeRelativeWorkingPath(getOptTargets()));
-        setOptWhatsNew(context.main.makeRelativeWorkingPath(getOptWhatsNew()));
-        setOptWhatsNewAll(context.main.makeRelativeWorkingPath(getOptWhatsNewAll()));
+        setOptAuthKeys(context.cfg.makeRelativePath(getOptAuthKeys()));
+        setOptBlacklist(context.cfg.makeRelativePath(getOptBlacklist()));
+        setOptExportItems(context.cfg.makeRelativePath(getOptExportItems()));
+        setOptExportText(context.cfg.makeRelativePath(getOptExportText()));
+        setOptIpWhitelist(context.cfg.makeRelativePath(getOptIpWhitelist()));
+        setOptKeys(context.cfg.makeRelativePath(getOptKeys()));
+        setOptKeysOnly(context.cfg.makeRelativePath(getOptKeysOnly()));
+        setOptMismatches(context.cfg.makeRelativePath(getOptMismatches()));
+        setOptTargets(context.cfg.makeRelativePath(getOptTargets()));
+        setOptWhatsNew(context.cfg.makeRelativePath(getOptWhatsNew()));
+        setOptWhatsNewAll(context.cfg.makeRelativePath(getOptWhatsNewAll()));
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(this);

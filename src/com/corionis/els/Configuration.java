@@ -111,6 +111,7 @@ public class Configuration
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
     private String workingDirectory = "";
+    private String workingDirectorySubscriber = "";
 
     /**
      * Constructor
@@ -188,7 +189,8 @@ public class Configuration
         clone.logFileFullPath = logFileFullPath;
         clone.logFileName = logFileName;
         clone.logFilePath = logFilePath;
-        clone.loggerView = loggerView;;
+        clone.loggerView = loggerView;
+        ;
         clone.logOverwrite = logOverwrite;
         clone.longScale = longScale;
         clone.marker = marker;
@@ -221,6 +223,7 @@ public class Configuration
         clone.whatsNewAll = whatsNewAll;
         clone.whatsNewFilename = whatsNewFilename;
         clone.workingDirectory = workingDirectory;
+        clone.workingDirectorySubscriber = workingDirectorySubscriber;
         return clone;
     }
 
@@ -283,21 +286,21 @@ public class Configuration
         // set default working directory if not set with -C | --cfg
         if (this.workingDirectory == null || this.workingDirectory.length() == 0)
             setWorkingDirectory(getDefaultWorkingDirectory());
-
-        // if "current directory" as a "." then get from system
-        if (this.workingDirectory.equals("."))
-            setWorkingDirectory(new java.io.File(".").getCanonicalPath());
+//        else
+//            setWorkingDirectory(new java.io.File(getWorkingDirectory()).getPath());
+//            setWorkingDirectory(new java.io.File(getWorkingDirectory()).getPath());
 
         // check & create working directory
         File wd = new File(getWorkingDirectory());
         if (!wd.exists())
             wd.mkdirs();
         else if (!wd.isDirectory())
-            throw new MungeException("Configuration directory \"" + wd.getAbsolutePath() + "\" is not a directory");
+            throw new MungeException("Configuration directory \"" + wd.getCanonicalPath() + "\" is not a directory");
 
         // change to working directory
-        setWorkingDirectory(wd.getAbsolutePath());
+        setWorkingDirectory(wd.getCanonicalPath());
         System.setProperty("user.dir", getWorkingDirectory());
+        setWorkingDirectorySubscriber(getWorkingDirectory());  // set local for default
     }
 
     /**
@@ -553,6 +556,18 @@ public class Configuration
                 " " + conf + " " + opts + (glo ? " --console-level " : " -c ") + consoleLevel +
                 (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
+    }
+
+    public String getFullPathSubscriber(String filename)
+    {
+        String path;
+        if (Utils.isRelativePath(filename))
+            path = getWorkingDirectorySubscriber() + context.subscriberRepo.getSeparator() + filename;
+        else
+            path = filename;
+        if (path.matches("^[a-zA-Z]:.*"))
+            path = "/" + path;
+        return path;
     }
 
     /**
@@ -857,9 +872,9 @@ public class Configuration
      * Get the path to the executable that runs ELS.
      * <br/>
      * Depends on the operating system:<br/>
-     *  * Linux is rt/bin/java
-     *  * Windows is ELS-Navigator.exe
-     *  * macOS is an "open" to ELS-Navigator.app
+     * * Linux is rt/bin/java
+     * * Windows is ELS-Navigator.exe
+     * * macOS is an "open" to ELS-Navigator.app
      *
      * @return
      */
@@ -1333,6 +1348,13 @@ public class Configuration
         return workingDirectory;
     }
 
+    public String getWorkingDirectorySubscriber()
+    {
+        if (workingDirectorySubscriber.isEmpty())
+            return workingDirectory;
+        return workingDirectorySubscriber;
+    }
+
     /**
      * Return locale bundle string
      *
@@ -1468,16 +1490,6 @@ public class Configuration
     }
 
     /**
-     * Are only Hints being processed so skip the main munge process?
-     *
-     * @return true if hints skipping main process enabled
-     */
-    public boolean isHintSkipMainProcess()
-    {
-        return hintSkipMainProcess == 1 ? true : false;
-    }
-
-    /**
      * Is the Navigator GUI to be used, either --logger view or Navigator?
      *
      * @return true if GUI is to be used
@@ -1485,6 +1497,16 @@ public class Configuration
     public boolean isGui()
     {
         return (loggerView || navigator == 1 ? true : false);
+    }
+
+    /**
+     * Are only Hints being processed so skip the main munge process?
+     *
+     * @return true if hints skipping main process enabled
+     */
+    public boolean isHintSkipMainProcess()
+    {
+        return hintSkipMainProcess == 1 ? true : false;
     }
 
     /**
@@ -1855,6 +1877,44 @@ public class Configuration
             filePart = "en_US"; // default locale
         }
         config.setCurrentBundle(ResourceBundle.getBundle("com.corionis.els.locales.bundle_" + filePart));
+    }
+
+    /**
+     * Make a relative path based on the current working directory
+     *
+     * @param path
+     * @return A path relative to the working directory, if possible
+     */
+    public String makeRelativePath(String path)
+    {
+        if (path != null && path.length() > 0)
+        {
+            path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), path);
+            path = Utils.pipe(path);
+            path = Utils.unpipe(path, "/");
+        }
+        else
+            path = "";
+        return path;
+    }
+
+    /**
+     * Make a relative path based on the current working directory of the Subscriber
+     *
+     * @param path
+     * @return A path relative to the working directory of Subscriber, if possible
+     */
+    public String makeRelativePathSubscriber(String path)
+    {
+        if (path != null && path.length() > 0)
+        {
+            path = Utils.makeRelativePath(getWorkingDirectorySubscriber(), path);
+//            path = Utils.pipe(path);
+//            path = Utils.unpipe(path, "/");
+        }
+        else
+            path = "";
+        return path;
     }
 
     /**
@@ -2425,6 +2485,7 @@ public class Configuration
 
     /**
      * Set this instance as defaulting to Navigator mode
+     *
      * @param defaultNavigator
      */
     public void setDefaultNavigator(boolean defaultNavigator)
@@ -2734,6 +2795,7 @@ public class Configuration
 
     /**
      * Set the this instance is overriding the Subscriber host to use the listen value instead
+     *
      * @param overrideSubscriberHost
      */
     public void setOverrideSubscriberHost(String overrideSubscriberHost)
@@ -2947,6 +3009,11 @@ public class Configuration
         this.workingDirectory = workingDirectory;
     }
 
+    public void setWorkingDirectorySubscriber(String workingDirectorySubscriber)
+    {
+        this.workingDirectorySubscriber = workingDirectorySubscriber;
+    }
+
     /**
      * Verify that a file exists and is readable
      *
@@ -2956,12 +3023,7 @@ public class Configuration
     private void verifyFileExistence(String file) throws MungeException
     {
         String filename;
-        boolean isRelative = true;
-        if (file.matches("^[a-zA-Z]:.*"))  // cloned from Utils.isRelativePath()
-            isRelative = false;
-        if (file.startsWith("/") || file.startsWith("\\"))
-            isRelative = false;
-
+        boolean isRelative = Utils.isRelativePath(file);
         if (isRelative)
         {
             String prefix = (context.cfg.getWorkingDirectory().length() > 0 ? context.cfg.getWorkingDirectory() + System.getProperty("file.separator") : "");

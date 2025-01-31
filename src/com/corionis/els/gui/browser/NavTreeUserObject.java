@@ -52,12 +52,12 @@ public class NavTreeUserObject implements Comparable
     }
 
     // A local file or directory
-    public NavTreeUserObject(NavTreeNode ntn, String name, File file)
+    public NavTreeUserObject(NavTreeNode ntn, String name, String path, File file)
     {
         this.node = ntn;
         this.name = name;
         this.file = file;
-        this.path = file.getAbsolutePath();
+        this.path = file.getPath();
         this.fileTime = Utils.getLocalFileTime(this.path);
         this.isDir = file.isDirectory();
         this.isHidden = file.isHidden();
@@ -188,9 +188,15 @@ public class NavTreeUserObject implements Comparable
                         sourcePath = source;
                     else
                     {
-                        File sourceFile = new File(source);
-                        sourcePath = sourceFile.getAbsolutePath();
+                        if (getRepo().getPurpose() == Repository.PUBLISHER)
+                            sourcePath = Utils.getFullPathLocal(source);
+                        else
+                            sourcePath = node.context.cfg.getFullPathSubscriber(source);
+
+                        if (sourcePath.matches("^\\\\[a-zA-Z]:.*") || sourcePath.matches("^/[a-zA-Z]:.*"))
+                            sourcePath = sourcePath.substring(1);
                     }
+
                     if (path.startsWith(sourcePath))
                     {
                         itemPath = path.substring(sourcePath.length() + 1);
@@ -201,7 +207,6 @@ public class NavTreeUserObject implements Comparable
         }
         catch (Exception e)
         {
-
         }
         return itemPath;
     }
@@ -251,6 +256,19 @@ public class NavTreeUserObject implements Comparable
             default:
         }
         return node.context.cfg.gs("NavTreeNode.unknown");
+    }
+
+    public String getRelativePath()
+    {
+        String path = getPath();
+        if (type == REAL)
+        {
+            if (node.getMyRepo().isPublisher())
+                path = node.context.cfg.makeRelativePath(path);
+            else
+                path = node.context.cfg.makeRelativePathSubscriber(path);
+        }
+        return path;
     }
 
     public synchronized Repository getRepo()

@@ -81,11 +81,7 @@ public class Listener extends Thread
         String file = (whiteList ? cfg.getIpWhitelist() : cfg.getBlacklist());
         if (file != null && file.length() > 0)
         {
-            String filename;
-            if (Utils.isRelativePath(file))
-                filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + file;
-            else
-                filename = file;
+            String filename = Utils.getFullPathLocal(file);
             if (filename.length() > 0)
             {
                 String inet = aSocket.getInetAddress().toString();

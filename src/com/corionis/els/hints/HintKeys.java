@@ -62,10 +62,7 @@ public class HintKeys
 
     public void read(String file) throws Exception
     {
-        if (Utils.isRelativePath(file))
-            filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + file;
-        else
-            filename = file;
+        filename = Utils.getFullPathLocal(file);
         BufferedReader br = new BufferedReader(new FileReader(filename));
         int count = 0;
         boolean foundPublisher = false;

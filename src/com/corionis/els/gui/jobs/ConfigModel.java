@@ -229,7 +229,7 @@ public class ConfigModel extends DefaultTableModel
                 {
                     try
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
                         if (json != null && json.length() > 0)
                         {
                             Job job = builder.create().fromJson(json, Job.class);

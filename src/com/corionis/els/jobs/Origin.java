@@ -25,7 +25,7 @@ public class Origin
         this.sourceTree = sourceTree;
         this.treePath = treePath;
         this.tuo = tuo;
-        this.location = tuo.getPath();
+        this.location = tuo.getRelativePath();
         this.type = tuo.type;
     }
 
@@ -35,7 +35,7 @@ public class Origin
         this.treePath = treePath;
         this.tableRow = tableRow;
         this.tuo = tuo;
-        this.location = tuo.getPath();
+        this.location = tuo.getRelativePath();
         this.type = tuo.type;
     }
 

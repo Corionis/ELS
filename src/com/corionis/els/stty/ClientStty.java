@@ -183,7 +183,7 @@ public class ClientStty
             {
                 this.socket = new Socket();
                 SocketAddress socketAddress = new InetSocketAddress(hostname, hostport);
-                this.socket.connect(socketAddress, theirRepo.getLibraryData().libraries.timeout * 60 * 1000);
+                this.socket.connect(socketAddress, 10000);
 
                 this.socket.setKeepAlive(true); // keep alive to avoid time-out
                 this.socket.setSoTimeout(myRepo.getLibraryData().libraries.timeout * 60 * 1000); // read time-out
@@ -365,6 +365,18 @@ public class ClientStty
     }
 
     /**
+     * Return remote working (configuration) directory
+     *
+     * @return Path to remote configuration directory
+     * @throws Exception
+     */
+    public String getWorkingDirectoryRemote() throws Exception
+    {
+        String response = roundTrip("directory", "", 5000);
+        return response;
+    }
+
+    /**
      * Perform a handshake with the other end
      *
      * @return true if connection authenticated
@@ -417,42 +429,6 @@ public class ClientStty
     public boolean isConnected()
     {
         return isConnected;
-    }
-
-    /**
-     * Send command to Hint Status Server to quit
-     *
-     * @param context The Context
-     * @return Resulting fault indicator
-     */
-    public void quitStatusServer(Context context)
-    {
-        if (context.cfg.isQuitStatusServer())
-        {
-            if (context.hintsRepo == null)
-            {
-                logger.warn("-q requires a -h hints file");
-                context.fault = true;
-            }
-            try
-            {
-                if (isConnected())
-                {
-                    logger.info("Sending quit command to Hint Status Server: " + context.hintsRepo.getLibraryData().libraries.description);
-                    context.hintsStty.send("quit", "");
-                    Thread.sleep(1500);
-                    context.hintsStty.disconnect();
-                    context.hintsStty = null;
-                }
-                else
-                    logger.warn("could not send quit command to Hint Status Server: " + context.hintsRepo.getLibraryData().libraries.description);
-            }
-            catch (Exception e)
-            {
-                logger.error(Utils.getStackTrace(e));
-                context.fault = true;
-            }
-        }
     }
 
     /**
@@ -603,7 +579,7 @@ public class ClientStty
             if (errorMessage.length() == 0 && exceptionMessage.length() == 0)
                 logger.error(context.cfg.gs("Z.fault"));
             else
-                logger.error(context.cfg.gs("Z.fault") + errorMessage + "\n" + exceptionMessage);
+                logger.error(context.cfg.gs("Z.fault") + errorMessage + ": " + exceptionMessage);
 
             disconnect();
 

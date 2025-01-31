@@ -160,18 +160,35 @@ public class Process
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
 
-        String header = context.publisherRepo.getLibraryData().libraries.description + " to " +
+        String header = "Munging back-up " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description + (context.cfg.isDryRun() ? " (--dry-run)" : "");
 
         if (mismatchFile != null)
         {
-            mismatchFile.println("Munging collections: " + header);
+            mismatchFile.println(header);
             mismatchFile.println("");
         }
 
         if (whatsNewFile != null)
         {
             whatsNewFile.println("What's New: " + header);
+        }
+
+        boolean rescan = false;
+        for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
+        {
+            if (subLib.rescanNeeded)
+            {
+                rescan = true;
+                break;
+            }
+        }
+        if (rescan)
+        {
+            logger.info("Hints executed on subscriber " + context.subscriberRepo.getLibraryData().libraries.description + ", updated data required");
+            if (context.cfg.isRemoteSubscriber())
+                context.transfer.requestCollection();
+            //else Is local, handled below
         }
 
         logger.info(header);
@@ -183,7 +200,6 @@ public class Process
                 if (fault)
                     break;
 
-                boolean scanned = false;
                 Library pubLib = null;
 
                 // if processing all libraries, or this one was specified on the command line with -l,
@@ -203,17 +219,13 @@ public class Process
                     if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
                     {
                         // do the libraries have items or do they need to be scanned?
-                        if (pubLib.items == null || pubLib.items.size() < 1)
+                        if (pubLib.items == null || pubLib.items.size() < 1 || pubLib.rescanNeeded)
                         {
                             context.publisherRepo.scan(pubLib.name);
-                            scanned = true;
                         }
-                        if (subLib.items == null || subLib.items.size() < 1)
+                        if (subLib.items == null || subLib.items.size() < 1 || subLib.rescanNeeded) // remote rescan handled above
                         {
-                            if (!context.cfg.isRemoteOperation()) // remote collection already loaded and may be empty
-                            {
-                                context.subscriberRepo.scan(subLib.name);
-                            }
+                            context.subscriberRepo.scan(subLib.name);
                         }
 
                         logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
@@ -278,9 +290,9 @@ public class Process
                                                     // If not first time display and reset the whatsNewTotal
                                                     if (!currLib.equals(""))
                                                     {
-                                                        whatsNewFile.println("    --------------------------------");
+                                                        whatsNewFile.println("    ------------------------------------------");
                                                         whatsNewFile.println("    Number of " + currLib + " = " + whatsNewTotal);
-                                                        whatsNewFile.println("    ================================");
+                                                        whatsNewFile.println("    ==========================================");
                                                         whatsNewTotal = 0;
                                                     }
                                                     currLib = item.getLibrary();
@@ -363,9 +375,11 @@ public class Process
             // Close all the files and show the results
             if (mismatchFile != null)
             {
-                mismatchFile.println("----------------------------------------------------");
-                mismatchFile.println("Warnings   : " + getWarnings());
-                mismatchFile.println("Errors     : " + errorCount);
+                mismatchFile.println("------------------------------------------");
+                if (getWarnings() > 0)
+                    mismatchFile.println("Warnings   : " + getWarnings());
+                if (errorCount > 0)
+                    mismatchFile.println("Errors     : " + errorCount);
                 mismatchFile.println("Total items: " + context.transfer.getGrandTotalItems());
                 mismatchFile.println("Total size : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true, context.cfg.getLongScale()));
                 mismatchFile.println("");
@@ -373,12 +387,14 @@ public class Process
             }
             if (whatsNewFile != null)
             {
-                whatsNewFile.println("    --------------------------------");
+                whatsNewFile.println("    ------------------------------------------");
                 whatsNewFile.println("    Total for " + currLib + " = " + whatsNewTotal);
-                whatsNewFile.println("    ================================");
+                whatsNewFile.println("    ==========================================");
                 whatsNewFile.println("");
-                whatsNewFile.println("Warnings   : " + getWarnings());
-                whatsNewFile.println("Errors     : " + errorCount);
+                if (getWarnings() > 0)
+                    whatsNewFile.println("Warnings   : " + getWarnings());
+                if (errorCount > 0)
+                    whatsNewFile.println("Errors     : " + errorCount);
                 whatsNewFile.println("");
                 whatsNewFile.close();
             }
@@ -456,7 +472,7 @@ public class Process
             // setup the -m mismatch output file
             if (context.cfg.getMismatchFilename().length() > 0)
             {
-                String where = Utils.getWorkingFile(context.cfg.getMismatchFilename());
+                String where = Utils.getFullPathLocal(context.cfg.getMismatchFilename());
                 where = Utils.pipe(where);
                 where = Utils.unpipe(context.publisherRepo, where);
                 try
@@ -476,7 +492,7 @@ public class Process
             // setup the -w What's New output file
             if (context.cfg.getWhatsNewFilename().length() > 0)
             {
-                String where = Utils.getWorkingFile(context.cfg.getWhatsNewFilename());
+                String where = Utils.getFullPathLocal(context.cfg.getWhatsNewFilename());
                 where = Utils.pipe(where);
                 where = Utils.unpipe(context.publisherRepo, where);
                 try
@@ -501,7 +517,7 @@ public class Process
                             context.cfg.getSubscriberCollectionFilename().length() == 0))
             {
                 localHints = true; // skip munge
-                result = context.hintsHandler.hintsMunge(true);
+                result = context.hintsHandler.hintsMunge(true, null);
             }
 
             // process -e export text, publisher only
@@ -526,7 +542,7 @@ public class Process
             if (context.cfg.isHintTrackingEnabled() && context.cfg.isTargetsEnabled() &&
                     context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
             {
-                result = context.hintsHandler.hintsMunge(false);
+                result = context.hintsHandler.hintsMunge(false, mismatchFile);
             }
 
             if (!result.toLowerCase().equals("fault"))

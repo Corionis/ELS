@@ -49,33 +49,6 @@ public class Utils
     }
 
     /**
-     * Compact a String by removing all spaces and regex characters
-     *
-     * @param value String to clean
-     * @return String cleaned
-     */
-    public static String compactString(String value)
-    {
-        String bad = "\\.[]{}()<>*+-=!?^$| ";
-        String clean = "";
-        for (int i = 0; i < value.length(); ++i)
-        {
-            boolean skip = false;
-            for (int j = 0; j < bad.length(); ++j)
-            {
-                if (value.charAt(i) == bad.charAt(j))
-                {
-                    skip = true;
-                    break;
-                }
-            }
-            if (!skip)
-                clean = clean + value.charAt(i);
-        }
-        return clean;
-    }
-
-    /**
      * Available space on local target
      *
      * @param location the path to the target
@@ -107,6 +80,33 @@ public class Utils
             logger.error("Exception '" + e.getMessage() + "' getting usable space from " + location);
         }
         return space;
+    }
+
+    /**
+     * Compact a String by removing all spaces and regex characters
+     *
+     * @param value String to clean
+     * @return String cleaned
+     */
+    public static String compactString(String value)
+    {
+        String bad = "\\.[]{}()<>*+-=!?^$| ";
+        String clean = "";
+        for (int i = 0; i < value.length(); ++i)
+        {
+            boolean skip = false;
+            for (int j = 0; j < bad.length(); ++j)
+            {
+                if (value.charAt(i) == bad.charAt(j))
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip)
+                clean = clean + value.charAt(i);
+        }
+        return clean;
     }
 
     /**
@@ -288,8 +288,8 @@ public class Utils
     /**
      * Format a long number with bps, Mbps, Gbps and Tbps as applicable
      *
-     * @param value  Long value to format
-     * @param scale  Binary (1024) or decimal (1000) scale
+     * @param value Long value to format
+     * @param scale Binary (1024) or decimal (1000) scale
      * @return String Formatting text
      */
     public static synchronized String formatRate(long value, double scale)
@@ -315,6 +315,41 @@ public class Utils
             result = form.format(value / (scale * scale * scale * scale)) + " Tbps";
         }
         return result;
+    }
+
+    /**
+     * Get an absolute working file path
+     * <br/>
+     * If the filename is relative the current working directory is prefixed,
+     * otherwise the filename is returned.
+     * <br/>
+     * The path separator is for the local system.
+     *
+     * @param filename Filename to set
+     * @return String Absolute path to work file
+     */
+    public static String getFullPathLocal(String filename)
+    {
+        String location;
+        if (filename.matches("^\\\\[a-zA-Z]:.*") || filename.matches("^/[a-zA-Z]:.*"))
+            filename = filename.substring(1);
+
+        if (Utils.isRelativePath(filename))
+            location = System.getProperty("user.dir") + System.getProperty("file.separator") + filename;
+        else
+            location = filename;
+/*
+        File file = new File(location);
+        try
+        {
+            location = file.getCanonicalPath();
+        }
+        catch (IOException e)
+        {
+            location = file.getPath();
+        }
+*/
+        return location;
     }
 
     /**
@@ -401,40 +436,6 @@ public class Utils
     }
 
     /**
-     * Get list of local hard drives
-     * <br/>
-     * Empty drives such as a CD or DVD with no disc are not returned.
-     *
-     * @return Pipe-separated list of hard drives, e.g. C:\|D:\
-     */
-    public static String getLocalHardDrives()
-    {
-        File[] drives;
-        drives = File.listRoots();
-        String driveList = "";
-        for (int i = 0; i < drives.length; ++i)
-        {
-            File drive = drives[i];
-            boolean empty = false;
-            try
-            {
-                FileStore store = Files.getFileStore(drive.toPath());
-            }
-            catch (IOException ioe)
-            {
-                empty = true;
-            }
-            if (!empty)
-            {
-                if (i > 0)
-                    driveList += "|";
-                driveList += drive.getPath();
-            }
-        }
-        return driveList;
-    }
-
-    /**
      * Get the local system hostname
      *
      * @return Hostname or empty
@@ -472,7 +473,8 @@ public class Utils
         String path = "";
         if (sep == null)
             sep = getSeparatorFromPath(full);
-        int p = full.indexOf(sep);
+        full = pipe(full);
+        int p = full.indexOf("|");
         if (p >= 0)
         {
             path = full.substring(0, p);
@@ -481,6 +483,7 @@ public class Utils
         {
             path = full;
         }
+        path = unpipe(path, sep);
         return path;
     }
 
@@ -496,7 +499,8 @@ public class Utils
         String path = "";
         if (sep == null)
             sep = getSeparatorFromPath(full);
-        int p = full.lastIndexOf(sep);
+        full = pipe(full);
+        int p = full.lastIndexOf("|");
         if (p >= 0)
         {
             path = full.substring(0, p);
@@ -505,6 +509,7 @@ public class Utils
         {
             path = full;
         }
+        path = unpipe(path, sep);
         return path;
     }
 
@@ -528,6 +533,40 @@ public class Utils
             }
         }
         return FileTime.from(0, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Get list of local hard drives
+     * <br/>
+     * Empty drives such as a CD or DVD with no disc are not returned.
+     *
+     * @return Pipe-separated list of hard drives, e.g. C:\|D:\
+     */
+    public static String getLocalHardDrives()
+    {
+        File[] drives;
+        drives = File.listRoots();
+        String driveList = "";
+        for (int i = 0; i < drives.length; ++i)
+        {
+            File drive = drives[i];
+            boolean empty = false;
+            try
+            {
+                FileStore store = Files.getFileStore(drive.toPath());
+            }
+            catch (IOException ioe)
+            {
+                empty = true;
+            }
+            if (!empty)
+            {
+                if (i > 0)
+                    driveList += "|";
+                driveList += drive.getPath();
+            }
+        }
+        return driveList;
     }
 
     /**
@@ -626,7 +665,8 @@ public class Utils
         String path = "";
         if (sep == null)
             sep = getSeparatorFromPath(full);
-        int p = full.lastIndexOf(sep);
+        full = pipe(full);
+        int p = full.lastIndexOf("|");
         if (p >= 0 && p < full.length() - 1)
         {
             path = full.substring(p + 1);
@@ -635,6 +675,7 @@ public class Utils
         {
             path = full;
         }
+        path = unpipe(path, sep);
         return path;
     }
 
@@ -699,7 +740,8 @@ public class Utils
     public static synchronized String getShortPath(String full, String sep)
     {
         String path = "";
-        int p = full.lastIndexOf(sep);
+        full = pipe(full);
+        int p = full.lastIndexOf("|");
         if (p >= 0)
         {
             if (full.length() > (p + 1))
@@ -711,6 +753,7 @@ public class Utils
         {
             path = full;
         }
+        path = unpipe(path, sep);
         return path;
     }
 
@@ -785,7 +828,7 @@ public class Utils
         if (!path.endsWith(sep))
             path += sep;
         location = path + filename;
-        location = Utils.getWorkingFile(location);
+        location = Utils.getFullPathLocal(location);
         return location;
     }
 
@@ -809,27 +852,6 @@ public class Utils
             }
         }
         return ps;
-    }
-
-    /**
-     * Get an absolute working file path
-     * <br/>
-     * If the filename is relative the current working directory is prefixed,
-     * otherwise the filename is returned.
-     * <br/>
-     * The path separator is for the local system.
-     *
-     * @param filename Filename to set
-     * @return String Absolute path to work file
-     */
-    public static String getWorkingFile(String filename)
-    {
-        String location;
-        if (Utils.isRelativePath(filename))
-            location = System.getProperty("user.dir") + System.getProperty("file.separator") + filename;
-        else
-            location = filename;
-        return location;
     }
 
     /**
@@ -954,7 +976,7 @@ public class Utils
     {
         if (path.matches("^[a-zA-Z]:.*"))
             return false;
-        if (path.startsWith("/") || path.startsWith("\\"))
+        if (path.startsWith("/") || path.startsWith("\\") || path.startsWith("|"))
             return false;
         return true;
     }
@@ -978,15 +1000,16 @@ public class Utils
      * Make a path relative to the working directory if possible
      *
      * @param workingDirectory The current working directory, localContext.cfg.getWorkingDirectory()
-     * @param path The path to reduce
+     * @param path             The path to reduce
      * @return String the path, potentially shortened to be relative to the working path
      */
     public static String makeRelativePath(String workingDirectory, String path)
     {
+        workingDirectory = pipe(workingDirectory);
+        path = pipe(path);
         if (!path.equals(workingDirectory) && path.startsWith(workingDirectory))
             path = path.substring(workingDirectory.length() + 1);
-        path = pipe(path);
-        path = unpipe(path, System.getProperty("file.separator"));
+        path = unpipe(path, "/");
         return path;
     }
 

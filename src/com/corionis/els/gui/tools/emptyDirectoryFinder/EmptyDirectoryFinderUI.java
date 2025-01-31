@@ -76,6 +76,9 @@ public class EmptyDirectoryFinderUI extends JDialog
 
         adjustEmptiesTable();
         context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
+        buttonDelete.setEnabled(false);
+        buttonAll.setEnabled(false);
+        buttonNone.setEnabled(false);
     }
 
     private void actionAllClicked(ActionEvent e)
@@ -128,7 +131,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                         {
                             String path = Utils.makeLinuxPath(empty.path);
                             logger.info(context.cfg.gs("EmptyDirectoryFinder.removing") + path);
-                            context.transfer.remove(context.clientSftp, path, true, !isPublisher && context.cfg.isRemoteOperation());
+                            context.transfer.remove(path, !isPublisher && context.cfg.isRemoteOperation());
                         }
                         catch (Exception ex)
                         {
@@ -213,6 +216,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         }
         else
         {
+            isPublisher = false;
             which = context.cfg.gs("Z.subscriber");
             sourceTree = context.mainFrame.treeCollectionTwo;
         }
@@ -257,7 +261,9 @@ public class EmptyDirectoryFinderUI extends JDialog
             {
                 buttonDelete.setEnabled(false);
                 buttonRun.setEnabled(false);
-                //closeButton.setEnabled(false);
+                buttonAll.setEnabled(false);
+                buttonNone.setEnabled(false);
+
                 empties = new ArrayList<Empty>();
                 EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
                 etm.setEmpties(empties);
@@ -346,6 +352,13 @@ public class EmptyDirectoryFinderUI extends JDialog
                         etm.fireTableDataChanged();
                         context.mainFrame.labelStatusMiddle.setText(emptyCount + context.cfg.gs("EmptyDirectoryFinder.empty.directories"));
 
+                        if (emptyCount > 0)
+                        {
+                            buttonDelete.setEnabled(true);
+                            buttonAll.setEnabled(true);
+                            buttonNone.setEnabled(true);
+                        }
+
                         return null;
                     };
                 };
@@ -361,9 +374,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                                 if (e.getNewValue() == SwingWorker.StateValue.DONE)
                                 {
                                     workerRunning = false;
-                                    buttonDelete.setEnabled(true);
                                     buttonRun.setEnabled(true);
-                                    //closeButton.setEnabled(true);
                                     EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
                                     etm.setEmpties(empties);
                                     etm.fireTableDataChanged();

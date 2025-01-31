@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
-import java.io.File;
+import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -67,6 +67,14 @@ public class Hints
         return results;
     }
 
+    /**
+     * Execute a Hint
+     *
+     * @param repo Repository target for Hint
+     * @param hint The Hint
+     * @return "true" or "false" success
+     * @throws Exception
+     */
     private String execute(Repository repo, Hint hint) throws Exception
     {
         int forIndex = -2;
@@ -112,14 +120,10 @@ public class Hints
      * @return Hints.Hintkey of matching UUID
      * @throws Exception if not found
      */
-    public HintKey findHintKey(Repository repo) throws Exception
+    public HintKey findHintKey(Repository repo)
     {
         // find the ELS key for this repo
         HintKey hintKey = keys.findKey(repo.getLibraryData().libraries.key);
-//        if (hintKey == null)
-//        {
-//            throw new MungeException("Repository not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
-//        }
         return hintKey;
     }
 
@@ -203,21 +207,23 @@ public class Hints
      * <br/>
      * Used by Process during back-up operations to execute all publisher then subscriber Hints.
      *
-     * @return
+     * @return "true", "false" or "fault"
      * @throws Exception
      */
-    public String hintsMunge(boolean publisherOnly) throws Exception
+    public String hintsMunge(boolean publisherOnly, PrintWriter mismatches) throws Exception
     {
-        String result = hintsMunge(null, true, null);
+        // process Hints for publisher first
+        String result = hintsMunge(null, true, null, null);
+
+        // rescan of Publisher is needed here for Subscriber Hints next, not repeated in back-up process
         if (!result.toLowerCase().equals("false"))
             rescanLibraries(true);
-        if (!publisherOnly)
+
+        if (!publisherOnly) // process Subscriber
         {
-            result = hintsMunge(null, false, null);
-            if (!result.toLowerCase().equals("false"))
-            {
-                rescanLibraries(false);
-            }
+            result = hintsMunge(null, false, null, mismatches);
+            // Note: Rescans happen for Subscriber during the back-up process if
+            // the Subscriber library rescanNeeded is true
         }
         return result;
     }
@@ -225,7 +231,7 @@ public class Hints
     /**
      * Process Hints<br/>
      * <br/>
-     * Used by Subscriber Listener (subscriber.Daemon). Does not update status.
+     * Used by Subscriber Listener (stty.subscriber.Daemon). Does not update status.
      * <p>
      * This is a local-only method
      *
@@ -273,7 +279,7 @@ public class Hints
     /**
      * Process Hints<br/>
      * <br/>
-     * Used by Navigator and back-up operations. Updates Hint status.
+     * Used by Navigator and Publisher back-up operations. Updates Hint status.
      *
      * @param pending
      * @param forMe
@@ -281,12 +287,16 @@ public class Hints
      * @return
      * @throws Exception
      */
-    public String hintsMunge(ArrayList<Hint> pending, boolean forMe, HintsTableModel model) throws Exception
+    public String hintsMunge(ArrayList<Hint> pending, boolean forMe, HintsTableModel model, PrintWriter mismatchesFile) throws Exception
     {
+        int falses = 0;
+        int faults = 0;
         int forIndex = -2;
         HintKey key;
+        int nots = 0;
         Repository repo;
         String response = "false";
+        int trues = 0;
 
         if (forMe)
             repo = context.publisherRepo;
@@ -313,6 +323,13 @@ public class Hints
 
                 if (pending != null && pending.size() > 0)
                 {
+                    if (mismatchesFile != null)
+                    {
+                        mismatchesFile.println("Munging Hints to " + repo.getLibraryData().libraries.description);
+                        mismatchesFile.println(" ");
+                    }
+
+                    executedHints = 0;
                     for (int i = 0; i < pending.size(); ++i)
                     {
                         Hint hint = pending.get(i);
@@ -328,7 +345,18 @@ public class Hints
                                     // execute each remotely on subscriber
                                     String json = gsonBuilder.toJson(hint);
                                     String line = "\"execute\" " + json;
-                                    response = context.clientStty.roundTrip(line + "\n", null, 10000); // 20 second time-out
+                                    response = context.clientStty.roundTrip(line + "\n", null, 20000);
+
+                                    if (response.trim().toLowerCase().equals("true"))
+                                    {
+                                        if (hint.action.trim().toLowerCase().equals("mv")) // move & rename
+                                        {
+                                            repo.getLibrary(hint.fromLibrary).rescanNeeded = true;
+                                            repo.getLibrary(hint.toLibrary).rescanNeeded = true;
+                                        }
+                                        else // it is a rm with from only
+                                            repo.getLibrary(hint.fromLibrary).rescanNeeded = true;
+                                    }
                                 }
                                 else
                                 {
@@ -342,20 +370,59 @@ public class Hints
                                 response = "fault";
                             }
 
+                            String summary = hint.getActionSummary(context, key.system);
                             if (response.trim().toLowerCase().equals("true"))
+                            {
+                                ++trues;
+                                summary = "True: " + summary;
                                 hint.setStatus(key.system, "Done");
+                            }
                             else if (!response.trim().toLowerCase().equals("false"))
+                            {
+                                ++faults;
+                                summary = "Fault: " + summary;
                                 hint.setStatus(key.system, "Fault");
+                            }
                             else
+                            {
+                                ++falses;
+                                summary = "False: " + summary;
                                 hint.setStatus(key.system, "Done");
+                            }
+
+                            if (mismatchesFile != null)
+                                mismatchesFile.println(summary);
 
                             if (model != null)
                                 model.fireTableDataChanged();
 
                             writeOrUpdateHint(hint, key.uuid);
                         }
+                        else
+                            ++nots;
                     }
-                    logger.info("Hint execution complete, result: " + response);
+
+                    if (faults > 0)
+                    {
+                        response = "fault";
+                        if (mismatchesFile != null)
+                            mismatchesFile.println("Faults: " + faults);
+                    }
+                    else if (trues > 0)
+                        response = "true";
+                    else
+                        response = "false";
+                    logger.info("+------------------------------------------");
+                    logger.info("# Hint execution complete, result: " + response);
+                    logger.info("# Performed:     " + trues);
+                    logger.info("# Not performed: " + falses);
+                    logger.info("# Not For:       " + nots);
+                    logger.info("# Faults:        " + faults);
+                    logger.info("# Total:         " + executedHints);
+                    logger.info("+------------------------------------------");
+
+                    if (mismatchesFile != null)
+                        mismatchesFile.println("");
                 }
             }
         }
@@ -384,49 +451,6 @@ public class Hints
         return true;
     }
 
-    public String reduceCollectionPath(NavTreeUserObject tuo)
-    {
-        String path = null;
-        if (tuo.node.getMyTree().getName().contains("Collection"))
-        {
-            Repository repo = tuo.getRepo();
-            if (repo != null)
-            {
-                String tuoPath = (repo.getLibraryData().libraries.case_sensitive) ? tuo.path : tuo.path.toLowerCase();
-                if (tuoPath.length() == 0)
-                {
-                    path = "";   // tuo.name;
-                }
-                else
-                {
-                    for (Library lib : repo.getLibraryData().libraries.bibliography)
-                    {
-                        for (String source : lib.sources)
-                        {
-                            String srcPath = source;
-                            if (!tuo.isRemote && !Utils.isRelativePath(tuoPath))
-                            {
-                                File srcDir = new File(source);
-                                srcPath = srcDir.getAbsolutePath();
-                            }
-                            srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcPath : srcPath.toLowerCase();
-                            if (tuoPath.startsWith(srcPath))
-                            {
-                                path = tuo.path.substring(srcPath.length() + 1);
-                                break;
-                            }
-                        }
-                        if (path != null)
-                            break;
-                    }
-                }
-            }
-        }
-        if (path == null)
-            path = tuo.path;
-        return path;
-    }
-
     private void rescanLibraries(boolean scanPublisher) throws Exception
     {
         Repository repo;
@@ -439,7 +463,7 @@ public class Hints
         {
             if (lib.rescanNeeded)
             {
-                logger.info("Rescan required for library: " + lib.name);
+                //logger.info("Rescan required for library: " + lib.name);
                 repo.scan(lib.name);
             }
         }
@@ -497,19 +521,19 @@ public class Hints
             hint.action = act;
 
             hint.fromLibrary = sourceTuo.getParentLibrary().getUserObject().name;
-            hint.fromItemPath = reduceCollectionPath(sourceTuo);
+            hint.fromItemPath = context.navigator.reduceCollectionPath(sourceTuo);
             hint.directory = sourceTuo.isDir;
 
             if (act.equals("mv"))
             {
-                String moveTo = reduceCollectionPath(targetTuo);
+                String moveTo = context.navigator.reduceCollectionPath(targetTuo);
 
                 // do not append right-side target path if the nodes are the same
                 if (sourceTuo.node != targetTuo.node)
                 {
                     if (moveTo.length() > 0 && !moveTo.trim().endsWith("|"))
                         moveTo += targetTuo.getRepo().getSeparator();
-                    moveTo += Utils.getRightPath(sourceTuo.getPath(), targetTuo.getRepo().getSeparator());
+                    moveTo += Utils.getRightPath(sourceTuo.getPath(), sourceTuo.getRepo().getSeparator());
                 }
 
                 hint.toLibrary = targetTuo.getParentLibrary().getUserObject().name;
@@ -537,7 +561,7 @@ public class Hints
             String json = gsonBuilder.toJson(hint);
             String line = "get \"full\" " + json;
             String response = context.hintsStty.roundTrip(line + "\n", "Sending remote Hint Server: " + line, 10000);
-            logger.info("Hint Server response: " + response);
+            logger.debug("Hint Server response: " + response);
             if (!response.equals("false"))
             {
                 dsHint = gsonParser.fromJson(response, Hint.class);

@@ -275,6 +275,7 @@ public class JunkRemoverTool extends AbstractTool
         {
             try
             {
+                path = context.cfg.getFullPathSubscriber(path);
                 Vector listing = getContext().clientSftp.listDirectory(path);
                 for (int i = 0; i < listing.size(); ++i)
                 {
@@ -309,7 +310,7 @@ public class JunkRemoverTool extends AbstractTool
                                         context.mainFrame.labelStatusMiddle.updateUI();
                                     }
                                     if (!isDryRun)
-                                        getContext().transfer.remove(context.clientSftp, fullpath, attrs.isDir(), isRemote());
+                                        getContext().transfer.remove(fullpath, isRemote());
                                     logDeletion(fullpath);
                                 }
                             }
@@ -337,10 +338,10 @@ public class JunkRemoverTool extends AbstractTool
             try
             {
                 File[] files;
-                File file = new File(path);
+                File file = new File(Utils.getFullPathLocal(path));
                 if (file.isDirectory())
                 {
-                    files = FileSystemView.getFileSystemView().getFiles(file.getAbsoluteFile(), true);
+                    files = FileSystemView.getFileSystemView().getFiles(file, true);
                 }
                 else
                 {
@@ -356,7 +357,7 @@ public class JunkRemoverTool extends AbstractTool
                     {
                         context.progress.update(" " + filename);
                     }
-                    String fullpath = entry.getAbsolutePath();
+                    String fullpath = entry.getPath();
                     if (entry.isDirectory())
                     {
                         scanForJunk(fullpath);
@@ -373,7 +374,7 @@ public class JunkRemoverTool extends AbstractTool
                                 if (context.mainFrame != null)
                                     context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.count") + deleteCount);
                                 if (!isDryRun)
-                                    getContext().transfer.remove(context.clientSftp, fullpath, entry.isDirectory(), isRemote());
+                                    getContext().transfer.remove(fullpath, isRemote());
                                 logDeletion(fullpath);
                                 break;
                             }

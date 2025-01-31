@@ -125,6 +125,7 @@ public class Storage
             String json;
             Gson gson = new Gson();
             logger.info("Reading Targets file " + filename);
+            filename = Utils.getFullPathLocal(filename);
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
             targetData = gson.fromJson(json, TargetData.class);

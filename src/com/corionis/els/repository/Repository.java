@@ -27,10 +27,10 @@ import java.util.regex.PatternSyntaxException;
  */
 public class Repository implements Comparable
 {
+    public static final int HINT_SERVER = 3;
     public static final boolean NO_VALIDATE = false;
     public static final int PUBLISHER = 1;
     public static final int SUBSCRIBER = 2;
-    public static final int HINT_SERVER = 3;
     public static final boolean VALIDATE = true;
     public final String SUB_EXCLUDE = "ELS-SUBSCRIBER-SKIP_";
 
@@ -44,6 +44,7 @@ public class Repository implements Comparable
 
     /**
      * Instantiate a Repository with a purpose
+     *
      * @param context The Context
      * @param purpose One of PUBLISHER, SUBSCRIBER, HINT_SERVER
      */
@@ -68,7 +69,7 @@ public class Repository implements Comparable
         noItems.libraryData.libraries.listen = getLibraryData().libraries.listen;
         noItems.libraryData.libraries.timeout = getLibraryData().libraries.timeout;
         noItems.libraryData.libraries.flavor = getLibraryData().libraries.flavor;
-        noItems.libraryData.libraries.case_sensitive =getLibraryData().libraries.case_sensitive;
+        noItems.libraryData.libraries.case_sensitive = getLibraryData().libraries.case_sensitive;
         noItems.libraryData.libraries.temp_dated = getLibraryData().libraries.temp_dated;
         noItems.libraryData.libraries.temp_location = getLibraryData().libraries.temp_location;
         noItems.libraryData.libraries.terminal_allowed = getLibraryData().libraries.terminal_allowed;
@@ -91,6 +92,7 @@ public class Repository implements Comparable
         }
         return noItems;
     }
+    // @formatter:on
 
     @Override
     public int compareTo(Object o)
@@ -127,7 +129,7 @@ public class Repository implements Comparable
     public void exportItems(boolean isCollection) throws MungeException
     {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String where = Utils.getWorkingFile(context.cfg.getExportCollectionFilename());
+        String where = Utils.getFullPathLocal(context.cfg.getExportCollectionFilename());
         File outFile = new File(where);
         outFile.getParentFile().mkdirs();
         logger.info("Writing " + (isCollection ? "collection" : "library") + " file " + where);
@@ -151,7 +153,7 @@ public class Repository implements Comparable
      */
     public void exportText() throws MungeException
     {
-        String where = Utils.getWorkingFile(context.cfg.getExportTextFilename());
+        String where = Utils.getFullPathLocal(context.cfg.getExportTextFilename());
         File outFile = new File(where);
         outFile.getParentFile().mkdirs();
         logger.info("Writing text file " + where);
@@ -206,16 +208,6 @@ public class Repository implements Comparable
     public String getJsonFilename()
     {
         return jsonFilename;
-    }
-
-    /**
-     * Sets LibraryData file.
-     *
-     * @param jsonFilename of the LibraryData file
-     */
-    public void setJsonFilename(String jsonFilename)
-    {
-        this.jsonFilename = jsonFilename;
     }
 
     /**
@@ -493,7 +485,7 @@ public class Repository implements Comparable
 
     /**
      * Determine if item should be ignored
-     *<br/>
+     * <br/>
      * Examples:
      * <ul>
      *   <li>Ignore any case of "desktop.ini" = "(?i)desktop\\.ini"</li>
@@ -501,6 +493,7 @@ public class Repository implements Comparable
      *   <li>Ignore directory "/Plex Versions" = ".*\\/Plex Versions.*"</li>
      *   <li>Ignore directory "Plex Versions/" = ".*Plex Versions\\/.*"</li>
      * </ul>
+     *
      * @param item The item to check
      * @return true/false
      */
@@ -581,11 +574,13 @@ public class Repository implements Comparable
         if (getLibraryData() != null)
         {
             // if listen is empty use host
+/*
             if (getLibraryData().libraries.listen == null ||
                     getLibraryData().libraries.listen.length() < 1)
             {
                 getLibraryData().libraries.listen = getLibraryData().libraries.host;
             }
+*/
 
             // set default timeout
             if (getLibraryData().libraries.timeout < 0)
@@ -603,8 +598,8 @@ public class Repository implements Comparable
             }
             else if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
             {
-                    from = "/";
-                    to = "\\\\";
+                from = "/";
+                to = "\\\\";
             }
 
             // temporary files location
@@ -613,7 +608,7 @@ public class Repository implements Comparable
                 String path = getLibraryData().libraries.temp_location;
                 if (path.startsWith("~")) // is it relative to the user's home directory?
                 {
-                    path = System. getProperty("user.home") + path.substring(1);
+                    path = System.getProperty("user.home") + path.substring(1);
                     getLibraryData().libraries.temp_location = path;
                 }
             }
@@ -686,11 +681,13 @@ public class Repository implements Comparable
      */
     private String normalizeSubst(String path, String from, String to)
     {
-        if (from.equals("\\"))
-                from = "\\\\";
-        if (to.equals("\\"))
-            to = "\\\\";
-        return path.replaceAll(from, to).replaceAll("\\|", to);
+//        if (from.equals("\\"))
+//            from = "\\\\";
+//        if (to.equals("\\"))
+//            to = "\\\\";
+//        return path.replaceAll(from, to).replaceAll("\\|", to);
+        path = Utils.unpipe(Utils.pipe(path), to);
+        return path;
     }
 
     /**
@@ -709,10 +706,7 @@ public class Repository implements Comparable
             if (getLibraryData() != null)
                 libraryData = null;
             Gson gson = new Gson();
-            if (Utils.isRelativePath(filename))
-            {
-                filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + filename;
-            }
+            filename = Utils.getFullPathLocal(filename);
             if (printLog)
                 logger.info("Reading Library file " + filename);
             setJsonFilename(filename);
@@ -722,7 +716,7 @@ public class Repository implements Comparable
             {
                 normalize();
                 if (printLog)
-                    logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
+                    logger.info("Read " + libraryData.libraries.description + " successfully");
                 valid = true;
             }
         }
@@ -787,6 +781,8 @@ public class Repository implements Comparable
      * Scan a specific directory, recursively.
      * <p>
      * Used by the public scan methods.
+     * <p>
+     * This is a local-only method
      *
      * @param directory the directory
      * @throws MungeException the els exception
@@ -800,6 +796,11 @@ public class Repository implements Comparable
         long size = 0;
         boolean isDir = false;
         boolean isSym = false;
+
+        if (isSubscriber() && context.cfg.isRemoteSubscriber())
+            directory = context.cfg.getFullPathSubscriber(directory);
+        else
+            directory = Utils.getFullPathLocal(directory);
         Path path = Paths.get(directory);
 
         if (library.items == null)
@@ -820,7 +821,16 @@ public class Repository implements Comparable
                 item.setDirectory(isDir);
                 size = (isDir ? 0L : Files.size(path));                 // size
                 item.setSize(size);
-                itemPath = fullPath.substring(base.length() + 1);    // item path
+
+                int p;
+                String full;
+                if (isSubscriber() && context.cfg.isRemoteSubscriber())
+                    full = context.cfg.getFullPathSubscriber(base);
+                else
+                    full = Utils.getFullPathLocal(base);
+                p = full.length() + 1;
+
+                itemPath = fullPath.substring(p);                       // item path
                 item.setItemPath(itemPath);
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);
@@ -861,7 +871,7 @@ public class Repository implements Comparable
      */
     private void scanSources(Library lib) throws MungeException
     {
-        logger.info("Scanning " + getLibraryData().libraries.description + ": " + lib.name);
+        logger.info((lib.rescanNeeded ? "Rescan required " : "Scanning ") + getLibraryData().libraries.description + ": " + lib.name);
         lib.items = null;
         for (String src : lib.sources)
         {
@@ -881,6 +891,16 @@ public class Repository implements Comparable
     }
 
     /**
+     * Sets LibraryData file.
+     *
+     * @param jsonFilename of the LibraryData file
+     */
+    public void setJsonFilename(String jsonFilename)
+    {
+        this.jsonFilename = jsonFilename;
+    }
+
+    /**
      * Sort a specific library's items.
      */
     public void sort(Library lib)
@@ -897,6 +917,12 @@ public class Repository implements Comparable
         {
             sort(lib);
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return (libraryData != null && libraryData.libraries != null) ? libraryData.libraries.description : "";
     }
 
     /**
@@ -978,7 +1004,7 @@ public class Repository implements Comparable
                             {
                                 throw new MungeException("bibliography[" + i + "].sources[" + j + "] must be defined");
                             }
-                            if (Files.notExists(Paths.get(lib.sources[j])))
+                            if (Files.notExists(Paths.get(Utils.getFullPathLocal(lib.sources[j]))))
                             {
                                 String msg = "bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist";
                                 if (context.cfg.isGui())
@@ -1021,14 +1047,14 @@ public class Repository implements Comparable
     {
         try
         {
-            File f = new File(getJsonFilename());
+            File f = new File(Utils.getFullPathLocal(getJsonFilename()));
             if (f != null)
             {
                 f.getParentFile().mkdirs();
             }
 
             Gson gson = new GsonBuilder().serializeNulls().create();
-            JsonWriter jsonWriter = new JsonWriter(new FileWriter(getJsonFilename()));
+            JsonWriter jsonWriter = new JsonWriter(new FileWriter(f.getPath()));
             jsonWriter.setIndent("    ");
             gson.toJson(libraryData, LibraryData.class, jsonWriter);
             jsonWriter.close();
@@ -1037,12 +1063,6 @@ public class Repository implements Comparable
         {
             throw new MungeException(context.cfg.gs("Z.error.writing") + getJsonFilename() + ": " + Utils.getStackTrace(fnf));
         }
-    }
-
-    @Override
-    public String toString()
-    {
-        return (libraryData != null && libraryData.libraries != null) ? libraryData.libraries.description : "";
     }
 
 }

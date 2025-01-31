@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.4" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.5" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": false
@@ -91,7 +91,7 @@ new FormModel {
 							name: "tableHints"
 							"fillsViewportHeight": true
 							"selectionMode": 0
-							"autoResizeMode": 4
+							"autoResizeMode": 1
 							"showHorizontalLines": false
 							"showVerticalLines": false
 							"autoCreateRowSorter": true

@@ -721,9 +721,11 @@ public class LibrariesUI
             if (libMeta.repo.getLibraryData().libraries.bibliography.length > 0 &&
                     currentLibraryIndex < libMeta.repo.getLibraryData().libraries.bibliography.length)
             {
+                String name = biblioLibrariesTableModel.getValueAt(currentLibraryIndex, 0).toString();
                 directoryPicker = new DirectoryPicker(context,
                         context.cfg.gs("Libraries.select.new.source.path"),
-                        context.cfg.gs("Libraries.select.new.source") + ": " + libMeta.repo.getLibraryData().libraries.description,
+                        context.cfg.gs("Libraries.select.new.source") + ": " + libMeta.repo.getLibraryData().libraries.description +
+                        ", " + name,
                         false, false, "");
 
                 directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
@@ -761,7 +763,11 @@ public class LibrariesUI
                                         // make path relative if possible
                                         String path;
                                         if (origin.tuo.isRemote)
-                                            path = origin.getLocation();
+                                        {
+                                            path = context.cfg.makeRelativePathSubscriber(origin.getLocation());
+                                            if (path.matches("^\\\\[a-zA-Z]:.*") || path.matches("^/[a-zA-Z]:.*"))
+                                                path = path.substring(1);
+                                        }
                                         else
                                             path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), origin.getLocation());
 

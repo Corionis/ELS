@@ -14,9 +14,10 @@ import java.util.Vector;
 /**
  * ClientSftp -to- ServerSftp
  * <br/>
- * This implementation uses the Jsch client library:
- * http://www.jcraft.com/jsch/
- * https://epaul.github.io/jsch-documentation/
+ * This implementation uses the Jsch client library
+ *  See: <br/>
+ * <a href="http://www.jcraft.com/jsch/">jcraft</a> <br/>
+ * <a href="https://epaul.github.io/jsch-documentation/">jsch docs</a>
  */
 public class ClientSftp
 {
@@ -116,9 +117,9 @@ public class ClientSftp
     public void get(String source, String dest) throws Exception
     {
         ChannelSftp jSftp = connect();
-        source = Utils.pipe(source);
+        source = Utils.pipe(context.cfg.getFullPathSubscriber(source));
         source = Utils.unpipe(source, "/");
-        dest = Utils.pipe(dest);
+        dest = Utils.pipe(Utils.getFullPathLocal(dest));
         dest = Utils.unpipe(dest, "/");
         if (context.progress != null)
             jSftp.get(source, dest, context.progress);
@@ -147,9 +148,9 @@ public class ClientSftp
      */
     public synchronized Vector listDirectory(String directory) throws Exception
     {
-        ChannelSftp jSftp = connect();
-        directory = Utils.pipe(directory);
+        directory = Utils.pipe(context.cfg.getFullPathSubscriber(directory));
         directory = Utils.unpipe(directory, "/");
+        ChannelSftp jSftp = connect();
         Vector listing = jSftp.ls(directory);
         jSftp.disconnect();
         return listing;
@@ -164,7 +165,7 @@ public class ClientSftp
      */
     public String makeDirectory(String pathname) throws Exception
     {
-        pathname = Utils.pipe(pathname);
+        pathname = Utils.pipe(context.cfg.getFullPathSubscriber(pathname));
         String[] parts = pathname.split("\\|");
 
         String sep = "/";
@@ -207,6 +208,18 @@ public class ClientSftp
     }
 
     /**
+     * Stat a remote entry
+     */
+    public String pwd() throws Exception
+    {
+        String pwd = "";
+        ChannelSftp jSftp = connect();
+        pwd = jSftp.pwd();
+        jSftp.disconnect();
+        return pwd;
+    }
+
+    /**
      * Remove a remote file or directory
      *
      * @param path Remote path
@@ -216,7 +229,7 @@ public class ClientSftp
     public void remove(String path, boolean isDir) throws Exception
     {
         ChannelSftp jSftp = connect();
-        path = Utils.pipe(path);
+        path = Utils.pipe(context.cfg.getFullPathSubscriber(path));
         path = Utils.unpipe(path, "/");
         if (isDir)
             jSftp.rmdir(path);
@@ -235,9 +248,9 @@ public class ClientSftp
     public void rename(String from, String to) throws Exception
     {
         ChannelSftp jSftp = connect();
-        from = Utils.pipe(from);
+        from = Utils.pipe(context.cfg.getFullPathSubscriber(from));
         from = Utils.unpipe(from, "/");
-        to = Utils.pipe(to);
+        to = Utils.pipe(context.cfg.getFullPathSubscriber(to));
         to = Utils.unpipe(to, "/");
         jSftp.rename(from, to);
         jSftp.disconnect();
@@ -253,7 +266,7 @@ public class ClientSftp
     public void setDate(String dest, long mtime) throws Exception
     {
         ChannelSftp jSftp = connect();
-        dest = Utils.pipe(dest);
+        dest = Utils.pipe(context.cfg.getFullPathSubscriber(dest));
         dest = Utils.unpipe(dest, "/");
         jSftp.setMtime(dest, (int) mtime);
         jSftp.disconnect();
@@ -279,7 +292,6 @@ public class ClientSftp
 
             jSession.connect(60000); // sftp session connection time-out, 60 secs
 
-            //jSession.setTimeout(theirRepo.getLibraryData().libraries.timeout * 60 * 1000); // inactivity time-out; NOW handled per-operation
             logger.trace("client sftp timeout is " + jSession.getTimeout());
         }
         catch (Exception e)
@@ -296,7 +308,7 @@ public class ClientSftp
     public synchronized SftpATTRS stat(String path) throws Exception
     {
         ChannelSftp jSftp = connect();
-        path = Utils.pipe(path);
+        path = Utils.pipe(context.cfg.getFullPathSubscriber(path));
         path = Utils.unpipe(path, "/");
         SftpATTRS attrs = jSftp.stat(path);
         jSftp.disconnect();
@@ -329,9 +341,11 @@ public class ClientSftp
         long readOffset = 0;
         long writeOffset = 0L;
 
+        src = Utils.getFullPathLocal(src);
+        dest = context.cfg.getFullPathSubscriber(dest);
+
         ChannelSftp jSftp = connect();
         String copyDest = Utils.pipe(dest + ".els-part");
-        copyDest = Utils.pipe(copyDest);
         copyDest = Utils.unpipe(copyDest, "/");
 
         // does the destination already exist?
@@ -373,11 +387,11 @@ public class ClientSftp
 
         // copy the .els-part file
         if (context.progress != null)
-            jSftp.put(src, copyDest, context.progress, mode);
+            jSftp.put(Utils.getFullPathLocal(src), copyDest, context.progress, mode);
         else
-            jSftp.put(src, copyDest, mode);
+            jSftp.put(Utils.getFullPathLocal(src), copyDest, mode);
 
-        // delete any old original file
+        // delete any old original file before part rename
         try
         {
             dest = Utils.pipe(dest);
@@ -387,7 +401,7 @@ public class ClientSftp
         catch (SftpException e)
         {
             String msg = e.toString().trim().toLowerCase();
-            if (!msg.contains("nosuchfileexception"))
+            if (!msg.contains("nosuchfileexception") && !e.getCause().getMessage().contains("interruptedioexception")) // cancel interrupts
                 throw e;
         }
 

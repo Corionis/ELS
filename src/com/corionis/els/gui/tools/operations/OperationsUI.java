@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -554,7 +555,14 @@ public class OperationsUI extends AbstractToolDialog
         if (fileName.length() > 0)
         {
             dir = new File(filePickerDirectory(fileName));
-            fc.setCurrentDirectory(dir.getAbsoluteFile());
+            try
+            {
+                fc.setCurrentDirectory(dir.getCanonicalFile());
+            }
+            catch (IOException e)
+            {
+                fc.setCurrentDirectory(dir);
+            }
 
             file = new File(fileName);
             fc.setSelectedFile(file);

@@ -217,7 +217,7 @@ public class Repositories
         return repoList;
     }
 
-    public ArrayList<RepoMeta> loadList(Context context)
+    public ArrayList<RepoMeta> loadList(Context context) throws Exception
     {
         boolean dynamicPublisher = false;
         boolean dynamicSubscriber = false;
@@ -245,7 +245,7 @@ public class Repositories
             {
                 if (!entry.isDirectory())
                 {
-                        addRepo(context, entry.getAbsolutePath());
+                    addRepo(context, entry.getCanonicalPath());
                 }
             }
 

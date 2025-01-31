@@ -334,6 +334,13 @@ public class Daemon extends AbstractDaemon
                         continue;
                     }
 
+                    // -------------- directory ------------------------
+                    if (theCommand.equalsIgnoreCase("directory"))
+                    {
+                        response = context.cfg.getWorkingDirectory();
+                        continue;
+                    }
+
                     // -------------- get hint(s) --------------------------------
                     if (theCommand.equalsIgnoreCase("get"))
                     {

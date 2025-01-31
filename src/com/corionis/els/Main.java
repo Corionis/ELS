@@ -96,7 +96,7 @@ public class Main
         this.context = (Context) context.clone();
         this.context.main = this;
         this.primaryExecution = false;
-        this.previousContext = context;
+        this.previousContext = (Context) context.clone();
         this.operationName = operationName;
         process(args);          // ELS Processor
     }
@@ -217,14 +217,14 @@ public class Main
      * @return true if successful, otherwise false
      * @throws Exception Configuration and connection exceptions
      */
-    public boolean connectSubscriber(boolean promptOnFailure) throws Exception
+    public boolean connectSubscriber(boolean isTerminal, boolean promptOnFailure) throws Exception
     {
         try
         {
             if (context.publisherRepo != null && context.subscriberRepo != null)
             {
                 // start the clientStty
-                context.clientStty = new ClientStty(context, false, true, false);
+                context.clientStty = new ClientStty(context, isTerminal, true, false);
                 if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                 {
                     throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Main.remote.subscriber.failed.to.connect"),
@@ -445,16 +445,12 @@ public class Main
      */
     public void getAppenders()
     {
-        //if (appender == null)
-        {
-            LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-            AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
-            LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
-            Map<String, Appender> appenders = loggerConfig.getAppenders();
-            guiLogAppender = (GuiLogAppender) appenders.get("GuiLogAppender");
-            rollingFileAppender = (RollingFileAppender) appenders.get("applog");
-        }
-        //return appender;
+        LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+        AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
+        LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
+        Map<String, Appender> appenders = loggerConfig.getAppenders();
+        guiLogAppender = (GuiLogAppender) appenders.get("GuiLogAppender");
+        rollingFileAppender = (RollingFileAppender) appenders.get("applog");
     }
 
     /**
@@ -480,25 +476,6 @@ public class Main
     }
 
     /**
-     * Make a relative path based on the current working directory
-     *
-     * @param path
-     * @return A path relative to the working directory, if possible
-     */
-    public String makeRelativeWorkingPath(String path)
-    {
-        if (path != null && path.length() > 0)
-        {
-            path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), path);
-            path = Utils.pipe(path);
-            path = Utils.unpipe(path, "/");
-        }
-        else
-            path = "";
-        return path;
-    }
-
-    /**
      * Execute the process
      *
      * @param args the input arguments
@@ -506,20 +483,21 @@ public class Main
     public void process(String[] args)
     {
         ThreadGroup sessionThreads = null;
-
         context.cfg = new Configuration(context);
 
         try
         {
             MungeException cfgException = null;
-
             try
             {
                 context.cfg.parseCommandLine(args);
-                if (!primaryExecution)
-                    context.cfg.setWorkingDirectory(previousContext.cfg.getWorkingDirectory());
                 context.cfg.configureWorkingDirectory();
                 context.cfg.setOperation("");
+                if (!primaryExecution)
+                {
+                    context.cfg.setWorkingDirectory(previousContext.cfg.getWorkingDirectory());
+                    context.cfg.setWorkingDirectorySubscriber(previousContext.cfg.getWorkingDirectorySubscriber());
+                }
             }
             catch (MungeException e)
             {
@@ -730,14 +708,20 @@ public class Main
                         setupHints(context.publisherRepo);
 
                         // start the serveStty client interactively
-                        if (connectSubscriber(false))
+                        if (connectSubscriber(true, false))
                         {
+                            String directory = context.clientStty.getWorkingDirectoryRemote();
+                            context.cfg.setWorkingDirectorySubscriber(directory);
+
                             // start the serveSftp transfer client
                             context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                             if (!context.clientSftp.startClient("transfer"))
                             {
                                 throw new MungeException("Publisher sftp transfer client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                             }
+
+                            context.clientStty.terminalSession();
+                            setListening(true); // fake listener to wait for shutdown
                         }
                     }
                     break;
@@ -763,7 +747,7 @@ public class Main
                         setupHints(context.publisherRepo);
 
                         // start the serveStty client for automation
-                        if (connectSubscriber(true))
+                        if (connectSubscriber(false, true))
                         {
                             // start the serveSftp transfer client
                             context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
@@ -885,8 +869,11 @@ public class Main
                         setupHints(context.subscriberRepo);
 
                         // start the serveStty client interactively
-                        if (connectSubscriber(false))
+                        if (connectSubscriber(true, false))
                         {
+                            String directory = context.clientStty.getWorkingDirectoryRemote();
+                            context.cfg.setWorkingDirectorySubscriber(directory);
+
                             // start the serveSftp transfer client
                             context.clientSftp = new ClientSftp(context, context.subscriberRepo, context.publisherRepo, true);
                             if (!context.clientSftp.startClient("transfer"))
@@ -903,6 +890,9 @@ public class Main
                             // start serveSftp server
                             context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, false);
                             context.serveSftp.startServer();
+
+                            context.clientStty.terminalSession();
+                            setListening(true); // fake listener to wait for shutdown
                         }
                     }
                     else
@@ -1012,7 +1002,7 @@ public class Main
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // start the serveStty client
-                        if (connectSubscriber(false))
+                        if (connectSubscriber(false, false))
                         {
                             try
                             {
@@ -1541,8 +1531,8 @@ public class Main
             stopServices();
             stopVerbiage();
 
-            if (context.fault)
-                logger.error("Exiting with error code");
+//            if (context.fault)
+//                logger.error("Exiting with error code");
 
             flushLogger();
         }

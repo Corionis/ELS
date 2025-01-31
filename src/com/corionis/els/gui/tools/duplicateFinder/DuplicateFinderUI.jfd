@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.3" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.5" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -89,7 +89,7 @@ new FormModel {
 							name: "tableDupes"
 							"fillsViewportHeight": true
 							"selectionMode": 0
-							"autoResizeMode": 4
+							"autoResizeMode": 1
 						} )
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "Center"

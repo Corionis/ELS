@@ -86,7 +86,7 @@ public class Tools
                 {
                     if (!entry.isDirectory())
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
                         if (json != null)
                         {
                             AbstractTool but = operationParser.parseTool(context, json);
@@ -117,7 +117,7 @@ public class Tools
                 {
                     if (!entry.isDirectory())
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
                         if (json != null)
                         {
                             AbstractTool jrt = junkRemoverParser.parseTool(context, json);
@@ -148,7 +148,7 @@ public class Tools
                 {
                     if (!entry.isDirectory())
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
                         if (json != null)
                         {
                             AbstractTool jrt = renamerParser.parseTool(context, json);
@@ -179,7 +179,7 @@ public class Tools
                 {
                     if (!entry.isDirectory())
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
                         if (json != null)
                         {
                             AbstractTool slp = sleepParser.parseTool(context, json);
@@ -349,7 +349,7 @@ public class Tools
             {
                 if (!entry.isDirectory())
                 {
-                    String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                    String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
                     if (json != null)
                     {
                         AbstractTool tool = parser.parseTool(context, json);

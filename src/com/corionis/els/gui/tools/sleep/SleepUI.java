@@ -29,7 +29,6 @@ public class SleepUI extends AbstractToolDialog
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private NumberFilter numberFilter;
-    private SwingWorker<Void, Void> worker;
     private SleepTool workerTool = null;
     private boolean workerRunning = false;
 
@@ -469,6 +468,7 @@ public class SleepUI extends AbstractToolDialog
             if (!current.equals(tf.getText()))
             {
                 currentSleepTool.setSleepTime(Integer.parseInt(textFieldTime.getText()));
+                currentSleepTool.setDataHasChanged();
             }
         }
     }

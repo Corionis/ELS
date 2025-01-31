@@ -117,7 +117,7 @@ public class Jobs
             {
                 if (!entry.isDirectory())
                 {
-                    String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                    String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
                     if (json != null)
                     {
                         Job job = builder.create().fromJson(json, Job.class);

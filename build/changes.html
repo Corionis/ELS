@@ -5,8 +5,6 @@
 <body>
 <h2>Recent Changes</h2>
 
-<p>The known bugs and most recent changes to ELS. We may miss things but try not to.</p>
-
 <h3>Known Bugs</h3>
 <ul>
     <li>Drag 'n drop and copy/cut/paste work to and from ELS to outside applications, except Linux
@@ -14,6 +12,19 @@
 </ul>
 
 <hr/>
+
+<h3>31 January 2025</h3>
+<ul>
+    <li>This is an interim code commit with no new executable deployment pending a lot of testing.</li>
+    <li>Changed the ELS-Navigator.sh script for Linux to allow arguments. If none the last configuration is used.</li>
+    <li>Fixed a save bug in the Sleep Tool.</li>
+    <li>Fixed a busy cursor bug on a remote action warning.</li>
+    <li>Fixed #179 Libraries not re-scanned after a Hint is processed.</li>
+    <li>Fixed #180 Changing current working directory fails.</li>
+    <li>Added support for symbolic links in the -C configuration directory (~/.els).</li>
+    <li>Fixed #183 Progress dialog not always closed.</li>
+    <li>Fixed #184 Terminal mode was disabled.</li>
+</ul>
 
 <h3>12 December 2024</h3>
 <ul>
@@ -569,6 +580,9 @@
     <li>Solved an issue when processing a Hint with a filename containing regex characters.</li>
     <li>Added Ctrl-T as the keyboard accelerator for the Touch function.</li>
 </ul>
+
+<p>ELS was started in 2015 as a command line back-up tool. The Navigator, and this Changelist, are new.</p>
+<br/>
 
 </body>
 </html>

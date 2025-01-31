@@ -1138,7 +1138,7 @@ public class Browser
             try
             {
                 // remote subscriber
-                space = context.clientStty.availableSpace(path);
+                space = context.clientStty.availableSpace(context.cfg.getFullPathSubscriber(path));
             }
             catch (Exception e)
             {
@@ -1155,7 +1155,7 @@ public class Browser
         }
         else
         {
-            space = Utils.availableSpace(path);
+            space = Utils.availableSpace(Utils.getFullPathLocal(path));
         }
         return space;
 

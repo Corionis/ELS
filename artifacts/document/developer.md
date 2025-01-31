@@ -1,5 +1,5 @@
-ELS is written for Java version 1.8 to support older systems that might be used as back-ups.
-The resulting jar is completely self-contained. ELS runs on any version 1.8 or newer of 
+ELS is written for Java version 19 to support older systems that might be used as back-ups.
+The resulting jar is completely self-contained. ELS runs on any version 19 or newer of 
 either Oracle Java or the OpenJDK. The distribution files in deploy/ contain an embedded
 JRE from the [OpenJDK Project](https://wiki.openjdk.org/display/jdk8u).
 
@@ -131,6 +131,10 @@ The changes.html file is edited in the 'build' directory between deployments.
     appear to be locked-up. It is a conflict between the application and the IDE. To avoid
     that issue add "-Dsun.awt.disablegrab=true" to the VM arguments.
     See also: https://intellij-support.jetbrains.com/hc/en-us/community/posts/206248729-Tip-Avoid-frozen-X-when-debugging-an-UI
+6. The project is intended to work using relative paths and tries to avoid fully-qualified paths
+   in JSON and configuration. However, if debugging from a directory other than ./mock/ is needed the
+   JetBrains Run/Debug Configuration -Dlog4j.configurationFile= property must be changed to use a
+   fully-qualified path, example: -Dlog4j.configurationFile=/home/acme/corionis/ELS/lib/log4j2.xml
 
 
 ## Contributing

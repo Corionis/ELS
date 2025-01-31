@@ -98,18 +98,18 @@ public class Bookmarks implements Serializable
         String json = gson.toJson(this);
         try
         {
-            File f = new File(getFullPath());
+            File f = new File(Utils.getFullPathLocal(getFullPath()));
             if (f != null)
             {
                 f.getParentFile().mkdirs();
             }
-            PrintWriter outputStream = new PrintWriter(getFullPath());
+            PrintWriter outputStream = new PrintWriter(Utils.getFullPathLocal(getFullPath()));
             outputStream.println(json);
             outputStream.close();
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Error writing: " + getFullPath() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Error writing: " + Utils.getFullPathLocal(getFullPath()) + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 

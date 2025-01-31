@@ -367,8 +367,8 @@ public class DuplicateFinderUI extends JDialog
                             }
                         }
                     });
+                    worker.execute();
                 }
-                worker.execute();
             }
             else
             {
@@ -533,7 +533,7 @@ public class DuplicateFinderUI extends JDialog
                     //---- tableDupes ----
                     tableDupes.setFillsViewportHeight(true);
                     tableDupes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                    tableDupes.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                    tableDupes.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
                     scrollPaneDupes.setViewportView(tableDupes);
                 }
                 contentPanel.add(scrollPaneDupes, BorderLayout.CENTER);
