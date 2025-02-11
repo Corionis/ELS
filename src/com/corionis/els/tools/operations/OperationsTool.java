@@ -165,7 +165,7 @@ public class OperationsTool extends AbstractTool
         if (!hintPath.isEmpty())
         {
             hintPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), hintPath);
-            if (context.cfg.isOverrideHintsHost() ) // && operation != Operations.StatusServer)
+            if (task.hintsOverrideHost) // && operation != Operations.StatusServer)
                 sb.append((" " + (glo ? "--override-hints-host" : "-J")));
             if (task.isHintsRemote() || isToolHintServer())
                 sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + hintPath + "\"");
@@ -213,8 +213,8 @@ public class OperationsTool extends AbstractTool
                 subPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), subPath);
                 if (!subPath.isEmpty())
                 {
-                    if (!context.cfg.getOverrideSubscriberHost().isEmpty())
-                        sb.append(" " + (glo ? "--override-host" : "-O ") + context.cfg.getOverrideSubscriberHost());
+                    if (!task.subscriberOverride.isEmpty())
+                        sb.append(" " + (glo ? "--override-host" : "-O ") + task.subscriberOverride);
                     sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subPath + "\"");
                 }
             }
@@ -527,10 +527,10 @@ public class OperationsTool extends AbstractTool
     @Override
     public void processTool(Task task)
     {
+        this.task = task;
         hintPath = task.hintsPath;
         pubPath = task.publisherPath;
         subPath = task.subscriberPath;
-        this.task = task;
 
         // construct the arguments
         String cmd = generateCommandLine(task.dryRun);

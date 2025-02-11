@@ -74,6 +74,7 @@ public class Task implements Comparable, Serializable
     public Task clone()
     {
         Task task = new Task(this.getInternalName(), this.getConfigName());
+        task.setContext(this.localContext);
         task.setHintsKey(this.getHintsKey());
         task.setHintsOverrideHost(this.isHintsOverrideHost());
         task.setHintsPath(this.getHintsPath());
@@ -92,7 +93,6 @@ public class Task implements Comparable, Serializable
         }
         task.setOrigins(origins);
 
-        task.setContext(this.localContext);
         task.currentTool = this.currentTool;
         task.dryRun = this.dryRun;
         task.previousTask = this.previousTask;

@@ -46,6 +46,7 @@ public class LibrariesUI
     private int currentSourceIndex = -1;
     private DirectoryPicker directoryPicker = null;
     public String displayName;
+    private boolean dontAsk = false;
     private NavHelp helpDialog;
     private Jobs jobsHandler = null;
     private ArrayList<AbstractTool> jobsList;
@@ -799,8 +800,8 @@ public class LibrariesUI
                                                 String name = libMeta.repo.getLibraryData().libraries.description;
                                                 reply = JOptionPane.showConfirmDialog(directoryPicker.pane,
                                                         java.text.MessageFormat.format(context.cfg.gs("Libraries.selected.path.is.not.from.repository.continue"), name),
-                                                        context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.YES_NO_OPTION);
-                                                if (reply == JOptionPane.YES_OPTION)
+                                                        context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                                                //if (reply == JOptionPane.YES_OPTION)
                                                     done = true;
                                             }
                                             else
@@ -1173,7 +1174,6 @@ public class LibrariesUI
                                 try
                                 {
                                     // add location to selected libraries
-                                    boolean dontAsk = false;
                                     for (int i = 0; i < librarySelectors.length; ++i)
                                     {
                                         if (librarySelectors[i].selected)

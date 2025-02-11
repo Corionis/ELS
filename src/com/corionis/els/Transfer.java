@@ -156,7 +156,7 @@ public class Transfer
                         totalSize = totalSize - groupItem.getSize();
 
                         String to = targetPath + context.subscriberRepo.getWriteSeparator();
-                        to += context.publisherRepo.normalizePath(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
+                        to += context.subscriberRepo.normalizePath(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
 
                         String msg = "  > " + context.cfg.gs("Transfer.copying") + " #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false, context.cfg.getLongScale()) +
                                 ", " + groupItem.getFullPath() + context.cfg.gs("NavTransferHandler.transfer.file.to") + to;
@@ -288,16 +288,18 @@ public class Transfer
         long minimum = 0L;
         if (targetRepo.getLibraryData().libraries.locations != null)
         {
-            for (Location loc : targetRepo.getLibraryData().libraries.locations)
+            path = Utils.pipe(path);
+            for (Location location : targetRepo.getLibraryData().libraries.locations)
             {
+                String loc = Utils.pipe(location.location);
                 boolean match = false;
-                if (Utils.isRelativePath(loc.location))
-                    match = path.contains(loc.location);
+                if (Utils.isRelativePath(loc))
+                    match = path.contains(loc);
                 else
-                    match = path.startsWith(loc.location);
+                    match = path.startsWith(loc);
                 if (match)
                 {
-                    minimum = Utils.getScaledValue(loc.minimum);
+                    minimum = Utils.getScaledValue(location.minimum);
                     break;
                 }
             }
@@ -434,7 +436,7 @@ public class Transfer
                 notFound = false;
                 for (int j = 0; j < lib.sources.length; ++j)
                 {
-                    candidate = lib.sources[j];
+                    candidate = context.cfg.makeFullPath(targetRepo, lib.sources[j]);
                     // check size of item(s) to be copied
                     if (itFits(targetRepo, candidate, isRemote, totalSize, minimum, false))
                     {

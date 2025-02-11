@@ -165,13 +165,13 @@ public class Process
 
         if (mismatchFile != null)
         {
-            mismatchFile.println(header);
+            mismatchFile.println("Mismatches: " + System.getProperty("line.separator") + System.getProperty("line.separator") + header);
             mismatchFile.println("");
         }
 
         if (whatsNewFile != null)
         {
-            whatsNewFile.println("What's New: " + header);
+            whatsNewFile.println("What's New: "  + System.getProperty("line.separator") + System.getProperty("line.separator") + header);
         }
 
         boolean rescan = false;
@@ -291,7 +291,7 @@ public class Process
                                                     if (!currLib.equals(""))
                                                     {
                                                         whatsNewFile.println("    ------------------------------------------");
-                                                        whatsNewFile.println("    Number of " + currLib + " = " + whatsNewTotal);
+                                                        whatsNewFile.println("    Total for " + currLib + " = " + whatsNewTotal);
                                                         whatsNewFile.println("    ==========================================");
                                                         whatsNewTotal = 0;
                                                     }
@@ -390,11 +390,6 @@ public class Process
                 whatsNewFile.println("    ------------------------------------------");
                 whatsNewFile.println("    Total for " + currLib + " = " + whatsNewTotal);
                 whatsNewFile.println("    ==========================================");
-                whatsNewFile.println("");
-                if (getWarnings() > 0)
-                    whatsNewFile.println("Warnings   : " + getWarnings());
-                if (errorCount > 0)
-                    whatsNewFile.println("Errors     : " + errorCount);
                 whatsNewFile.println("");
                 whatsNewFile.close();
             }

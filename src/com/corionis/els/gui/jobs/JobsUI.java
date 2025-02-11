@@ -1082,6 +1082,7 @@ public class JobsUI extends AbstractToolDialog
                 if (index >= 0)
                 {
                     currentTask = new Task(tool.getInternalName(), tool.getConfigName());
+                    currentTask.setContext(context);
                     try
                     {
                         currentTool = currentTask.getTool();

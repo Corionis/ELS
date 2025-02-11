@@ -286,8 +286,8 @@ public class Job extends AbstractTool
                 if (isRequestStop())
                     break;
 
-                currentTask = task;
-                currentTask.setContext(context);
+                task.setContext(context);
+                currentTask = task.clone();
                 currentTask.setDryRun(isDryRun);
 
                 // is the task a Job?

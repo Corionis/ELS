@@ -2,6 +2,7 @@ package com.corionis.els;
 
 import com.corionis.els.gui.MainFrame;
 import com.corionis.els.gui.Preferences;
+import com.corionis.els.repository.Repository;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -561,7 +562,7 @@ public class Configuration
     public String getFullPathSubscriber(String filename)
     {
         String path;
-        if (Utils.isRelativePath(filename))
+        if (isRelativePath(filename))
             path = getWorkingDirectorySubscriber() + context.subscriberRepo.getSeparator() + filename;
         else
             path = filename;
@@ -1666,6 +1667,22 @@ public class Configuration
     }
 
     /**
+     * Is the path relative or absolute?
+     *
+     * @param path Path to check
+     * @return true if a relative path, false if an absolute fully-qualified path
+     */
+    public boolean isRelativePath(String path)
+    {
+        // from Utils but here for use during initialization because the logger is not configured yet
+        if (path.matches("^[a-zA-Z]:.*"))
+            return false;
+        if (path.startsWith("/") || path.startsWith("\\") || path.startsWith("|"))
+            return false;
+        return true;
+    }
+
+    /**
      * Is either a remote Subscriber or Hint Server active?
      *
      * @return True if active
@@ -1877,6 +1894,20 @@ public class Configuration
             filePart = "en_US"; // default locale
         }
         config.setCurrentBundle(ResourceBundle.getBundle("com.corionis.els.locales.bundle_" + filePart));
+    }
+
+    public String makeFullPath(Repository repo, String filename)
+    {
+        String path = filename;
+        if (Utils.isRelativePath(filename))
+        {
+            if (repo.getPurpose() == Repository.PUBLISHER)
+                path = getWorkingDirectory();
+            else if (repo.getPurpose() == Repository.SUBSCRIBER)
+                path = getWorkingDirectorySubscriber();
+            path = path + repo.getSeparator() + filename;
+        }
+        return path;
     }
 
     /**
@@ -3023,7 +3054,7 @@ public class Configuration
     private void verifyFileExistence(String file) throws MungeException
     {
         String filename;
-        boolean isRelative = Utils.isRelativePath(file);
+        boolean isRelative = isRelativePath(file);
         if (isRelative)
         {
             String prefix = (context.cfg.getWorkingDirectory().length() > 0 ? context.cfg.getWorkingDirectory() + System.getProperty("file.separator") : "");
