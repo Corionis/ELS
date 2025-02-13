@@ -629,7 +629,6 @@ public class NavTreeNode extends DefaultMutableTreeNode
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         Vector listing = context.clientSftp.listDirectory(directory);
-        logger.info(Utils.formatInteger(listing.size()) + context.cfg.gs("NavTreeNode.received.entries.from") + myTuo.getDisplayPath());
 
         if (directory.matches("^\\\\[a-zA-Z]:.*") || directory.matches("^/[a-zA-Z]:.*"))
             directory = directory.substring(1);
@@ -637,6 +636,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
         if (directory.endsWith("/") || directory.endsWith("\\"))
             directory = directory.substring(0, directory.length() - 1);
 
+        int count = 0;
         for (int i = 0; i < listing.size(); ++i)
         {
             ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
@@ -679,8 +679,10 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     }
                 }
                 nodeArray.add(node);
+                ++count;
             }
         }
+        logger.info(Utils.formatInteger(count) + context.cfg.gs("NavTreeNode.received.entries.from") + myTuo.getDisplayPath());
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 

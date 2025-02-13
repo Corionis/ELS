@@ -108,6 +108,7 @@ public class Task implements Comparable, Serializable
         return this.getConfigName().compareTo(((Task) o).getConfigName());
     }
 
+/*
     public boolean connectRemote(Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
     {
         boolean didDisconnect = false;
@@ -200,6 +201,7 @@ public class Task implements Comparable, Serializable
 
         return true;
     }
+*/
 
     public String getConfigName()
     {
@@ -241,7 +243,7 @@ public class Task implements Comparable, Serializable
         return publisherPath;
     }
 
-    private Repository getRepo(Context context, String key, String path, int purpose) throws Exception
+    private Repository getRepo(String key, String path, int purpose) throws Exception
     {
         Repository repo = null;
 
@@ -251,34 +253,34 @@ public class Task implements Comparable, Serializable
             if (key.equals(ANY_SERVER))
             {
                 if (purpose == Repository.PUBLISHER)
-                    repo = context.publisherRepo;
+                    repo = localContext.publisherRepo;
                 else if (purpose == Repository.SUBSCRIBER)
                 {
-                    repo = context.subscriberRepo;
-                    setSubscriberOverride(context.cfg.getOverrideSubscriberHost());
-                    setSubscriberRemote(context.cfg.isRemoteSubscriber());
+                    repo = localContext.subscriberRepo;
+                    setSubscriberOverride(localContext.cfg.getOverrideSubscriberHost());
+                    setSubscriberRemote(localContext.cfg.isRemoteSubscriber());
                 }
                 else // only used by Run button of Tools, never in a Job
                 {
-                    repo = context.hintsRepo;
-                    setHintsOverrideHost(context.cfg.isOverrideHintsHost());
-                    setHintsRemote(context.cfg.isRemoteStatusServer());
+                    repo = localContext.hintsRepo;
+                    setHintsOverrideHost(localContext.cfg.isOverrideHintsHost());
+                    setHintsRemote(localContext.cfg.isRemoteStatusServer());
                 }
             }
             else
             {
                 // is already-loaded
-                if (purpose == Repository.PUBLISHER && context.publisherRepo != null && context.publisherRepo.getLibraryData().libraries.key.equals(key))
-                    repo = context.publisherRepo;
-                else if (context.subscriberRepo != null && context.subscriberRepo.getLibraryData().libraries.key.equals(key))
-                    repo = context.subscriberRepo;
-                else if (context.hintsRepo != null && context.hintsRepo.getLibraryData().libraries.key.equals(key))
-                    repo = context.hintsRepo;
+                if (purpose == Repository.PUBLISHER && localContext.publisherRepo != null && localContext.publisherRepo.getLibraryData().libraries.key.equals(key))
+                    repo = localContext.publisherRepo;
+                else if (purpose == Repository.SUBSCRIBER && localContext.subscriberRepo != null && localContext.subscriberRepo.getLibraryData().libraries.key.equals(key))
+                    repo = localContext.subscriberRepo;
+                else if (purpose == Repository.HINT_SERVER && localContext.hintsRepo != null && localContext.hintsRepo.getLibraryData().libraries.key.equals(key))
+                    repo = localContext.hintsRepo;
                 else
                 {
                     // load it; other parameters come from Job
                     Repositories repositories = new Repositories();
-                    repositories.loadList(context);
+                    repositories.loadList(localContext);
 
                     RepoMeta repoMeta;
                     if (path.length() > 0)
@@ -286,19 +288,19 @@ public class Task implements Comparable, Serializable
                         repoMeta = repositories.findMetaPath(path);
                         if (repoMeta != null)
                         {
-                            repo = new Repository(context, purpose);
+                            repo = new Repository(localContext, purpose);
                             repo.read(repoMeta.path, (purpose == Repository.PUBLISHER ? "Publisher" :
                                     (purpose == Repository.SUBSCRIBER ? "Subscriber" : "Hint Status Server")), false);
                         }
                         else
-                            throw new MungeException(path + ", " + key + context.cfg.gs("Z.not.found"));
+                            throw new MungeException(path + ", " + key + localContext.cfg.gs("Z.not.found"));
                     }
                 }
             }
         }
 
-        context.cfg.setPublisherCollectionFilename("");
-        context.cfg.setSubscriberCollectionFilename("");
+        localContext.cfg.setPublisherCollectionFilename("");
+        localContext.cfg.setSubscriberCollectionFilename("");
 
         if (repo != null)
         {
@@ -306,22 +308,25 @@ public class Task implements Comparable, Serializable
             {
                 case Repository.PUBLISHER:
                 {
-                    context.cfg.setPublisherLibrariesFileName(repo.getJsonFilename());
-                    context.publisherRepo = repo;
+                    localContext.cfg.setPublisherLibrariesFileName(repo.getJsonFilename());
+                    localContext.publisherRepo = repo;
+                    break;
                 }
                 case Repository.SUBSCRIBER:
                 {
-                    context.cfg.setSubscriberLibrariesFileName(repo.getJsonFilename());
-                    context.subscriberRepo = repo;
+                    localContext.cfg.setSubscriberLibrariesFileName(repo.getJsonFilename());
+                    localContext.subscriberRepo = repo;
+                    break;
                 }
                 case Repository.HINT_SERVER:
                 {
-                    context.cfg.setHintsDaemonFilename("");
-                    context.cfg.setHintTrackerFilename("");
+                    localContext.cfg.setHintsDaemonFilename("");
+                    localContext.cfg.setHintTrackerFilename("");
                     if (isHintsRemote())
-                        context.cfg.setHintsDaemonFilename(repo.getJsonFilename());
+                        localContext.cfg.setHintsDaemonFilename(repo.getJsonFilename());
                     else
-                        context.cfg.setHintTrackerFilename(repo.getJsonFilename());
+                        localContext.cfg.setHintTrackerFilename(repo.getJsonFilename());
+                    break;
                 }
             }
         }
@@ -409,7 +414,7 @@ public class Task implements Comparable, Serializable
      */
     public boolean process(Context context) throws Exception
     {
-        this.localContext = context;
+        this.localContext = (Context)context.clone();
         this.dryRun = dryRun;
 
         if (logger == null)
@@ -465,13 +470,13 @@ public class Task implements Comparable, Serializable
             }
             else
             {
-                publisherRepo = getRepo(localContext, getPublisherKey(), getPublisherPath(), Repository.PUBLISHER);
+                publisherRepo = getRepo(getPublisherKey(), getPublisherPath(), Repository.PUBLISHER);
                 if (publisherRepo != null)
                     publisherPath = publisherRepo.getJsonFilename();
                 else if (getPublisherKey().equals(Task.ANY_SERVER))
                     throw new MungeException("\"Any Server\" defined for Publisher but none specified");
 
-                subscriberRepo = getRepo(localContext, getSubscriberKey(), getSubscriberPath(), Repository.SUBSCRIBER);
+                subscriberRepo = getRepo(getSubscriberKey(), getSubscriberPath(), Repository.SUBSCRIBER);
                 if (subscriberRepo != null)
                     subscriberPath = subscriberRepo.getJsonFilename();
                 else if (getSubscriberKey().equals(Task.ANY_SERVER))
@@ -479,7 +484,7 @@ public class Task implements Comparable, Serializable
 
                 remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && localContext.cfg.isRemoteOperation())) ? "P" : "-";
 
-                hintsRepo = getRepo(localContext, getHintsKey(), getHintsPath(), Repository.HINT_SERVER);
+                hintsRepo = getRepo(getHintsKey(), getHintsPath(), Repository.HINT_SERVER);
                 if (hintsRepo != null)
                     hintsPath = hintsRepo.getJsonFilename();
                 else if (getHintsKey().equals(Task.ANY_SERVER))
