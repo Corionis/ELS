@@ -262,9 +262,9 @@ public class RenamerTool extends AbstractTool
         else
         {
             if (isOption2())
-                value = StringUtils.replaceIgnoreCase(value, getText1(), getText2());
-            else
                 value = value.replace(getText1(), getText2());
+            else
+                value = StringUtils.replaceIgnoreCase(value, getText1(), getText2());
         }
         return value;
     }
@@ -495,6 +495,8 @@ public class RenamerTool extends AbstractTool
 
     private String scan(String path, boolean isFirst, boolean isRenameAllowed)
     {
+        boolean doesNotExist = false;
+        String msg = "";
         try
         {
             File[] files;
@@ -502,12 +504,13 @@ public class RenamerTool extends AbstractTool
             if (isRemote())
             {
                 Vector listing;
+                path = context.cfg.getFullPathSubscriber(path);
                 SftpATTRS attrs = context.clientSftp.stat(path);
                 if (attrs.isDir())
                 {
                     if (isRenameAllowed)
                     {
-                        String fileName = FilenameUtils.getName(context.cfg.getFullPathSubscriber(path));
+                        String fileName = FilenameUtils.getName(path);
                         String change = rename(path, fileName, true);
                         if (!path.equals(change))
                         {
@@ -518,7 +521,7 @@ public class RenamerTool extends AbstractTool
                     pathIsDir = true;
                 }
 
-                listing = context.clientSftp.listDirectory(context.cfg.getFullPathSubscriber(path));
+                listing = context.clientSftp.listDirectory(path);
                 for (int i = 0; i < listing.size(); ++i)
                 {
                     if (isRequestStop())
@@ -548,59 +551,82 @@ public class RenamerTool extends AbstractTool
             else // is local
             {
                 File loc = new File(Utils.getFullPathLocal(path));
-                if (loc.isDirectory())
+                if (loc.exists())
                 {
-                    if (isRenameAllowed)
+                    if (loc.isDirectory())
                     {
-                        String change = rename(loc.getPath(), loc.getName(), true);
-                        if (!path.equals(change))
+                        if (isRenameAllowed)
                         {
-                            path = change;
-                            loc = new File(path);
+                            String change = rename(loc.getPath(), loc.getName(), true);
+                            if (!path.equals(change))
+                            {
+                                path = change;
+                                loc = new File(path);
+                            }
                         }
-                    }
-                    isFirst = false;
-                    files = FileSystemView.getFileSystemView().getFiles(loc, true);
-                }
-                else
-                {
-                    files = new File[1];
-                    files[0] = loc;
-                }
-
-                for (int i = 0; i < files.length; ++i)
-                {
-                    if (isRequestStop())
-                        break;
-
-                    File entry = files[i];
-                    if (entry.isDirectory() && isRecursive())
-                    {
-                        scan(entry.getPath(), false, true);
+                        isFirst = false;
+                        files = FileSystemView.getFileSystemView().getFiles(loc, true);
                     }
                     else
                     {
-                        String change = rename(entry.getPath(), entry.getName(), entry.isDirectory());
-                        if (!path.equals(change) && isFirst)
+                        files = new File[1];
+                        files[0] = loc;
+                    }
+
+                    for (int i = 0; i < files.length; ++i)
+                    {
+                        if (isRequestStop())
+                            break;
+
+                        File entry = files[i];
+                        if (entry.isDirectory() && isRecursive())
                         {
-                            path = change;
-                            isFirst = false;
+                            scan(entry.getPath(), false, true);
+                        }
+                        else
+                        {
+                            String change = rename(entry.getPath(), entry.getName(), entry.isDirectory());
+                            if (!path.equals(change) && isFirst)
+                            {
+                                path = change;
+                                isFirst = false;
+                            }
                         }
                     }
+                }
+                else
+                {
+                    doesNotExist = true;
+                    msg = context.cfg.gs("Z.does.not.exist") + loc.getPath();
+                    requestStop();
                 }
             }
         }
         catch (Exception e)
         {
-            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-            if (context.navigator != null)
+            String en = e.getClass().getName();
+            if (en.equals("com.jcraft.jsch.SftpException") && e.getMessage().contains("java.nio.file.NoSuchFileException"))
             {
-                logger.error(msg);
-                JOptionPane.showMessageDialog(context.mainFrame, e.getMessage(), getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                doesNotExist = true;
+                msg = context.cfg.gs("Z.does.not.exist") + path;
             }
             else
-                logger.error(msg);
+            {
+                msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                if (context.navigator != null)
+                {
+                    logger.error(msg);
+                    JOptionPane.showMessageDialog(context.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                }
+                else
+                    logger.error(msg);
+            }
             requestStop();
+        }
+        if (doesNotExist)
+        {
+            logger.warn(msg);
+            JOptionPane.showMessageDialog(context.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
         }
         return path;
     }
