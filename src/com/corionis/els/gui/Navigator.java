@@ -3585,13 +3585,41 @@ public class Navigator
         {
             // make dialog pieces
             String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
-            JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
+
+            JPanel panel = new JPanel();
+            panel.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 0));
+
+            String spacer = "\n";
+
+            JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun") + "        ");
             checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
             checkbox.setSelected(context.preferences.isDefaultDryrun());
-            Object[] params = {message, checkbox};
+
+            JButton generateButton = new JButton(context.cfg.gs("JobsUI.buttonGenerate.text"));
+            generateButton.setToolTipText(context.cfg.gs("JobsUI.buttonGenerate.toolTipText"));
+            generateButton.addActionListener(new AbstractAction()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    Generator generator = new Generator(context, false);
+                    generator.setDryRunPreset(checkbox.isSelected() ? 1 : 0);
+                    Window w = SwingUtilities.getWindowAncestor(generateButton);
+                    if (w != null)
+                    {
+                        w.setVisible(false);
+                    }
+                    generator.showDialog(null, job, job.getConfigName());
+                }
+            });
+
+            panel.add(checkbox);
+            panel.add(generateButton);
+
+            Object[] params = {message, spacer, panel};
 
             // confirm run of job
-            int reply = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.getNavigatorName(), JOptionPane.OK_CANCEL_OPTION);
             boolean isDryRun = checkbox.isSelected();
             if (reply == JOptionPane.YES_OPTION)
             {
@@ -3866,7 +3894,7 @@ public class Navigator
             }
             catch (Exception e)
             {
-                context.fault = true;
+                //context.fault = true;
                 context.clientStty = null;
                 logger.error(Utils.getStackTrace(e));
             }
@@ -3888,7 +3916,7 @@ public class Navigator
             }
             catch (Exception e)
             {
-                context.fault = true;
+                //context.fault = true;
                 logger.error(Utils.getStackTrace(e));
             }
         }

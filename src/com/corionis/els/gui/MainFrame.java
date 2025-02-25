@@ -47,7 +47,6 @@ public class MainFrame extends JFrame
 {
     private transient Logger logger = LogManager.getLogger("applog");
     private Context context;
-    private LookAndFeel laf;
 
     public MainFrame(Context context)
     {

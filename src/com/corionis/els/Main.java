@@ -587,7 +587,6 @@ public class Main
             //
             // an execution of this program can only be configured as one of these operations
             //
-            logger.info("+------------------------------------------");
             switch (context.cfg.getOperation())
             {
                 // --- local execution, no -r|--remote option
@@ -595,6 +594,7 @@ public class Main
                     // handle -n|--navigator to display the Navigator
                     if (context.cfg.isNavigator())
                     {
+                        logger.info("+------------------------------------------");
                         whatsRunning = "ELS: Local Navigator";
                         logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                         context.cfg.dump();
@@ -618,11 +618,12 @@ public class Main
                         context.navigator = new Navigator(context);
                         if (!context.fault)
                         {
-                            context.navigator.run(); // environment saved again in Navigator
+                            context.navigator.run();
                         }
                     }
                     else
                     {
+                        logger.info("+------------------------------------------");
                         whatsRunning = "ELS: Local Publish";;
                         logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                         context.cfg.dump();
@@ -653,6 +654,7 @@ public class Main
 
                 // --- -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
+                    logger.info("+------------------------------------------");
                     whatsRunning = "ELS: Publisher Listener";
                     logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
@@ -689,6 +691,7 @@ public class Main
 
                 // --- -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
+                    logger.info("+------------------------------------------");
                     whatsRunning = "ELS: Publisher Terminal";
                     logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
@@ -729,6 +732,7 @@ public class Main
                 // --- -r P execute the backup process to remote subscriber -r S
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
+                    logger.info("+------------------------------------------");
                     if (context.cfg.isNavigator())
                         whatsRunning = "ELS: Remote Navigator";
                     else
@@ -800,6 +804,7 @@ public class Main
 
                 // --- -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
+                    logger.info("+------------------------------------------");
                     whatsRunning = "ELS: Subscriber Listener";
                     logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
@@ -850,6 +855,7 @@ public class Main
 
                 // --- -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
+                    logger.info("+------------------------------------------");
                     whatsRunning = "ELS: Subscriber Terminal";
                     logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
@@ -903,6 +909,7 @@ public class Main
 
                 // --- -H|--hint-server stand-alone hint status server
                 case STATUS_SERVER:
+                    logger.info("+------------------------------------------");
                     whatsRunning = "ELS: Hint Status Server";
                     logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
@@ -955,6 +962,7 @@ public class Main
 
                 // --- -Q|--force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
+                    logger.info("+------------------------------------------");
                     whatsRunning = "ELS: Hint Status Server Quit";
                     logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
@@ -985,6 +993,7 @@ public class Main
 
                 // --- -G|--listener-quit the remote subscriber
                 case SUBSCRIBER_LISTENER_FORCE_QUIT:
+                    logger.info("+------------------------------------------");
                     whatsRunning = "ELS: Subscriber Listener Quit";
                     logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
@@ -1019,10 +1028,6 @@ public class Main
 
                 // --- -j|--job to execute a Job
                 case JOB_PROCESS:
-                    whatsRunning = "ELS: Job";
-                    logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
-                    context.cfg.dump();
-
                     // optional arguments for support of Any Publisher/Subscriber
                     if (context.cfg.getPublisherFilename().length() > 0)
                     {
@@ -1041,14 +1046,20 @@ public class Main
 
                     if (context.cfg.isLoggerView() && primaryExecution)
                     {
+                        logger.info("Logger mode"); // say something to initialize LookAndFeel (laf)
                         context.navigator = new Navigator(context);
                         if (!context.fault)
                         {
-                            context.navigator.run(); // environment saved again in Navigator
+                            context.navigator.run();
                         }
                     }
                     else
                     {
+                        logger.info("+------------------------------------------");
+                        whatsRunning = "ELS: Job";
+                        logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
+                        context.cfg.dump();
+
                         context.tools = new Tools();
                         context.tools.loadAllTools(context, null);
 
@@ -1517,7 +1528,7 @@ public class Main
             logger.trace("shutdown via main");
             if (context.main.job != null || (context.main.previousContext != null && context.main.previousContext.main.job != null))
             {
-                Job theJob = (job != null) ? job : context.main.previousContext.main.job; //context.environment.getContext().main.job;
+                Job theJob = (job != null) ? job : context.main.previousContext.main.job;
                 String msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
                         theJob.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
                 logger.info(msg);

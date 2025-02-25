@@ -28,9 +28,9 @@ import java.nio.file.Paths;
  * Generate command line dialog
  * <br/> <br/>
  * See also: <br/>
- *      Configuration.generateCurrentCommandline() <br/>
- *      Job.generateCommandline() <br/>
- *      OperationsTool.generateCommandLine()
+ * Configuration.generateCurrentCommandline() <br/>
+ * Job.generateCommandline() <br/>
+ * OperationsTool.generateCommandLine()
  */
 @SuppressWarnings(value = "unchecked")
 public class Generator
@@ -39,15 +39,14 @@ public class Generator
     private Context context;
     private String debugLevel = "";
     private boolean dryRun = false;
-    private String generated = "";
+    private int dryRunPreset = -1;
     private boolean fileGenerate = false;
+    private String generated = "";
     private File logFile = null;
     private Logger logger = LogManager.getLogger("applog");
-
     private Generator()
     {
     }
-
     public Generator(Context context, boolean isFileGenerate)
     {
         this.context = context;
@@ -278,6 +277,11 @@ public class Generator
         return cmd;
     }
 
+    public int getDryRunPreset()
+    {
+        return dryRunPreset;
+    }
+
     private String getTitle(AbstractTool tool)
     {
         if (tool == null)
@@ -287,6 +291,11 @@ public class Generator
         if (tool instanceof OperationsTool)
             return context.cfg.gs("Operations.displayName");
         return "unknown";
+    }
+
+    public void setDryRunPreset(int dryRunPreset)
+    {
+        this.dryRunPreset = dryRunPreset;
     }
 
     public void showDialog(JDialog owner, AbstractTool tool, String configName)
@@ -491,7 +500,7 @@ public class Generator
         Dimension dim = labelConsoleLogLevels.getPreferredSize();
         checkboxDryrun.setMargin(new Insets(-8, (int) dim.getWidth() + 5, -12, 0));
         checkboxDryrun.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
-        checkboxDryrun.setSelected(context.preferences.isDefaultDryrun());
+        checkboxDryrun.setSelected(dryRunPreset > -1 ? (dryRunPreset == 0 ? false : true) : context.preferences.isDefaultDryrun());
         checkboxDryrun.addActionListener(new ActionListener()
         {
             @Override
@@ -618,7 +627,7 @@ public class Generator
             {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent)
-               {
+                {
                     if (tool.isDataChanged())
                     {
                         JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner, context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
