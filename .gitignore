@@ -10,7 +10,7 @@ hs_err_pid*
 /artifacts/stage/linux/ELS/rt/
 /artifacts/stage/macos/ELS/rt/
 /artifacts/stage/windows/rt/
-/build/build-stamp.properties
+/build/build-stamp.propertie?
 /build/*.dmg
 /build/ELS.app/
 /build/*.exe
@@ -18,22 +18,21 @@ hs_err_pid*
 /build/*.jar
 /build/*.tar.gz
 /build/*.zip
-/deploy/ELS-nav.jar
+/deploy/ELS-nav.ja?
 /deploy-previous/
-/deploy/Thumbs.db
+/deploy/Thumbs.d?
 /docs/_site/
-/flatmac.json
-/.idea/workspace.xml
-/mock/bin/
+/.idea/workspace.xm?
+/mock/bin/ELS.ja?
 /mock/datastore/
 /mock/datastore-backup/
 /mock/ELS-Navigator*
 /mock/jobs/
 /mock/*.json
 /mock/libraries/
-/mock/License.txt
+/mock/License.tx?
 /mock/local/
-/mock/Notice.txt
+/mock/Notice.tx?
 /mock/output/
 /mock/private/
 /mock/rt/
@@ -50,4 +49,10 @@ hs_err_pid*
 /mock/getLauncher.sh
 
 ### Mac OS ###
-.DS_Store
+.DS_Store!/mock/bin/els-logo-48px.png
+
+!/mock/bin/els-logo-48px.png
+!/mock/bin/els-logo-98px.icns
+!/mock/bin/els-logo-98px.ico
+!/mock/bin/els-logo-98px.png
+
