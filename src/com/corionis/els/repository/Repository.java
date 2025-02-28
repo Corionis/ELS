@@ -787,7 +787,7 @@ public class Repository implements Comparable
      * @param directory the directory
      * @throws MungeException the els exception
      */
-    public int scanDirectory(Library library, String base, String directory) throws MungeException
+    private int scanDirectory(Library library, String base, String directory) throws MungeException
     {
         int count = 0;
         Item item = null;

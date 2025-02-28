@@ -1,11 +1,11 @@
 {
     "libraries": {
         "description": "Publisher",
-        "key": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+        "key": "ea30da9c-1823-4d33-b316-d66f6c892c3c",
         "host": "localhost:40700",
         "listen": "localhost:40800",
         "timeout": 0,
-        "flavor": "Linux",
+        "flavor": "Windows",
         "case_sensitive": false,
         "temp_dated": false,
         "temp_location": "output",
@@ -19,11 +19,11 @@
         ],
         "locations": [
             {
-                "location": "test/publisher",
+                "location": "media/publisher/media",
                 "minimum": "40GB"
             },
             {
-                "location": "test/subscriber-one/media/TV Shows",
+                "location": "media/publisher/more-media/TV Shows",
                 "minimum": "40GB"
             }
         ],
@@ -31,15 +31,15 @@
             {
                 "name": "Movies",
                 "sources": [
-                    "test/publisher/media/Movies"
+                    "media/publisher/media/Movies"
                 ],
                 "items": null
             },
             {
                 "name": "TV Shows",
                 "sources": [
-                    "test/publisher/media/TV Shows",
-                    "test/publisher/more-media/TV Shows"
+                    "media/publisher/media/TV Shows",
+                    "media/publisher/more-media/TV Shows"
                 ],
                 "items": null
             }

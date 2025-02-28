@@ -5,7 +5,7 @@
         "host": "localhost:40100",
         "listen": "localhost:40200",
         "timeout": 0,
-        "flavor": "Linux",
+        "flavor": "Windows",
         "case_sensitive": false,
         "temp_dated": false,
         "temp_location": "output",

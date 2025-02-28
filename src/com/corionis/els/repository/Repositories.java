@@ -125,9 +125,11 @@ public class Repositories
         {
             if (metaList != null)
             {
+                path = Utils.pipe(path);
                 for (RepoMeta m : metaList)
                 {
-                    if (m.path.endsWith(path))
+                    String mPath = Utils.pipe(m.path);
+                    if (mPath.endsWith(path))
                     {
                         repoMeta = m;
                         break;

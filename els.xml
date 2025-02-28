@@ -74,7 +74,7 @@
             <include name="**/*.java"/>
         </javac>
         <!-- Merge annotation-generate Log4j2Plugins.dat with those found in lib Jar files -->
-        <exec executable="/usr/bin/java">
+        <exec executable="java">
             <arg value="-jar"/>
             <arg value="artifacts/bin/MergeLog4j2Plugins.jar"/>
             <arg value="--dat"/>
@@ -217,7 +217,7 @@
             <include name="**/*.java"/>
         </javac>
         <!-- Merge annotation-generate Log4j2Plugins.dat with those found in lib Jar files -->
-        <exec executable="/usr/bin/java">
+        <exec executable="java">
             <arg value="-jar"/>
             <arg value="artifacts/bin/MergeLog4j2Plugins.jar"/>
             <arg value="--dat"/>
