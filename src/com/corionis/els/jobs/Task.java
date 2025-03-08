@@ -6,8 +6,6 @@ import com.corionis.els.Utils;
 import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;
-import com.corionis.els.sftp.ClientSftp;
-import com.corionis.els.stty.ClientStty;
 import com.corionis.els.tools.AbstractTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

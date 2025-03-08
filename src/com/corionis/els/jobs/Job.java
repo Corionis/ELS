@@ -321,12 +321,12 @@ public class Job extends AbstractTool
                     break;
             }
 
-            if (context.mainFrame != null)
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
-            String msg = null;
             if (context.mainFrame != null)
-                context.mainFrame.labelStatusMiddle.setText(msg);
+            {
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                context.mainFrame.labelStatusMiddle.setText(null);
+            }
         }
         else
             throw new MungeException(context.cfg.gs("JobsUI.job.has.no.tasks") + job.getConfigName());

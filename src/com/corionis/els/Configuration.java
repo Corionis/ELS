@@ -2803,12 +2803,15 @@ public class Configuration
             operation = STATUS_SERVER;
         }
 
-        if (!getJobName().isEmpty())
-            operation = JOB_PROCESS;
-        if (isQuitStatusServer() && operation == NOT_SET)
-            operation = STATUS_SERVER_FORCE_QUIT;
-        if (isQuitSubscriberListener() && operation == NOT_SET)
-            operation = SUBSCRIBER_LISTENER_FORCE_QUIT;
+        if (operation == NOT_SET)
+        {
+            if (!getJobName().isEmpty())
+                operation = JOB_PROCESS;
+            if (isQuitStatusServer() && operation == NOT_SET)
+                operation = STATUS_SERVER_FORCE_QUIT;
+            if (isQuitSubscriberListener() && operation == NOT_SET)
+                operation = SUBSCRIBER_LISTENER_FORCE_QUIT;
+        }
 
         if (operation == NOT_SET)
             operation = NOT_REMOTE;

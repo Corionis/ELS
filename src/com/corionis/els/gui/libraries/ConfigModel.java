@@ -255,7 +255,7 @@ public class ConfigModel extends DefaultTableModel
             if (libMeta != null)
             {
                 LibrariesUI.LibMeta tmp = findMeta(name, libMeta);
-                if (tmp != null)
+                if (tmp != null && !tmp.repo.isDynamic())
                 {
                     JOptionPane.showMessageDialog(context.mainFrame,
                             context.cfg.gs(("Z.that.configuration.already.exists")),
