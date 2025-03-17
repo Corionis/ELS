@@ -2,6 +2,7 @@ package com.corionis.els.hints;
 
 import com.corionis.els.Context;
 import com.corionis.els.gui.hints.HintDate;
+import com.corionis.els.repository.Repository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -77,15 +78,15 @@ public class Hint implements Comparable, Serializable
 
     public String getActionSummary(Context context, String forSystem)
     {
-        String summary = "For: " + forSystem;
-        summary += " " + action + " " + fromLibrary + " " + fromItemPath;
+        String summary = "for: " + forSystem + ", ";
+        summary += action + " \"" + fromLibrary + "|" + fromItemPath + "\"";
         if (toLibrary != null && !toLibrary.isEmpty())
         {
-            summary += " to " + toLibrary + " " + toItemPath;
+            summary += " to \"" + toLibrary + "|" + toItemPath + "\"";
         }
-        summary += " By: " + author + " (" + system + ", ";
+        summary += ", by: " + author + " on " + system + ", ";
         HintDate hd = new HintDate(context, utc);
-        summary += hd.toString() + ")";
+        summary += hd.toString();
         return summary;
     }
 

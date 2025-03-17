@@ -374,19 +374,19 @@ public class Hints
                             if (response.trim().toLowerCase().equals("true"))
                             {
                                 ++trues;
-                                summary = "True: " + summary;
+                                summary = "True, " + summary;
                                 hint.setStatus(key.system, "Done");
                             }
                             else if (!response.trim().toLowerCase().equals("false"))
                             {
                                 ++faults;
-                                summary = "Fault: " + summary;
+                                summary = "Fault, " + summary;
                                 hint.setStatus(key.system, "Fault");
                             }
                             else
                             {
                                 ++falses;
-                                summary = "False: " + summary;
+                                summary = "False, " + summary;
                                 hint.setStatus(key.system, "Done");
                             }
 
