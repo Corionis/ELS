@@ -1,7 +1,7 @@
 {
     "libraries": {
         "description": "Publisher",
-        "key": "ea30da9c-1823-4d33-b316-d66f6c892c3c",
+        "key": "aa1673d4-5284-4a7d-86c9-3df20adace46",
         "host": "localhost:40700",
         "listen": "localhost:40800",
         "timeout": 0,
