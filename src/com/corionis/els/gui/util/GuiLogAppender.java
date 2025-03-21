@@ -24,8 +24,9 @@ import java.util.ArrayList;
 public class GuiLogAppender extends AbstractAppender
 {
     private static ArrayList<String> preBuffer = null;
-    private Context context = null;
     private static Startup startup = null;
+    private Context context = null;
+    private boolean hasBeenShown = false;
 
     public GuiLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions)
     {
@@ -41,12 +42,16 @@ public class GuiLogAppender extends AbstractAppender
         if (isGuiInitializing())
         {
             preBuffer(line);
-            showStartup(line);
+            if (context.cfg.defaultNavigator || context.cfg.isGui())
+                showStartup(line);
         }
         else
         {
             if (preBuffer != null)
+            {
+                hideStartup();
                 dumpPreBuffer();
+            }
             appendGuiLogs(line);
         }
     }
@@ -54,40 +59,6 @@ public class GuiLogAppender extends AbstractAppender
     private void appendGuiLogs(String line)
     {
         context.mainFrame.textAreaLog.append(line);
-    }
-
-    private void dumpPreBuffer()
-    {
-        hideStartup();
-        for (String preLine : preBuffer)
-        {
-            if (preLine != null)
-            {
-                appendGuiLogs(preLine);
-            }
-        }
-        preBuffer = null;
-    }
-
-    public Component getStartup()
-    {
-        return startup;
-    }
-
-    public boolean isStartupActive()
-    {
-        if (startup != null && startup.isVisible())
-            return true;
-        return false;
-    }
-
-    private void hideStartup()
-    {
-        if (startup != null)
-        {
-            startup.setVisible(false);
-        }
-        startup = null;
     }
 
     @PluginFactory
@@ -110,12 +81,55 @@ public class GuiLogAppender extends AbstractAppender
         return appender;
     }
 
-    private boolean isGuiInitializing()
+    private void dumpPreBuffer()
     {
-        if (context == null ||
-                context.navigator == null ||
-                context.mainFrame == null ||
-                context.mainFrame.textAreaLog == null )
+        for (String preLine : preBuffer)
+        {
+            if (preLine != null)
+            {
+                appendGuiLogs(preLine);
+            }
+        }
+        preBuffer = null;
+    }
+
+    public Context getContext()
+    {
+        return this.context;
+    }
+
+    public Component getStartup()
+    {
+        return startup;
+    }
+
+    private void hideStartup()
+    {
+        if (startup != null)
+        {
+            startup.setVisible(false);
+        }
+        hasBeenShown = true;
+        startup = null;
+    }
+
+    public boolean isGuiInitializing()
+    {
+        if (!hasBeenShown)
+        {
+            if (context == null ||
+                    context.mainFrame == null ||
+                    context.navigator == null ||
+                    context.mainFrame.textAreaLog == null ||
+                    (context.main.primaryExecution ? context.mainFrame.textAreaLog.isVisible() == false : context.mainFrame.textAreaLog.isShowing() == false))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isStartupActive()
+    {
+        if (startup != null && startup.isVisible())
             return true;
         return false;
     }
@@ -141,53 +155,47 @@ public class GuiLogAppender extends AbstractAppender
         this.context = context;
     }
 
-    public void showStartup(String msg)
+    private void showStartup(String msg)
     {
-        if (context.cfg.defaultNavigator || context.cfg.isGui() && preBuffer != null)
+        if (startup == null)
         {
-            if (isGuiInitializing())
+            try
             {
-                if (startup == null)
+                context.preferences.initLookAndFeel(context.cfg.APPLICATION_NAME, true);
+                startup = new Startup();
+                if (startup != null)
                 {
-                    try
-                    {
-                        context.preferences.initLookAndFeel(context.cfg.APPLICATION_NAME, true);
-                        startup = new Startup();
-                        if (startup != null)
-                        {
-                            startup.setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
-                            startup.setTitle(context.cfg.getNavigatorName());
-                            startup.labelVersion.setText("Version " + Configuration.getBuildVersionName());
+                    startup.setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
+                    startup.setTitle(context.cfg.getNavigatorName());
+                    startup.labelVersion.setText("Version " + Configuration.getBuildVersionName());
 
-                            if (context.preferences != null && Utils.isOnScreen(context.preferences.getAppXpos(), context.preferences.getAppYpos()))
-                            {
-                                int x = context.preferences.getAppXpos() + (context.preferences.getAppWidth() / 2) - (startup.getWidth() / 2);
-                                int y = context.preferences.getAppYpos() + (context.preferences.getAppHeight() / 2) - (startup.getHeight() / 2);
-                                startup.setLocation(x, y);
-                            }
-                            else
-                            {
-                                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                                int x = screenSize.width / 2 - startup.getWidth() / 2;
-                                if (x < 0)
-                                    x = 1;
-                                int y = screenSize.height / 2 - startup.getHeight() / 2;
-                                if (y < 0)
-                                    y = 1;
-                                startup.setLocation(x, y);
-                            }
-                            startup.setVisible(true);
-                        }
-                    }
-                    catch (Exception ignoredEx)
+                    if (context.preferences != null && Utils.isOnScreen(context.preferences.getAppXpos(), context.preferences.getAppYpos()))
                     {
+                        int x = context.preferences.getAppXpos() + (context.preferences.getAppWidth() / 2) - (startup.getWidth() / 2);
+                        int y = context.preferences.getAppYpos() + (context.preferences.getAppHeight() / 2) - (startup.getHeight() / 2);
+                        startup.setLocation(x, y);
                     }
+                    else
+                    {
+                        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                        int x = screenSize.width / 2 - startup.getWidth() / 2;
+                        if (x < 0)
+                            x = 1;
+                        int y = screenSize.height / 2 - startup.getHeight() / 2;
+                        if (y < 0)
+                            y = 1;
+                        startup.setLocation(x, y);
+                    }
+                    startup.setVisible(true);
                 }
-
-                startup.startupTextField.setText(msg.substring(29));
-                redraw();
+            }
+            catch (Exception ignoredEx)
+            {
             }
         }
+
+        startup.startupTextField.setText(msg.substring(29));
+        redraw();
     }
 
     @Override

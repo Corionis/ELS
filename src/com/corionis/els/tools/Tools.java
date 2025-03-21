@@ -22,6 +22,11 @@ public class Tools
 {
     private ArrayList<AbstractTool> toolList = null;
 
+    public Tools()
+    {
+
+    }
+
     /**
      * Get tool from existing toolList from loadAllTools()
      *

@@ -3,173 +3,173 @@
   "tasks": [
     {
       "configName": "Case change",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [
-        {
-          "location": "test/Subscriber One/media/TV Shows/M4 D4 Renamer Tests",
-          "type": 6
-        }
-      ],
       "publisherKey": "",
       "publisherPath": "",
-      "subscriberKey": "_ANY_SERVER_",
-      "subscriberOverride": "true",
-      "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+      "subscriberOverride": "",
+      "subscriberPath": "libraries/Subscriber One.json",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "location": "test/subscriber-one/media/TV Shows/M4 D4 Renamer Tests",
+          "type": 6
+        }
+      ]
     },
     {
       "configName": "Replace Amzn",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "Replace SxxEyy",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "Replace Webrip",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "Replace [eztv.re]",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
-    },
-    {
-      "configName": "Replace double dashs",
-      "hintsKey": "",
-      "hintsOverrideHost": false,
-      "hintsPath": "",
-      "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
-      "publisherKey": "_CACHEDLASTTASK_",
-      "publisherPath": "",
-      "subscriberKey": "",
-      "subscriberOverride": "true",
-      "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "Replace double dots",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "Replace dot w/ space",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "Replace multi-spaces",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "Insert -S01E",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Replace double dashs",
+      "internalName": "Renamer",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "publisherKey": "_CACHEDLASTTASK_",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverride": "true",
+      "subscriberPath": "",
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "Numbering",
+      "internalName": "Renamer",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     }
   ]
 }

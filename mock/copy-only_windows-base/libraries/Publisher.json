@@ -19,11 +19,11 @@
         ],
         "locations": [
             {
-                "location": "media/publisher/media",
+                "location": "test/publisher/media",
                 "minimum": "40GB"
             },
             {
-                "location": "media/publisher/more-media/TV Shows",
+                "location": "test/publisher/more-media/TV Shows",
                 "minimum": "40GB"
             }
         ],
@@ -31,15 +31,15 @@
             {
                 "name": "Movies",
                 "sources": [
-                    "media/publisher/media/Movies"
+                    "test/publisher/media/Movies"
                 ],
                 "items": null
             },
             {
                 "name": "TV Shows",
                 "sources": [
-                    "media/publisher/media/TV Shows",
-                    "media/publisher/more-media/TV Shows"
+                    "test/publisher/media/TV Shows",
+                    "test/publisher/more-media/TV Shows"
                 ],
                 "items": null
             }

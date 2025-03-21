@@ -2,6 +2,7 @@ package com.corionis.els;
 
 import com.corionis.els.gui.*;
 import com.corionis.els.gui.browser.Browser;
+import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.hints.HintKeys;
 import com.corionis.els.hints.Hints;
 import com.corionis.els.repository.Repository;
@@ -12,6 +13,7 @@ import com.corionis.els.stty.ServeStty;
 import com.corionis.els.stty.hintServer.Datastore;
 import com.corionis.els.gui.libraries.LibrariesUI;
 import com.corionis.els.tools.Tools;
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
 
 /**
  * Runtime Context
@@ -37,6 +39,7 @@ public class Context
     public boolean localMode = false; // operation intended for local execution
     public Main main = null;
     public Navigator navigator = null;
+    public Context previousContext = null; // the previous Context during a secondary invocation
     public Repository publisherRepo = null;
     public ServeSftp serveSftp = null;
     public ServeStty serveStty = null;
@@ -48,10 +51,12 @@ public class Context
 
     // Navigator
     public Browser browser = null;
+    public GuiLogAppender guiLogAppender = null;
     public LibrariesUI libraries;
     public MainFrame mainFrame = null;
     public Preferences preferences = null;
     public Progress progress = null;
+    public RollingFileAppender rollingFileAppender = null;
 
     public Context()
     {
@@ -81,6 +86,7 @@ public class Context
         clone.localMode = this.localMode;
         clone.main = this.main;
         clone.navigator = this.navigator;
+        clone.previousContext = this;
         clone.publisherRepo = this.publisherRepo;
         clone.serveSftp = this.serveSftp;
         clone.serveStty = this.serveStty;
@@ -93,10 +99,12 @@ public class Context
 
         // Navigator
         clone.browser = this.browser;
+        clone.guiLogAppender = this.guiLogAppender;
         clone.libraries = this.libraries;
         clone.mainFrame = this.mainFrame;
         clone.preferences = this.preferences;
         clone.progress = this.progress;
+        clone.rollingFileAppender = this.rollingFileAppender;
         return clone;
     }
 

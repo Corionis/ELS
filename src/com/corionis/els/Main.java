@@ -6,14 +6,17 @@ import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.hints.HintKeys;
 import com.corionis.els.hints.Hints;
+import com.corionis.els.jobs.Task;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.sftp.ServeSftp;
 import com.corionis.els.stty.ClientStty;
 import com.corionis.els.stty.ServeStty;
 import com.corionis.els.stty.hintServer.Datastore;
+import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.Tools;
 
+import com.corionis.els.tools.operations.OperationsTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -53,18 +56,15 @@ public class Main
     public String localeAbbrev; // abbreviation of locale, e.g. en_US
     public Logger logger = null; // log4j2 logger singleton
     public String operationName = ""; // secondary invocation name
-    public Context previousContext = null; // the previous Context during a secondary invocation
     public boolean primaryExecution = true;
     public Process process = null;
     public boolean secondaryNavigator = false;
     public Date stamp = new Date(); // runtime stamp for this invocation
     public String whatsRunning = "";
 
-    public GuiLogAppender guiLogAppender = null;
     private boolean catchExceptions = true;
     private boolean isListening = false; // listener mode
     public Job job = null;
-    private RollingFileAppender rollingFileAppender = null;
 
     /**
      * Hide default constructor
@@ -81,7 +81,6 @@ public class Main
         this.context = new Context();
         this.context.main = this;
         this.primaryExecution = true;
-        this.previousContext = null;
         process(args);          // ELS Processor
 
         if (this.context.mainFrame == null && !this.context.cfg.isNavigator() && !this.isListening)
@@ -93,10 +92,9 @@ public class Main
      */
     public Main(String[] args, Context context, String operationName)
     {
-        this.context = (Context) context.clone();
+        this.context = context;
         this.context.main = this;
         this.primaryExecution = false;
-        this.previousContext = (Context) context.clone();
         this.operationName = operationName;
         process(args);          // ELS Processor
     }
@@ -252,7 +250,7 @@ public class Main
 
             if (isStartupActive())
             {
-                int opt = JOptionPane.showConfirmDialog(guiLogAppender.getStartup(),
+                int opt = JOptionPane.showConfirmDialog(context.guiLogAppender.getStartup(),
                         "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (opt == JOptionPane.YES_OPTION)
@@ -424,9 +422,9 @@ public class Main
      */
     public void flushLogger()
     {
-        if (rollingFileAppender != null)
+        if (context.rollingFileAppender != null)
         {
-            rollingFileAppender.getManager().flush();
+            context.rollingFileAppender.getManager().flush();
             try
             {
                 Thread.sleep(500);
@@ -449,8 +447,8 @@ public class Main
         AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
         LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
         Map<String, Appender> appenders = loggerConfig.getAppenders();
-        guiLogAppender = (GuiLogAppender) appenders.get("GuiLogAppender");
-        rollingFileAppender = (RollingFileAppender) appenders.get("applog");
+        context.guiLogAppender = (GuiLogAppender) appenders.get("GuiLogAppender");
+        context.rollingFileAppender = (RollingFileAppender) appenders.get("applog");
     }
 
     /**
@@ -470,7 +468,7 @@ public class Main
      */
     public boolean isStartupActive()
     {
-        if (guiLogAppender != null && guiLogAppender.isStartupActive())
+        if (context.guiLogAppender != null && context.guiLogAppender.isStartupActive())
             return true;
         return false;
     }
@@ -493,11 +491,6 @@ public class Main
                 context.cfg.parseCommandLine(args);
                 context.cfg.configureWorkingDirectory();
                 context.cfg.setOperation("");
-                if (!primaryExecution)
-                {
-                    context.cfg.setWorkingDirectory(previousContext.cfg.getWorkingDirectory());
-                    context.cfg.setWorkingDirectorySubscriber(previousContext.cfg.getWorkingDirectorySubscriber());
-                }
             }
             catch (MungeException e)
             {
@@ -534,22 +527,19 @@ public class Main
                 LoggerContext loggerContext = (LoggerContext) LogManager.getContext(!primaryExecution ? true : false);
                 loggerContext.reconfigure();
                 getAppenders();
-                guiLogAppender.setContext(context);
+                context.guiLogAppender.setContext(context);
                 loggerContext.updateLoggers();
             }
             else // carry-over selected previous Context values
             {
-                context.cfg.setConsoleLevel(previousContext.cfg.getConsoleLevel());
-                context.cfg.setDebugLevel(previousContext.cfg.getDebugLevel());
-                context.cfg.setLogFileName(previousContext.cfg.getLogFileName());
-                context.cfg.setLogFilePath(previousContext.cfg.getLogFilePath());
-                context.cfg.setLogFileFullPath(previousContext.cfg.getLogFileFullPath());
-                context.cfg.setLogOverwrite(previousContext.cfg.isLogOverwrite());
+                context.cfg.setConsoleLevel(context.previousContext.cfg.getConsoleLevel());
+                context.cfg.setDebugLevel(context.previousContext.cfg.getDebugLevel());
+                context.cfg.setLogFileName(context.previousContext.cfg.getLogFileName());
+                context.cfg.setLogFilePath(context.previousContext.cfg.getLogFilePath());
+                context.cfg.setLogFileFullPath(context.previousContext.cfg.getLogFileFullPath());
+                context.cfg.setLogOverwrite(context.previousContext.cfg.isLogOverwrite());
 
-                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(!primaryExecution ? true : false);
-                getAppenders();
-                guiLogAppender.setContext(context);
-                loggerContext.updateLoggers();
+                context.guiLogAppender.setContext(context);
             }
 
             // get the named logger
@@ -1039,14 +1029,39 @@ public class Main
                         context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                     }
 
-                    Job tmpJob = new Job(context, "temp");
+                    Job tmpJob = new Job(context, context.cfg.getJobName());
                     job = tmpJob.load(context.cfg.getJobName());
                     if (job == null)
                         throw new MungeException("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
 
+                    context.tools = new Tools();
+                    context.tools.loadAllTools(context, null);
+
+                    if (!job.getTasks().isEmpty())
+                    {
+                        ArrayList<Task> tasks = job.getTasks();
+                        if (tasks.size() > 0)
+                        {
+                            Task task = tasks.get(0);
+                            if (task.getInternalName().equals(OperationsTool.INTERNAL_NAME))
+                            {
+                                task.setContext(context);
+                                AbstractTool tool = task.getTool();
+                                if (tool instanceof OperationsTool)
+                                {
+                                    if (((OperationsTool)tool).isOptNavigator())
+                                    {
+                                        context.cfg.setNavigator(true);
+                                        context.cfg.setLoggerView(false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if (context.cfg.isLoggerView() && primaryExecution)
                     {
-                        logger.info("Logger mode"); // say something to initialize LookAndFeel (laf)
+                        logger.info("Logger display mode"); // say something to initialize LookAndFeel (laf)
                         context.navigator = new Navigator(context);
                         if (!context.fault)
                         {
@@ -1059,9 +1074,6 @@ public class Main
                         whatsRunning = "ELS: Job";
                         logger.info(whatsRunning + ", version " + getBuildVersionName() + ", " + getBuildDate());
                         context.cfg.dump();
-
-                        context.tools = new Tools();
-                        context.tools.loadAllTools(context, null);
 
                         // setup the hint status server if defined
                         setupHints(context.publisherRepo);
@@ -1099,7 +1111,7 @@ public class Main
                     else
                     {
                         if (isStartupActive())
-                            centerOn = guiLogAppender.getStartup();
+                            centerOn = context.guiLogAppender.getStartup();
                     }
                     JOptionPane.showMessageDialog(centerOn, e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
@@ -1375,7 +1387,7 @@ public class Main
         while (prev != null)
         {
             prev.main.isListening = listening;
-            prev = prev.main.previousContext;
+            prev = prev.previousContext;
         }
     }
 
@@ -1500,7 +1512,7 @@ public class Main
 
                 if (isStartupActive())
                 {
-                    int opt = JOptionPane.showConfirmDialog(guiLogAppender.getStartup(),
+                    int opt = JOptionPane.showConfirmDialog(context.guiLogAppender.getStartup(),
                             "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
                             context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                     if (opt == JOptionPane.YES_OPTION)
@@ -1526,9 +1538,9 @@ public class Main
         try
         {
             logger.trace("shutdown via main");
-            if (context.main.job != null || (context.main.previousContext != null && context.main.previousContext.main.job != null))
+            if (context.main.job != null || (context.previousContext != null && context.previousContext.main.job != null))
             {
-                Job theJob = (job != null) ? job : context.main.previousContext.main.job;
+                Job theJob = (job != null) ? job : context.previousContext.main.job;
                 String msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
                         theJob.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
                 logger.info(msg);

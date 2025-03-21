@@ -718,6 +718,7 @@ public class Navigator
      */
     private boolean initialize()
     {
+        context.cfg.setNavigator(true);
         context.cfg.loadLocale(context.preferences.getLocale());
 
         if (context.cfg.getPublisherCollectionFilename().length() > 0)
@@ -800,7 +801,7 @@ public class Navigator
         }
 
         // setup the GUI
-        if (context.main.previousContext != null && context.main.previousContext.navigator != null)
+        if (context.previousContext != null && context.previousContext.navigator != null)
             context.main.secondaryNavigator = true;
 
         context.mainFrame = new MainFrame(context);
@@ -816,14 +817,16 @@ public class Navigator
             context.browser = new Browser(context);
             context.libraries = new LibrariesUI(context);
 
+/*
             // set the GuiLogAppender localContext for a second invocation
             if (context.main.primaryExecution)
             {
-                GuiLogAppender appender = context.main.guiLogAppender;
-                appender.setContext(context);
-                // this causes the preBuffer to be appended to the Navigator Log panel
-                logger.debug(context.cfg.gs("Navigator.appender.updated"));
+//                GuiLogAppender appender = context.main.guiLogAppender;
+//                appender.setContext(context);
+                 // this causes the preBuffer to be appended to the Navigator Log panel
+//                logger.info(context.cfg.gs("Navigator.appender.updated"));
             }
+*/
 
             // disable back-fill because we never know what combination of items might be selected
             context.cfg.setNoBackFill(true);
@@ -841,8 +844,6 @@ public class Navigator
                 // add any defined jobs to the menu
                 loadJobsMenu();
             }
-
-            context.cfg.setNavigator(true);
         }
 
         return !context.fault;
@@ -2254,6 +2255,8 @@ public class Navigator
                             }
                             lastFindPosition += lastFindString.length();
                         }
+                        else
+                            context.mainFrame.labelStatusMiddle.setText("Value not found");
                     }
                 }
             }
@@ -3398,11 +3401,11 @@ public class Navigator
     }
 
     /**
-     * Is this instance running in --logger mode?
+     * Is this instance running in logger mode?
      * <br/>
      * A short convenience method
      *
-     * @return True if operating in --logger mode
+     * @return True if operating in logger mode
      */
     public boolean isLogger()
     {
@@ -3680,13 +3683,13 @@ public class Navigator
     }
 
     /**
-     * Process a Job in --logger mode in the foreground
+     * Process a Job in logger mode in the foreground
      */
     private void processLoggerJob()
     {
         try
         {
-            Job tmpJob = new Job(context, "temp");
+            Job tmpJob = new Job(context, context.cfg.getJobName());
             Job job = tmpJob.load(context.cfg.getJobName());
             if (job == null)
                 logger.error("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
@@ -4171,7 +4174,7 @@ public class Navigator
                         context.mainFrame.panelToolbar.setVisible(false);
                     }
 
-                    context.mainFrame.setVisible(true);
+                    context.mainFrame.setVisible(true); // <------------------------------------------
 
                     context.preferences.fixBrowserDivider(context, -1);
                     context.mainFrame.treeCollectionOne.requestFocus();
@@ -4400,8 +4403,8 @@ public class Navigator
         }
         else
         {
-            GuiLogAppender appender = context.main.guiLogAppender;
-            appender.setContext(context.main.previousContext);
+            GuiLogAppender appender = context.guiLogAppender;
+//            appender.setContext(context.main.previousContext);
         }
     }
 

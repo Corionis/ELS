@@ -1,0 +1,20 @@
+{
+  "configName": "600 Local Publish One",
+  "tasks": [
+    {
+      "configName": "Local publish",
+      "internalName": "Operations",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "publisherKey": "ea30da9c-1823-4d33-b316-d66f6c892c3c",
+      "publisherPath": "libraries/Publisher.json",
+      "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+      "subscriberOverride": "",
+      "subscriberPath": "libraries/Subscriber One.json",
+      "subscriberRemote": false,
+      "origins": []
+    }
+  ]
+}

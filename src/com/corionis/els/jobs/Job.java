@@ -252,7 +252,8 @@ public class Job extends AbstractTool
                     String[] args = list.toArray(new String[0]);
 
                     logger.info(context.cfg.gs("Z.launching.job") + getConfigName());
-                    Main main = new Main(args, context, getConfigName());
+                    Context localContext = (Context) context.clone();
+                    Main main = new Main(args, localContext, getConfigName());
                 }
                 catch (Exception e)
                 {
@@ -300,7 +301,7 @@ public class Job extends AbstractTool
                     if (subJob.previousTask != null)
                         previousTask = subJob.previousTask;
 
-                    logger.info(context.cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
+                    logger.info(context.cfg.gs("Job.job.complete") + currentTask.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
                 }
                 else // regular task
                 {
@@ -320,7 +321,6 @@ public class Job extends AbstractTool
                 if (context.fault)
                     break;
             }
-
 
             if (context.mainFrame != null)
             {

@@ -468,7 +468,7 @@ public class Configuration
         indicator(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
         indicator(logger, SHORT, "  cfg: -z Decimal scale = ", getLongScale() == 1024 ? -1 : 1);
         if (loggerView)
-            logger.info(SHORT, "  cfg: --logger mode");
+            logger.info(SHORT, "  cfg: --logger: display mode");
     }
 
     /**
@@ -881,13 +881,13 @@ public class Configuration
      */
     public String getExecutablePath()
     {
-        String exePath = "\"" + getInstalledPath() + System.getProperty("file.separator");
+        String exePath = getInstalledPath() + System.getProperty("file.separator");
         if (Utils.isOsWindows())
-            exePath += "ELS-Navigator.exe\"";
+            exePath += "ELS-Navigator.exe";
         else if (Utils.isOsMac())
             exePath = "open -F -W -n -a " + getInstalledPath() + "/ELS-Navigator.app --args";
         else
-            exePath += "rt/bin/java\"";
+            exePath += "rt/bin/java";
         return exePath;
     }
 
@@ -1491,7 +1491,7 @@ public class Configuration
     }
 
     /**
-     * Is the Navigator GUI to be used, either --logger view or Navigator?
+     * Is the Navigator GUI to be used, either logger view or Navigator?
      *
      * @return true if GUI is to be used
      */
@@ -1554,9 +1554,9 @@ public class Configuration
     }
 
     /**
-     * Is ELS running in --logger view?
+     * Is ELS running in logger view?
      *
-     * @return True if --logger mode
+     * @return True if logger mode
      */
     public boolean isLoggerView()
     {
@@ -2719,7 +2719,7 @@ public class Configuration
     }
 
     /**
-     * Set this instance as operating in --logger mode
+     * Set this instance as operating in logger mode
      *
      * @param loggerView
      */

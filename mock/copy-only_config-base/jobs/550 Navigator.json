@@ -3,18 +3,33 @@
   "tasks": [
     {
       "configName": "Navigator",
+      "internalName": "Operations",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Operations",
-      "origins": [],
       "publisherKey": "ea30da9c-1823-4d33-b316-d66f6c892c3c",
       "publisherPath": "libraries/Publisher.json",
       "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
       "subscriberOverride": "true",
       "subscriberPath": "libraries/Subscriber One.json",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "021 Multi-Renamer Subscriber L",
+      "internalName": "jobs",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "publisherKey": "",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverride": "",
+      "subscriberPath": "",
+      "subscriberRemote": false,
+      "origins": []
     }
   ]
 }

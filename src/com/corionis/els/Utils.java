@@ -338,6 +338,9 @@ public class Utils
             location = System.getProperty("user.dir") + System.getProperty("file.separator") + filename;
         else
             location = filename;
+
+        location = pipe(location);
+        location = unpipe(location, System.getProperty("file.separator"));
 /*
         File file = new File(location);
         try

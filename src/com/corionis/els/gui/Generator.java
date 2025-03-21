@@ -44,9 +44,11 @@ public class Generator
     private String generated = "";
     private File logFile = null;
     private Logger logger = LogManager.getLogger("applog");
+
     private Generator()
     {
     }
+
     public Generator(Context context, boolean isFileGenerate)
     {
         this.context = context;
@@ -95,22 +97,23 @@ public class Generator
         panelTerminal.add(labelTerminal);
         panelTerminal.add(checkboxTerminal);
 
-        // warning panel
+        boolean tooLong = false;
         if (commandLine.length() > 260 && Utils.getOS().toLowerCase().equals("windows"))
         {
-            labelWarning.setText(context.cfg.gs(("Generator.warning.command.line.may.be.too.long")));
+            tooLong = true;
+            labelWarning.setText(context.cfg.gs(("Generator.warning.command.line.too.long")));
             panelWarning.add(labelWarning);
         }
 
         final JDialog dialog = new JDialog(owner);
         dialog.setAlwaysOnTop(true);
-//        if (owner == null)
-//            dialog.setLocation(Utils.getRelativePosition(localContext.mainFrame, dialog));
-//        else
-//            dialog.setLocationRelativeTo(owner);
+
         Object[] params = {panelName, panelComment, panelTerminal, panelWarning};
-        int resp = JOptionPane.showConfirmDialog((owner == null) ? context.mainFrame.panelMain : owner, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
-        if (resp == JOptionPane.OK_OPTION)
+        int resp = JOptionPane.showConfirmDialog((owner == null) ? context.mainFrame.panelMain : owner, params,
+                context.cfg.gs("Generator.shortcut.title"), tooLong ? JOptionPane.DEFAULT_OPTION : JOptionPane.OK_CANCEL_OPTION,
+                tooLong ? JOptionPane.WARNING_MESSAGE : JOptionPane.PLAIN_MESSAGE);
+
+        if (resp == JOptionPane.OK_OPTION && !tooLong)
         {
             name = fieldName.getText();
             String shortcut = System.getProperty("user.home") + System.getProperty("file.separator") + "Desktop" +
@@ -195,7 +198,7 @@ public class Generator
                 }
                 else // Windows
                 {
-                    // https://github.com/DmitriiShamrikov/mslinks?tab=readme-ov-file
+                    // https://github.com/DmitriiShamrikov/mslinks
                     try
                     {
                         name = fieldName.getText();
@@ -207,12 +210,13 @@ public class Generator
                             shellLink.getHeader().setIconIndex(0);
 
                             // remove exec name from beginning of commandLine
-                            String exec = "\"" + context.cfg.getExecutablePath() + "\"";
+                            String exec = context.cfg.getExecutablePath();
                             commandLine = commandLine.substring(exec.length()).trim();
                             shellLink.setCMDArgs(commandLine);
 
                             Path target = Paths.get(context.cfg.getExecutablePath()).toAbsolutePath().normalize();
                             String root = target.getRoot().toString();
+
                             String pathNoRoot = target.subpath(0, target.getNameCount()).toString();
 
                             ShellLinkHelper helper = new ShellLinkHelper(shellLink);
@@ -224,9 +228,7 @@ public class Generator
                     catch (Exception e)
                     {
                         logger.error(Utils.getStackTrace(e));
-                        return;
                     }
-
                 }
             }
         }
@@ -275,11 +277,6 @@ public class Generator
                 (glo ? " --debug-level " : " -d ") + debugLevel + " " + overOpt + " \"" + log + "\"";
 
         return cmd;
-    }
-
-    public int getDryRunPreset()
-    {
-        return dryRunPreset;
     }
 
     private String getTitle(AbstractTool tool)

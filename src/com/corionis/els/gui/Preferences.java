@@ -102,8 +102,8 @@ public class Preferences implements Serializable
     private int librariesLocationColumnWidth = 300;
     private int librariesMinimumSizeColumnWidth = 120;
     private String locale = "";
-    // The Look 'n Feel, 0-6
-    private int lookAndFeel = -1; // default IntelliJ Dark, aka Darcula
+    private int lookAndFeel = -1; // Look 'n Feel, 0-6, default IntelliJ Dark, aka Darcula
+    private boolean lookAndFeelInitialized = false;
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
     private int progressWidth = -1;
@@ -1068,6 +1068,7 @@ public class Preferences implements Serializable
             }
 
             FlatLaf.updateUI();
+            lookAndFeelInitialized = true;
         }
         catch (Exception e)
         {
@@ -1145,6 +1146,11 @@ public class Preferences implements Serializable
     public boolean isLastSubscriberIsRemote()
     {
         return lastSubscriberIsRemote;
+    }
+
+    public boolean isLookAndFeelInitialized()
+    {
+        return lookAndFeelInitialized;
     }
 
     public boolean isPreserveFileTimes()

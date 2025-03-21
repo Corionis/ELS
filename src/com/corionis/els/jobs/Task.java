@@ -35,10 +35,11 @@ public class Task implements Comparable, Serializable
 
     public ArrayList<Origin> origins; // last serializable member
 
-    transient public Context localContext = null;
     transient public AbstractTool currentTool = null;
     transient public boolean dryRun = false; // set before calling process(task)
     transient public Repository hintsRepo = null;
+    transient public Context localContext = null;
+    transient public Context originalContext = null;
     transient public Task previousTask = null;
     transient public Repository publisherRepo = null;
     transient public String remoteType = null;
@@ -413,7 +414,6 @@ public class Task implements Comparable, Serializable
     public boolean process(Context context) throws Exception
     {
         this.localContext = (Context)context.clone();
-        this.dryRun = dryRun;
 
         if (logger == null)
             logger = LogManager.getLogger("applog");

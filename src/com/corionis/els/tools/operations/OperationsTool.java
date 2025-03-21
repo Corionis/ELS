@@ -1,6 +1,7 @@
 package com.corionis.els.tools.operations;
 
 import com.corionis.els.*;
+import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.jobs.Task;
 import com.corionis.els.tools.AbstractTool;
 import com.google.gson.Gson;
@@ -141,7 +142,7 @@ public class OperationsTool extends AbstractTool
 
         String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
         sb.append(" " + conf);
-        if (context.cfg.isLoggerView())
+        if (context.cfg.isLoggerView() && !isOptNavigator())
             sb.append(" --logger");
 
         if (dryRun)
@@ -540,6 +541,26 @@ public class OperationsTool extends AbstractTool
         // run the Operation
         logger.info(context.cfg.gs("Z.launching") + getConfigName());
         Main main = new Main(args, context, getConfigName());
+
+        // if the Navigator or logger display mode is being used wait for it to come up
+        if (task.localContext.cfg.isNavigator())
+        {
+            GuiLogAppender gla = task.localContext.guiLogAppender;
+            if (gla != null)
+            {
+                while (gla.isGuiInitializing())
+                {
+                    try
+                    {
+                        Thread.sleep(10);
+                    }
+                    catch (InterruptedException e)
+                    {
+                    }
+                }
+                logger.trace("Navigator started");
+            }
+        }
     }
 
     public void requestStop()
