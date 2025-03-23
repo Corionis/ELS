@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="080-26 Navigator local" type="Application" factoryName="Application" folderName="080-00 Navigator - Local Backup">
+  <configuration default="false" name="080-26 Navigator local" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-C . --navigator -c Info -d Info -P &quot;libraries/Publisher.json&quot; -s &quot;libraries/Subscriber One.json&quot; -F output/080-26_Navigator-local.log" />

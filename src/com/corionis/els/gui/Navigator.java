@@ -1811,7 +1811,7 @@ public class Navigator
                             }
                             catch (Exception e)
                             {
-                                logger.error(Utils.getStackTrace(e));
+                                logger.error(e.getMessage() + " : " + Utils.getStackTrace(e));
                                 context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                                 JOptionPane.showMessageDialog(context.mainFrame,
                                         context.cfg.gs("Navigator.menu.Open.hint.error.opening.hint.library") + e.getMessage(),

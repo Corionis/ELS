@@ -2109,7 +2109,7 @@ public class LibrariesUI
                 }
                 catch (Exception e)
                 {
-                    String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+                    String msg = e.getMessage() + " : " + Utils.getStackTrace(e);
                     logger.error(msg);
                     JOptionPane.showMessageDialog(mf, msg, displayName, JOptionPane.ERROR_MESSAGE);
                 }

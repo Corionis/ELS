@@ -697,7 +697,7 @@ public class Repository implements Comparable
      * @return boolean True if file is a valid ELS repository, false if not a repository
      * @throws MungeException the els exception
      */
-    public boolean read(String filename, String type, boolean printLog) throws MungeException
+    public boolean read(String filename, String type, boolean printLog) throws Exception
     {
         boolean valid = false;
         try
@@ -720,9 +720,9 @@ public class Repository implements Comparable
                 valid = true;
             }
         }
-        catch (IOException ioe)
+        catch (Exception ioe)
         {
-            String msg = "Exception while reading " + type + " library: " + ioe.toString();
+            String msg = "Exception while reading " + type + " library: " + filename + System.getProperty("line.separator") + ioe.getMessage();
             if (context.main.isStartupActive())
             {
                 logger.error(msg);

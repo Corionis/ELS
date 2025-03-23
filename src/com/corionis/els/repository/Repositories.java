@@ -43,7 +43,7 @@ public class Repositories
             }
             catch (Exception e)
             {
-                logger.error(context.cfg.gs("Z.exception") + Utils.getStackTrace(e));
+                logger.error(e.getMessage() + " : " + Utils.getStackTrace(e));
                 if (context.mainFrame != null)
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.error.reading") + path, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
@@ -70,7 +70,7 @@ public class Repositories
             }
             catch (Exception e)
             {
-                logger.error(context.cfg.gs("Z.exception") + Utils.getStackTrace(e));
+                logger.error(e.getMessage() + " : " + Utils.getStackTrace(e));
                 if (context.mainFrame != null)
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.error.reading") + path, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 repo = null;

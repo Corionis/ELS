@@ -1100,7 +1100,7 @@ public class Main
             {
                 if (logger != null)
                 {
-                    logger.error(Utils.getStackTrace(e));
+                    logger.error(e.getMessage() + " : " + Utils.getStackTrace(e));
                 }
 
                 if (context.cfg.isNavigator())
