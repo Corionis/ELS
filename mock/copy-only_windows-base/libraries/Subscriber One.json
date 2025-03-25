@@ -2,8 +2,8 @@
     "libraries": {
         "description": "Subscriber One",
         "key": "bb12a499-97a6-44e1-8a91-4cc898e45849",
-        "host": "10.101.10.21:40300",
-        "listen": "10.101.10.21:40400",
+        "host": "localhost:40300",
+        "listen": "localhost:40400",
         "timeout": 0,
         "flavor": "Linux",
         "case_sensitive": false,
