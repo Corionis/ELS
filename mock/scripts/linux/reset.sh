@@ -19,7 +19,7 @@ cp -p ../artifacts/stage/linux/ELS/ELS-Navigator.sh .
 ./reset-test.sh $1
 
 if [ -e ../../../build/ELS.jar ]; then
-	cp ../../../build/ELS.jar ../../bin
+	cp -p ../../../build/ELS.jar ../../bin
 fi
 
 echo ""
