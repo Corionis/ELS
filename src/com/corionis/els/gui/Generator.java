@@ -267,7 +267,7 @@ public class Generator
         // generate-commandline
         boolean glo = context.preferences.isGenerateLongOptions();
         String exec = context.cfg.getExecutablePath();
-        String jar = (Utils.isOsLinux() ? context.cfg.getElsJar() : "");
+        String jar = ""; //(Utils.isOsLinux() ? context.cfg.getElsJar() : "");
         String opts = ((Job) tool).generateCommandline(dryRun);
         if (foreground)
             opts += " --logger";

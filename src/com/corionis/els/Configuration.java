@@ -483,7 +483,7 @@ public class Configuration
         // generate-commandline
         String opts;
         String exec = context.cfg.getExecutablePath();
-        String jar = (Utils.isOsLinux() ? context.cfg.getElsJar() : "");
+        String jar = ""; //(Utils.isOsLinux() ? context.cfg.getElsJar() : "");
 
         Configuration cc = context.cfg;
         Preferences pr = context.preferences;
