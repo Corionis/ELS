@@ -104,6 +104,7 @@ public class Preferences implements Serializable
     private String locale = "";
     private int lookAndFeel = -1; // Look 'n Feel, 0-6, default IntelliJ Dark, aka Darcula
     private boolean lookAndFeelInitialized = false;
+    private boolean macosLauncher = true;
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
     private int progressWidth = -1;
@@ -165,7 +166,6 @@ public class Preferences implements Serializable
     private boolean tooltipsLargeTables = true;
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
-
     /**
      * Constructor
      */
@@ -1153,6 +1153,11 @@ public class Preferences implements Serializable
         return lookAndFeelInitialized;
     }
 
+    public boolean isMacosLauncher()
+    {
+        return macosLauncher;
+    }
+
     public boolean isPreserveFileTimes()
     {
         return preserveFileTimes;
@@ -1628,6 +1633,11 @@ public class Preferences implements Serializable
     public void setLookAndFeel(int lookAndFeel)
     {
         this.lookAndFeel = lookAndFeel;
+    }
+
+    public void setMacosLauncher(boolean macosLauncher)
+    {
+        this.macosLauncher = macosLauncher;
     }
 
     public void setPreserveFileTimes(boolean preserveFileTimes)

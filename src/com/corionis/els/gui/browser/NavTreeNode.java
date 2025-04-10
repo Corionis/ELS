@@ -659,7 +659,8 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         entry.getFilename().equals("PerfLogs") ||
                         entry.getFilename().equals("ProgramData") ||
                         entry.getFilename().equals("swapfile.sys") ||
-                        entry.getFilename().equals("System Volume Information"))
+                        entry.getFilename().equals("System Volume Information") ||
+                        entry.getFilename().equals(".DS_Store" ))
                     continue;
 
                 String path = Utils.pipe(directory + context.subscriberRepo.getSeparator() + entry.getFilename());

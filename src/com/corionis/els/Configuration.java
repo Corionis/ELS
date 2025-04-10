@@ -875,7 +875,7 @@ public class Configuration
      * Depends on the operating system:<br/>
      * * Linux is rt/bin/java
      * * Windows is ELS-Navigator.exe
-     * * macOS is an "open" to ELS-Navigator.app
+     * * macOS is an "open" to ELS-Navigator.app or ELS-Navigator.sh depending on the Preference
      *
      * @return
      */
@@ -885,9 +885,15 @@ public class Configuration
         if (Utils.isOsWindows())
             exePath += "ELS-Navigator.exe";
         else if (Utils.isOsMac())
-            exePath = "open -F -W -n -a " + getInstalledPath() + "/ELS-Navigator.app --args";
+        {
+            if (context.preferences.isMacosLauncher())
+                exePath = "open -F -W -n -a " + getInstalledPath() + "/ELS-Navigator.app --args";
+            else
+                exePath += "ELS-Navigator.sh";
+        }
         else
-            exePath += "rt/bin/java";
+            exePath += "ELS-Navigator.sh";
+//            exePath += "rt/bin/java";
         return exePath;
     }
 

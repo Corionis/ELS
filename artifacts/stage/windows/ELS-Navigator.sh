@@ -12,7 +12,7 @@ cd "$base"
 name=`basename $0 .sh`
 
 if [ $# -gt 0 ]; then
-    "${base}/rt/Contents/Home/bin/java" -jar "${base}/bin/ELS.jar" "$@"
+    "${base}/rt/bin/java" -jar "${base}/bin/ELS.jar" "$@"
 else
-    "${base}/rt/Contents/Home/bin/java" -jar "${base}/bin/ELS.jar" -C "${base}" -n -c Debug -d Debug -F "output/${name}.log"
+    "${base}/rt/bin/java" -jar "${base}/bin/ELS.jar" -C "${base}" -n -c Debug -d Debug -F "output/${name}.log"
 fi

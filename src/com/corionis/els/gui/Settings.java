@@ -243,6 +243,7 @@ public class Settings extends JDialog
         showTouchConfirmationCheckBox.setSelected(context.preferences.isShowTouchConfirmation());
         defaultDryrunCheckBox.setSelected(context.preferences.isDefaultDryrun());
         generateLongOptionsCheckBox.setSelected(context.preferences.isGenerateLongOptions());
+        macosLauncherCheckBox.setSelected(context.preferences.isMacosLauncher());
 
         // appearance
         lookFeelComboBox.setAutoscrolls(true);
@@ -292,6 +293,11 @@ public class Settings extends JDialog
         tooltipLargeTableCheckBox.setSelected(context.preferences.isTooltipsLargeTables());
         uselastPubSubCheckBox.setSelected(context.preferences.isUseLastPublisherSubscriber());
 
+        if (!Utils.isOsMac())
+        {
+            macosLauncherLabel.setVisible(false);
+            macosLauncherCheckBox.setVisible(false);
+        }
     }
 
     private boolean setPreferences()
@@ -318,6 +324,7 @@ public class Settings extends JDialog
         context.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
         context.preferences.setDefaultDryrun(defaultDryrunCheckBox.isSelected());
         context.preferences.setGenerateLongOptions(generateLongOptionsCheckBox.isSelected());
+        context.preferences.setMacosLauncher(macosLauncherCheckBox.isSelected());
 
         // appearance
         context.preferences.setLookAndFeel(lookFeelComboBox.getSelectedIndex());
@@ -400,6 +407,8 @@ public class Settings extends JDialog
         generateLongOptionsCheckBox = new JCheckBox();
         preserveFileTimestampsLabel = new JLabel();
         preserveFileTimestampsCheckBox = new JCheckBox();
+        macosLauncherLabel = new JLabel();
+        macosLauncherCheckBox = new JCheckBox();
         apperancePanel = new JPanel();
         lookFeelLabel = new JLabel();
         lookFeelComboBox = new JComboBox<>();
@@ -544,6 +553,18 @@ public class Settings extends JDialog
                         generalPanel.add(preserveFileTimestampsCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
+
+                        //---- macosLauncherLabel ----
+                        macosLauncherLabel.setText(context.cfg.gs("Settings.macosLauncherLabel.text"));
+                        generalPanel.add(macosLauncherLabel, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 0, 5), 0, 0));
+
+                        //---- macosLauncherCheckBox ----
+                        macosLauncherCheckBox.setToolTipText("Uncheck to use ELS-Navigator.sh script internally and for shortcuts");
+                        generalPanel.add(macosLauncherCheckBox, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 0, 0), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
                     settingsTabbedPane.setMnemonicAt(0, context.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
@@ -834,6 +855,8 @@ public class Settings extends JDialog
     private JCheckBox generateLongOptionsCheckBox;
     private JLabel preserveFileTimestampsLabel;
     private JCheckBox preserveFileTimestampsCheckBox;
+    private JLabel macosLauncherLabel;
+    private JCheckBox macosLauncherCheckBox;
     private JPanel apperancePanel;
     private JLabel lookFeelLabel;
     private JComboBox<String> lookFeelComboBox;

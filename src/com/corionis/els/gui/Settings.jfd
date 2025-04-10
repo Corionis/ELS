@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.4" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.6" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -130,6 +130,20 @@ new FormModel {
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
 								"gridy": 6
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "macosLauncherLabel"
+								"text": new FormMessage( null, "Settings.macosLauncherLabel.text" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridy": 7
+								"insets": new java.awt.Insets( 0, 8, 0, 0 )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "macosLauncherCheckBox"
+								"toolTipText": "Uncheck to use ELS-Navigator.sh script internally and for shortcuts"
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 1
+								"gridy": 7
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.generalPanel.tab.title" )
