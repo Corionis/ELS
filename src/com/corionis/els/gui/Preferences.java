@@ -37,12 +37,39 @@ public class Preferences implements Serializable
     private int collectionOneSizeWidth = 80;
     private int collectionOneSortColumn = 1;
     private int collectionOneSortDirection = 0;
+
+    private int collectionOneTableWidth = -1;
+    private int collectionOneTreeWidth = -1;
+
+    private int getCollectionOneTableWidth()
+    {
+        return collectionOneTableWidth;
+    }
+
+    private int getCollectionOneTreeWidth()
+    {
+        return collectionOneTreeWidth;
+    }
+
     private int collectionTwoDateWidth = 80;
     private int collectionTwoDividerLocation = 150;
     private int collectionTwoNameWidth = 128;
     private int collectionTwoSizeWidth = 80;
     private int collectionTwoSortColumn = 1;
     private int collectionTwoSortDirection = 0;
+    private int collectionTwoTableWidth = -1;
+    private int collectionTwoTreeWidth = -1;
+
+    private int getCollectionTwoTableWidth()
+    {
+        return collectionTwoTableWidth;
+    }
+
+    private int getCollectionTwoTreeWidth()
+    {
+        return collectionTwoTreeWidth;
+    }
+
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss a";
     private boolean defaultDryrun = true;
@@ -103,7 +130,6 @@ public class Preferences implements Serializable
     private int librariesMinimumSizeColumnWidth = 120;
     private String locale = "";
     private int lookAndFeel = -1; // Look 'n Feel, 0-6, default IntelliJ Dark, aka Darcula
-    private boolean lookAndFeelInitialized = false;
     private boolean macosLauncher = true;
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
@@ -128,6 +154,30 @@ public class Preferences implements Serializable
     private int systemOneSizeWidth = 80;
     private int systemOneSortColumn = 1;
     private int systemOneSortDirection = 0;
+
+    private int systemOneTableWidth = -1;
+    private int systemOneTreeWidth = -1;
+
+    public int getSystemOneTreeWidth()
+    {
+        return systemOneTreeWidth;
+    }
+
+    public void setSystemOneTreeWidth(int systemOneTreeWidth)
+    {
+        this.systemOneTreeWidth = systemOneTreeWidth;
+    }
+
+    public int getSystemOneTableWidth()
+    {
+        return systemOneTableWidth;
+    }
+
+    public void setSystemOneTableWidth(int systemOneTableWidth)
+    {
+        this.systemOneTableWidth = systemOneTableWidth;
+    }
+
     private int systemTwoDateWidth = 80;
     private int systemTwoDividerLocation = 152;
     private int systemTwoNameWidth = 128;
@@ -165,7 +215,10 @@ public class Preferences implements Serializable
     private int toolsSleepYpos = 0;
     private boolean tooltipsLargeTables = true;
     private boolean useLastPublisherSubscriber = true;
+
     private transient Context context;
+    private transient boolean lookAndFeelInitialized = false;
+
     /**
      * Constructor
      */
@@ -173,53 +226,75 @@ public class Preferences implements Serializable
     {
     }
 
-    public void extractColumnSizes(Context context, JTable table)
+    public void extractPositionsSizes(Context context)
     {
-        if (table == null || table.getName().equalsIgnoreCase("tableCollectionOne"))
+        SortMeta sortMeta;
+
+        // dividers
+        centerDividerOrientation = context.mainFrame.splitPaneTwoBrowsers.getOrientation();
+        centerDividerLocation = context.mainFrame.splitPaneTwoBrowsers.getDividerLocation();
+
+        context.mainFrame.scrollPaneTreeCollectionOne.getWidth();
+
+        if (context.mainFrame.tableCollectionOne.getColumnModel().getColumnCount() == 4)
         {
-            if (context.mainFrame.tableCollectionOne.getColumnModel().getColumnCount() == 4)
-            {
-                collectionOneNameWidth = context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).getWidth();
-                collectionOneSizeWidth = context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).getWidth();
-                collectionOneDateWidth = context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).getWidth();
-            }
+            collectionOneDividerLocation = context.mainFrame.splitPaneCollectionOne.getDividerLocation();
+            collectionOneTableWidth = context.mainFrame.scrollPaneTableCollectionOne.getWidth();
+            collectionOneTreeWidth = context.mainFrame.scrollPaneTreeCollectionOne.getWidth();
+
+            sortMeta = getTableSort(context.mainFrame.tableCollectionOne);
+            collectionOneSortColumn = sortMeta.column;
+            collectionOneSortDirection = sortMeta.direction;
+
+            collectionOneNameWidth = context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).getWidth();
+            collectionOneSizeWidth = context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).getWidth();
+            collectionOneDateWidth = context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).getWidth();
         }
 
-        if (table == null || table.getName().equalsIgnoreCase("tableCollectionTwo"))
+        if (context.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
         {
-            if (context.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
-            {
-                collectionTwoNameWidth = context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).getWidth();
-                collectionTwoSizeWidth = context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).getWidth();
-                collectionTwoDateWidth = context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).getWidth();
-            }
+            collectionTwoDividerLocation = context.mainFrame.splitPaneCollectionTwo.getDividerLocation();
+            collectionTwoTableWidth = context.mainFrame.scrollPaneTableCollectionTwo.getWidth();
+            collectionTwoTreeWidth = context.mainFrame.scrollPaneTreeCollectionTwo.getWidth();
+
+            sortMeta = getTableSort(context.mainFrame.tableCollectionTwo);
+            collectionTwoSortColumn = sortMeta.column;
+            collectionTwoSortDirection = sortMeta.direction;
+
+            collectionTwoNameWidth = context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).getWidth();
+            collectionTwoSizeWidth = context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).getWidth();
+            collectionTwoDateWidth = context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).getWidth();
         }
 
-        if (table == null || table.getName().equalsIgnoreCase("tableSystemOne"))
+        if (context.mainFrame.tableSystemOne.getColumnModel().getColumnCount() == 4)
         {
-            if (context.mainFrame.tableSystemOne.getColumnModel().getColumnCount() == 4)
-            {
-                systemOneNameWidth = context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).getWidth();
-                systemOneSizeWidth = context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).getWidth();
-                systemOneDateWidth = context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).getWidth();
-            }
+            systemOneDividerLocation = context.mainFrame.splitPaneSystemOne.getDividerLocation();
+            systemOneTableWidth = context.mainFrame.scrollPaneTableSystemOne.getWidth();
+            systemOneTreeWidth = context.mainFrame.scrollPaneTreeSystemOne.getWidth();
+
+            sortMeta = getTableSort(context.mainFrame.tableSystemOne);
+            systemOneSortColumn = sortMeta.column;
+            systemOneSortDirection = sortMeta.direction;
+
+            systemOneNameWidth = context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).getWidth();
+            systemOneSizeWidth = context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).getWidth();
+            systemOneDateWidth = context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).getWidth();
         }
 
-        if (table == null || table.getName().equalsIgnoreCase("tableSystemTwo"))
+        if (context.mainFrame.tableSystemTwo.getColumnModel().getColumnCount() == 4)
         {
-            if (context.mainFrame.tableSystemTwo.getColumnModel().getColumnCount() == 4)
-            {
-                systemTwoNameWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).getWidth();
-                systemTwoSizeWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).getWidth();
-                systemTwoDateWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).getWidth();
-            }
+            systemTwoDividerLocation = context.mainFrame.splitPaneSystemTwo.getDividerLocation();
+            sortMeta = getTableSort(context.mainFrame.tableSystemTwo);
+            systemTwoSortColumn = sortMeta.column;
+            systemTwoSortDirection = sortMeta.direction;
+
+            systemTwoNameWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).getWidth();
+            systemTwoSizeWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).getWidth();
+            systemTwoDateWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).getWidth();
         }
 
-        if (table == null || table.getName().equalsIgnoreCase("tableLocations"))
-        {
-            librariesLocationColumnWidth = context.mainFrame.tableLocations.getColumnModel().getColumn(0).getWidth();
-            librariesMinimumSizeColumnWidth = context.mainFrame.tableLocations.getColumnModel().getColumn(1).getWidth();
-        }
+        librariesLocationColumnWidth = context.mainFrame.tableLocations.getColumnModel().getColumn(0).getWidth();
+        librariesMinimumSizeColumnWidth = context.mainFrame.tableLocations.getColumnModel().getColumn(1).getWidth();
     }
 
     public void fixApplication(Context context)
@@ -242,10 +317,6 @@ public class Preferences implements Serializable
         // the bottom divider is handler elsewhere
         context.mainFrame.splitPaneTwoBrowsers.setOrientation(getCenterDividerOrientation());
         context.mainFrame.splitPaneTwoBrowsers.setDividerLocation(getCenterDividerLocation());
-        context.mainFrame.splitPaneCollectionOne.setDividerLocation(getCollectionOneDividerLocation());
-        context.mainFrame.splitPaneCollectionTwo.setDividerLocation(getCollectionTwoDividerLocation());
-        context.mainFrame.splitPaneSystemOne.setDividerLocation(getSystemOneDividerLocation());
-        context.mainFrame.splitPaneSystemTwo.setDividerLocation(getSystemTwoDividerLocation());
 
         fixColumnSizes(context, null);
     }
@@ -272,9 +343,15 @@ public class Preferences implements Serializable
         // column sizes
         if (table == null || table.getName().equalsIgnoreCase("tableCollectionOne"))
         {
+            context.mainFrame.splitPaneCollectionOne.setDividerLocation(getCollectionOneDividerLocation());
+            if (getCollectionOneTreeWidth() > -1) // added 11 April 2025 so will be missing in previous version's data
+            {
+                context.mainFrame.scrollPaneTreeCollectionOne.setSize(getCollectionOneTreeWidth(), context.mainFrame.scrollPaneTreeCollectionOne.getHeight());
+                context.mainFrame.scrollPaneTableCollectionOne.setSize(getCollectionOneTableWidth(), context.mainFrame.scrollPaneTableCollectionOne.getHeight());
+            }
+
             if (context.mainFrame.tableCollectionOne.getColumnModel().getColumnCount() == 4)
             {
-                context.mainFrame.splitPaneCollectionOne.setDividerLocation(getCollectionOneDividerLocation());
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(0).setPreferredWidth(22);
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(0).setWidth(22);
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setPreferredWidth(getCollectionOneNameWidth());
@@ -294,9 +371,15 @@ public class Preferences implements Serializable
 
         if (table == null || table.getName().equalsIgnoreCase("tableCollectionTwo"))
         {
+            context.mainFrame.splitPaneCollectionTwo.setDividerLocation(getCollectionTwoDividerLocation());
+            if (getCollectionTwoTreeWidth() > -1) // added 11 April 2025 so will be missing in previous version's data
+            {
+                context.mainFrame.scrollPaneTreeCollectionTwo.setSize(getCollectionTwoTreeWidth(), context.mainFrame.scrollPaneTreeCollectionTwo.getHeight());
+                context.mainFrame.scrollPaneTableCollectionTwo.setSize(getCollectionTwoTableWidth(), context.mainFrame.scrollPaneTableCollectionTwo.getHeight());
+            }
+
             if (context.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
             {
-                context.mainFrame.splitPaneCollectionTwo.setDividerLocation(getCollectionTwoDividerLocation());
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(0).setPreferredWidth(22);
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(0).setWidth(22);
                 context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setPreferredWidth(getCollectionTwoNameWidth());
@@ -316,9 +399,15 @@ public class Preferences implements Serializable
 
         if (table == null || table.getName().equalsIgnoreCase("tableSystemOne"))
         {
+            context.mainFrame.splitPaneSystemOne.setDividerLocation(getSystemOneDividerLocation());
+            if (getSystemOneTreeWidth() > -1)
+            {
+                context.mainFrame.scrollPaneTreeSystemOne.setSize(getSystemOneTreeWidth(), context.mainFrame.scrollPaneTreeSystemOne.getHeight());
+                context.mainFrame.scrollPaneTableSystemOne.setSize(getSystemOneTableWidth(), context.mainFrame.scrollPaneTableSystemOne.getHeight());
+            }
+
             if (context.mainFrame.tableSystemOne.getColumnModel().getColumnCount() == 4)
             {
-                context.mainFrame.splitPaneSystemOne.setDividerLocation(getSystemOneDividerLocation());
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(0).setPreferredWidth(22);
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(0).setWidth(22);
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setPreferredWidth(getSystemOneNameWidth());
@@ -338,9 +427,9 @@ public class Preferences implements Serializable
 
         if (table == null || table.getName().equalsIgnoreCase("tableSystemTwo"))
         {
+            context.mainFrame.splitPaneSystemTwo.setDividerLocation(getSystemTwoDividerLocation());
             if (context.mainFrame.tableSystemTwo.getColumnModel().getColumnCount() == 4)
             {
-                context.mainFrame.splitPaneSystemTwo.setDividerLocation(getSystemTwoDividerLocation());
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(0).setPreferredWidth(22);
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(0).setWidth(22);
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setPreferredWidth(getSystemTwoNameWidth());
@@ -1964,33 +2053,7 @@ public class Preferences implements Serializable
         appXpos = location.x;
         appYpos = location.y;
 
-        // dividers
-        centerDividerOrientation = context.mainFrame.splitPaneTwoBrowsers.getOrientation();
-        centerDividerLocation = context.mainFrame.splitPaneTwoBrowsers.getDividerLocation();
-
-        SortMeta sortMeta;
-        collectionOneDividerLocation = context.mainFrame.splitPaneCollectionOne.getDividerLocation();
-        sortMeta = getTableSort(context.mainFrame.tableCollectionOne);
-        collectionOneSortColumn = sortMeta.column;
-        collectionOneSortDirection = sortMeta.direction;
-
-        systemOneDividerLocation = context.mainFrame.splitPaneSystemOne.getDividerLocation();
-        sortMeta = getTableSort(context.mainFrame.tableSystemOne);
-        systemOneSortColumn = sortMeta.column;
-        systemOneSortDirection = sortMeta.direction;
-
-        collectionTwoDividerLocation = context.mainFrame.splitPaneCollectionTwo.getDividerLocation();
-        sortMeta = getTableSort(context.mainFrame.tableCollectionTwo);
-        collectionTwoSortColumn = sortMeta.column;
-        collectionTwoSortDirection = sortMeta.direction;
-
-        systemTwoDividerLocation = context.mainFrame.splitPaneSystemTwo.getDividerLocation();
-        sortMeta = getTableSort(context.mainFrame.tableSystemTwo);
-        systemTwoSortColumn = sortMeta.column;
-        systemTwoSortDirection = sortMeta.direction;
-
-        // all columns
-        extractColumnSizes(context, null);
+        extractPositionsSizes(context);
 
         // shorten paths relative to the working directory if possible
         String savedHintKeysOpenFile = getLastHintKeysOpenFile();
