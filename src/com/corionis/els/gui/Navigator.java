@@ -884,13 +884,17 @@ public class Navigator
                 });
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.publisher"));
                 fc.setFileHidingEnabled(false);
-                File ld;
+                File ld = null;
                 if (context.preferences.getLastPublisherOpenPath().length() > 0)
+                {
                     ld = new File(context.preferences.getLastPublisherOpenPath());
-                else
+                    if (!ld.exists() || !ld.isDirectory())
+                        ld = null;
+                }
+                if (ld == null)
                 {
                     ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
-                    if (!ld.exists())
+                    if (!ld.exists() || !ld.isDirectory())
                         ld = new File(context.cfg.getWorkingDirectory());
                 }
                 if (ld.exists() && ld.isDirectory())
@@ -1055,13 +1059,17 @@ public class Navigator
 
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.subscriber"));
                 fc.setFileHidingEnabled(false);
-                File ld;
+                File ld = null;
                 if (context.preferences.getLastSubscriberOpenPath().length() > 0)
+                {
                     ld = new File(context.preferences.getLastSubscriberOpenPath());
-                else
+                    if (!ld.exists() || !ld.isDirectory())
+                        ld = null;
+                }
+                if (ld == null)
                 {
                     ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
-                    if (!ld.exists())
+                    if (!ld.exists() || !ld.isDirectory())
                         ld = new File(context.cfg.getWorkingDirectory());
                 }
                 if (ld.exists() && ld.isDirectory())
@@ -1518,13 +1526,17 @@ public class Navigator
                 });
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.hint.keys"));
                 fc.setFileHidingEnabled(false);
-                File ld;
+                File ld = null;
                 if (context.preferences.getLastHintKeysOpenPath().length() > 0)
+                {
                     ld = new File(context.preferences.getLastHintKeysOpenPath());
-                else
+                    if (!ld.exists() || !ld.isDirectory())
+                        ld = null;
+                }
+                if (ld == null)
                 {
                     ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "system");
-                    if (!ld.exists())
+                    if (!ld.exists() || !ld.isDirectory())
                         ld = new File(context.cfg.getWorkingDirectory());
                 }
                 if (ld.exists() && ld.isDirectory())
@@ -1616,13 +1628,17 @@ public class Navigator
 
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.hint.tracking"));
                 fc.setFileHidingEnabled(false);
-                File ld;
+                File ld = null;
                 if (context.preferences.getLastHintTrackingOpenPath().length() > 0)
+                {
                     ld = new File(context.preferences.getLastHintTrackingOpenPath());
-                else
+                    if (!ld.exists() || !ld.isDirectory())
+                        ld = null;
+                }
+                if (ld == null)
                 {
                     ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
-                    if (!ld.exists())
+                    if (!ld.exists() || !ld.isDirectory())
                         ld = new File(context.cfg.getWorkingDirectory());
                 }
                 if (ld.exists() && ld.isDirectory())
