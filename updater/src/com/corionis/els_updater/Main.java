@@ -1,6 +1,7 @@
 package com.corionis.els_updater;
 
 // See els.xml target "updater-compile" where these classes are copied during builds
+
 import com.corionis.els.Configuration;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.Preferences;
@@ -38,23 +39,25 @@ import static com.corionis.els.Configuration.APPLICATION_NAME;
 public class Main
 {
     public Configuration cfg = null;
+    public Logger logger = null; // log4j2 logger singleton
+    private Marker SHORT = MarkerManager.getMarker("SHORT");
     private String commandLine = "";
     private String configPath = "";
-    private boolean mainFault = false;
     private String infoFile = "";
+    private boolean installUpdates = false;
     private String installedPath = "";
-    public Logger logger = null; // log4j2 logger singleton
     private Main main;
-    private boolean mockMode = false; // local mock without downloading version.info, get from /bin/version.info
+    private boolean mainFault = false;
+    public boolean mockMode = false; // local mock without downloading version.info, get from bin/version.info
     private boolean pathFault = false;
     private Preferences preferences = null;
     private String prefix;
-    private Marker SHORT = MarkerManager.getMarker("SHORT");
     private String updaterInfoFile = "";
     private String updaterPath = "";
     private ArrayList<String> version = new ArrayList<>();
     private String versionFile = "";
 
+    //
     private Main(String[] args)
     {
         this.main = this;
@@ -171,11 +174,16 @@ public class Main
     {
         try
         {
-            if (args.length > 0 && args[0].equals("--dump-system"))
+            if (args.length > 0)
             {
-                Properties p = System.getProperties();
-                p.list(System.out);
-                System.exit(1);
+                if (args[0].equals("--dump-system"))
+                {
+                    Properties p = System.getProperties();
+                    p.list(System.out);
+                    System.exit(1);
+                }
+                if (args[0].equals("-Y"))
+                    setInstallUpdates(true);
             }
 
             System.setProperty("jdk.lang.Process.launchMechanism", "POSIX_SPAWN");
@@ -193,7 +201,7 @@ public class Main
             if (delLog.exists())
                 delLog.delete();
             System.setProperty("logFilename", logFilename);
-            System.setProperty("consoleLevel", "DEBUG");
+            System.setProperty("consoleLevel", (isInstallUpdate() ? "OFF" : "DEBUG"));
             System.setProperty("debugLevel", "DEBUG");
             System.setProperty("pattern", "\"%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m [%t]:%C.%M:%L%n\"");
             LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
@@ -203,12 +211,22 @@ public class Main
 
             logger.info(SHORT, "+------------------------------------------");
             logger.info(SHORT, "ELS Updater, version " + Configuration.getBuildVersionName() + ", " + Configuration.getBuildDate());
+            if (isInstallUpdate())
+            {
+                System.out.println();
+                System.out.println("ELS Updater, version " + Configuration.getBuildVersionName() + ", " + Configuration.getBuildDate());
+            }
         }
         catch (Exception e)
         {
             mainFault = true;
             System.out.print(Utils.getStackTrace(e));
         }
+    }
+
+    public boolean isInstallUpdate()
+    {
+        return installUpdates;
     }
 
     private void process()
@@ -237,7 +255,8 @@ public class Main
                             path = readPreferences();
                             if (path.length() > 0)
                             {
-                                preferences.initLookAndFeel("ELS Updater",true);
+                                if (!isInstallUpdate())
+                                    preferences.initLookAndFeel("ELS Updater", true);
                                 cfg.loadLocale(preferences.getLocale(), cfg);
                             }
                             else
@@ -255,6 +274,8 @@ public class Main
                         logger.info(SHORT, cfg.gs("Updater.preferences") + path);
                         logger.info(SHORT, cfg.gs("Updater.commandline") + commandLine);
                         logger.info(SHORT, cfg.gs("Updater.installed.path") + installedPath);
+                        if (isInstallUpdate())
+                            System.out.println("  " + cfg.gs("Updater.installed.path") + installedPath);
                     }
 
                     if (!fault && !readUpdateInfo())
@@ -272,9 +293,14 @@ public class Main
                     if (fault)
                     {
                         logger.fatal(message);
-                        Object[] opts = {"Ok"};
-                        JOptionPane.showOptionDialog(null, message, "ELS Updater",
-                                JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                        if (!isInstallUpdate())
+                        {
+                            Object[] opts = {"Ok"};
+                            JOptionPane.showOptionDialog(null, message, "ELS Updater",
+                                    JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                        }
+                        else
+                            System.out.println(message);
 
                         System.exit(1); // <<<<<<<-------------- Exit
                     }
@@ -296,6 +322,7 @@ public class Main
 
     /**
      * Read parameters for Updater
+     *
      * @return
      */
     private boolean readElsUpdaterInfo()
@@ -335,6 +362,7 @@ public class Main
 
     /**
      * Read user Preferences from -C configuration directory
+     *
      * @return
      */
     private String readPreferences()
@@ -358,6 +386,7 @@ public class Main
 
     /**
      * Read update.info with URL to version.info
+     *
      * @return
      */
     private boolean readUpdateInfo()
@@ -392,6 +421,7 @@ public class Main
 
     /**
      * Read version.info with build dates and update filenames
+     *
      * @return
      */
     public boolean readVersionInfo()
@@ -432,70 +462,42 @@ public class Main
         return true;
     }
 
-    public void stop(boolean fault, boolean requestStop)
+    public void setInstallUpdates(boolean installUpdates)
     {
-        try
-        {
-            // handle fault and mainFault
-            String status;
-            if (requestStop)
-                status = "";
-            else
-                status = fault ? " --update-failed" : " --update-successful";
-            commandLine = commandLine + status;
-            String[] args = Utils.parseCommandLIne(commandLine);
-            logger.info(cfg.gs(("Updater.restarting.els")) + commandLine);
-            Process proc = Runtime.getRuntime().exec(args, null, new File(installedPath));
-            Thread.sleep(1000);
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-        }
-
-        System.exit(fault ? 1 : 0);
+        this.installUpdates = installUpdates;
     }
 
-    private Set<PosixFilePermission> translateModeToPosix(int mode)
+    public void stop(boolean fault, boolean requestStop)
     {
-        Set<PosixFilePermission> perms = new HashSet<>();
-        if ((mode & 0001) > 0)
+        int code = fault ? 1 : 0;
+        String status;
+        if (!isInstallUpdate())
         {
-            perms.add(PosixFilePermission.OTHERS_EXECUTE);
+            try
+            {
+                // handle fault and mainFault
+                if (requestStop)
+                    status = "";
+                else
+                    status = fault ? " --update-failed" : " --update-successful";
+                commandLine = commandLine + status;
+                String[] args = Utils.parseCommandLIne(commandLine);
+                logger.info(cfg.gs(("Updater.restarting.els")) + commandLine);
+                Process proc = Runtime.getRuntime().exec(args, null, new File(installedPath));
+                Thread.sleep(1000);
+            }
+            catch (Exception e)
+            {
+                logger.error(Utils.getStackTrace(e));
+            }
         }
-        if ((mode & 0002) > 0)
+        else
         {
-            perms.add(PosixFilePermission.OTHERS_WRITE);
+            status = fault ? cfg.gs("Navigator.download.unpack.failed") : cfg.gs("Navigator.updated");
+            logger.info(SHORT, status);
+            System.out.println(status);
         }
-        if ((mode & 0004) > 0)
-        {
-            perms.add(PosixFilePermission.OTHERS_READ);
-        }
-        if ((mode & 0010) > 0)
-        {
-            perms.add(PosixFilePermission.GROUP_EXECUTE);
-        }
-        if ((mode & 0020) > 0)
-        {
-            perms.add(PosixFilePermission.GROUP_WRITE);
-        }
-        if ((mode & 0040) > 0)
-        {
-            perms.add(PosixFilePermission.GROUP_READ);
-        }
-        if ((mode & 0100) > 0)
-        {
-            perms.add(PosixFilePermission.OWNER_EXECUTE);
-        }
-        if ((mode & 0200) > 0)
-        {
-            perms.add(PosixFilePermission.OWNER_WRITE);
-        }
-        if ((mode & 0400) > 0)
-        {
-            perms.add(PosixFilePermission.OWNER_READ);
-        }
-        return perms;
+        System.exit(code);
     }
 
 }

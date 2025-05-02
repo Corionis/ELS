@@ -42,7 +42,7 @@ public class GuiLogAppender extends AbstractAppender
         if (isGuiInitializing())
         {
             preBuffer(line);
-            if (context.cfg.defaultNavigator || context.cfg.isGui())
+            if (context.cfg.isDefaultNavigator() || context.cfg.isGui())
                 showStartup(line);
         }
         else

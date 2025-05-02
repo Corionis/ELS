@@ -156,6 +156,10 @@ upgrading for changes, additions and enhancements.
 21. Added the --logger option for the -j | --job action to execute the Job in the foreground
     with ELS operating in Logger mode to display the Job log.
 
+22. Added -V option to check for updates from the command line (terminal).
+
+23. Added -Y option to install updates from the command line. Always installs update even if versions match.
+
 
 ### Other Changes
 

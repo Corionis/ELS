@@ -49,10 +49,11 @@ public class Configuration
     public static final String URL_PREFIX = "https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy"; // TODO MAINTENANCE+ Adjust as needed
     public static final int VERSION_SIZE = 6; // number of lines required in version.info
     public static final String[] availableLocales = {"en_US"}; // TODO EXTEND+ Add new locales here; Potentially refactor to include files from a locales directory
-    public boolean defaultNavigator = false;
+    private boolean defaultNavigator = false;
     private String authKeysFile = "";
     private String authorizedPassword = "";
     private String blacklist = "";
+    private boolean checkForUpdate = false;
     private String consoleLevel = "Debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean consoleSet = false;
     private Context context;
@@ -72,6 +73,7 @@ public class Configuration
     private String hintTrackerFilename = "";
     private String hintsDaemonFilename = "";
     private int ignoredReported = -1;
+    private boolean installUpdate = false;
     private String iplist = "";
     private String jobName = "";
     private int keepGoing = -1;
@@ -113,7 +115,6 @@ public class Configuration
     private String whatsNewFilename = "";
     private String workingDirectory = "";
     private String workingDirectorySubscriber = "";
-
     /**
      * Constructor
      */
@@ -559,18 +560,6 @@ public class Configuration
         return cmd;
     }
 
-    public String getFullPathSubscriber(String filename)
-    {
-        String path;
-        if (isRelativePath(filename))
-            path = getWorkingDirectorySubscriber() + context.subscriberRepo.getSeparator() + filename;
-        else
-            path = filename;
-        if (path.matches("^[a-zA-Z]:.*"))
-            path = "/" + path;
-        return path;
-    }
-
     /**
      * Gets Authentication Keys filename
      *
@@ -915,6 +904,18 @@ public class Configuration
     public String getExportTextFilename()
     {
         return exportTextFilename;
+    }
+
+    public String getFullPathSubscriber(String filename)
+    {
+        String path;
+        if (isRelativePath(filename))
+            path = getWorkingDirectorySubscriber() + context.subscriberRepo.getSeparator() + filename;
+        else
+            path = filename;
+        if (path.matches("^[a-zA-Z]:.*"))
+            path = "/" + path;
+        return path;
     }
 
     /**
@@ -1415,6 +1416,16 @@ public class Configuration
     }
 
     /**
+     * Is this a -V check for update operation?
+     *
+     * @return true == check only, false == not a check for update operation
+     */
+    public boolean isCheckForUpdate()
+    {
+        return checkForUpdate;
+    }
+
+    /**
      * Is a duplicates cross-check enabled?
      *
      * @return true if enabled, else false
@@ -1424,6 +1435,11 @@ public class Configuration
         return crossCheck == 1 ? true : false;
     }
 
+    /**
+     * Is the Navigator the default operation?
+     *
+     * @return true == run Navigator, false == Navigator is not default
+     */
     public boolean isDefaultNavigator()
     {
         return defaultNavigator;
@@ -1534,6 +1550,16 @@ public class Configuration
     public boolean isIgnoredReported()
     {
         return ignoredReported == 1 ? true : false;
+    }
+
+    /**
+     * Is this an install updates then exit operation?
+     *
+     * @return true == install updates then exit
+     */
+    public boolean isInstallUpdate()
+    {
+        return installUpdate;
     }
 
     /**
@@ -1968,9 +1994,7 @@ public class Configuration
         //   M match dates
         //   R restrict Hint processing, i.e. do not execute
         //   U user authentication & authorization
-        //   V check for update without GUI
         //   X execute Hints only. -X -R checks for Hints but does not execute
-        //   Y install update without GUI
         //   Z verify connectivity (only)
 
         int index;
@@ -2390,6 +2414,9 @@ public class Configuration
                 case "--validate":
                     setValidation(true);
                     break;
+                case "-V":                                              // check for update then exit
+                    setCheckForUpdate(true);
+                    break;
                 case "--version":                                       // version
                     System.out.println("");
                     System.out.println(PROGRAM_NAME + ", Version " + getBuildVersionName() + ", " + getBuildDate());
@@ -2430,6 +2457,9 @@ public class Configuration
                 case "-y":                                             // preserve file dates
                 case "--preserve-dates":
                     setPreserveDates(true);
+                    break;
+                case "-Y":                                             // install updates then exit
+                    setInstallUpdate(true);
                     break;
                 case "-z":                                             // scale long values with 1000 instead of 1024
                 case "--decimal-scale":
@@ -2476,6 +2506,11 @@ public class Configuration
     public void setBlacklist(String blacklist)
     {
         this.blacklist = blacklist;
+    }
+
+    public void setCheckForUpdate(boolean checkForUpdate)
+    {
+        this.checkForUpdate = checkForUpdate;
     }
 
     /**
@@ -2649,6 +2684,11 @@ public class Configuration
     public void setIgnoredReported(boolean ignoredReported)
     {
         this.ignoredReported = ignoredReported ? 1 : 0;
+    }
+
+    public void setInstallUpdate(boolean installUpdate)
+    {
+        this.installUpdate = installUpdate;
     }
 
     /**

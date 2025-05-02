@@ -41,7 +41,7 @@ public class DownloadUpdate extends JFrame
     private String message;
     private Main main;
     private DownloadUpdate me;
-    private boolean mockMode = false; // local mock without downloading update
+    private boolean mockMode;
     private String outFile;
     private Preferences preferences;
     private String prefix;
@@ -57,12 +57,14 @@ public class DownloadUpdate extends JFrame
         super();
         this.me = this;
         this.main = main;
+        this.mockMode = main.mockMode;
         this.preferences = preferences;
         this.installedPath = installedPath;
         this.version = version;
         this.prefix = prefix;
+        if (!main.isInstallUpdate())
+            initComponents();
 
-        initComponents();
         process();
     }
 
@@ -79,18 +81,36 @@ public class DownloadUpdate extends JFrame
 
     private void process()
     {
-        setIconImage(new ImageIcon(getClass().getResource("/els-logo-48px.png")).getImage());
-        if (preferences != null)
+        if (!main.isInstallUpdate())
         {
-            int x = preferences.getAppXpos() + (preferences.getAppWidth() / 2) - (getWidth() / 2);
-            int y = preferences.getAppYpos() + (preferences.getAppHeight() / 2) - (getHeight() / 2);
-            setLocation(x, y);
+            setIconImage(new ImageIcon(getClass().getResource("/els-logo-48px.png")).getImage());
+            if (preferences != null)
+            {
+                int x = preferences.getAppXpos() + (preferences.getAppWidth() / 2) - (getWidth() / 2);
+                int y = preferences.getAppYpos() + (preferences.getAppHeight() / 2) - (getHeight() / 2);
+                setLocation(x, y);
+            }
+            setVisible(true);
+            buttonCancel.setSelected(false);
         }
-        setVisible(true);
-        buttonCancel.setSelected(false);
 
         worker = new Worker();
         worker.execute();
+
+        if (main.isInstallUpdate()) // -Y command line, wait for worker thread to finish
+        {
+            try
+            {
+                while (!worker.isDone())
+                {
+                    Thread.sleep(100);
+                }
+            }
+            catch (Exception e)
+            {
+                logger.info("THREAD INTERRUPTED");
+            }
+        }
     }
 
     // ==========================================
@@ -100,26 +120,26 @@ public class DownloadUpdate extends JFrame
         @Override
         protected Void doInBackground() throws Exception
         {
-            try
+            if (!main.isInstallUpdate())
             {
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 progressBar.setMinimum(0);
+            }
 
-                if (preprocess() && !requestStop)
+            if (!requestStop && preprocess())
+            {
+                if (!requestStop && download())
                 {
-                    if (download() && !requestStop)
-                    {
-                        // give the download a chance to flush buffers and close the file
-                        Thread.sleep(5000);
+                    // give the download a chance to flush buffers and close the file
+                    Thread.sleep(2000);
 
-                        if (unpack() && !requestStop)
+                    if (!requestStop && unpack())
+                    {
+                        if (!requestStop && postprocess())
                         {
-                            if (postprocess() && !requestStop)
-                            {
-                                logger.info(SHORT, main.cfg.gs("Updater.download.and.unpack.of.els.successful"));
-                            }
-                            else
-                                fault = true;
+                            logger.info(SHORT, main.cfg.gs("Updater.download.and.unpack.of.els.successful"));
+                            if (main.isInstallUpdate())
+                                System.out.println(main.cfg.gs("Updater.download.and.unpack.of.els.successful"));
                         }
                         else
                             fault = true;
@@ -130,14 +150,17 @@ public class DownloadUpdate extends JFrame
                 else
                     fault = true;
             }
-            catch (Exception e)
-            {
+            else
                 fault = true;
-                logger.error(Utils.getStackTrace(e));
-                message = main.cfg.gs("Z.exception" + Utils.getStackTrace(e));
-                Object[] opts = {main.cfg.gs("Z.ok")};
-                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+
+            if (fault)
+            {
+                if (!main.isInstallUpdate())
+                {
+                    Object[] opts = {main.cfg.gs("Z.ok")};
+                    JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                }
             }
             return null;
         }
@@ -145,8 +168,11 @@ public class DownloadUpdate extends JFrame
         @Override
         public void done()
         {
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            setVisible(false);
+            if (!main.isInstallUpdate())
+            {
+                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                setVisible(false);
+            }
 
             if (requestStop)
             {
@@ -156,16 +182,19 @@ public class DownloadUpdate extends JFrame
             {
                 if (!fault)
                 {
-                    // double-check the ELS.jar exists before Swing is stopped
-                    String exe = installedPath + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + main.cfg.ELS_JAR;
-                    File els = new File(exe);
-                    if (!els.exists())
+                    if (!main.isInstallUpdate())
                     {
-                        fault = true;
-                        message = main.cfg.gs("Navigator.cannot.find.executable") + exe;
-                        Object[] opts = {main.cfg.gs("Z.ok")};
-                        JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                                JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                        // double-check the ELS.jar exists before Swing is ended
+                        String exe = installedPath + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + main.cfg.ELS_JAR;
+                        File els = new File(exe);
+                        if (!els.exists())
+                        {
+                            fault = true;
+                            message = main.cfg.gs("Navigator.cannot.find.executable") + exe;
+                            Object[] opts = {main.cfg.gs("Z.ok")};
+                            JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                                    JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                        }
                     }
                 }
             }
@@ -180,42 +209,66 @@ public class DownloadUpdate extends JFrame
         {
             try
             {
-                labelVersion.setText(version.get(Configuration.BUILD_VERSION_NAME));
-
-                String ext = Utils.isOsWindows() ? ".zip" : ".tar.gz";
+                // extention is based on the operating system
+                // there is no DMG download because of Apple
+                String ext = Utils.isOsWindows() ? ".zip" : (Utils.isOsMac() ? ".mac.tar.gz" : ".tar.gz");
                 updateFile = version.get(Configuration.BUILD_ELS_DISTRO) + ext;
-
                 outFile = main.getUpdaterPath() + System.getProperty("file.separator") + updateFile;
 
-                labelStatus.setText(main.cfg.gs("Z.update") + version.get(Configuration.BUILD_DATE));
+                if (!main.isInstallUpdate())
+                {
+                    labelVersion.setText(version.get(Configuration.BUILD_VERSION_NAME));
+                    labelStatus.setText(main.cfg.gs("Z.update") + version.get(Configuration.BUILD_DATE));
+                }
 
-                if (!mockMode) // && 0 == 1)
+                if (!mockMode)
                 {
                     // download the ELS Updater
                     String downloadUrl = prefix + "/" + updateFile;
                     logger.info(SHORT, main.cfg.gs("Updater.downloading") + " " + downloadUrl);
+                    if (main.isInstallUpdate())
+                        System.out.print(main.cfg.gs("Navigator.install.downloading"));
 
                     url = new URL(downloadUrl);
                     URLConnection connection = url.openConnection();
 
                     int contentLength = connection.getContentLength();
-                    progressBar.setMaximum(contentLength);
-                    progressBar.setValue(0);
+
+                    if (!main.isInstallUpdate())
+                    {
+                        progressBar.setMaximum(contentLength);
+                        progressBar.setValue(0);
+                    }
 
                     InputStream raw = connection.getInputStream();
                     InputStream in = new BufferedInputStream(raw);
                     byte[] data = new byte[contentLength];
                     int count = 0;
                     int offset = 0;
+                    int tickLast = 0;
+                    int tickMax = contentLength / 43;
                     while (offset < contentLength && !requestStop)
                     {
                         count = in.read(data, offset, data.length - offset);
                         if (count == -1)
                             break;
                         offset += count;
-                        progressBar.setValue(offset);
+                        tickLast += count;
+
+                        if (!main.isInstallUpdate())
+                            progressBar.setValue(offset);
+                        else
+                        {
+                            if (tickLast >= tickMax)
+                            {
+                                System.out.print("#");
+                                tickLast = 0;
+                            }
+                        }
                     }
                     in.close();
+                    if (main.isInstallUpdate())
+                        System.out.println();
 
                     if (!requestStop)
                     {
@@ -228,12 +281,18 @@ public class DownloadUpdate extends JFrame
                         }
                         catch (Exception e)
                         {
-                            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                             logger.error(Utils.getStackTrace(e));
                             message = main.cfg.gs("Z.error.writing") + outFile + ", " + e.getMessage();
-                            Object[] opts = {main.cfg.gs("Z.ok")};
-                            JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                                    JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                            if (!main.isInstallUpdate())
+                            {
+                                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                Object[] opts = {main.cfg.gs("Z.ok")};
+                                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                            }
+                            else
+                                System.out.println(message);
+                            fault = true;
                             return false;
                         }
                     }
@@ -249,23 +308,31 @@ public class DownloadUpdate extends JFrame
                 }
                 else
                 {
-                    // in mockMode copy ELS Updater from the build directory
+                    // in mockMode copy ELS from the build directory
                     File dl = new File(outFile);
                     if (!dl.exists())
                     {
-                        //String copy = "/Users/trh/Work/corionis/ELS" + System.getProperty("file.separator") + "build" + System.getProperty("file.separator") + updateFile;
-                        String copy = ".." + System.getProperty("file.separator") + "build" + System.getProperty("file.separator") + updateFile;
+                        String copy = installedPath + System.getProperty("file.separator") + ".." + System.getProperty("file.separator") + "build" + System.getProperty("file.separator") + updateFile;
                         File cp = new File (copy);
                         if (cp.exists())
                         {
+                            if (main.isInstallUpdate())
+                                System.out.println(main.cfg.gs("Updater.copying") + copy);
                             Files.copy(Paths.get(copy), Paths.get(outFile));
                         }
                         else
                         {
                             message = java.text.MessageFormat.format(main.cfg.gs("Navigator.update.not.found"), outFile);
-                            Object[] opts = {main.cfg.gs("Z.ok")};
-                            JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                                    JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                            logger.error(message);
+                            if (!main.isInstallUpdate())
+                            {
+                                Object[] opts = {main.cfg.gs("Z.ok")};
+                                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                            }
+                            else
+                                System.out.println(message);
+                            fault = true;
                             return false;
                         }
                     }
@@ -273,12 +340,21 @@ public class DownloadUpdate extends JFrame
             }
             catch (Exception e)
             {
-                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 logger.error(Utils.getStackTrace(e));
                 message = main.cfg.gs("Z.error.downloading") + outFile + ", " + e.getMessage();
-                Object[] opts = {main.cfg.gs("Z.ok")};
-                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                if (!main.isInstallUpdate())
+                {
+                    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    Object[] opts = {main.cfg.gs("Z.ok")};
+                    JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                }
+                else
+                {
+                    System.out.println();
+                    System.out.println(message);
+                }
+                fault = true;
                 return false;
             }
             return true;
@@ -290,6 +366,8 @@ public class DownloadUpdate extends JFrame
             if (!fault && !requestStop)
             {
                 logger.info(SHORT, main.cfg.gs("Updater.removing.original.backups"));
+                if (main.isInstallUpdate())
+                    System.out.println(main.cfg.gs("Updater.removing.original.backups"));
                 String directory = installedPath + System.getProperty("file.separator") + "bin_back";
                 if (removeDirectory(directory))
                 {
@@ -331,6 +409,7 @@ public class DownloadUpdate extends JFrame
         private boolean postprocess()
         {
             // other things after updates
+            // ...
 
             return true;
         }
@@ -338,9 +417,12 @@ public class DownloadUpdate extends JFrame
         private boolean preprocess()
         {
             // handle changes to the installed ELS before the upgrade
+            // ...
 
             // rename directories for back-ups
             logger.info(SHORT, main.cfg.gs("Updater.renaming.original.for.backup"));
+            if (main.isInstallUpdate())
+                System.out.println(main.cfg.gs("Updater.renaming.original.for.backup"));
             String from = installedPath + System.getProperty("file.separator") + "bin";
             String to = from + "_back";
             if (renameDirectory(from, to))
@@ -389,9 +471,15 @@ public class DownloadUpdate extends JFrame
                 fault = true;
                 logger.error(Utils.getStackTrace(e));
                 message = main.cfg.gs("Z.exception" + e.getMessage());
-                Object[] opts = {main.cfg.gs("Z.ok")};
-                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                if (!main.isInstallUpdate())
+                {
+                    Object[] opts = {main.cfg.gs("Z.ok")};
+                    JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                }
+                else
+                    System.out.println(message);
+                fault = true;
                 return false;
             }
             return true;
@@ -400,10 +488,15 @@ public class DownloadUpdate extends JFrame
         private boolean unpack()
         {
             boolean success = false;
-            setTitle(main.cfg.gs("Navigator.unpacking"));;
-            buttonCancel.setEnabled(false);
+            if (!main.isInstallUpdate())
+            {
+                setTitle(main.cfg.gs("Navigator.unpacking"));
+                buttonCancel.setEnabled(false);
+            }
 
             logger.info(SHORT, main.cfg.gs("Updater.unpacking") + outFile);
+            if (main.isInstallUpdate())
+                System.out.println(main.cfg.gs("Updater.unpacking") + outFile);
             if (updateFile.endsWith(".zip"))
                 success = unpackZip(outFile, installedPath);
             else
@@ -412,15 +505,23 @@ public class DownloadUpdate extends JFrame
                 else
                     success = unpackTar(outFile, installedPath);
 
-            buttonCancel.setEnabled(true);
+            if (!main.isInstallUpdate())
+                buttonCancel.setEnabled(true);
             return success;
         }
 
         private boolean unpackDmg(String from, String to)
         {
             boolean success = false;
-            progressBar.setMaximum(4);
-            progressBar.setValue(0);
+
+            if (!main.isInstallUpdate())
+            {
+                progressBar.setMaximum(4);
+                progressBar.setValue(0);
+            }
+            else
+                System.out.print(main.cfg.gs("Updater.unpacking"));
+
             String outPath = main.getUpdaterPath();
 
             try
@@ -429,21 +530,32 @@ public class DownloadUpdate extends JFrame
                 String[] parms = new String[]{"/usr/bin/hdiutil", "attach", from, "-mountroot", outPath};
                 if (main.execExternalExe(me, main.cfg, parms))
                 {
-                    progressBar.setValue(1);
+                    if (!main.isInstallUpdate())
+                        progressBar.setValue(1);
+                    else
+                        System.out.print("#");
 
                     // copy Java/ directory files
                     logger.info(main.cfg.gs("Updater.copy") + "ELS.app/Contents/Java");
                     File fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Java");
                     File toDir = new File(to + "/Contents/Java");
                     FileUtils.copyDirectory(fromDir, toDir, true);
-                    progressBar.setValue(2);
+
+                    if (!main.isInstallUpdate())
+                        progressBar.setValue(2);
+                    else
+                        System.out.print("#");
 
                     // copy Plugins/rt/ directory files
                     logger.info(main.cfg.gs("Updater.copy") + "ELS.app/Contents/Plugins/rt");
                     fromDir = new File(outPath + "/ELS - Entertainment Library Synchronizer/ELS.app/Contents/Plugins/rt");
                     toDir = new File(to + "/Contents/Plugins/rt");
                     FileUtils.copyDirectory(fromDir, toDir, true);
-                    progressBar.setValue(3);
+
+                    if (!main.isInstallUpdate())
+                        progressBar.setValue(3);
+                    else
+                        System.out.print("#");
 
                     Thread.sleep(2000);
 
@@ -451,7 +563,11 @@ public class DownloadUpdate extends JFrame
                     logger.info(main.cfg.gs("Updater.unmounting") + from);
                     parms = new String[]{"/usr/bin/hdiutil", "detach", outPath + "/ELS - Entertainment Library Synchronizer", "-force", "-verbose"};
                     success = main.execExternalExe(me, main.cfg, parms);
-                    progressBar.setValue(4);
+
+                    if (!main.isInstallUpdate())
+                        progressBar.setValue(4);
+                    else
+                        System.out.println("#");
                 }
             }
             catch (Exception e)
@@ -459,9 +575,17 @@ public class DownloadUpdate extends JFrame
                 fault = true;
                 logger.error(Utils.getStackTrace(e));
                 message = main.cfg.gs("Z.exception" + Utils.getStackTrace(e));
-                Object[] opts = {main.cfg.gs("Z.ok")};
-                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                if (!main.isInstallUpdate())
+                {
+                    Object[] opts = {main.cfg.gs("Z.ok")};
+                    JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                }
+                else
+                {
+                    System.out.println();
+                    System.out.println(message);
+                }
             }
             return success;
         }
@@ -476,13 +600,20 @@ public class DownloadUpdate extends JFrame
                 Path path = Paths.get(from);
                 Path outPath = Paths.get(to);
                 long size = Files.size(path);
-                progressBar.setMaximum((int)size);
-                progressBar.setValue(0);
+                if (!main.isInstallUpdate())
+                {
+                    progressBar.setMaximum((int) size);
+                    progressBar.setValue(0);
+                }
+                else
+                    System.out.print(main.cfg.gs("Updater.unpacking"));
 
                 GzipCompressorInputStream gin = new GzipCompressorInputStream(new BufferedInputStream(Files.newInputStream(path)));
                 TarArchiveInputStream in = new TarArchiveInputStream(gin);
                 TarArchiveEntry entry = null;
                 long gcount = 0L;
+                long ticklast = 0L;
+                long tickMax = size / 42L;
                 while ((entry = in.getNextTarEntry()) != null)
                 {
                     gcount = gin.getCompressedCount();
@@ -516,19 +647,28 @@ public class DownloadUpdate extends JFrame
                     else
                     {
                         Files.createDirectories(entryPath.getParent());
-//                    if (Files.exists(entryPath))
-//                        Files.delete(entryPath);
                         Files.copy(in, entryPath, StandardCopyOption.REPLACE_EXISTING);
-
                         Files.setLastModifiedTime(entryPath, entry.getLastModifiedTime());
 
                         int mode = entry.getMode();
                         Set<PosixFilePermission> perms = Utils.translateModeToPosix(mode);
                         Files.setPosixFilePermissions(entryPath, perms);
-                        progressBar.setValue((int)gcount);
+
+                        if (!main.isInstallUpdate())
+                            progressBar.setValue((int)gcount);
+                        else
+                        {
+                            if (gread - ticklast > tickMax)
+                            {
+                                System.out.print("#");
+                                ticklast = gread;
+                            }
+                        }
                     }
                 }
                 in.close();
+                if (main.isInstallUpdate())
+                    System.out.println();
                 return true;
             }
             catch (Exception e)
@@ -536,9 +676,17 @@ public class DownloadUpdate extends JFrame
                 fault = true;
                 logger.error(Utils.getStackTrace(e));
                 message = main.cfg.gs("Z.exception" + Utils.getStackTrace(e));
-                Object[] opts = {main.cfg.gs("Z.ok")};
-                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                if (!main.isInstallUpdate())
+                {
+                    Object[] opts = {main.cfg.gs("Z.ok")};
+                    JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                }
+                else
+                {
+                    System.out.println();
+                    System.out.println(message);
+                }
             }
             return false;
         }
@@ -553,12 +701,19 @@ public class DownloadUpdate extends JFrame
                 Path path = Paths.get(from);
                 Path outPath = Paths.get(to);
                 long size = Files.size(path);
-                progressBar.setMaximum((int)size);
-                progressBar.setValue(0);
+                if (!main.isInstallUpdate())
+                {
+                    progressBar.setMaximum((int) size);
+                    progressBar.setValue(0);
+                }
+                else
+                    System.out.print(main.cfg.gs("Updater.unpacking"));
 
                 ZipArchiveInputStream in = new ZipArchiveInputStream(new BufferedInputStream(Files.newInputStream(path)));
                 ZipArchiveEntry entry = null;
                 long zcount = 0L;
+                long ticklast = 0L;
+                long tickMax = size / 42L;
                 while ((entry = in.getNextZipEntry()) != null)
                 {
                     zcount = in.getBytesRead();
@@ -582,16 +737,24 @@ public class DownloadUpdate extends JFrame
                     else
                     {
                         Files.createDirectories(entryPath.getParent());
-//                    if (Files.exists(entryPath))
-//                        Files.delete(entryPath);
                         Files.copy(in, entryPath, StandardCopyOption.REPLACE_EXISTING);
-//                    int mode = entry.getMode();
-//                    Files.setPosixFilePermissions(entryPath, );
                         Files.setLastModifiedTime(entryPath, entry.getLastModifiedTime());
-                        progressBar.setValue((int)zcount);
+
+                        if (!main.isInstallUpdate())
+                            progressBar.setValue((int)zcount);
+                        else
+                        {
+                            if (zcount - ticklast > tickMax)
+                            {
+                                System.out.print("#");
+                                ticklast = zcount;
+                            }
+                        }
                     }
                 }
                 in.close();
+                if (main.isInstallUpdate())
+                    System.out.println();
                 return true;
             }
             catch (Exception e)
@@ -599,13 +762,20 @@ public class DownloadUpdate extends JFrame
                 fault = true;
                 logger.error(Utils.getStackTrace(e));
                 message = main.cfg.gs("Z.exception" + Utils.getStackTrace(e));
-                Object[] opts = {main.cfg.gs("Z.ok")};
-                JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
-                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                if (!main.isInstallUpdate())
+                {
+                    Object[] opts = {main.cfg.gs("Z.ok")};
+                    JOptionPane.showOptionDialog(me, message, main.cfg.gs("Navigator.update"),
+                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                }
+                else
+                {
+                    System.out.println();
+                    System.out.println(message);
+                }
             }
             return false;
         }
-
     }
 
     // ==========================================
