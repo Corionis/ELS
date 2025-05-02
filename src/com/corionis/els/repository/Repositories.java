@@ -57,15 +57,19 @@ public class Repositories
         {
             try
             {
-                repo = new Repository(context, purpose);
-                if (repo.read(path, "a", false))
+                Repository found = findRepoPath(path);
+                if (found == null)
                 {
-                    repoList.add(repo);
-                    RepoMeta repoMeta = new RepoMeta();
-                    repoMeta.description = repo.getLibraryData().libraries.description;
-                    repoMeta.key = repo.getLibraryData().libraries.key;
-                    repoMeta.path = repo.getJsonFilename();
-                    metaList.add(repoMeta);
+                    repo = new Repository(context, purpose);
+                    if (repo.read(path, "a", false))
+                    {
+                        repoList.add(repo);
+                        RepoMeta repoMeta = new RepoMeta();
+                        repoMeta.description = repo.getLibraryData().libraries.description;
+                        repoMeta.key = repo.getLibraryData().libraries.key;
+                        repoMeta.path = repo.getJsonFilename();
+                        metaList.add(repoMeta);
+                    }
                 }
             }
             catch (Exception e)

@@ -3,63 +3,63 @@
   "tasks": [
     {
       "configName": "Remote publish",
+      "internalName": "Operations",
       "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
       "hintsOverrideHost": true,
       "hintsPath": "libraries/Hint Server.json",
       "hintsRemote": true,
-      "internalName": "Operations",
-      "origins": [],
-      "publisherKey": "ea30da9c-1823-4d33-b316-d66f6c892c3c",
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
       "publisherPath": "libraries/Publisher.json",
       "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
       "subscriberOverride": "true",
       "subscriberPath": "libraries/Subscriber One.json",
-      "subscriberRemote": true
+      "subscriberRemote": true,
+      "origins": []
     },
     {
       "configName": "1 minute",
+      "internalName": "Sleep",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Sleep",
-      "origins": [],
       "publisherKey": "",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "Subscriber force quit",
+      "internalName": "Operations",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Operations",
-      "origins": [],
-      "publisherKey": "ea30da9c-1823-4d33-b316-d66f6c892c3c",
-      "publisherPath": "libraries/Publisher.json",
+      "publisherKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+      "publisherPath": "libraries/Subscriber One.json",
       "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
       "subscriberOverride": "true",
       "subscriberPath": "libraries/Subscriber One.json",
-      "subscriberRemote": true
+      "subscriberRemote": true,
+      "origins": []
     },
     {
       "configName": "Hint server force quit",
+      "internalName": "Operations",
       "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
       "hintsOverrideHost": true,
       "hintsPath": "libraries/Hint Server.json",
       "hintsRemote": true,
-      "internalName": "Operations",
-      "origins": [],
-      "publisherKey": "ea30da9c-1823-4d33-b316-d66f6c892c3c",
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
       "publisherPath": "libraries/Publisher.json",
       "subscriberKey": "",
       "subscriberOverride": "",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     }
   ]
 }
