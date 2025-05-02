@@ -802,13 +802,14 @@ public class Main
             try
             {
                 context.cfg.parseCommandLine(args);
-                context.cfg.configureWorkingDirectory();
-                context.cfg.setOperation("");
             }
             catch (MungeException e)
             {
                 cfgException = e; // configuration exception
             }
+
+            context.cfg.configureWorkingDirectory();
+            context.cfg.setOperation("");
 
             // setup the working directory & logger - once
             if (primaryExecution)
@@ -1968,7 +1969,7 @@ public class Main
         if (!context.fault)
             logger.fatal("Process completed normally");
         else
-            logger.fatal("Process failed");
+            logger.fatal("Process failed, see: " + context.cfg.getLogFileFullPath());
 
         flushLogger();
     }

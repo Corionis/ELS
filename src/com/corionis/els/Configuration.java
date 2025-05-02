@@ -288,9 +288,6 @@ public class Configuration
         // set default working directory if not set with -C | --cfg
         if (this.workingDirectory == null || this.workingDirectory.length() == 0)
             setWorkingDirectory(getDefaultWorkingDirectory());
-//        else
-//            setWorkingDirectory(new java.io.File(getWorkingDirectory()).getPath());
-//            setWorkingDirectory(new java.io.File(getWorkingDirectory()).getPath());
 
         // check & create working directory
         File wd = new File(getWorkingDirectory());
@@ -1952,7 +1949,7 @@ public class Configuration
     {
         if (path != null && path.length() > 0)
         {
-            path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), path);
+            path = Utils.makeRelativePath(getWorkingDirectory(), path);
             path = Utils.pipe(path);
             path = Utils.unpipe(path, "/");
         }

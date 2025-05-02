@@ -5,7 +5,6 @@
 
 base=`dirname $0`
 if [ "$base" = "." ]; then
-echo "pwd"
     base=$PWD
 fi
 cd "$base"
