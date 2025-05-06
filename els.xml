@@ -147,21 +147,6 @@
         <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.tar.gz -C out/els/tar ELS"/>
     </target>
 
-    <!-- Build ELS macOS .dmg -->
-    <target name="els-macos-dmg" depends="els-jar">
-        <delete failonerror="false">
-            <fileset dir="build">
-                <include name="ELS-*.dmg"/>
-            </fileset>
-        </delete>
-        <mkdir dir="out/els/dmg/ELS"/>
-        <exec command="cp -rpf artifacts/stage/macos/ELS out/els/dmg/" failonerror="true"/>
-        <copy file="mock/bin/update.info" tofile="out/els/dmg/ELS/bin/update.info" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.icns" todir="out/els/dmg/ELS/bin" preservelastmodified="true"/>
-        <copy file="build/ELS.jar" todir="out/els/dmg/ELS/bin" preservelastmodified="true"/>
-        <echo message="MANUAL STEP: Copy out/els/dmg/ELS to MacOS, complete DMG build on MacOS" />
-    </target>
-
     <!-- Build ELS macOS .mac.tar.gz -->
     <target name="els-macos-tar" depends="els-jar">
         <delete failonerror="false">
@@ -175,6 +160,21 @@
         <copy file="artifacts/images/els-logo-98px.icns" todir="out/els/mac.tar/ELS/bin" preservelastmodified="true"/>
         <copy file="build/ELS.jar" todir="out/els/mac.tar/ELS/bin" preservelastmodified="true"/>
         <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.mac.tar.gz -C out/els/mac.tar ELS"/>
+    </target>
+
+    <!-- Build ELS macOS .dmg -->
+    <target name="els-macos-dmg" depends="els-jar">
+        <delete failonerror="false">
+            <fileset dir="build">
+                <include name="ELS-*.dmg"/>
+            </fileset>
+        </delete>
+        <mkdir dir="out/els/dmg/ELS"/>
+        <exec command="cp -rpf artifacts/stage/macos/ELS out/els/dmg/" failonerror="true"/>
+        <copy file="mock/bin/update.info" tofile="out/els/dmg/ELS/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.icns" todir="out/els/dmg/ELS/bin" preservelastmodified="true"/>
+        <copy file="build/ELS.jar" todir="out/els/dmg/ELS/bin" preservelastmodified="true"/>
+        <echo message="MANUAL STEP: Copy out/els/dmg/ELS to MacOS, complete DMG build on MacOS" />
     </target>
 
     <!-- Build ELS Windows .zip -->
@@ -291,6 +291,8 @@
         <delete file="out/updater/tar/ELS_Updater/ELS-Navigator.sh" failonerror="false"/>
         <delete file="out/updater/tar/ELS_Updater/bin/checkForUpdate.sh" failonerror="false"/>
         <delete file="out/updater/tar/ELS_Updater/bin/installUpdate.sh" failonerror="false"/>
+        <copy file="artifacts/images/els-logo-98px.ico" todir="out/updater/tar/ELS_Updater/bin" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.png" todir="out/updater/tar/ELS_Updater/bin" preservelastmodified="true"/>
         <copy file="mock/bin/update.info" tofile="out/updater/tar/ELS_Updater/bin/update.info" preservelastmodified="true"/>
         <copy file="build/ELS_Updater.jar" todir="out/updater/tar/ELS_Updater/bin" preservelastmodified="true" />
         <exec command="tar cvzf build/ELS_Updater-${els.version.name}-${NUMBERNOW}.tar.gz -C out/updater/tar ELS_Updater"/>
@@ -308,6 +310,8 @@
         <rename src="out/updater/mac.tar/ELS" dest="out/updater/mac.tar/ELS_Updater"/>
         <delete dir="out/updater/mac.tar/ELS_Updater/ELS-Navigator.app" failonerror="false"/>
         <delete file="out/updater/mac.tar/ELS_Updater/ELS-Navigator.sh" failonerror="false"/>
+        <delete file="out/updater/mac.tar/ELS_Updater/bin/checkForUpdate.sh" failonerror="false"/>
+        <delete file="out/updater/mac.tar/ELS_Updater/bin/installUpdate.sh" failonerror="false"/>
         <copy file="mock/bin/update.info" tofile="out/updater/mac.tar/ELS_Updater/bin/update.info" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.icns" todir="out/updater/mac.tar/ELS_Updater/bin" preservelastmodified="true"/>
         <copy file="build/ELS_Updater.jar" todir="out/updater/mac.tar/ELS_Updater/bin" preservelastmodified="true"/>
@@ -324,6 +328,10 @@
         <mkdir dir="out/updater/dmg/ELS_Updater"/>
         <exec command="cp -rpf artifacts/stage/macos/ELS out/updater/dmg/" failonerror="true"/>
         <rename src="out/updater/dmg/ELS" dest="out/updater/dmg/ELS_Updater"/>
+        <delete dir="out/updater/dmg/ELS_Updater/ELS-Navigator.app" failonerror="false"/>
+        <delete file="out/updater/dmg/ELS_Updater/ELS-Navigator.sh" failonerror="false"/>
+        <delete file="out/updater/dmg/ELS_Updater/bin/checkForUpdate.sh" failonerror="false"/>
+        <delete file="out/updater/dmg/ELS_Updater/bin/installUpdate.sh" failonerror="false"/>
         <copy file="mock/bin/update.info" tofile="out/updater/dmg/ELS_Updater/bin/update.info" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.icns" todir="out/updater/dmg/ELS_Updater/bin" preservelastmodified="true"/>
         <copy file="build/ELS_Updater.jar" todir="out/updater/dmg/ELS_Updater/bin" preservelastmodified="true"/>
@@ -341,9 +349,14 @@
         <copy todir="out/updater/zip/ELS_Updater" preservelastmodified="true">
             <fileset dir="artifacts/stage/windows"/>
         </copy>
-        <copy file="mock/bin/update.info" tofile="out/updater/zip/ELS_Updater/bin/update.info" preservelastmodified="true"/>
-        <copy file="build/ELS_Updater.jar" todir="out/updater/zip/ELS_Updater/bin" preservelastmodified="true"/>
+        <delete file="out/updater/zip/ELS_Updater/ELS-Navigator.bat" failonerror="false"/>
+        <delete file="out/updater/zip/ELS_Updater/bin/checkForUpdate.bat" failonerror="false"/>
+        <delete file="out/updater/zip/ELS_Updater/bin/installUpdate.bat" failonerror="false"/>
         <delete file="out/updater/zip/ELS_Updater/ELS-Navigator.exe" failonerror="false"/>
+        <copy file="mock/bin/update.info" tofile="out/updater/zip/ELS_Updater/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.ico" todir="out/updater/zip/ELS_Updater/bin" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.png" todir="out/updater/zip/ELS_Updater/bin" preservelastmodified="true"/>
+        <copy file="build/ELS_Updater.jar" todir="out/updater/zip/ELS_Updater/bin" preservelastmodified="true"/>
         <zip destfile="build/ELS_Updater-${els.version.name}-${NUMBERNOW}.zip">
             <zipfileset dir="out/updater/zip" includes="**/*"/>
         </zip>
