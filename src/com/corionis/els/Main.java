@@ -331,9 +331,9 @@ public class Main
                     else
                     {
                         String note;
-                        if (Utils.isOsMac())
-                            note = context.cfg.gs("Navigator.install.available.at") + uri;
-                        else
+                        //if (Utils.isOsMac())
+                        //    note = context.cfg.gs("Navigator.install.available.at") + uri;
+                        //else
                             note = context.cfg.gs("Navigator.install.use.option.y.to.install.update");
                         message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.update.version.text"),
                                 Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE)) + note;
@@ -391,7 +391,7 @@ public class Main
                         // proceed?
                         if (reply == JOptionPane.YES_OPTION)
                         {
-                            if (!Utils.isOsMac())
+                            if (true) //!Utils.isOsMac())
                             {
                                 message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.update.version.download.text"),
                                         Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
@@ -692,6 +692,7 @@ public class Main
             String cmd = "";
             String[] parms = {Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") +
                     "rt" + System.getProperty("file.separator") +
+                    (Utils.isOsMac() ? "Contents/Home/" : "") +
                     "bin" + System.getProperty("file.separator") +
                     "java" + (Utils.isOsWindows() ? ".exe" : ""),
                     "-jar",

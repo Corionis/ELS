@@ -289,13 +289,33 @@
         <exec command="cp -rpf artifacts/stage/linux/ELS out/updater/tar/" failonerror="true"/>
         <rename src="out/updater/tar/ELS" dest="out/updater/tar/ELS_Updater"/>
         <delete file="out/updater/tar/ELS_Updater/ELS-Navigator.sh" failonerror="false"/>
+        <delete file="out/updater/tar/ELS_Updater/bin/checkForUpdate.sh" failonerror="false"/>
+        <delete file="out/updater/tar/ELS_Updater/bin/installUpdate.sh" failonerror="false"/>
         <copy file="mock/bin/update.info" tofile="out/updater/tar/ELS_Updater/bin/update.info" preservelastmodified="true"/>
         <copy file="build/ELS_Updater.jar" todir="out/updater/tar/ELS_Updater/bin" preservelastmodified="true" />
         <exec command="tar cvzf build/ELS_Updater-${els.version.name}-${NUMBERNOW}.tar.gz -C out/updater/tar ELS_Updater"/>
     </target>
 
+    <!-- Build Updater macOS .mac.tar.gz -->
+    <target name="updater-macos-tar" depends="updater-jar">
+        <delete failonerror="false">
+            <fileset dir="build">
+                <include name="ELS_*.mac.tar.gz"/>
+            </fileset>
+        </delete>
+        <mkdir dir="out/updater/mac.tar/ELS_Updater"/>
+        <exec command="cp -rpf artifacts/stage/macos/ELS out/updater/mac.tar/" failonerror="true"/>
+        <rename src="out/updater/mac.tar/ELS" dest="out/updater/mac.tar/ELS_Updater"/>
+        <delete dir="out/updater/mac.tar/ELS_Updater/ELS-Navigator.app" failonerror="false"/>
+        <delete file="out/updater/mac.tar/ELS_Updater/ELS-Navigator.sh" failonerror="false"/>
+        <copy file="mock/bin/update.info" tofile="out/updater/mac.tar/ELS_Updater/bin/update.info" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.icns" todir="out/updater/mac.tar/ELS_Updater/bin" preservelastmodified="true"/>
+        <copy file="build/ELS_Updater.jar" todir="out/updater/mac.tar/ELS_Updater/bin" preservelastmodified="true"/>
+        <exec command="tar cvzf build/ELS_Updater-${els.version.name}-${NUMBERNOW}.mac.tar.gz -C out/updater/mac.tar ELS_Updater"/>
+    </target>
+
     <!-- Build Updater macOS .dmg -->
-    <target name="updater-macos" depends="els-jar">
+    <target name="updater-macos-dmg" depends="els-jar">
         <delete failonerror="false">
             <fileset dir="build">
                 <include name="ELS_*.dmg"/>
@@ -307,7 +327,6 @@
         <copy file="mock/bin/update.info" tofile="out/updater/dmg/ELS_Updater/bin/update.info" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.icns" todir="out/updater/dmg/ELS_Updater/bin" preservelastmodified="true"/>
         <copy file="build/ELS_Updater.jar" todir="out/updater/dmg/ELS_Updater/bin" preservelastmodified="true"/>
-        <copy file="build/build-stamp.properties" tofile="out/updater/dmg/ELS_Updater/build-stamp.properties" />
         <echo message="MANUAL STEP: Copy out/updater/dmg/ELS_Updater to MacOS, complete DMG build on MacOS" />
     </target>
 
@@ -387,10 +406,10 @@
 
     <target name="Linux" depends="els-linux, updater-linux" description="Build all Linux deliverables"/>
 
-    <target name="MacOS" depends="els-macos-tar" description="Build all MacOS deliverables"/>
-    <!-- target name="MacOS" depends="els-macos-dmg, updater-macos" description="Build all MacOS deliverables"/ -->
+    <target name="MacOS" depends="els-macos-tar, updater-macos-tar" description="Build all MacOS deliverables"/>
+    <!-- target name="MacOS" depends="els-macos-dmg, updater-macos-dmg" description="Build all MacOS DMG deliverables"/ -->
 
-    <target name="Updater" depends="updater-linux, updater-windows" description="Build Updater"/>
+    <target name="Updater" depends="updater-linux, updater-windows, updater-macos-tar" description="Build Updater"/>
     <!-- target name="Updater" depends="updater-linux, updater-windows, updater-macos" description="Build Updater"/ -->
 
     <target name="Windows" depends="els-windows, updater-windows" description="Build all Windows deliverables"/>

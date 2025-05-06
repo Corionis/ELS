@@ -173,7 +173,7 @@ public class DownloadUpdater extends JFrame
         @Override
         public void done()
         {
-            if (navigator != null)
+            if (navigator != null && !fault)
             {
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 setVisible(false);
@@ -215,6 +215,8 @@ public class DownloadUpdater extends JFrame
                         launched = true;
                     }
                 }
+                else
+                    launched = true;
             }
         }
 
@@ -225,7 +227,7 @@ public class DownloadUpdater extends JFrame
                 if (navigator != null)
                     labelVersion.setText(version.get(Configuration.BUILD_VERSION_NAME));
 
-                String ext = Utils.isOsWindows() ? ".zip" : ".tar.gz";
+                String ext = Utils.isOsWindows() ? ".zip" : (Utils.isOsMac() ? ".mac.tar.gz" : ".tar.gz");
                 updateFile = version.get(Configuration.BUILD_UPDATER_DISTRO) + ext;
                 updateArchive = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + updateFile;
 
@@ -340,7 +342,7 @@ public class DownloadUpdater extends JFrame
             catch (Exception e)
             {
                 logger.error(Utils.getStackTrace(e));
-                message = context.cfg.gs("Z.error.downloading") + updateArchive;
+                message = context.cfg.gs("Z.exception") + e.getCause().toString();
                 if (navigator != null)
                 {
                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
