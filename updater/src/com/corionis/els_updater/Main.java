@@ -48,7 +48,7 @@ public class Main
     private String installedPath = "";
     private Main main;
     private boolean mainFault = false;
-    public boolean mockMode = false; // local mock without downloading version.info, get from bin/version.info
+    public boolean mockMode = false; // local mock without downloading version.info, get from bin/version.info; see els/Main
     private boolean pathFault = false;
     private Preferences preferences = null;
     private String prefix;

@@ -416,7 +416,7 @@ public class Configuration
         }
         if (marker.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -m Marker = " + marker);
+            logger.info(SHORT, "  cfg: --marker = " + marker);
         }
         indicator(logger, SHORT, "  cfg: -n Navigator = ", navigator);
         indicator(logger, SHORT, "  cfg: -N Ignored files reported = ", ignoredReported);
@@ -492,7 +492,10 @@ public class Configuration
         String conf = (glo ? "--config \"" : "-C \"") + context.cfg.getWorkingDirectory() + "\"";
 
         // --- non-munging actions
-        sb.append(" " + (glo ? "--navigator" : "-n"));
+        if (context.cfg.isInstallUpdate())
+            sb.append(" " + "-Y");
+        if (context.navigator != null)
+            sb.append(" " + (glo ? "--navigator" : "-n"));
 
         if (cc.isDryRun() != defCfg.isDryRun())
             sb.append(" " + (glo ? "--dry-run" : "-D"));
@@ -524,17 +527,23 @@ public class Configuration
             sb.append(" " + (glo ? "--remote" : "-r") + " P");
 
         // --- Publisher
-        if (pr.getLastPublisherOpenFile().length() > 0 && pr.isLastPublisherIsOpen())
-            sb.append(" " + (glo ? "--publisher-libraries" : (context.preferences.isLastPublisherIsWorkstation() ? "-p" : "-P")) + " \"" +
-                    Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastPublisherOpenFile()) + "\"");
+        if (context.publisherRepo != null)
+        {
+            if (pr.getLastPublisherOpenFile().length() > 0 && pr.isLastPublisherIsOpen())
+                sb.append(" " + (glo ? "--publisher-libraries" : (context.preferences.isLastPublisherIsWorkstation() ? "-p" : "-P")) + " \"" +
+                        Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastPublisherOpenFile()) + "\"");
+        }
 
         // -- Subscriber
-        if (pr.getLastSubscriberOpenFile().length() > 0 && pr.isLastSubscriberIsOpen())
+        if (context.subscriberRepo != null)
         {
-            if (!pr.getLastOverrideSubscriber().isEmpty())
-                sb.append(" " + (glo ? "--override-host" : "-O ") + overrideSubscriberHost);
-            sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
-                    Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");
+            if (pr.getLastSubscriberOpenFile().length() > 0 && pr.isLastSubscriberIsOpen())
+            {
+                if (!pr.getLastOverrideSubscriber().isEmpty())
+                    sb.append(" " + (glo ? "--override-host" : "-O ") + overrideSubscriberHost);
+                sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
+                        Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");
+            }
         }
 
         // --- options
@@ -2412,6 +2421,7 @@ public class Configuration
                     setValidation(true);
                     break;
                 case "-V":                                              // check for update then exit
+                case "--check-update":
                     setCheckForUpdate(true);
                     break;
                 case "--version":                                       // version
@@ -2455,7 +2465,8 @@ public class Configuration
                 case "--preserve-dates":
                     setPreserveDates(true);
                     break;
-                case "-Y":                                             // install updates then exit
+                case "-Y":                                             // install update then exit
+                case "--install-update":
                     setInstallUpdate(true);
                     break;
                 case "-z":                                             // scale long values with 1000 instead of 1024

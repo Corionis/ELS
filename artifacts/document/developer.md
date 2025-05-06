@@ -72,6 +72,9 @@ To run the ELS Navigator with a new (empty) or existing ELS configuration:
 
 ### Using a clone of the ELS GitHub repository:
 
+Unpack the artifacts/stage/rt-archives/ files into the desired matching linux, macos
+and/or windows stage directory and inside the ELS subdirectory if one is there. 
+
 To run the ELS Navigator GUI with the built-in test environment without building:
 
  1. Unpack the latest ELS from the deploy/ .tar.gz or .zip archive file into mock/ :

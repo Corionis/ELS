@@ -805,6 +805,9 @@ public class Utils
     public static String getTempUpdaterDirectory()
     {
         String path = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "ELS_Updater_" + System.getProperty("user.name");
+        path = pipe(path);
+        path = path.replaceAll("\\|\\|", "|");
+        path = unpipe(path, System.getProperty("file.separator"));
         return path;
     }
 

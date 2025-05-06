@@ -59,7 +59,7 @@ public class Main
     public Context context;
     public String localeAbbrev; // abbreviation of locale, e.g. en_US
     public Logger logger = null; // log4j2 logger singleton
-    public boolean mockMode = false; // instead of downloading get from mock/bin/, also used in DownloadUpdater
+    public boolean mockMode = false; // instead of downloading get from mock/bin/; see els_updater/Main
     public String operationName = ""; // secondary invocation name
     public boolean primaryExecution = true;
     public Process process = null;
@@ -703,15 +703,25 @@ public class Main
                 cmd += parms[i] + " ";
             }
 
+            String logFile = Utils.getTempUpdaterDirectory() + System.getProperty("file.separator") + "ELS-Updater.log";
+
             String message = context.cfg.gs("Navigator.starting.els.updater") + cmd;
             logger.info(message);
             if (context.navigator == null)
                 System.out.println(message);
 
-            if (context.navigator != null)
+            if (context.navigator != null || Utils.isOsWindows())
                 Runtime.getRuntime().exec(parms);
             else
                 execExternalExe(null, context.cfg, parms);
+
+            if (context.navigator == null)
+            {
+                if (Utils.isOsWindows())
+                    System.out.println(context.cfg.gs("Main.exiting.so.files"));
+                System.out.println(context.cfg.gs("Main.see.els.updater.log.at") + logFile);
+            }
+
         }
         catch (Exception e)
         {
@@ -1426,7 +1436,7 @@ public class Main
             {
                 if (logger != null)
                 {
-                    logger.error(e.getMessage() + " : " + Utils.getStackTrace(e));
+                    logger.error(Utils.getStackTrace(e));
                 }
 
                 if (context.cfg.isNavigator())
