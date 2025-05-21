@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.text.MessageFormat;
 
 /**
  * ClientStty -to- ServeStty, used for both manual (interactive) and automated sessions
@@ -115,7 +116,7 @@ public class ClientStty
                 }
                 else
                 {
-                    throw new MungeException("Unknown banner receive");
+                    throw new MungeException(context.cfg.gs("Stty.unknown.banner.receive"));
                 }
 
                 // if no content (a Library) and a request is not set then set it
@@ -177,7 +178,7 @@ public class ClientStty
             String hostname = Utils.parseHost(address);
             int hostport = Utils.getPort(address) + ((primaryServers) ? 0 : 2);
 
-            logger.info("Opening stty connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport + hostListen);
+            logger.info(context.cfg.gs("Stty.opening.stty.connection.to") + (hostname == null ? "localhost" : hostname) + ":" + hostport + hostListen);
 
             try
             {
@@ -192,7 +193,7 @@ public class ClientStty
                 in = new DataInputStream(socket.getInputStream());
                 out = new DataOutputStream(socket.getOutputStream());
 
-                logger.info("Successfully connected stty to: " + Utils.formatAddresses(this.socket));
+                logger.info(context.cfg.gs("Stty.successfully.connected.stty.to") + Utils.formatAddresses(this.socket));
             }
             catch (Exception e)
             {
@@ -210,13 +211,13 @@ public class ClientStty
                 }
                 else
                 {
-                    logger.error("Connection to " + Utils.formatAddresses(socket) + " failed handshake");
+                    logger.error(MessageFormat.format(context.cfg.gs("Stty.connection.to.failed.handshake"), Utils.formatAddresses(socket)));
                 }
             }
         }
         else
         {
-            throw new MungeException("Cannot get site from -s | -S specified remote subscriber library");
+            throw new MungeException(context.cfg.gs("Stty.cannot.get.site.from.s.s.specified.remote.subscriber.library"));
         }
 
         return isConnected;
@@ -239,19 +240,19 @@ public class ClientStty
                     try
                     {
                         sleep(40 * 1000); // offset this heartbeat timing
-                        String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
+                        String desc = (theirRepo != null) ? context.cfg.gs("Z.to") + theirRepo.getLibraryData().libraries.description : "";
                         while (true)
                         {
                             sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
                             if (heartBeatEnabled)
                             {
-                                send("ping", context.trace ? "heartbeat sent" + desc : "");
+                                send("ping", context.trace ? context.cfg.gs("Stty.heartbeat.sent") + desc : "");
                             }
                         }
                     }
                     catch (InterruptedException e)
                     {
-                        errorMessage = "heartbeat interrupted";
+                        errorMessage = context.cfg.gs("Stty.heartbeat.interrupted");
                         logger.trace(errorMessage);
                     }
                     catch (Exception e)
@@ -260,7 +261,7 @@ public class ClientStty
                         if (this.isAlive())
                         {
                             logger.trace(errorMessage);
-                            logger.trace("Connection is alive, continuing");
+                            logger.trace(context.cfg.gs("Stty.connection.is.alive.continuing"));
                             continue;
                         }
                         context.fault = true;
@@ -278,10 +279,10 @@ public class ClientStty
                 }
                 heartBeat.interrupt();
                 if (!stopped)
-                    stopClient("Error count exceeded", "");
+                    stopClient(context.cfg.gs("Stty.error.count.exceeded"), "");
             }
         };
-        logger.trace("starting heartbeat for " + Utils.formatAddresses(this.socket));
+        logger.trace(context.cfg.gs("Stty.starting.heartbeat.for") + Utils.formatAddresses(this.socket));
         heartBeat.start();
     }
 
@@ -293,9 +294,9 @@ public class ClientStty
         if (heartBeat != null)
         {
             if (!heartBeatEnabled)
-                logger.warn("Client heartbeat already disabled");
+                logger.warn(context.cfg.gs("Stty.client.heartbeat.already.disabled"));
             else
-                logger.trace("Client heartbeat disabled");
+                logger.trace(context.cfg.gs("Stty.client.heartbeat.disabled"));
             heartBeatEnabled = false;
         }
     }
@@ -311,7 +312,7 @@ public class ClientStty
             if (isConnected)
             {
                 isConnected = false;
-                logger.debug("Disconnecting stty: " + Utils.formatAddresses(socket));
+                logger.debug(context.cfg.gs("Stty.disconnecting.stty") + Utils.formatAddresses(socket));
                 if (gui != null)
                     gui.stop();
                 out.flush();
@@ -332,9 +333,9 @@ public class ClientStty
         if (heartBeat != null)
         {
             if (heartBeatEnabled)
-                logger.warn("heartbeat already enabled");
+                logger.warn(context.cfg.gs("Stty.heartbeat.already.enabled"));
             else
-                logger.trace("heartbeat enabled");
+                logger.trace(context.cfg.gs("Stty.heartbeat.enabled"));
             heartBeatEnabled = true;
         }
     }
@@ -385,7 +386,7 @@ public class ClientStty
     private boolean handshake() throws Exception
     {
         boolean valid = false;
-        logger.trace("handshake");
+        logger.trace(context.cfg.gs("Stty.handshake"));
         String input = receive("", 5000);
         if (input != null && input.equals("HELO"))
         {
@@ -404,7 +405,8 @@ public class ClientStty
                     // the subscriber's flavor is valid
                     Utils.getFileSeparator(input);
 
-                    logger.info("Stty client authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + theirRepo.getLibraryData().libraries.description);
+                    logger.info(MessageFormat.format(context.cfg.gs("Stty.client.authenticated.choice.terminal.automated.session"), isTerminal ? 0 : 1) +
+                            theirRepo.getLibraryData().libraries.description);
                     valid = true;
 
                     // override what we THINK the subscriber flavor is with what we are told
@@ -416,7 +418,7 @@ public class ClientStty
                 }
             }
             else if (input.equalsIgnoreCase("Terminal session not allowed"))
-                logger.warn("attempt to login interactively but terminal sessions are not allowed");
+                logger.warn(context.cfg.gs("Stty.attempt.to.login.interactively.but.terminal.sessions.are.not.allowed"));
         }
         return valid;
     }
@@ -442,13 +444,13 @@ public class ClientStty
     public String receive(String log, int timeout) throws Exception
     {
         if (getSocket().isOutputShutdown())
-            throw new MungeException("socket output shutdown, keep alive " + getSocket().getKeepAlive());
+            throw new MungeException(context.cfg.gs("Stty.socket.output.shutdown.keep.alive") + getSocket().getKeepAlive());
         if (!getSocket().isBound())
-            throw new MungeException("socket not bound");
+            throw new MungeException(context.cfg.gs("Stty.socket.not.bound"));
         if (!getSocket().isConnected())
-            throw new MungeException("socket not connected");
+            throw new MungeException(context.cfg.gs("Stty.socket.not.connected"));
         if (getSocket().isClosed())
-            throw new MungeException("socket closed");
+            throw new MungeException(context.cfg.gs("Stty.socket.closed"));
 
         if (timeout < 0)
             timeout = myRepo.getLibraryData().libraries.timeout * 60 * 1000;
@@ -463,7 +465,8 @@ public class ClientStty
         {
             response = context.main.readStream(in, theirRepo.getLibraryData().libraries.key);
             if (response != null && response.startsWith("ping"))
-                logger.trace("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
+                logger.trace(context.cfg.gs("Stty.heartbeat.received") + ((theirRepo != null) ? context.cfg.gs("Z.from") +
+                        theirRepo.getLibraryData().libraries.description : ""));
             else
                 break;
         }
@@ -500,7 +503,8 @@ public class ClientStty
             catch (FileNotFoundException fnf)
             {
                 context.fault = true;
-                throw new MungeException("Exception while writing " + message + " file " + location + " trace: " + Utils.getStackTrace(fnf));
+                throw new MungeException(MessageFormat.format(context.cfg.gs("Stty.exception.while.writing.file"), message,location) +
+                        Utils.getStackTrace(fnf));
             }
         }
         return location;
@@ -535,13 +539,13 @@ public class ClientStty
             logger.debug(log);
         //logger.trace("keep alive " + getSocket().getKeepAlive());
         if (getSocket().isOutputShutdown())
-            throw new MungeException("socket output shutdown, keep alive " + getSocket().getKeepAlive());
+            throw new MungeException(context.cfg.gs("Stty.socket.output.shutdown.keep.alive") + getSocket().getKeepAlive());
         if (!getSocket().isBound())
-            throw new MungeException("socket not bound");
+            throw new MungeException(context.cfg.gs("Stty.socket.not.bound"));
         if (!getSocket().isConnected())
-            throw new MungeException("socket not connected");
+            throw new MungeException(context.cfg.gs("Stty.socket.not.connected"));
         if (getSocket().isClosed())
-            throw new MungeException("socket closed");
+            throw new MungeException(context.cfg.gs("Stty.socket.closed"));
 
         if (!message.equalsIgnoreCase("ping"))
             disableHeartBeat();
@@ -585,7 +589,7 @@ public class ClientStty
 
             if (context.mainFrame != null && errorMessage.length() > 0)
             {
-                JOptionPane.showMessageDialog(context.mainFrame, "Client Stty: " + errorMessage,
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Stty.client.stty") + errorMessage,
                         context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
 
@@ -604,7 +608,7 @@ public class ClientStty
     {
         if (heartBeat != null && heartBeat.isAlive())
         {
-            logger.trace("Stopping heartbeat thread for "  + Utils.formatAddresses(this.socket));
+            logger.trace(context.cfg.gs("Stty.stopping.heartbeat.thread.for")  + Utils.formatAddresses(this.socket));
             heartBeat.interrupt();
         }
     }

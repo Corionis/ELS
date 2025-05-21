@@ -105,7 +105,7 @@ public class Hints
                 success = context.transfer.remove(repo, hint);
             }
             else
-                throw new MungeException("Action must be 'mv' or 'rm'");
+                throw new MungeException(context.cfg.gs("Hints.action.must.be.mv.or.rm"));
 
             if (success)
                 result = "true";
@@ -259,7 +259,7 @@ public class Hints
                     {
                         Hint hint = pending.get(i);
                         ++executedHints;
-                        logger.info("Executing Hint #" + executedHints + ": " + hint.getLocalUtc(context));
+                        logger.info(context.cfg.gs("Hints.executing.hint") + executedHints + ": " + hint.getLocalUtc(context));
 
                         // execute each locally
                         response = execute(repo, hint);
@@ -270,7 +270,7 @@ public class Hints
                         response = "fault";
                     }
                 }
-                logger.info("Hints execution complete, " + response);
+                logger.info(context.cfg.gs("Hints.execution.complete") + response);
             }
         }
         return response;
@@ -305,11 +305,11 @@ public class Hints
 
         if (context.cfg.isDryRun())
         {
-            logger.info("Skipping munge of Hints to " + repo.getLibraryData().libraries.description + " (--dry-run)");
+            logger.info(context.cfg.gs("Hints.skipping.munge.of.hints.to") + repo.getLibraryData().libraries.description + " (--dry-run)");
         }
         else
         {
-            logger.info("Munging Hints to " + repo.getLibraryData().libraries.description);
+            logger.info(context.cfg.gs("Hints.munging.hints.to") + repo.getLibraryData().libraries.description);
 
             // participating in Hints?
             key = findHintKey(repo);
@@ -325,7 +325,7 @@ public class Hints
                 {
                     if (mismatchesFile != null)
                     {
-                        mismatchesFile.println("Munging Hints to " + repo.getLibraryData().libraries.description);
+                        mismatchesFile.println(context.cfg.gs("Hints.munging.hints.to") + repo.getLibraryData().libraries.description);
                         mismatchesFile.println(" ");
                     }
 
@@ -339,7 +339,7 @@ public class Hints
                             try
                             {
                                 ++executedHints;
-                                logger.info("Executing Hint #" + executedHints + ": " + hint.getLocalUtc(context));
+                                logger.info(context.cfg.gs("Hints.executing.hint") + executedHints + ": " + hint.getLocalUtc(context));
                                 if (!forMe && context.cfg.isRemoteSubscriber())
                                 {
                                     // execute each remotely on subscriber
@@ -412,17 +412,28 @@ public class Hints
                         response = "true";
                     else
                         response = "false";
+
                     logger.info("+------------------------------------------");
-                    logger.info("# Hint execution complete, result: " + response);
-                    logger.info("# Performed:     " + trues);
-                    logger.info("# Not performed: " + falses);
-                    logger.info("# Not For:       " + nots);
-                    logger.info("# Faults:        " + faults);
-                    logger.info("# Total:         " + executedHints);
+                    logger.info(context.cfg.gs("Hints.hint.execution.complete.result") + response);
+                    logger.info(context.cfg.gs("Hints.performed") + trues);
+                    logger.info(context.cfg.gs("Hints.not.performed") + falses);
+                    logger.info(context.cfg.gs("Hints.not.for") + nots);
+                    logger.info(context.cfg.gs("Hints.faults") + faults);
+                    logger.info(context.cfg.gs("Hints.total") + executedHints);
                     logger.info("+------------------------------------------");
 
                     if (mismatchesFile != null)
+                    {
+                        mismatchesFile.println("+------------------------------------------");
+                        mismatchesFile.println(context.cfg.gs("Hints.hint.execution.complete.result") + response);
+                        mismatchesFile.println(context.cfg.gs("Hints.performed") + trues);
+                        mismatchesFile.println(context.cfg.gs("Hints.not.performed") + falses);
+                        mismatchesFile.println(context.cfg.gs("Hints.not.for") + nots);
+                        mismatchesFile.println(context.cfg.gs("Hints.faults") + faults);
+                        mismatchesFile.println(context.cfg.gs("Hints.total") + executedHints);
+                        mismatchesFile.println("+------------------------------------------");
                         mismatchesFile.println("");
+                    }
                 }
             }
         }
@@ -540,7 +551,7 @@ public class Hints
                 hint.toItemPath = moveTo;
             }
             else if (!act.equals("rm"))
-                throw new MungeException("Action must be 'mv' or 'rm'");
+                throw new MungeException(context.cfg.gs("Hints.action.must.be.mv.or.rm"));
 
             hint.setStatus(hk.system, "Done");
 
@@ -615,7 +626,7 @@ public class Hints
                 context.datastore.hints.remove(hint);
                 if (executedHints < 1)
                     executedHints = 1;
-                logger.info("Hint Done and removed #" + executedHints + ": " + hint.getLocalUtc(context) + ", " +
+                logger.info(context.cfg.gs("Hints.hint.done.and.removed") + executedHints + ": " + hint.getLocalUtc(context) + ", " +
                         context.datastore.hints.size() + " remaining");
             }
 

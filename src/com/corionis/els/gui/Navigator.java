@@ -129,7 +129,7 @@ public class Navigator
                     {
                         logger.info(context.cfg.gs("NavTransferHandler.action.cancelled"));
                         context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.action.cancelled"));
-                        String msg = "" + hints.size() + " Hint(s) conflict with the current " + action;
+                        String msg = "" + hints.size() + context.cfg.gs("Navigator.hint.s.conflict.with.the.current") + action;
                         JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                         return true;
                     }
@@ -619,10 +619,10 @@ public class Navigator
             // set the GuiLogAppender localContext for a second invocation
             if (context.main.primaryExecution)
             {
-//                GuiLogAppender appender = context.main.guiLogAppender;
-//                appender.setContext(context);
+                GuiLogAppender appender = context.main.guiLogAppender;
+                appender.setContext(context);
                  // this causes the preBuffer to be appended to the Navigator Log panel
-//                logger.info(context.cfg.gs("Navigator.appender.updated"));
+                logger.info(context.cfg.gs("Navigator.appender.updated"));
             }
 */
 
@@ -636,7 +636,7 @@ public class Navigator
             if (!context.cfg.isLoggerView())
             {
                 // add any defined bookmarks to the menu
-                bookmarks = new Bookmarks();
+                bookmarks = new Bookmarks(context);
                 loadBookmarksMenu();
 
                 // add any defined jobs to the menu
@@ -772,7 +772,7 @@ public class Navigator
                         if (context.cfg.isRemoteSubscriber() || (context.cfg.isHintTrackingEnabled() && context.cfg.isRemoteStatusServer()))
                         {
                             int r = JOptionPane.showConfirmDialog(context.mainFrame,
-                                    context.cfg.gs(("Navigator.remote.connections.must.be.closed")),
+                                    context.cfg.gs("Navigator.remote.connections.must.be.closed"),
                                     context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                             if (r != JOptionPane.YES_OPTION)
                                 break;
@@ -2070,7 +2070,7 @@ public class Navigator
                             lastFindPosition += lastFindString.length();
                         }
                         else
-                            context.mainFrame.labelStatusMiddle.setText("Value not found");
+                            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.value.not.found"));
                     }
                 }
             }
@@ -3506,7 +3506,7 @@ public class Navigator
             Job tmpJob = new Job(context, context.cfg.getJobName());
             Job job = tmpJob.load(context.cfg.getJobName());
             if (job == null)
-                logger.error("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
+                logger.error(context.cfg.gs("Navigator.job") + context.cfg.getJobName() + context.cfg.gs("Navigator.could.not.be.loaded"));
             else
             {
                 worker = job.process(context, context.mainFrame, context.cfg.getNavigatorName(), job, context.cfg.isDryRun());

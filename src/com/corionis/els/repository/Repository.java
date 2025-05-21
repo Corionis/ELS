@@ -16,6 +16,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
@@ -132,7 +133,7 @@ public class Repository implements Comparable
         String where = Utils.getFullPathLocal(context.cfg.getExportCollectionFilename());
         File outFile = new File(where);
         outFile.getParentFile().mkdirs();
-        logger.info("Writing " + (isCollection ? "collection" : "library") + " file " + where);
+        logger.info(MessageFormat.format(context.cfg.gs("Repository.writing.choice.collection.library.file"), isCollection ? 0 : 1) + where);
         String json = gson.toJson(getLibraryData());
         try
         {
@@ -142,7 +143,7 @@ public class Repository implements Comparable
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Exception while writing " + (isCollection ? "collection" : "library") + " file " + where + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.exception.while.writing.choice.collection.library.file.trace"), isCollection ? 0 : 1, where) + Utils.getStackTrace(fnf));
         }
     }
 
@@ -156,7 +157,7 @@ public class Repository implements Comparable
         String where = Utils.getFullPathLocal(context.cfg.getExportTextFilename());
         File outFile = new File(where);
         outFile.getParentFile().mkdirs();
-        logger.info("Writing text file " + where);
+        logger.info(context.cfg.gs("Repository.writing.text.file") + where);
         try
         {
             PrintWriter outputStream = new PrintWriter(where);
@@ -181,7 +182,7 @@ public class Repository implements Comparable
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Exception while writing text file " + where + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.exception.while.writing.text.file.0.trace"), where) + Utils.getStackTrace(fnf));
         }
     }
 
@@ -228,7 +229,7 @@ public class Repository implements Comparable
             {
                 if (has) // check for a duplicate library name
                 {
-                    throw new MungeException("Library " + lib.name + " found more than once in " + getJsonFilename());
+                    throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.library.found.more.than.once.in"), lib.name) + getJsonFilename());
                 }
                 has = true;
                 retLib = lib;
@@ -372,7 +373,7 @@ public class Repository implements Comparable
                 }
                 else
                 {
-                    logger.warn("Subscriber library '" + lib.name + "' has no items. Is command-line configured correctly?");
+                    logger.warn(MessageFormat.format(context.cfg.gs("Repository.subscriber.library.has.no.items.is.command.line.configured.correctly"), lib.name));
                 }
                 if (foundItem != null && foundItem.isDirectory())
                 {
@@ -423,7 +424,7 @@ public class Repository implements Comparable
                                     // is it a duplicate?
                                     if (has != null)
                                     {
-                                        logger.warn("  ! Duplicate of \"" + itemPath + "\" found at \"" + item.getFullPath() + "\"");
+                                        logger.warn(MessageFormat.format(context.cfg.gs("Repository.duplicate.of.found.at"), itemPath, item.getFullPath()));
                                     }
                                     else
                                     {
@@ -470,14 +471,14 @@ public class Repository implements Comparable
                             if (item != pubItem && !item.isDirectory())
                             {
                                 pubItem.addHas(item); // add match and any duplicate for cross-reference
-                                logger.warn("  ! Duplicate of \"" + pubItem.getFullPath() + "\" found at \"" + item.getFullPath() + "\"");
+                                logger.warn(MessageFormat.format(context.cfg.gs("Repository.duplicate.of.found.at"), pubItem.getFullPath() , item.getFullPath()));
                             }
                         }
                     }
                 }
                 else
                 {
-                    throw new MungeException("itemMap is null for library " + lib.name);
+                    throw new MungeException(context.cfg.gs("Repository.itemmap.is.null.for.library") + lib.name);
                 }
             }
         }
@@ -708,7 +709,7 @@ public class Repository implements Comparable
             Gson gson = new Gson();
             filename = Utils.getFullPathLocal(filename);
             if (printLog)
-                logger.info("Reading Library file " + filename);
+                logger.info(context.cfg.gs("Repository.reading.library.file") + filename);
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
@@ -716,13 +717,14 @@ public class Repository implements Comparable
             {
                 normalize();
                 if (printLog)
-                    logger.info("Read " + libraryData.libraries.description + " successfully");
+                    logger.info(MessageFormat.format(context.cfg.gs("Repository.read.successfully"), libraryData.libraries.description));
                 valid = true;
             }
         }
         catch (Exception ioe)
         {
-            String msg = "Exception while reading " + type + " library: " + filename + System.getProperty("line.separator") + ioe.getMessage();
+            String msg = MessageFormat.format(context.cfg.gs("Repository.exception.while.reading.library"), type) +
+                    filename + System.getProperty("line.separator") + ioe.getMessage();
             if (context.main.isStartupActive())
             {
                 logger.error(msg);
@@ -855,7 +857,7 @@ public class Repository implements Comparable
         }
         catch (IOException ioe)
         {
-            throw new MungeException("Exception reading directory " + directory + " trace: " + Utils.getStackTrace(ioe));
+            throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.exception.reading.directory.trace"), directory) + Utils.getStackTrace(ioe));
         }
         library.rescanNeeded = false;
         return count;
@@ -871,7 +873,8 @@ public class Repository implements Comparable
      */
     private void scanSources(Library lib) throws MungeException
     {
-        logger.info((lib.rescanNeeded ? "Rescan required " : "Scanning ") + getLibraryData().libraries.description + ": " + lib.name);
+        logger.info((lib.rescanNeeded ? context.cfg.gs("Repository.rescan.required") : context.cfg.gs("Repository.scanning"))
+                + getLibraryData().libraries.description + ": " + lib.name);
         lib.items = null;
         for (String src : lib.sources)
         {
@@ -934,22 +937,22 @@ public class Repository implements Comparable
     {
         if (getLibraryData() == null)
         {
-            throw new MungeException("Libraries are null");
+            throw new MungeException(context.cfg.gs("Repository.libraries.are.null"));
         }
 
         Libraries lbs = getLibraryData().libraries;
         if (lbs == null)
         {
-            throw new MungeException("libraries must be defined");
+            throw new MungeException(context.cfg.gs("Repository.libraries.must.be.defined"));
         }
 
         if (lbs.description == null || lbs.description.length() == 0)
         {
-            throw new MungeException("libraries.description must be defined");
+            throw new MungeException(context.cfg.gs("Repository.libraries.description.must.be.defined"));
         }
         if (lbs.case_sensitive == null)
         {
-            throw new MungeException("libraries.case_sensitive true/false must be defined");
+            throw new MungeException(context.cfg.gs("Repository.libraries.case.sensitive.true.false.must.be.defined"));
         }
 
         if (lbs.ignore_patterns != null && lbs.ignore_patterns.length > 0)
@@ -967,27 +970,27 @@ public class Repository implements Comparable
             }
             catch (PatternSyntaxException pe)
             {
-                throw new MungeException("Ignore pattern '" + src + "' has bad regular expression (regex) syntax");
+                throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.ignore.pattern.has.bad.regular.expression.regex.syntax"), src));
             }
             catch (IllegalArgumentException iae)
             {
-                throw new MungeException("Ignore pattern '" + src + "' has bad flags");
+                throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.ignore.pattern.has.bad.flags"), src));
             }
         }
 
         if (getLibraryData().libraries.bibliography != null)
         {
-            logger.info("Validating " + lbs.description + " Libraries in: " + getJsonFilename());
+            logger.info(MessageFormat.format(context.cfg.gs("Repository.validating.libraries.in"), lbs.description) + getJsonFilename());
             for (int i = 0; i < lbs.bibliography.length; i++)
             {
                 Library lib = lbs.bibliography[i];
                 if (lib.name == null || lib.name.length() == 0)
                 {
-                    throw new MungeException("bibliography.name " + i + " must be defined");
+                    throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.bibliography.name.must.be.defined"), i));
                 }
                 if (lib.sources == null || lib.sources.length == 0)
                 {
-                    throw new MungeException("bibliography.sources " + i + " must be defined");
+                    throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.bibliography.sources.must.be.defined"), i));
                 }
                 else
                 {
@@ -1002,11 +1005,11 @@ public class Repository implements Comparable
                         {
                             if (lib.sources[j].length() == 0)
                             {
-                                throw new MungeException("bibliography[" + i + "].sources[" + j + "] must be defined");
+                                throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.bibliography.source.path.must.be.defined"), i,j));
                             }
                             if (Files.notExists(Paths.get(Utils.getFullPathLocal(lib.sources[j]))))
                             {
-                                String msg = "bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist";
+                                String msg = MessageFormat.format(context.cfg.gs("Repository.bibliography.sources.does.not.exist"), i,j,lib.sources[j]);
                                 if (context.cfg.isGui())
                                     logger.error(msg);
                                 else
@@ -1021,18 +1024,18 @@ public class Repository implements Comparable
                                 {
                                     if (Files.notExists(Paths.get(item.getFullPath())))
                                     {
-                                        logger.error("File does not exist: " + item.getFullPath());
+                                        logger.error(context.cfg.gs("Repository.file.does.not.exist") + item.getFullPath());
                                     }
                                     else
                                     {
                                         if (!item.isDirectory() && Files.size(Paths.get(item.getFullPath())) != item.getSize())
                                         {
-                                            logger.error("File size does not match, file is " + Files.size(Paths.get(item.getFullPath())) + ", data has " + item.getSize() + ": " + item.getFullPath());
+                                            logger.error(context.cfg.gs("Repository.file.size.does.not.match.file.is") + Files.size(Paths.get(item.getFullPath())) + ", data has " + item.getSize() + ": " + item.getFullPath());
                                         }
                                     }
                                     if (!item.getLibrary().equals(lib.name))
                                     {
-                                        logger.error("File library does not match, file is in " + lib.name + ", data has " + item.getLibrary() + ": " + item.getFullPath());
+                                        logger.error(context.cfg.gs("Repository.file.library.does.not.match.file.is.in") + lib.name + ", data has " + item.getLibrary() + ": " + item.getFullPath());
                                     }
                                 }
                             }

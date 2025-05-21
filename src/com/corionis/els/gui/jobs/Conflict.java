@@ -12,6 +12,6 @@ public class Conflict
 
     public String toString(Context context)
     {
-        return job.getConfigName() + context.cfg.gs(", Task #") + (taskNumber + 1);
+        return job.getConfigName() + context.cfg.gs("Job.task.number") + (taskNumber + 1);
     }
 }

@@ -13,6 +13,7 @@ import org.apache.sshd.common.util.io.IoUtils;
 
 import java.io.File;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -115,6 +116,7 @@ public class Configuration
     private String whatsNewFilename = "";
     private String workingDirectory = "";
     private String workingDirectorySubscriber = "";
+
     /**
      * Constructor
      */
@@ -294,7 +296,7 @@ public class Configuration
         if (!wd.exists())
             wd.mkdirs();
         else if (!wd.isDirectory())
-            throw new MungeException("Configuration directory \"" + wd.getCanonicalPath() + "\" is not a directory");
+            throw new MungeException(MessageFormat.format(context.cfg.gs("Cfg.configuration.directory.is.not.a.directory"), wd.getCanonicalPath()));
 
         // change to working directory
         setWorkingDirectory(wd.getCanonicalPath());
@@ -331,72 +333,72 @@ public class Configuration
 
         if (getAuthKeysFile().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -A Authentication Keys filename = " + getAuthKeysFile());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.a.authentication.keys.filename"), getAuthKeysFile()));
         }
         if (getAuthorizedPassword().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
+            logger.info(SHORT, context.cfg.gs("Cfg.cfg.a.authorize.mode.password.has.been.specified"));
         }
-        indicator(logger, SHORT, "  cfg: -b No back fill = ", noBackFill);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.b.no.back.fill"), noBackFill);
         if (blacklist.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -B Blacklist filename = " + blacklist);
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.b.blacklist.filename"), blacklist));
         }
         if (consoleSet)
         {
-            logger.info(SHORT, "  cfg: -c Console logging level = " + getConsoleLevel());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.c.console.logging.level"), getConsoleLevel()));
         }
         if (workingDirectory.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -C Configuration directory = " + getWorkingDirectory());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.c.configuration.directory"), getWorkingDirectory()));
         }
         if (debugSet)
         {
-            logger.info(SHORT, "  cfg: -d Debug logging level = " + getDebugLevel());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.d.debug.logging.level"), getDebugLevel()));
         }
-        indicator(logger, SHORT, "  cfg: -D Dry run = ", dryRun);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.d.dry.run"), dryRun);
         if (getExportTextFilename().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.e.export.text.filename"), getExportTextFilename()));
         }
-        indicator(logger, SHORT, "  cfg: -E Empty directories = ", emptyDirectoryCheck);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.e.empty.directories"), emptyDirectoryCheck);
         if (getLogFileName().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -" + (isLogOverwrite() ? "F" : "f") + " Log filename = " + getLogFileName());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.choice.f.log.filename"), isLogOverwrite() ? 0 : 1,getLogFileName()));
         }
-        indicator(logger, SHORT, "  cfg: -g Listener keep going = ", keepGoing);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.g.listener.keep.going"), keepGoing);
         if (isQuitSubscriberListener())
         {
-            logger.info(SHORT, "  cfg: -G Subscriber listener FORCE QUIT now");
+            logger.info(SHORT, context.cfg.gs("Cfg.cfg.g.subscriber.listener.force.quit.now"));
         }
         if (hintTrackerFilename != null && hintTrackerFilename.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -h Hint Tracker: " + getHintTrackerFilename());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.h.hint.tracker"), getHintTrackerFilename()));
         }
         if (hintsDaemonFilename != null && hintsDaemonFilename.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -H Hint Status Server: " + getHintsDaemonFilename());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.h.hint.status.server"), getHintsDaemonFilename()));
         }
         if (getExportCollectionFilename().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.i.export.collection.json.filename"), getExportCollectionFilename()));
         }
         if (getIpWhitelist().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -I IP whitelist filename = " + getIpWhitelist());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.i.ip.whitelist.filename"), getIpWhitelist()));
         }
         if (getOperation() == JOB_PROCESS && getJobName().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -j job: " + getJobName());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.j.job"), getJobName()));
         }
-        indicator(logger, SHORT, "  cfg: -J Override Hint host = ", overrideHintHost);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.j.override.hint.host"), overrideHintHost);
         if (getHintKeysFile().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -" + (isHintSkipMainProcess() ? "K" : "k") + " Hint Keys filename = " + getHintKeysFile());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.choice.k.hint.keys.filename"), isHintSkipMainProcess() ? 0 : 1,getHintKeysFile()));
         }
         if (!getSelectedLibraryNames().isEmpty())
         {
-            logger.info(SHORT, "  cfg: -l Publisher library name(s):");
+            logger.info(SHORT, context.cfg.gs("Cfg.cfg.l.publisher.library.name.s"));
             for (String ln : getSelectedLibraryNames())
             {
                 logger.info(SHORT, "          " + ln);
@@ -404,7 +406,7 @@ public class Configuration
         }
         if (!getExcludedLibraryNames().isEmpty())
         {
-            logger.info(SHORT, "  cfg: -L Excluded library name(s):");
+            logger.info(SHORT, context.cfg.gs("Cfg.cfg.l.excluded.library.name.s"));
             for (String ln : getExcludedLibraryNames())
             {
                 logger.info(SHORT, "          " + ln);
@@ -412,61 +414,62 @@ public class Configuration
         }
         if (getMismatchFilename().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.m.mismatches.output.filename"), getMismatchFilename()));
         }
         if (marker.length() > 0)
         {
-            logger.info(SHORT, "  cfg: --marker = " + marker);
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.marker"), marker));
         }
-        indicator(logger, SHORT, "  cfg: -n Navigator = ", navigator);
-        indicator(logger, SHORT, "  cfg: -N Ignored files reported = ", ignoredReported);
-        indicator(logger, SHORT, "  cfg: -o Overwrite = ", overwrite);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.n.navigator"), navigator);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.n.ignored.files.reported"), ignoredReported);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.o.overwrite"), overwrite);
         if (!overrideSubscriberHost.isEmpty())
         {
-            logger.info(SHORT, "  cfg: -O Override Subscriber host = " + overrideSubscriberHost);
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.o.override.subscriber.host"), overrideSubscriberHost));
         }
         if (getPublisherLibrariesFileName().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.p.publisher.library.filename"), getPublisherLibrariesFileName()));
         }
         if (getPublisherCollectionFilename().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.p.publisher.collection.filename"), getPublisherCollectionFilename()));
         }
         if (isQuitStatusServer())
         {
             if (getOperation() == STATUS_SERVER_FORCE_QUIT)
-                logger.info(SHORT, "  cfg: -Q Status server FORCE QUIT now");
+                logger.info(SHORT, context.cfg.gs("Cfg.cfg.q.status.server.force.quit.now"));
             else
-                logger.info(SHORT, "  cfg: -q Status server QUIT");
+                logger.info(SHORT, context.cfg.gs("Cfg.cfg.q.status.server.quit"));
         }
         if (!getRemoteType().equalsIgnoreCase("-"))
         {
-            logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType() + " " + getRemoteTypeName(getOperation()));
+            logger.info(SHORT, context.cfg.gs("Cfg.cfg.r.remote.session.type") + getRemoteType() + " " + getRemoteTypeName(getOperation()));
         }
         if (getSubscriberLibrariesFileName().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.s.subscriber.library.filename"), getSubscriberLibrariesFileName()));
         }
         if (getSubscriberCollectionFilename().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.s.subscriber.collection.filename"), getSubscriberCollectionFilename()));
         }
         if (isForceCollection() || getTargetsFilename().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.choice.t.targets.filename"), (isForceTargets()) ? 0 : 1,getTargetsFilename()));
         }
-        indicator(logger, SHORT, "  cfg: -u Duplicates = ", duplicateCheck);
-        indicator(logger, SHORT, "  cfg: -v Validate = ", validation);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.u.duplicates"), duplicateCheck);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.v.validate"), validation);
         if (getWhatsNewFilename().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -" + (isWhatsNewAll() ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (isWhatsNewAll() ? ", show all items" : ""));
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.choice.w.what.s.new.output.filename"), isWhatsNewAll() ? 0 : 1) +
+                    getWhatsNewFilename() + (isWhatsNewAll() ? context.cfg.gs("Cfg.show.all.items") : ""));
         }
-        indicator(logger, SHORT, "  cfg: -x Cross-check = ", crossCheck);
-        indicator(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
-        indicator(logger, SHORT, "  cfg: -z Decimal scale = ", getLongScale() == 1024 ? -1 : 1);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.x.cross.check"), crossCheck);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.y.preserve.dates"), preserveDates);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.z.decimal.scale"), getLongScale() == 1024 ? -1 : 1);
         if (loggerView)
-            logger.info(SHORT, "  cfg: --logger: display mode");
+            logger.info(SHORT, context.cfg.gs("Cfg.cfg.logger.display.mode"));
     }
 
     /**
@@ -481,7 +484,7 @@ public class Configuration
         // generate-commandline
         String opts;
         String exec = context.cfg.getExecutablePath();
-        String jar = ""; //(Utils.isOsLinux() ? context.cfg.getElsJar() : "");
+        String jar = "";
 
         Configuration cc = context.cfg;
         Preferences pr = context.preferences;
@@ -599,7 +602,7 @@ public class Configuration
     /**
      * Read the built-in build date
      *
-     * @return Build changes URL, or "unknown"
+     * @return Build changes URL, or unknown
      */
     public static String getBuildChangesUrl()
     {
@@ -623,7 +626,7 @@ public class Configuration
     /**
      * Read the built-in build date
      *
-     * @return Build stamp string, or "unknown"
+     * @return Build stamp string, or unknown
      */
     public static String getBuildDate()
     {
@@ -647,7 +650,7 @@ public class Configuration
     /**
      * Read the built-in ELS distribution name
      *
-     * @return Build version string, or "unknown"
+     * @return Build version string, or unknown
      */
     public static String getBuildElsDistro()
     {
@@ -695,7 +698,7 @@ public class Configuration
     /**
      * Read the built-in build number
      *
-     * @return Build number string, or "unknown"
+     * @return Build number string, or unknown
      */
     public static String getBuildNumber()
     {
@@ -719,7 +722,7 @@ public class Configuration
     /**
      * Read the built-in updater distribution name
      *
-     * @return Build version string, or "unknown"
+     * @return Build version string, or unknown
      */
     public static String getBuildUpdaterDistro()
     {
@@ -743,7 +746,7 @@ public class Configuration
     /**
      * Read the built-in simple version name
      *
-     * @return Build version string, or "unknown"
+     * @return Build version string, or unknown
      */
     public static String getBuildVersionName()
     {
@@ -870,7 +873,7 @@ public class Configuration
      * Depends on the operating system:<br/>
      * * Linux is rt/bin/java
      * * Windows is ELS-Navigator.exe
-     * * macOS is an "open" to ELS-Navigator.app or ELS-Navigator.sh depending on the Preference
+     * * macOS is an open to ELS-Navigator.app or ELS-Navigator.sh depending on the Preference
      *
      * @return
      */
@@ -888,7 +891,7 @@ public class Configuration
         }
         else
             exePath += "ELS-Navigator.sh";
-//            exePath += "rt/bin/java";
+
         return exePath;
     }
 
@@ -912,6 +915,11 @@ public class Configuration
         return exportTextFilename;
     }
 
+    /**
+     * Get the full path to the subscriber file
+     * @param filename
+     * @return
+     */
     public String getFullPathSubscriber(String filename)
     {
         String path;
@@ -1128,7 +1136,7 @@ public class Configuration
     /**
      * Get override of subscriber host value
      *
-     * @return String "true" if -O | --override-host is enabled for listen address, address:ip if enabled as custom, otherwise empty string
+     * @return String true if -O | --override-host is enabled for listen address, address:ip if enabled as custom, otherwise empty string
      */
     public String getOverrideSubscriberHost()
     {
@@ -1362,6 +1370,11 @@ public class Configuration
         return workingDirectory;
     }
 
+    /**
+     * Get the (remote) subscriber working directory
+     *
+     * @return String Subscriber working directory
+     */
     public String getWorkingDirectorySubscriber()
     {
         if (workingDirectorySubscriber.isEmpty())
@@ -1392,7 +1405,7 @@ public class Configuration
     }
 
     /**
-     * Print a logger.info() line from a configuration "indicator"
+     * Print a logger.info() line from a configuration indicator
      * <br/><br/>
      * An indicator is an int value representing a boolean: -1 = not set,
      * 0 = false, 1 = true
@@ -1499,7 +1512,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "forced collection" operation?
+     * Is this a forced collection operation?
      *
      * @return true/false
      */
@@ -1509,7 +1522,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "forced targets" operation?
+     * Is this a forced targets operation?
      *
      * @return true/false
      */
@@ -1569,7 +1582,7 @@ public class Configuration
     }
 
     /**
-     * For a Publisher a true "keep going" flag skips sending
+     * For a Publisher a true keep going flag skips sending
      * the quit command to the subscriber when the operation is
      * complete. For a subscriber it skips ending with a fault
      * on an unexpected disconnect (EOL).
@@ -1779,7 +1792,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "request collection" operation?
+     * Is this a request collection operation?
      *
      * @return true/false
      */
@@ -1789,7 +1802,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "request targets" operation?
+     * Is this a request targets operation?
      *
      * @return true/false
      */
@@ -1867,6 +1880,9 @@ public class Configuration
         return targetsEnabled == 1 ? true : false;
     }
 
+    /**
+     * Did the update file?
+     */
     public boolean isUpdateFailed()
     {
         return updateFailed;
@@ -1874,8 +1890,6 @@ public class Configuration
 
     /**
      * Is this a restarted instance after being updated?
-     *
-     * @return
      */
     public boolean isUpdateSuccessful()
     {
@@ -1893,7 +1907,7 @@ public class Configuration
     }
 
     /**
-     * Is What's New an "all" option?
+     * Is What's New an all option?
      *
      * @return true/false
      */
@@ -1934,6 +1948,14 @@ public class Configuration
         config.setCurrentBundle(ResourceBundle.getBundle("com.corionis.els.locales.bundle_" + filePart));
     }
 
+    /**
+     * Make a full path to a publisher or subscriber library file
+     *
+     * @param repo Repository of desired file
+     * @param filename The repository filename
+     *
+     * @return The full path to the file
+     */
     public String makeFullPath(Repository repo, String filename)
     {
         String path = filename;
@@ -1976,11 +1998,7 @@ public class Configuration
     public String makeRelativePathSubscriber(String path)
     {
         if (path != null && path.length() > 0)
-        {
             path = Utils.makeRelativePath(getWorkingDirectorySubscriber(), path);
-//            path = Utils.pipe(path);
-//            path = Utils.unpipe(path, "/");
-        }
         else
             path = "";
         return path;
@@ -2019,7 +2037,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -A requires an ELS authentication keys filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.a.requires.an.els.authentication.keys.filename"));
                     }
                     break;
                 case "-a":                                             // authorize mode password
@@ -2031,7 +2049,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -a requires a password value");
+                        throw new MungeException(context.cfg.gs("Cfg.error.a.requires.a.password.value"));
                     }
                     break;
                 case "-b":                                             // disable back-filling
@@ -2048,7 +2066,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -B requires a blacklist filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.b.requires.a.blacklist.filename"));
                     }
                     break;
                 case "-c":                                             // console level
@@ -2060,7 +2078,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
+                        throw new MungeException(context.cfg.gs("Cfg.error.c.requires.a.level.trace.debug.info.warn.error.fatal.or.off"));
                     }
                     break;
                 case "-C":
@@ -2074,7 +2092,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -C requires a directory path");
+                        throw new MungeException(context.cfg.gs("Cfg.error.c.requires.a.directory.path"));
                     }
                     break;
                 case "-d":                                             // debug level
@@ -2086,7 +2104,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
+                        throw new MungeException(context.cfg.gs("Cfg.error.d.requires.a.level.trace.debug.info.warn.error.fatal.or.off"));
                     }
                     break;
                 case "-D":                                             // Dry run
@@ -2107,7 +2125,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -e requires an export path output filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.e.requires.an.export.path.output.filename"));
                     }
                     break;
                 case "-E":                                             // publisher empty directory check
@@ -2119,7 +2137,7 @@ public class Configuration
                 case "--log-file":
                 case "--log-overwrite":
                     if (getLogFileName().length() > 0)
-                        throw new MungeException("Error: -f and -F cannot be used at the same time");
+                        throw new MungeException(context.cfg.gs("Cfg.error.f.and.f.cannot.be.used.at.the.same.time"));
                     if (args[index].equals("-F") || args[index].equals("--log-overwrite"))
                         setLogOverwrite(true);
                     if (index <= args.length - 2)
@@ -2129,7 +2147,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -f requires a log filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.f.requires.a.log.filename"));
                     }
                     break;
                 case "-g":                                              // publisher and subscriber keep subscriber going
@@ -2150,7 +2168,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -h requires a hint status tracker repository filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.h.requires.a.hint.status.tracker.repository.filename"));
                     }
                     break;
                 case "-H":                                              // hint status server
@@ -2163,7 +2181,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -H requires a hint status server repository filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.h.requires.a.hint.status.server.repository.filename"));
                     }
                     break;
                 case "-i":                                             // export publisher items to collection file
@@ -2175,7 +2193,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -i requires a collection output filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.i.requires.a.collection.output.filename"));
                     }
                     break;
                 case "-I":                                             // whitelist
@@ -2188,7 +2206,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -I requires an IP whitelist filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.i.requires.an.ip.whitelist.filename"));
                     }
                     break;
                 case "-j":                                             // Job
@@ -2200,7 +2218,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -j requires a job name");
+                        throw new MungeException(context.cfg.gs("Cfg.error.j.requires.a.job.name"));
                     }
                     break;
                 case "-J":                                              // override Hint Server host (use listen)
@@ -2217,7 +2235,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -k requires an ELS hint keys filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.k.requires.an.els.hint.keys.filename"));
                     }
                     break;
                 case "-K":                                             // ELS keys file and skip main process munge
@@ -2231,7 +2249,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -K requires an ELS hint keys filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.k1.requires.an.els.hint.keys.filename"));
                     }
                     break;
                 case "-l":                                             // publisher library to process
@@ -2244,7 +2262,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -l requires a publisher library name");
+                        throw new MungeException(context.cfg.gs("Cfg.error.l.requires.a.publisher.library.name"));
                     }
                     break;
                 case "-L":                                             // publisher library to exclude
@@ -2257,7 +2275,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -L requires a publisher library name to exclude");
+                        throw new MungeException(context.cfg.gs("Cfg.error.l.requires.a.publisher.library.name.to.exclude"));
                     }
                     break;
                 case "--logger":
@@ -2272,7 +2290,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -m requires a mismatches output filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.m.requires.a.mismatches.output.filename"));
                     }
                     break;
                 case "--marker":                                        // marker
@@ -2282,7 +2300,7 @@ public class Configuration
                         ++index;
                     }
                     else
-                        marker = "Enabled";
+                        marker = context.cfg.gs("Cfg.marker.enabled");
                     break;
                 case "-n":                                              // Navigator
                 case "--navigator":
@@ -2316,7 +2334,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -p requires a publisher libraries filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.p.requires.a.publisher.libraries.filename"));
                     }
                     break;
                 case "-P":                                             // publisher JSON collection items file
@@ -2329,7 +2347,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -P requires a publisher collection filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.p.requires.a.publisher.collection.filename"));
                     }
                     break;
                 case "-q":                                             // tell status server to quit when done
@@ -2349,7 +2367,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -r must be followed by P|L|M|S|T, case-insensitive");
+                        throw new MungeException(context.cfg.gs("Cfg.error.r.must.be.followed.by.p.l.m.s.t.case.insensitive"));
                     }
                     break;
                 case "-s":                                             // subscriber JSON libraries file
@@ -2364,7 +2382,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -s requires a subscriber libraries filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.s.requires.a.subscriber.libraries.filename"));
                     }
                     break;
                 case "-S":                                             // subscriber JSON collection items file
@@ -2379,7 +2397,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -S requires an subscriber collection filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.s.requires.an.subscriber.collection.filename"));
                     }
                     break;
                 case "-t":                                             // targets filename
@@ -2426,8 +2444,8 @@ public class Configuration
                     break;
                 case "--version":                                       // version
                     System.out.println("");
-                    System.out.println(PROGRAM_NAME + ", Version " + getBuildVersionName() + ", " + getBuildDate());
-                    System.out.println("See the ELS wiki on GitHub for documentation at:");
+                    System.out.println(PROGRAM_NAME + context.cfg.gs("Main.version") + getBuildVersionName() + ", " + getBuildDate());
+                    System.out.println(context.cfg.gs("Cfg.see.the.els.wiki.on.github.for.documentation.at"));
                     System.out.println("  https://github.com/Corionis/ELS/wiki");
                     System.out.println("");
                     System.exit(1);
@@ -2441,10 +2459,10 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -w requires a What's New output filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.w.requires.a.what.s.new.output.filename"));
                     }
                     break;
-                case "-W":                                             // What's New output filename, set "all" option
+                case "-W":                                             // What's New output filename, set all option
                 case "--whatsnew-all":
                     if (index <= args.length - 2)
                     {
@@ -2454,7 +2472,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -W requires a What's New output filename");
+                        throw new MungeException(context.cfg.gs("Cfg.error.w1.requires.a.what.s.new.output.filename"));
                     }
                     break;
                 case "-x":                                             // cross-library duplicate check
@@ -2479,7 +2497,7 @@ public class Configuration
                         if (!args[index].endsWith(".exe") && !args[index].endsWith(".app"))
                         {
                             context.fault = true;
-                            throw new MungeException("Error: unknown option: " + args[index]);
+                            throw new MungeException(context.cfg.gs("Cfg.error.unknown.option") + args[index]);
                         }
                     }
             }
@@ -2516,6 +2534,11 @@ public class Configuration
         this.blacklist = blacklist;
     }
 
+    /**
+     * Set the flag indicating this is a Check for Update option
+     *
+     * @param checkForUpdate
+     */
     public void setCheckForUpdate(boolean checkForUpdate)
     {
         this.checkForUpdate = checkForUpdate;
@@ -2625,7 +2648,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "forced collection" operation
+     * Set if this is a forced collection operation
      *
      * @param forceCollection true/false
      */
@@ -2635,7 +2658,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "forced targets" operation
+     * Set if this is a forced targets operation
      *
      * @param forceTargets true/false
      */
@@ -2694,6 +2717,10 @@ public class Configuration
         this.ignoredReported = ignoredReported ? 1 : 0;
     }
 
+    /**
+     * Set the flag indicating this is an Install Update option
+     * @param installUpdate
+     */
     public void setInstallUpdate(boolean installUpdate)
     {
         this.installUpdate = installUpdate;
@@ -2720,7 +2747,7 @@ public class Configuration
     }
 
     /**
-     * For a Publisher the "keep going" flag skips sending
+     * For a Publisher the keep going flag skips sending
      * the quit command to the subscriber when the operation is
      * complete. For a subscriber it skips ending with a fault
      * on an unexpected disconnect (EOL).
@@ -2854,21 +2881,21 @@ public class Configuration
                 getSubscriberFilename().length() == 0 &&
                 getHintsDaemonFilename().length() > 0)
         {
-            operation = STATUS_SERVER;
+            operation = STATUS_SERVER; // 6
         }
 
         if (operation == NOT_SET)
         {
             if (!getJobName().isEmpty())
-                operation = JOB_PROCESS;
+                operation = JOB_PROCESS; // 8
             if (isQuitStatusServer() && operation == NOT_SET)
-                operation = STATUS_SERVER_FORCE_QUIT;
+                operation = STATUS_SERVER_FORCE_QUIT; // 7
             if (isQuitSubscriberListener() && operation == NOT_SET)
-                operation = SUBSCRIBER_LISTENER_FORCE_QUIT;
+                operation = SUBSCRIBER_LISTENER_FORCE_QUIT; // 9
         }
 
         if (operation == NOT_SET)
-            operation = NOT_REMOTE;
+            operation = NOT_REMOTE; // 0
     }
 
     /**
@@ -2950,7 +2977,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "request collection" operation
+     * Set if this is a request collection operation
      *
      * @param requestCollection true/false
      */
@@ -2960,7 +2987,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "request targets" operation
+     * Set if this is a request targets operation
      *
      * @param requestTargets true/false
      */
@@ -3066,7 +3093,7 @@ public class Configuration
     }
 
     /**
-     * Set What's New "all" option
+     * Set What's New all option
      *
      * @param isWhatsNewAll true = all option
      */
@@ -3097,6 +3124,11 @@ public class Configuration
         this.workingDirectory = workingDirectory;
     }
 
+    /**
+     * Set the value of the (remote) subscriber working directory
+     *
+     * @param workingDirectorySubscriber
+     */
     public void setWorkingDirectorySubscriber(String workingDirectorySubscriber)
     {
         this.workingDirectorySubscriber = workingDirectorySubscriber;
@@ -3122,7 +3154,7 @@ public class Configuration
 
         File candidate = new File(filename);
         if (!candidate.exists() || !candidate.canRead())
-            throw new MungeException("File not found or not readable: " + filename);
+            throw new MungeException(MessageFormat.format(context.cfg.gs("Cfg.file.not.found.or.not.readable"), filename));
     }
 
 }

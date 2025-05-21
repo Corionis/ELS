@@ -130,7 +130,7 @@ public class Preferences implements Serializable
     private int librariesMinimumSizeColumnWidth = 120;
     private String locale = "";
     private int lookAndFeel = -1; // Look 'n Feel, 0-6, default IntelliJ Dark, aka Darcula
-    private boolean macosLauncher = true;
+    private boolean macosLauncher = false;
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
     private int progressWidth = -1;
@@ -2101,7 +2101,8 @@ public class Preferences implements Serializable
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Error writing: " + (f != null ? f.getPath() : "preferences file,") + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException(context.cfg.gs("Z.error.writing") + (f != null ? f.getPath() : context.cfg.gs("Preferences.preferences.file")) +
+                    " trace: " + Utils.getStackTrace(fnf));
         }
 
         // restore long paths

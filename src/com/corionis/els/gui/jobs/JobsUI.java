@@ -1861,13 +1861,13 @@ public class JobsUI extends AbstractToolDialog
 
                     try
                     {
-                        logger.debug("Waiting for Job thread to complete");
+                        logger.debug(context.cfg.gs("Jobs.waiting.for.job.thread.to.complete"));
                         worker.wait();
-                        logger.debug("Waiting is over for the Job thread");
                     }
                     catch (Exception e)
                     {
                     }
+                    logger.debug(context.cfg.gs("Jobs.waiting.is.over.for.the.job.thread"));
                 }
                 else
                     processTerminated(job);

@@ -11,6 +11,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+/* ==========================================
+ * This Storage and the targets file will be
+ * removed in Version 4.1 in favor of
+ * Locations in the Library file.
+ ========================================== */
+
 /**
  * The type Storage.
  */

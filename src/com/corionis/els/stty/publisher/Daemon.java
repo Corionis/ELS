@@ -21,6 +21,7 @@ import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -59,9 +60,9 @@ public class Daemon extends AbstractDaemon
      */
     public synchronized String dumpStatistics()
     {
-        String data = "\r\nConsole currently connected: " + ((connected) ? "true" : "false") + "\r\n";
-        data += "  Connected on port: " + port + "\r\n";
-        data += "  Connected to: " + address + "\r\n";
+        String data = context.cfg.gs("Stty.r.nconsole.currently.connected") + ((connected) ? "true" : "false") + "\r\n";
+        data += context.cfg.gs("Stty.connected.on.port") + port + "\r\n";
+        data += context.cfg.gs("Stty.connected.to.address") + address + "\r\n";
         return data;
     } // dumpStatistics
 
@@ -78,7 +79,7 @@ public class Daemon extends AbstractDaemon
         String system = "";
         try
         {
-            logger.trace("Publisher listener handshake");
+            logger.trace(context.cfg.gs("Stty.publisher.listener.handshake"));
             send("HELO", "");
 
             String input = receive("", 5000);
@@ -89,7 +90,7 @@ public class Daemon extends AbstractDaemon
                         !myRepo.getLibraryData().libraries.terminal_allowed)
                 {
                     send("Terminal session not allowed", "");
-                    logger.warn("attempt made to login interactively but terminal sessions are not allowed");
+                    logger.warn(context.cfg.gs("Stty.attempt.to.login.interactively.but.terminal.sessions.are.not.allowed"));
                     return system;
                 }
                 send(myKey, "");
@@ -105,7 +106,7 @@ public class Daemon extends AbstractDaemon
                         send(myRepo.getLibraryData().libraries.flavor, "");
 
                         system = connectedKey.system;
-                        logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                        logger.info(MessageFormat.format(context.cfg.gs("Stty.server.authenticated.choice.terminal.automated.session"), isTerminal ? 0 : 1) + system);
                         context.fault = false;
                         context.timeout = false;
                     }
@@ -116,7 +117,7 @@ public class Daemon extends AbstractDaemon
                     send(myRepo.getLibraryData().libraries.flavor, "");
 
                     system = theirRepo.getLibraryData().libraries.description;
-                    logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                    logger.info(MessageFormat.format(context.cfg.gs("Stty.server.authenticated.choice.terminal.automated.session"), isTerminal ? 0 : 1) + system);
                     context.fault = false;
                     context.timeout = false;
                 }
@@ -169,13 +170,13 @@ public class Daemon extends AbstractDaemon
         {
             if (!context.cfg.isKeepGoing())
                 status = 1;
-            logger.error("Connection to " + Utils.formatAddresses(socket) + " failed handshake");
+            logger.error(MessageFormat.format(context.cfg.gs("Stty.connection.to.failed.handshake"), Utils.formatAddresses(socket)));
         }
         else
         {
             if (isTerminal)
             {
-                response = "Enter 'help' for information\r\n"; // "Enter " checked with ClientStty.checkBannerCommands()
+                response = context.cfg.gs("Stty.enter.help.for.information.r.n"); // "Enter " checked in ClientStty.checkBannerCommands()
             }
             else // is automation
             {
@@ -208,7 +209,7 @@ public class Daemon extends AbstractDaemon
                         {
                             fault = true;
                             status = 1;
-                            logger.warn("process fault, ending stty");
+                            logger.warn(context.cfg.gs("Stty.process.fault.ending.stty"));
                             break;
                         }
                         // send response or prompt the user for a command
@@ -222,10 +223,10 @@ public class Daemon extends AbstractDaemon
                             {
                                 fault = true; // exit on EOF
                                 status = 2;
-                                logger.warn("EOF line. Process ended prematurely");
+                                logger.warn(context.cfg.gs("Stty.eof.line.process.ended.prematurely"));
                             }
                             else
-                                logger.info("EOF line, --listener-keep-going enabled");
+                                logger.info(context.cfg.gs("Stty.eof.line.listener.keep.going.enabled"));
                             break; // break read loop and let the connection be closed
                         }
 
@@ -237,7 +238,7 @@ public class Daemon extends AbstractDaemon
                         }
 
                         ++commandCount;
-                        logger.info("Processing command: " + line + ", from: " + system); // + ", " + Utils.formatAddresses(getSocket()));
+                        logger.info(MessageFormat.format(context.cfg.gs("Stty.processing.command.from"), line) + system); // + ", " + Utils.formatAddresses(getSocket()));
 
                         // parse the command
                         StringTokenizer t = new StringTokenizer(line, "\"");
@@ -322,7 +323,7 @@ public class Daemon extends AbstractDaemon
                                     }
                                     else
                                     {
-                                        logger.info("Skipping publisher library: " + subLib.name);
+                                        logger.info(context.cfg.gs("Stty.skipping.publisher.library") + subLib.name);
                                         subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name;
                                     }
                                 }
@@ -441,7 +442,7 @@ public class Daemon extends AbstractDaemon
                                                     response += "    " + item.getItemPath() + "\r\n";
                                                     if (item.getSize() < 0)
                                                     {
-                                                        logger.warn("file size was < 0 during get command, getting");
+                                                        logger.warn(context.cfg.gs("Stty.file.size.was.0.during.get.command.getting"));
                                                         size = Files.size(Paths.get(item.getFullPath()));
                                                         item.setSize(size);
                                                         totalSize += size;
@@ -484,14 +485,14 @@ public class Daemon extends AbstractDaemon
                                             context.clientSftp = new ClientSftp(context, myRepo, theirRepo, false);
                                             if (!context.clientSftp.startClient("transfer"))
                                             {
-                                                throw new MungeException("Publisher sftp transfer client failed to connect");
+                                                throw new MungeException(context.cfg.gs("Stty.publisher.sftp.transfer.client.failed.to.connect"));
                                             }
 
                                             // start the serveStty client for automation
                                             context.clientStty = new ClientStty(context, false, false, false);
                                             if (!context.clientStty.connect(myRepo, theirRepo))
                                             {
-                                                throw new MungeException("Publisher stty client failed to connect");
+                                                throw new MungeException(context.cfg.gs("Stty.publisher.sftp.transfer.client.failed.to.connect"));
                                             }
 
                                             if (context.clientStty.checkBannerCommands())
@@ -523,7 +524,7 @@ public class Daemon extends AbstractDaemon
 
                             // if keep going is not enabled then stop
                             if (context.cfg.isKeepGoing())
-                                logger.info("Ignoring quit command, --listener-keep-going enabled");
+                                logger.info(context.cfg.gs("Stty.ignoring.quit.command.listener.keep.going.enabled"));
                             else
                                 status = 1;
                             break; // break the loop
@@ -603,40 +604,44 @@ public class Daemon extends AbstractDaemon
                         if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
                         {
                             // @formatter:off
-                    response = "\r\nAvailable commands, not case sensitive:\r\n";
+                            response = "\r\nAvailable commands, not case sensitive:\r\n";
 
-                    if (authorized)
-                    {
-                        response += "  find \"[text]\" = search collection for all matching text, use collection command to refresh\r\n" +
-                                "  get \"[text]\" = like find but offers the option to get/copy the listed items in overwrite mode\r\n" +
-                                "  status = server and console status information\r\n" +
-                                "\r\n" + "" +
-                                " And:\r\n";
-                    }
+                            if (authorized)
+                            {
+                                response += "  find \"[text]\" = search collection for all matching text, use collection command to refresh\r\n" +
+                                        "  get \"[text]\" = like find but offers the option to get/copy the listed items in overwrite mode\r\n" +
+                                        "  status = server and console status information\r\n" +
+                                        "\r\n" + "" +
+                                        " And:\r\n";
+                            }
 
-                    response += "  auth \"password\" = access Authorized commands, enclose password in quotes\r\n" +
-                            "  collection = get collection data from remote, can take a few moments to scan\r\n" +
-                            "  space \"[location]\" = free space at location on remote\r\n" +
-                            "  targets = get targets file from remote\r\n" +
-                            "\r\n  help or ? = this list\r\n" +
-                            "  logout = exit current level\r\n" +
-                            "  bye = disconnect and leave remote end running\r\n" +
-                            "  quit, exit = disconnect and quit remote end\r\n" +
-                            "\r\n";
-                    // @formatter:on
+                            response += "  auth \"password\" = access Authorized commands, enclose password in quotes\r\n" +
+                                    "  collection = get collection data from remote, can take a few moments to scan\r\n" +
+                                    "  space \"[location]\" = free space at location on remote\r\n" +
+                                    "  targets = get targets file from remote\r\n" +
+                                    "\r\n  help or ? = this list\r\n" +
+                                    "  logout = exit current level\r\n" +
+                                    "  bye = disconnect and leave remote end running\r\n" +
+                                    "  quit, exit = disconnect and quit remote end\r\n" +
+                                    "\r\n";
+                            // @formatter:on
                             continue;
                         }
 
                         response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
-
                     } // try
                     catch (SocketTimeoutException toe)
                     {
                         context.timeout = true;
-                        fault = true;
                         connected = false;
-                        status = 1;
-                        logger.error("SocketTimeoutException: " + Utils.getStackTrace(toe));
+                        logger.error(context.cfg.gs("Stty.sockettimeoutexception") + Utils.getStackTrace(toe));
+                        if (!context.cfg.isKeepGoing())
+                        {
+                            fault = true;
+                            status = 1;
+                        }
+                        else
+                            logger.info(context.cfg.gs("Stty.ignoring.exception.listener.keep.going.enabled"));
                         break;
                     }
                     catch (SocketException se)
@@ -646,7 +651,7 @@ public class Daemon extends AbstractDaemon
                         fault = true;
                         connected = false;
                         status = 1;
-                        logger.debug("SocketException, timeout is: " + context.timeout);
+                        logger.debug(context.cfg.gs("Stty.socketexception.timeout.is") + context.timeout);
                         logger.error(Utils.getStackTrace(se));
                         break;
                     }
@@ -679,7 +684,7 @@ public class Daemon extends AbstractDaemon
         if (fault)
             context.fault = true;
         String statMsg = status == 0 ? "Success" : (status == 1 ? "Quit" : "Stop");
-        logger.trace("Hint Server session done, status = " + statMsg + ", fault = " + context.fault);
+        logger.trace(MessageFormat.format(context.cfg.gs("Stty.server.session.done.status.fault"), statMsg) + context.fault);
         return status;
     } // process
 
@@ -705,7 +710,7 @@ public class Daemon extends AbstractDaemon
     public void requestStop()
     {
         status = 1;
-        logger.debug("requesting stop for stty session on: " + socket.getInetAddress().toString() + ":" + socket.getPort());
+        logger.debug(context.cfg.gs("Stty.requesting.stop.for.stty.session") + Utils.formatAddresses(socket) + ":" + socket.getPort());
     } // requestStop
 
 } // Daemon

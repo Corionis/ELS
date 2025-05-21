@@ -21,7 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.text.MessageFormat;import java.util.ArrayList;
 import java.util.Collections;
 
 /**
@@ -90,7 +90,7 @@ public class ConfigModel extends DefaultTableModel
                 conflictJList.setModel(dialogList);
                 conflictJList.setSelectionModel(new DisableJListSelectionModel());
 
-                String message = context.cfg.gs("References for \"" + oldName + "\" found in Jobs:       ");
+                String message = MessageFormat.format(context.cfg.gs("Jobs.references.for.found.in.jobs"), oldName);
                 JScrollPane pane = new JScrollPane();
                 pane.setViewportView(conflictJList);
                 String question = context.cfg.gs(isRename ? "Rename" : "Delete") + context.cfg.gs("LibraryUI.the.listed.references");

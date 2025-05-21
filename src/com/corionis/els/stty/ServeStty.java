@@ -122,15 +122,15 @@ public class ServeStty extends Thread
             Connection theConnection;
             if (cfg.isPublisherListener())
             {
-                theConnection = new Connection(this, aSocket, "publisher", new com.corionis.els.stty.publisher.Daemon(this, context, context.publisherRepo, context.subscriberRepo));
+                theConnection = new Connection(context, this, aSocket, "publisher", new com.corionis.els.stty.publisher.Daemon(this, context, context.publisherRepo, context.subscriberRepo));
             }
             else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
             {
-                theConnection = new Connection(this, aSocket, "subscriber", new Daemon(this, context, context.subscriberRepo, context.publisherRepo));
+                theConnection = new Connection(context, this, aSocket, "subscriber", new Daemon(this, context, context.subscriberRepo, context.publisherRepo));
             }
             else if (cfg.isStatusServer())
             {
-                theConnection = new Connection(this, aSocket, "hintserver", new com.corionis.els.stty.hintServer.Daemon(this, context, context.hintsRepo, null));
+                theConnection = new Connection(context, this, aSocket, "hintserver", new com.corionis.els.stty.hintServer.Daemon(this, context, context.hintsRepo, null));
             }
             else
             {

@@ -25,6 +25,7 @@ import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.security.PublicKey;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -177,15 +178,15 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                             String them = "";
                             HintKey theirKey = keys.findKey(s);
                             if (theirKey != null)
-                                them = theirKey.system + " at ";
-                            logger.info("Sftp server authenticated: " + them + serverSession.getClientAddress().toString());
+                                them = MessageFormat.format(context.cfg.gs("Z.at"), theirKey.system);
+                            logger.info(context.cfg.gs("Sftp.server.authenticated") + them + serverSession.getClientAddress().toString());
                         }
                     } else if (s.equals(user) && s1.equals(password))
                     {
                         authenticated = true;
                         loginAttempts = 1;
                         loginAttemptAddress = "";
-                        logger.info("Sftp server authenticated: " + serverSession.getClientAddress().toString());
+                        logger.info(context.cfg.gs("Sftp.server.authenticated") + serverSession.getClientAddress().toString());
                     }
                     else
                     {
@@ -198,7 +199,8 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                             loginAttempts = 1;
                         }
                         loginAttemptAddress = serverSession.getClientAddress().toString();
-                        logger.warn("sftp login attempt " + loginAttempts + " failed, user \"" + user + "\n/\"" + password + "\n from " + serverSession.getClientAddress());
+                        logger.warn(MessageFormat.format(context.cfg.gs("Sftp.login.attempt.failed.user"), loginAttempts) +
+                                user + "\n/\"" + password + context.cfg.gs("Sftp.from") + serverSession.getClientAddress());
                         if (loginAttempts > 3)
                         {
                             try
@@ -223,7 +225,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 public boolean handleTimeoutDisconnectReason(Session session, TimeoutIndicator timeoutStatus) throws IOException
                 {
                     String tor = timeoutStatus.getStatus().toString();
-                    logger.fatal("ELS sftp session time-out, ending session, " + tor);
+                    logger.fatal(context.cfg.gs("Sftp.session.time.out.ending.session") + tor);
                     context.timeout = true;
                     context.fault = true;
                     return true;
@@ -236,10 +238,10 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             int tout = 0;
 
             // set the default idle timeout
-            logger.trace("Setting sftp idle timeout to " + tout);
+            logger.trace(context.cfg.gs("Sftp.setting.sftp.idle.timeout.to") + tout);
             sshd.getProperties().put("idle-timeout", tout); // sftp idle time-out
             Object o = sshd.getProperties().get("idle-timeout");
-            logger.trace("sftp idle timeout is " + o.toString());
+            logger.trace(context.cfg.gs("Sftp.idle.timeout.is") + o.toString());
 
             sshd.getProperties().put("sftp-auto-follow-links", true);
 
@@ -248,13 +250,13 @@ public class ServeSftp implements SftpErrorStatusDataHandler
 
             // assemble listen IP(s)
             String ips = getIps();
-            logger.info("Sftp server is listening on: " + ips.trim() + hostListen);
+            logger.info(context.cfg.gs("Sftp.server.is.listening.on") + ips.trim() + hostListen);
         }
         catch (IOException e)
         {
             context.fault = true;
             e.printStackTrace();
-            logger.warn("sftp server cannot start secure channel");
+            logger.warn(context.cfg.gs("Sftp.server.cannot.start.secure.channel"));
         }
     }
 
@@ -268,7 +270,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             if (sshd != null)
             {
                 String ips = getIps();
-                logger.debug("stopping sftp server on: " + ips + hostListen);
+                logger.debug(context.cfg.gs("Sftp.stopping.sftp.server.on") + ips + hostListen);
                 List<AbstractSession> sessions = sshd.getActiveSessions();
                 if (sessions != null)
                 {

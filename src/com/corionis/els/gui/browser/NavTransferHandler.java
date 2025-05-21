@@ -422,7 +422,7 @@ public class NavTransferHandler extends TransferHandler
         }
         else if (actionValue == TransferHandler.COPY_OR_MOVE)
         {
-            op = "Copy or Move";
+            op = context.cfg.gs("NavTransferHandler.copy.or.move");
         }
         return op;
     }

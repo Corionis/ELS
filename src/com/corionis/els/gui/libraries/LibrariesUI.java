@@ -400,7 +400,7 @@ public class LibrariesUI
                                 if (count != 1 || origin.getType() != NavTreeUserObject.REAL || !origin.tuo.isDir)
                                 {
                                     JOptionPane.showMessageDialog(directoryPicker.pane,
-                                            context.cfg.gs(("Libraries.please.select.a.single.directory.to.add")),
+                                            context.cfg.gs("Libraries.please.select.a.single.directory.to.add"),
                                             context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.ERROR_MESSAGE);
                                 }
                                 else
@@ -1020,7 +1020,7 @@ public class LibrariesUI
                                     if (count != 1 || origin.getType() != NavTreeUserObject.REAL || !origin.tuo.isDir)
                                     {
                                         JOptionPane.showMessageDialog(directoryPicker.pane,
-                                                context.cfg.gs(("Libraries.please.select.a.single.directory.to.add")),
+                                                context.cfg.gs("Libraries.please.select.a.single.directory.to.add"),
                                                 context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.ERROR_MESSAGE);
                                     }
                                     else
@@ -2021,6 +2021,7 @@ public class LibrariesUI
                     biblioLibrariesTableModel.addRow(new Object[]{libraries[i]});
                 }
             }
+            currentLibraryIndex = 0;
 
             biblioLibrariesTableModel.fireTableDataChanged();
 
@@ -2374,10 +2375,10 @@ public class LibrariesUI
         conflictJList.setModel(dialogList);
         conflictJList.setSelectionModel(new DisableJListSelectionModel());
 
-        String message = context.cfg.gs("References for \"" + oldKey + "\" found in Jobs:       ");
+        String message = MessageFormat.format(context.cfg.gs("Jobs.references.for.found.in.jobs"), oldKey);
         JScrollPane pane = new JScrollPane();
         pane.setViewportView(conflictJList);
-        String question = context.cfg.gs(("LibrariesUI.change.the.listed.references"));
+        String question = context.cfg.gs("LibrariesUI.change.the.listed.references");
         Object[] params = {message, pane, question};
 
         promptingKeyChange = true;

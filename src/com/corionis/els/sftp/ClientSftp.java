@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Vector;
 
 /**
@@ -198,7 +199,7 @@ public class ClientSftp
             catch (SftpException e)
             {
                 String msg = e.toString().trim().toLowerCase();
-                if (!msg.contains("alreadyexists")) // ignore "already exists" errors
+                if (!msg.contains("alreadyexists")) // ignore already exists errors
                 {
                     throw new SftpException(e.id, e.getMessage() + ": " + whole);
                 }
@@ -280,7 +281,7 @@ public class ClientSftp
         this.purpose = purpose;
         try
         {
-            logger.info("Opening sftp " + purpose + " connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport + hostListen);
+            logger.info(MessageFormat.format(context.cfg.gs("Sftp.opening.sftp.connection.to"), purpose) + (hostname == null ? "localhost" : hostname) + ":" + hostport + hostListen);
             jsch = new JSch();
             jSession = jsch.getSession(user, hostname, hostport);
             jSession.setConfig("StrictHostKeyChecking", "no");
@@ -292,7 +293,7 @@ public class ClientSftp
 
             jSession.connect(60000); // sftp session connection time-out, 60 secs
 
-            logger.trace("client sftp timeout is " + jSession.getTimeout());
+            logger.trace(context.cfg.gs("Sftp.client.sftp.timeout.is") + jSession.getTimeout());
         }
         catch (Exception e)
         {
@@ -382,7 +383,7 @@ public class ClientSftp
         if (writeOffset > 0)
         {
             mode = jSftp.RESUME;
-            logger.info("Resuming transfer at " + writeOffset);
+            logger.info(context.cfg.gs("Sftp.resuming.transfer.at") + writeOffset);
         }
 
         // copy the .els-part file

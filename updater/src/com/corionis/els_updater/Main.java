@@ -244,7 +244,7 @@ public class Main
 
                     if (!readElsUpdaterInfo())
                     {
-                        message = "Missing or malformed ELS_Updater.info file, cannot continue: " + updaterInfoFile;
+                        message = java.text.MessageFormat.format(cfg.gs("Updater.missing.or.malformed.els.updater.info.file.cannot.continue"), updaterInfoFile);
                         fault = true;
                     }
                     else
@@ -280,13 +280,13 @@ public class Main
 
                     if (!fault && !readUpdateInfo())
                     {
-                        message = "Missing or malformed update.info file, cannot continue:\n\r" + infoFile;
+                        message = java.text.MessageFormat.format(cfg.gs("Updater.missing.or.malformed.els.updater.info.file.cannot.continue"), updaterInfoFile);
                         fault = true;
                     }
 
                     if (!fault && !readVersionInfo())
                     {
-                        message = "Missing or malformed version.info file, cannot continue:\n\r" + versionFile;
+                        message = java.text.MessageFormat.format(cfg.gs("Navigator.version.info.missing.or.malformed"), versionFile);
                         fault = true;
                     }
 
@@ -482,7 +482,7 @@ public class Main
                     status = fault ? " --update-failed" : " --update-successful";
                 commandLine = commandLine + status;
                 String[] args = Utils.parseCommandLIne(commandLine);
-                logger.info(cfg.gs(("Updater.restarting.els")) + commandLine);
+                logger.info(cfg.gs("Updater.restarting.els") + commandLine);
                 Process proc = Runtime.getRuntime().exec(args, null, new File(installedPath));
                 Thread.sleep(1000);
             }

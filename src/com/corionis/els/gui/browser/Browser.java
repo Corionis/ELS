@@ -642,7 +642,7 @@ public class Browser
         if (rows != null && rows.length != 1)
         {
             JOptionPane.showMessageDialog(context.mainFrame,
-                    context.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
+                    context.cfg.gs("Browser.please.select.a.single.item.to.bookmark"),
                     context.cfg.gs("Browser.add.bookmark"), JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -2324,7 +2324,7 @@ public class Browser
                 for (int k = 0; k < nodeIndex; ++k)
                     nodes[k] = shorter[k];
                 for (int k = nodeIndex; k < pathElements.length; ++k)
-                    logger.warn("! Could not find " + pathElements[k]);
+                    logger.warn(context.cfg.gs("Browser.could.not.find") + pathElements[k]);
             }
 
             // remove last segment if it's a file and not being shown or is a directory in the table

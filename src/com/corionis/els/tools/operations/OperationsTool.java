@@ -308,15 +308,6 @@ public class OperationsTool extends AbstractTool
         return sb.toString().trim();
     }
 
-/*
-    public String generateCommandLine(String pubPath, String subPath, boolean dryRun)
-    {
-        this.pubPath = pubPath;
-        this.subPath = subPath;
-        return generateCommandLine(dryRun);
-    }
-*/
-
     @Override
     public String getConfigName()
     {

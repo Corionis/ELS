@@ -215,7 +215,7 @@ public class JunkRemoverTool extends AbstractTool
         repo = (task.publisherRepo != null) ? task.publisherRepo : task.subscriberRepo;
         if (repo == null)
         {
-            logger.error(getConfigName() + " has no repository defined");
+            logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer..has.no.repository.defined"), getConfigName()));
             return;
         }
 

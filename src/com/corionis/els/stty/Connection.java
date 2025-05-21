@@ -1,5 +1,6 @@
 package com.corionis.els.stty;
 
+import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +18,7 @@ import java.util.Vector;
  */
 public class Connection extends Thread
 {
+    private Context context;
     protected static Logger logger = LogManager.getLogger("applog");
     private ServeStty instance = null;
 
@@ -41,9 +43,10 @@ public class Connection extends Thread
      * @param name The name for this connection
      * @param aService Service for connection
      */
-    public Connection(ServeStty instance, Socket aSocket, String name, AbstractDaemon aService)
+    public Connection(Context context, ServeStty instance, Socket aSocket, String name, AbstractDaemon aService)
     {
         super("stty." + name + (aService.context.trace ? ":" + Utils.formatAddresses(aSocket) : ""));
+        this.context = context;
         this.instance = instance;
         this.socket = aSocket;
         this.service = aService;
@@ -89,7 +92,7 @@ public class Connection extends Thread
         {
             if (instance != null && instance.isAlive()) // && !service.localContext.timeout)
             {
-                logger.info("closing stty connection to: " + Utils.formatAddresses(socket));
+                logger.info(context.cfg.gs("Stty.closing.stty.connection.to") + Utils.formatAddresses(socket));
                 Vector conns = instance.getAllConnections();
                 conns.remove(this);
             }
@@ -98,14 +101,14 @@ public class Connection extends Thread
             {
                 try
                 {
-                    logger.trace("shutdown via stty");
+                    logger.trace(context.cfg.gs("Stty.shutdown.via.stty"));
 
                     if ((status == 1 && !service.context.cfg.isKeepGoing()) || status == 2)
                     {
                         // exit triggers the shutdown hook
                         // see Main isListening clause with Runtime.getRuntime().addShutdownHook()
                         if (service.context.main.context.fault)
-                            logger.error("Exiting with error code");
+                            logger.error(context.cfg.gs("Main.exiting.with.error.code"));
 
                         service.context.main.shutdown();
 

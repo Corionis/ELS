@@ -48,7 +48,7 @@ public class TerminalGui implements WindowListener, ActionListener
         String response = "";
         JScrollBar sb;
 
-        logger.info("Processing input: " + action + " = " + commandField.getText());
+        logger.info(context.cfg.gs("Stty.processing.input") + action + " = " + commandField.getText());
 
         try
         {
@@ -105,14 +105,15 @@ public class TerminalGui implements WindowListener, ActionListener
         }
         if ((response != null) && response.equalsIgnoreCase("End-Execution"))
         {
-            logger.info("End-Execution command received from server");
+            logger.info(context.cfg.gs("Stty.end.execution.command.received.from.server"));
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         }
     }
 
     private int build()
     {
-        frame = new JFrame("ELS " + Configuration.getBuildVersionName() + " connected to " + theirRepo.getLibraryData().libraries.description);
+        frame = new JFrame(Configuration.getBuildVersionName() + context.cfg.gs("Stty.connected.to") +
+                theirRepo.getLibraryData().libraries.description);
 //        try
 //        {
 //            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");

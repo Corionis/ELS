@@ -183,7 +183,7 @@ public class Transfer
                         if (whatsNewFile != null)
                             whatsNewFile.println("    " + response);
                         if (mismatchFile != null)
-                            mismatchFile.println("Warning: " + response);
+                            mismatchFile.println(context.cfg.gs("Z.warning") + response);
                         break;
                     }
                 }
@@ -206,7 +206,7 @@ public class Transfer
     }
 
     /**
-     * Return the current "group" name
+     * Return the current group name
      *
      * @return String group name
      */
@@ -323,7 +323,7 @@ public class Transfer
         if (context.cfg.isRemoteOperation() && context.cfg.isRequestTargets())
         {
             // request target data from remote subscriber
-            location = context.clientStty.retrieveRemoteData("targets", "Requesting targets", 20000);
+            location = context.clientStty.retrieveRemoteData("targets", context.cfg.gs("Transfer.requesting.subscriber.targets"), 20000);
             context.cfg.setTargetsFilename(location);
         }
 
@@ -392,7 +392,7 @@ public class Transfer
             minimum = Utils.getScaledValue(target.minimum);
         }
 
-        // see if there is an "original" directory the new content will fit in
+        // see if there is an original directory the new content will fit in
         if (!context.cfg.isNoBackFill())
         {
             path = targetRepo.hasDirectory(library, Utils.pipe(itemPath));
@@ -523,7 +523,7 @@ public class Transfer
     /**
      * Is new grouping boolean
      * <p>
-     * True if the item "group" is different than the current "group".
+     * True if the item group is different than the current group.
      * A group is a set of files within the same movie directory or
      * television season.
      *

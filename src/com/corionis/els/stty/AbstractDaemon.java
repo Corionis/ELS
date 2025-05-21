@@ -70,19 +70,19 @@ public abstract class AbstractDaemon
                 try
                 {
                     sleep(20 * 1000); // offset this heartbeat timing
-                    String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
+                    String desc = (theirRepo != null) ? context.cfg.gs("Z.to") + theirRepo.getLibraryData().libraries.description : "";
                     while (true)
                     {
                         sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
                         if (heartBeatEnabled)
                         {
-                            send("ping", context.trace ? "heartbeat sent" + desc : "");
+                            send("ping", context.trace ? context.cfg.gs("Stty.heartbeat.sent") + desc : "");
                         }
                     }
                 }
                 catch (InterruptedException e)
                 {
-                    logger.trace("heartbeat interrupted");
+                    logger.trace(context.cfg.gs("Stty.heartbeat.interrupted"));
                 }
                 catch (Exception e)
                 {
@@ -97,7 +97,7 @@ public abstract class AbstractDaemon
                     stopDaemon(errorMessage, exceptionMessage);
             }
         };
-        logger.trace("starting heartbeat");
+        logger.trace(context.cfg.gs("Stty.starting.heartbeat"));
         heartBeat.start();
     }
 
@@ -109,9 +109,9 @@ public abstract class AbstractDaemon
         if (heartBeat != null)
         {
             if (!heartBeatEnabled)
-                logger.warn("Daemon heartbeat already disabled");
+                logger.warn(context.cfg.gs("Stty.daemon.heartbeat.already.disabled"));
             else
-                logger.trace("Daemon heartbeat disabled");
+                logger.trace(context.cfg.gs("Stty.daemon.heartbeat.disabled"));
             heartBeatEnabled = false;
         }
     }
@@ -124,9 +124,9 @@ public abstract class AbstractDaemon
         if (heartBeat != null)
         {
             if (heartBeatEnabled)
-                logger.warn("heartbeat already enabled");
+                logger.warn(context.cfg.gs("Stty.heartbeat.already.enabled"));
             else
-                logger.trace("heartbeat enabled");
+                logger.trace(context.cfg.gs("Stty.heartbeat.enabled"));
             heartBeatEnabled = true;
         }
     }
@@ -182,13 +182,13 @@ public abstract class AbstractDaemon
     public String receive(String log, int timeout) throws Exception
     {
         if (getSocket().isOutputShutdown())
-            throw new MungeException("socket output shutdown, keep alive " + getSocket().getKeepAlive());
+            throw new MungeException(context.cfg.gs("Stty.socket.output.shutdown.keep.alive") + getSocket().getKeepAlive());
         if (!getSocket().isBound())
-            throw new MungeException("socket not bound");
+            throw new MungeException(context.cfg.gs("Stty.socket.not.bound"));
         if (!getSocket().isConnected())
-            throw new MungeException("socket not connected");
+            throw new MungeException(context.cfg.gs("Stty.socket.not.connected"));
         if (getSocket().isClosed())
-            throw new MungeException("socket closed");
+            throw new MungeException(context.cfg.gs("Stty.socket.closed"));
 
         if (timeout < 0)
             timeout = myRepo.getLibraryData().libraries.timeout * 60 * 1000;
@@ -204,7 +204,8 @@ public abstract class AbstractDaemon
             response = context.main.readStream(in, myRepo.getLibraryData().libraries.key);
 
             if (response != null && response.startsWith("ping"))
-                logger.trace("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
+                logger.trace(context.cfg.gs("Stty.heartbeat.received") + ((theirRepo != null) ? context.cfg.gs("Z.from") +
+                        theirRepo.getLibraryData().libraries.description : ""));
             else
                 break;
         }
@@ -217,7 +218,7 @@ public abstract class AbstractDaemon
     public void requestStop()
     {
         this.status = 1;
-        logger.debug("requesting stop for stty session: " + Utils.formatAddresses(socket));
+        logger.debug(context.cfg.gs("Stty.requesting.stop.for.stty.session") + Utils.formatAddresses(socket));
     }
 
     /**
@@ -233,13 +234,13 @@ public abstract class AbstractDaemon
             logger.debug(log);
         //logger.trace("keep alive " + getSocket().getKeepAlive());
         if (getSocket().isOutputShutdown())
-            throw new MungeException("socket output shutdown, keep alive " + getSocket().getKeepAlive());
+            throw new MungeException(context.cfg.gs("Stty.socket.output.shutdown.keep.alive") + getSocket().getKeepAlive());
         if (!getSocket().isBound())
-            throw new MungeException("socket not bound");
+            throw new MungeException(context.cfg.gs("Stty.socket.not.bound"));
         if (!getSocket().isConnected())
-            throw new MungeException("socket not connected");
+            throw new MungeException(context.cfg.gs("Stty.socket.not.connected"));
         if (getSocket().isClosed())
-            throw new MungeException("socket closed");
+            throw new MungeException(context.cfg.gs("Stty.socket.closed"));
 
         if (!message.equalsIgnoreCase("ping"))
             disableHeartBeat();
@@ -257,7 +258,7 @@ public abstract class AbstractDaemon
     {
         if (heartBeat != null && heartBeat.isAlive())
         {
-            logger.trace("stopping heartbeat thread");
+            logger.trace(context.cfg.gs("Stty.stopping.heartbeat.thread"));
             heartBeat.interrupt();
         }
     }

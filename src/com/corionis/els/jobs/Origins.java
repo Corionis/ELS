@@ -144,7 +144,7 @@ public class Origins
         JTable baseTable = null;
 
         if (originsArray.size() != 8)
-            throw new MungeException("setAllOrigins logic fault");
+            throw new MungeException(context.cfg.gs("Job.setallorigins.logic.fault"));
 
         Object object = context.browser.lastComponent;
         if (object instanceof JTree)

@@ -314,10 +314,7 @@ public class OperationsUI extends AbstractToolDialog
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
             if (((OperationsTool) configModel.getValueAt(i, 0)).isDataChanged())
-            {
-                //logger.warn("unsaved changes in " + ((OperationsTool) configModel.getValueAt(i, 0)).getConfigName());
                 return true;
-            }
         }
         return false;
     }
@@ -379,7 +376,7 @@ public class OperationsUI extends AbstractToolDialog
                 conflictJList.setModel(dialogList);
                 conflictJList.setSelectionModel(new DisableJListSelectionModel());
 
-                String message = context.cfg.gs("References for \"" + currentTool.getConfigName() + "\" found in Jobs:       ");
+                String message = MessageFormat.format(context.cfg.gs("Jobs.references.for.found.in.jobs"), currentTool.getConfigName());
                 JScrollPane pane = new JScrollPane();
                 pane.setViewportView(conflictJList);
                 String question = context.cfg.gs("OperationsUI.clear.hints");

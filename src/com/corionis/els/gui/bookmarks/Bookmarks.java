@@ -1,5 +1,6 @@
 package com.corionis.els.gui.bookmarks;
 
+import com.corionis.els.Context;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.corionis.els.MungeException;
@@ -16,9 +17,11 @@ import java.util.Comparator;
 public class Bookmarks implements Serializable
 {
     ArrayList<Bookmark> bookmarks;
+    transient Context context;
 
-    public Bookmarks()
+    public Bookmarks(Context context)
     {
+        this.context = context;
         bookmarks = new ArrayList<Bookmark>();
     }
 
@@ -109,7 +112,7 @@ public class Bookmarks implements Serializable
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Error writing: " + Utils.getFullPathLocal(getFullPath()) + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException(context.cfg.gs("Z.error.writing") + Utils.getFullPathLocal(getFullPath()) + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 

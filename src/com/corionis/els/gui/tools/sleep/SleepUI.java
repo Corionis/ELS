@@ -550,7 +550,7 @@ public class SleepUI extends AbstractToolDialog
                         //---- buttonNew ----
                         buttonNew.setText("New");
                         buttonNew.setMnemonic('N');
-                        buttonNew.setToolTipText("Add new tool configuration");
+                        buttonNew.setToolTipText(context.cfg.gs("Sleep.add.new.tool.configuration"));
                         buttonNew.addActionListener(e -> actionNewClicked(e));
                         panelTopButtons.add(buttonNew);
 
@@ -677,7 +677,7 @@ public class SleepUI extends AbstractToolDialog
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText("Cancel");
+                cancelButton.setText(context.cfg.gs("Z.cancel"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

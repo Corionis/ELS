@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.text.MessageFormat;import java.util.ArrayList;
 
 /**
  * Hint Keys class.
@@ -82,7 +82,7 @@ public class HintKeys
                 }
                 if (parts.length != 2)
                 {
-                    throw new MungeException("Malformed line " + count + " reading ELS keys file: " + file);
+                    throw new MungeException(MessageFormat.format(context.cfg.gs("HintKeys.malformed.line.reading.els.keys.file"), count) + file);
                 }
 
                 if (!context.cfg.isStatusServer() && !context.cfg.isNavigator())
@@ -123,7 +123,7 @@ public class HintKeys
             }
         }
 
-        logger.info("Read keys: " + file + " successfully");
+        logger.info(MessageFormat.format(context.cfg.gs("HintKeys.read.keys.successfully"), file));
     }
 
     public void setFilename(String filename)

@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -88,7 +89,7 @@ public class Datastore
             return list.get(0);
 
         if (list.size() > 1)
-            logger.warn("!!! Datastore get singleton Hint returned " + list.size() + " Hints");
+            logger.warn(MessageFormat.format(context.cfg.gs("Stty.datastore.get.singleton.hint.returned.hints"), list.size()));
 
         return null;
     }
@@ -199,7 +200,7 @@ public class Datastore
             statusLibrary = context.hintsRepo.getLibraryData().libraries.bibliography[0];
         }
         else
-            throw new MungeException("Hint Status Tracker/Server repo contains no library for status datastore");
+            throw new MungeException(context.cfg.gs("Stty.hint.status.tracker.server.repo.contains.no.library.for.status.datastore"));
 
         statusDirectory = "";
         if (statusLibrary.sources != null && statusLibrary.sources.length > 0)
@@ -207,18 +208,18 @@ public class Datastore
             statusDirectory = statusLibrary.sources[0];
         }
         else
-            throw new MungeException("Hint Status Tracker/Server repo first library contains no sources: " + statusLibrary.name);
+            throw new MungeException(context.cfg.gs("Stty.hint.status.tracker.server.repo.first.library.contains.no.sources") + statusLibrary.name);
 
         File dir = new File(Utils.getFullPathLocal(statusDirectory));
         if (dir.exists())
         {
             if (!dir.isDirectory())
-                throw new MungeException("Status directory is not a directory: " + statusDirectory);
-            logger.info("Using library '" + statusLibrary.name + "\" source directory \"" + dir + "' for Hint tracking datastore");
+                throw new MungeException(context.cfg.gs("Stty.hint.status.directory.is.not.a.directory") + statusDirectory);
+            logger.info(MessageFormat.format(context.cfg.gs("Stty.using.library.source.directory.for.hint.tracking.datastore"), statusLibrary.name,dir));
         }
         else
         {
-            logger.info("Creating new library '" + statusLibrary.name + "\" source directory \"" + dir + "' for Hint tracking datastore");
+            logger.info(MessageFormat.format(context.cfg.gs("Stty.creating.new.library.source.directory.for.hint.tracking.datastore"), statusLibrary.name,dir));
             dir.mkdirs();
         }
 
@@ -239,7 +240,7 @@ public class Datastore
         else
         {
             if (count != 0)
-                throw new MungeException("Multiple status files are not supported in " + statusDirectory);
+                throw new MungeException(context.cfg.gs("Stty.multiple.status.files.are.not.supported.in") + statusDirectory);
 
             statusFullPath = statusLibrary.sources[0] + System.getProperty("file.separator") + DATASTORE_NAME;
         }
@@ -264,7 +265,7 @@ public class Datastore
             }
 
             Gson gson = new Gson();
-            logger.info("Reading Hint datastore " + path);
+            logger.info(context.cfg.gs("Stty.reading.hint.datastore") + path);
             if (Utils.isRelativePath(path))
             {
                 path = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + path;
@@ -283,17 +284,17 @@ public class Datastore
             if (hints != null)
             {
                 normalize();
-                logger.info("Read \"" + path + "\" successfully, " + hints.size() + " Hints");
+                logger.info(MessageFormat.format(context.cfg.gs("Stty.read.successfully.hints"), path,hints.size()));
                 valid = true;
             }
             else
             {
-                logger.info("Read \"" + path + "\", content is empty");
+                logger.info(MessageFormat.format(context.cfg.gs("Stty.read.content.is.empty"), path));
             }
         }
         catch (IOException ioe)
         {
-            String msg = "Exception while reading Hint datastore: " + ioe.toString();
+            String msg = context.cfg.gs("Stty.exception.while.reading.hint.datastore") + ioe.toString();
             if (context.main.isStartupActive())
             {
                 logger.error(msg);
