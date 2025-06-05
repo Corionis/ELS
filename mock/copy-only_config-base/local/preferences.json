@@ -82,7 +82,7 @@
   "librariesMinimumSizeColumnWidth": 496,
   "locale": "en_US",
   "lookAndFeel": 4,
-  "macosLauncher": true,
+  "macosLauncher": false,
   "preserveFileTimes": true,
   "progressHeight": 128,
   "progressWidth": 557,

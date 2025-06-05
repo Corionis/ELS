@@ -5,6 +5,8 @@ show_blog: false
 
 <center><span style="font-size: 28px; font-face: bold; font-weight: bold; margin-top: 10px; color: #925600;">What Is ELS?</span></center>
 <hr/>
+_**Beta Release**_
+
 Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built library and title oriented tool for managing and backing-up data
 with expandable storage spanning multiple devices.
 
@@ -36,10 +38,9 @@ ELS is a free tool with both graphical and command line interfaces and a wide va
 
  * See [<b>Features</b>](features.md) for more information.
 
-| <b>More information:</b>||
-| ------------------------||
+| <b>More information:</b>| |
+| ------------------------| |
 | The ELS project on GitHub | <a href="{{ site.github.repository_url }}" target="_blank"><b>Project <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
-| ELS Version 4.0 is in development | <a href="{{ site.branch_url }}" target="_blank"><b>Version 4.0 Branch <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
 | ELS Version 4.0 planning | <a href="{{ site.milestones4_url }}" target="_blank"><b>Version 4.0 Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
 | ELS planning through Version 7 | <a href="{{ site.milestones_url }}" target="_blank"><b>Project Milestones <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
 | The components of ELS and other projects | <a href="{{ site.home_url }}" target="_blank"><b>Corionis <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
