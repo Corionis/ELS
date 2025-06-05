@@ -392,7 +392,7 @@ public class Main
                         // proceed?
                         if (reply == JOptionPane.YES_OPTION)
                         {
-                            if (true) //!Utils.isOsMac())
+                            //if (true) //!Utils.isOsMac())
                             {
                                 message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.update.version.download.text"),
                                         Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
@@ -401,6 +401,7 @@ public class Main
                                 // execute the download and unpack procedure then execute the Updater
                                 new DownloadUpdater(context, gui ? context.navigator : null, version, prefix);
                             }
+/* Enabled Mac Updates 6/5/2025 with .mac.tar.gz
                             else
                             {
                                 try
@@ -425,6 +426,7 @@ public class Main
                                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 }
                             }
+*/
                             break;
                         }
                         else if (reply == JOptionPane.CANCEL_OPTION) // show Changelist

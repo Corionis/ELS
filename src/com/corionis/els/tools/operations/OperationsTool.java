@@ -136,7 +136,6 @@ public class OperationsTool extends AbstractTool
     private String generateCommandLine(boolean dryRun)
     {
         // generate-commandline
-        Configuration defCfg = new Configuration(context);
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
         StringBuilder sb = new StringBuilder();
 
@@ -149,7 +148,7 @@ public class OperationsTool extends AbstractTool
             sb.append(" " + (glo ? "--dry-run" : "-D"));
 
         // --- non-munging actions
-        if (isOptNavigator() != defCfg.isNavigator())
+        if (isOptNavigator() != context.cfg.isNavigator())
             sb.append(" " + (glo ? "--navigator" : "-n"));
         if (isOptForceQuit() || operation == Operations.StatusServerQuit)
             sb.append(" " + (glo ? "--force-quit" : "-Q"));
@@ -282,27 +281,27 @@ public class OperationsTool extends AbstractTool
             sb.append(" " + (glo ? "--whatsnew-all" : "-W") + " \"" + getOptWhatsNewAll() + "\"");
 
         // --- options
-        if (isOptDecimalScale() != !defCfg.isBinaryScale())
+        if (isOptDecimalScale() != !context.cfg.isBinaryScale())
             sb.append(" " + (glo ? "--decimal-scale" : "-z"));
-        if (isOptDuplicates() != defCfg.isDuplicateCheck())
+        if (isOptDuplicates() != context.cfg.isDuplicateCheck())
             sb.append(" " + (glo ? "--duplicates" : "-u"));
-        if (isOptEmptyDirectories() != defCfg.isEmptyDirectoryCheck())
+        if (isOptEmptyDirectories() != context.cfg.isEmptyDirectoryCheck())
             sb.append(" " + (glo ? "--empty-directories" : "-E"));
-        if (isOptCrossCheck() != defCfg.isCrossCheck())
+        if (isOptCrossCheck() != context.cfg.isCrossCheck())
             sb.append(" " + (glo ? "--cross-check" : "-x"));
-        if (isOptIgnored() != defCfg.isIgnoredReported())
+        if (isOptIgnored() != context.cfg.isIgnoredReported())
             sb.append(" " + (glo ? "--ignored" : "-N"));
-        if (isOptListenerQuit() != defCfg.isQuitSubscriberListener())
+        if (isOptListenerQuit() != context.cfg.isQuitSubscriberListener())
             sb.append(" " + (glo ? "--listener-quit" : "-G"));
-        if (isOptListenerKeepGoing() != defCfg.isKeepGoing())
+        if (isOptListenerKeepGoing() != context.cfg.isKeepGoing())
             sb.append(" " + (glo ? "--listener-keep-going" : "-g"));
-        if (isOptNoBackFill() != defCfg.isNoBackFill())
+        if (isOptNoBackFill() != context.cfg.isNoBackFill())
             sb.append(" " + (glo ? "--no-back-fill" : "-B"));
-        if (isOptOverwrite() != defCfg.isOverwrite())
+        if (isOptOverwrite() != context.cfg.isOverwrite())
             sb.append(" " + (glo ? "--overwrite" : "-o"));
-        if (isOptPreserveDates() != defCfg.isPreserveDates())
+        if (isOptPreserveDates() != context.cfg.isPreserveDates())
             sb.append(" " + (glo ? "--preserve-dates" : "-y"));
-        if (isOptValidate() != defCfg.isValidation())
+        if (isOptValidate() != context.cfg.isValidation())
             sb.append(" " + (glo ? "--validate" : "-v"));
 
         return sb.toString().trim();

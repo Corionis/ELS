@@ -56,3 +56,4 @@ hs_err_pid*
 !/mock/bin/els-logo-98px.ico
 !/mock/bin/els-logo-98px.png
 
+/mock/._.DS_Store

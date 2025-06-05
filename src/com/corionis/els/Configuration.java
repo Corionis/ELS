@@ -503,7 +503,6 @@ public class Configuration
 
         Configuration cc = context.cfg;
         Preferences pr = context.preferences;
-        Configuration defCfg = new Configuration(context);
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
         StringBuilder sb = new StringBuilder();
 
@@ -515,7 +514,7 @@ public class Configuration
         if (context.navigator != null)
             sb.append(" " + (glo ? "--navigator" : "-n"));
 
-        if (cc.isDryRun() != defCfg.isDryRun())
+        if (cc.isDryRun() != cc.isDryRun())
             sb.append(" " + (glo ? "--dry-run" : "-D"));
 
         // --- hint keys
@@ -565,13 +564,13 @@ public class Configuration
         }
 
         // --- options
-        if (!cc.isBinaryScale() != !defCfg.isBinaryScale())
+        if (!cc.isBinaryScale() != !cc.isBinaryScale())
             sb.append(" " + (glo ? "--decimal-scale" : "-z"));
-        if (cc.isQuitSubscriberListener() != defCfg.isQuitSubscriberListener())
+        if (cc.isQuitSubscriberListener() != cc.isQuitSubscriberListener())
             sb.append(" " + (glo ? "--listener-quit" : "-G"));
-        if (cc.isKeepGoing() != defCfg.isKeepGoing())
+        if (cc.isKeepGoing() != cc.isKeepGoing())
             sb.append(" " + (glo ? "--listener-keep-going" : "-g"));
-        if (cc.isPreserveDates() != defCfg.isPreserveDates())
+        if (cc.isPreserveDates() != cc.isPreserveDates())
             sb.append(" " + (glo ? "--preserve-dates" : "-y"));
 
         opts = sb.toString().trim();
