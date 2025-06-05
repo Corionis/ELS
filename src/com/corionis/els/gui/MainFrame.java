@@ -516,7 +516,6 @@ public class MainFrame extends JFrame
         menuItemSleep = new JMenuItem();
         menuItemExternalTools = new JMenuItem();
         menuItemPlexGenerator = new JMenuItem();
-        menuItemHandbrake = new JMenuItem();
         menuJobs = new JMenu();
         menuItemJobsManage = new JMenuItem();
         menuSystem = new JMenu();
@@ -1048,13 +1047,6 @@ public class MainFrame extends JFrame
                 menuItemPlexGenerator.setMargin(new Insets(2, 18, 2, 2));
                 menuItemPlexGenerator.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
                 menuTools.add(menuItemPlexGenerator);
-
-                //---- menuItemHandbrake ----
-                menuItemHandbrake.setText("Handbrake");
-                menuItemHandbrake.setMargin(new Insets(2, 18, 2, 2));
-                menuItemHandbrake.setEnabled(false);
-                menuItemHandbrake.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
-                menuTools.add(menuItemHandbrake);
             }
             menuBarMain.add(menuTools);
 
@@ -2872,7 +2864,6 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemSleep;
     public JMenuItem menuItemExternalTools;
     public JMenuItem menuItemPlexGenerator;
-    public JMenuItem menuItemHandbrake;
     public JMenu menuJobs;
     public JMenuItem menuItemJobsManage;
     public JMenu menuSystem;

@@ -55,12 +55,12 @@ public class Configuration
     private String authorizedPassword = "";
     private String blacklist = "";
     private boolean checkForUpdate = false;
-    private String consoleLevel = "Debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
+    private String consoleLevel = "Info";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean consoleSet = false;
     private Context context;
     private int crossCheck = -1;
     private ResourceBundle currentBundle = null;
-    private String debugLevel = "Debug";
+    private String debugLevel = "Info";
     private boolean debugSet = false;
     private int dryRun = -1;
     private int duplicateCheck = -1;
@@ -123,6 +123,21 @@ public class Configuration
     public Configuration(Context ctxt)
     {
         context = ctxt;
+        context.cfg = this;
+
+        // attempt to load the language file based on local system, default en_US
+        Locale locale = Locale.getDefault();
+        String lang = locale.getLanguage();
+        String country = locale.getCountry();
+        String filePart = lang + "_" + country;
+        context.cfg.loadLocale(filePart);
+        if (context.cfg.gs("Transfer.received.subscriber.commands").length() == 0)
+        {
+            context.cfg.loadLocale("-");
+            System.out.println(context.cfg.gs("Process.local.locale.not.supported.loading.default"));
+        }
+        else
+            context.main.localeAbbrev = filePart;
     }
 
     /**

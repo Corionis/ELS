@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -475,6 +476,9 @@ public class NavTreeNode extends DefaultMutableTreeNode
         DefaultRowSorter sorter = ((DefaultRowSorter) myTable.getRowSorter());
         btm.getDataVector().removeAllElements();
 
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+
         // initialize model when there are columns; done once per table
         if (!((BrowserTableModel) btm).isInitialized() && btm.getColumnCount() > 0)
         {
@@ -492,6 +496,10 @@ public class NavTreeNode extends DefaultMutableTreeNode
             sorter.sort();
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
+        else
+            // restore saved column sizes
+            context.preferences.fixColumnSizes(context, myTable);
+
         btm.fireTableDataChanged();
 
         loadProperties(); // set the left or right status message & properties

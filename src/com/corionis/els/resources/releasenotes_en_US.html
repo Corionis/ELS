@@ -2,25 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Version 4.0.0 Release Notes</title>
+    <title>Version 4.0 Release Notes</title>
+    <style>
+        html, body {
+            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+        }
+    </style>
 </head>
 <body>
-<h2 id="version-400">Version 4.0.0</h2>
-<p>This major release 4.0.0 of ELS adds the ELS Navigator desktop application and a
+<h2 id="version-400">Version 4.0</h2>
+<p>This major release 4.0 of ELS adds the ELS Navigator desktop application and a
     variety of related enhancements and changes. </p>
 <p>The Navigator is purpose-built to make building and on-going maintenance of collections
-    of all types of media across multiple storage devices easier. Originally built for home
+    of all types of data across multiple storage devices easier. Originally built for home
     media collections ELS 4.0 adds a new dimension to library-based, multi-device, cross-platform
-    file management. Using the built-in capabilities of ELS the Navigator provides a
+    file management.</p>
+
+    <p>Using the built-in capabilities of ELS the Navigator provides a
     visual tool for curating a collection either locally or remotely.
     Tools and jobs are provided to make performing repetitive tasks easier. And the original
     back-up tool is built-in of course.</p>
-<p><em>A work in progress.</em></p>
+
 <p><strong>Features:</strong></p>
 <ul>
     <li>Modes (where the Navigator is running)<ul>
-        <li>On a media collection</li>
-        <li>On a separate workstation</li>
+        <li>On a media collection where Hints are tracked</li>
+        <li>On a separate workstation where Hints are not tracked</li>
     </ul>
     </li>
     <li>Browser<ul>
@@ -28,7 +35,12 @@
         <li>Collection and System tabs for each</li>
         <li>Local or remote subscriber</li>
         <li>Drag &#39;n Drop and Copy, Cut, Paste</li>
-        <li>Automatic ELS Hint Tracking</li>
+        <li>Automatic ELS Hint Tracking<ul>
+            <li>Renames</li>
+            <li>Moves</li>
+            <li>Deletes</li>
+        </ul>
+        </li>
         <li>Multiple named tool configurations<ul>
             <li>Duplicate Finder</li>
             <li>Empty Directory Finder</li>
@@ -36,10 +48,9 @@
             <li>Operations</li>
             <li>Renamer</li>
             <li>Sleep</li>
-            <li>External tools support</li>
         </ul>
         </li>
-        <li>Named jobs of sequenced named tools to automate repetitive tasks</li>
+        <li>Named jobs of sequenced tools to automate repetitive tasks</li>
     </ul>
     </li>
     <li>BackUp<ul>
@@ -50,23 +61,27 @@
     </li>
     <li>Libraries<ul>
         <li>Create and edit ELS Publisher, Subscriber, and Hint Server JSON files</li>
-        <li>Create and edit ELS Hint keys file</li>
+        <li>Create and edit ELS Authentication keys, Hint keys, blacklist and whitelist</li>
     </ul>
     </li>
 </ul>
 <p>Like the rest of ELS the new Navigator is a general tool for anyone manipulating
-    media across multiple storage devices and is also compatible with modern media
-    systems such a Plex Media Server. Works on Windows, Linux and Mac.</p>
-<p><em>It&#39;s all built-in</em> with the -n | --navigator option.</p>
+    large volumes of data across multiple storage devices and is also compatible with modern media
+    systems such a Plex Media Server and Jellyfin. Works on Windows, Linux and Mac.</p>
+
+<p><em>It&#39;s all built-in</em>.</p>
+
 <h3 id="upgrade-notes">Upgrade Notes</h3>
-<p>ELS 4.0.0 is significantly different than previous versions. Changes and bug fixes have been
+<p>ELS 4.0 is significantly different from previous versions. Changes and bug fixes have been
     made throughout the code, too numerous to list every change. Read these notes thoroughly when
     upgrading for changes, additions and enhancements.</p>
 <ol>
-    <li>When upgrading to ELS 4.0.0 from previous versions be sure to complete all Hint
+    <li>When upgrading to ELS 4.0 from previous versions be sure to complete all Hint
         processing <em><strong>prior to the upgrade</strong></em>. Ensure the Hint Tracking datastore is empty. The
-        syntax used in the .els Hint files has been updated.</li>
-    <li>FILE LOCATIONS &amp; ~/.els directory !!!!!!!!!!!!</li>
+        syntax used in the .els Hint files has been updated.<br/><br/></li>
+    <li>With the Navigator a formal directory structure is needed to store the various
+        configuration files. The location may be defined using the -C | --config option.
+        The default is the user's home directory in subdirectory .els/</li>
 </ol>
 <h3 id="enhancements">Enhancements</h3>
 <ol>
@@ -78,23 +93,23 @@
                     connected to a back-up running an ELS subscriber listener.</li>
                 <li>On a separate workstation, and optionally connected to a media
                     collection system or back-up running an ELS subscriber listener.</li>
-                <li>The File, Open Publisher dialog shows radio buttons for Collection or Workstation.<ol>
-                    <li>This setting determines whether Hints are stored when Hint Tracking is enabled.<ol>
-                        <li>If Collection then the Hints are added, and tracked if enabled.</li>
-                        <li>If Workstation then Hints are not used during operations.</li>
-                    </ol>
-                    </li>
+            </ol>
+            <li>The File, Open Publisher dialog shows radio buttons for Collection or Workstation.<ol>
+                <li>This setting determines whether Hints are stored when Hint Tracking is enabled.<ol>
+                    <li>If Collection then the Hints are added, and tracked if enabled.</li>
+                    <li>If Workstation then Hints are not used during operations.</li>
                 </ol>
                 </li>
-                <li>Command-line behavior changes when using -n | --navigator:<ol>
-                    <li>-P sets the Navigator for running on a Collection</li>
-                    <li>-p sets the Navigator as a Workstation</li>
-                    <li>-S sets the Navigator for a remote Subscriber</li>
-                    <li>-s sets the Navigator as a local Subscriber</li>
-                    <li>Note: The distinction of collection or library is not used with
-                        the Navigator. All data displayed are from active storage scans.</li>
-                </ol>
-                </li>
+            </ol>
+            </li>
+            <li>Command-line behavior changes when using -n | --navigator:<ol>
+                <li>-P sets the Navigator for running on a Collection</li>
+                <li>-p sets the Navigator as a Workstation</li>
+                <li>-S sets the Navigator for a remote Subscriber</li>
+                <li>-s sets the Navigator as a local Subscriber</li>
+                <li>Note: The distinction of collection or library is not used with
+                    the Navigator. All data displayed are from active storage scans.</li>
+            </li>
             </ol>
             </li>
         </ol>
@@ -107,7 +122,7 @@
 <h3 id="command-line-changes">Command Line Changes</h3>
 <ol>
     <li><p>The -n | --rename option has been removed in favor of the rename tool in the
-        new ELS Navigator.</p>
+        Navigator.</p>
     </li>
     <li><p>The -n option has been repurposed for the Navigator and the --navigator option has been added.</p>
     </li>
@@ -128,7 +143,7 @@
         subscriber it skips ending with a fault on an unexpected disconnect (EOL) and ignores
         quit commands. To stop a subscriber in this mode use the --listener-quit command.</p>
     </li>
-    <li><p>Added option -G | --listener-quit that only sends the quit command to a remote
+    <li><p>Added option -G | --listener-quit that only sends the stop command to a remote
         subscriber, then exits. Similar to the -Q | --force-quit option.</p>
     </li>
     <li><p>Added option -B | --blacklist that uses a text file of one-line IP addresses to filter
@@ -158,7 +173,31 @@
     <li><p>Added --dump-system that prints all JVM System.getProperties() values then exits.</p>
     </li>
     <li><p>Added -C | --config to set the location of the ELS configuration directory. Use
-        &quot;-C .&quot; for the current directory.</p>
+        &quot;-C .&quot; for the current directory. Default is user home directory in .els/</p>
+    </li>
+    <li><p>Added --marker &quot;arg&quot; to aid in identifying a running process. Any &quot;arg&quot; is ignored.
+        This option has no effect on ELS and is intended to help with scripting.</p>
+    </li>
+    <li><p>Added -O | --override-subscriber-host [address:port]. If address:port is defined that is used,
+        otherwise the Listen port is used for out-going connections to a Subscriber instead of the host.
+        Subscriber listeners use the Listen address unless the [address:port] is defined. If Listen is
+        not defined the Host is used. Outgoing connections use the Host address unless the -O option
+        for Listen or the [address:port] are defined.</p>
+    </li>
+    <li><p>Added -J | --override-hint-host to use the listen address:port for out-going connections
+        to a Hint Server instead of the host. Used for outgoing LAN connections where host is used
+        over the Internet. Hint Server uses the Listen address. There is no optional [address:port]
+        because there can be only one.</p>
+    </li>
+    <li><p>Added the --logger option for the -j | --job action to execute the Job in the foreground
+        with ELS operating in Logger mode to display the Job log. It is used internally when
+        executing a Job in the foreground.</p>
+    </li>
+    <li><p>Added -V option to check for updates from the command line (terminal) and a checkForUpdate
+        script in the installation bin/ subdirectory.</p>
+    </li>
+    <li><p>Added -Y option to install updates from the command line and an installUpdate script
+        in the installation bin/ subdirectory. Always installs update even if versions match.</p>
     </li>
 </ol>
 <h3 id="other-changes">Other Changes</h3>
@@ -166,11 +205,8 @@
     <li><p>The ELS Navigator has necessitated the introduction of a formal user-based directory
         structure to hold the various preference, bookmark, library, tool, job, etc. files.
         All these items are kept in each user&#39;s HOME/.els/ directory.</p>
-        <p>IMPORTANT: When upgrading from ELS versions earlier than 4.0.0 copy your existing library JSON
+        <p>IMPORTANT: When upgrading from ELS versions earlier than 4.0 copy your existing library JSON
             files to your HOME/.els/libraries/ directory. If that directory does not exist create it.</p>
-    </li>
-    <li><p>The listener daemons &quot;bye&quot; command behavior has changed. Now bye will leave the daemon
-        running instead of shutting down. Quit, exit and logout still perform a shutdown.</p>
     </li>
     <li><p>When using the ELS interactive terminal (not to be confused with ELS Navigator) the
         &quot;bye&quot; command has been changed to end the terminal session but leave the remote listener
@@ -207,14 +243,9 @@
             <li>However if the listener is running with the -A|--auth-keys Authentication Keys file option
                 authentication matches against all the keys. So a single subscriber listener can connect to
                 one or more remote ELS publishers or ELS Navigators concurrently.<ol>
-                    <li>The current limit is 10 concurrent connections. </li>
+                    <li>The current limit is 100 concurrent connections. </li>
                     <li>This is the same technique used by the Hint Status Server using a Hint keys file.</li>
                 </ol>
-            </li>
-            <li>In either case if a connection is made and authentication fails the listener will fail and exit.<ol>
-                <li>This is to prevent hack attempts on listeners.</li>
-                <li>May change in the future.</li>
-            </ol>
             </li>
             <li>The reasons for separate listener authentication keys and hint keys:<ol>
                 <li>A listener may want to allow Navigator sessions in addition to back-up systems.</li>
@@ -239,7 +270,7 @@
         long-running operations. The heartbeat is <em>not</em> an actual ping.</p>
     </li>
     <li><p>Changed Hint syntax handling to use the more formal syntax generated by the Navigator.
-        <strong>Important:</strong> When upgrading to ELS 4.0.0 from previous versions be sure to complete all Hint
+        <strong>Important:</strong> When upgrading to ELS 4.0 from previous versions be sure to complete all Hint
         processing and make sure for any Hint Tracking being used, local or remote, the datastore is
         empty.</p>
     </li>
@@ -251,7 +282,7 @@
         -g | --listener-keep-going option to avoid a connection fault in Navigator when the backup is complete.</p>
     </li>
     <li><p>When performing long copy/move operations multiple copy/paste and drag &#39;n drop operations
-        may be batched. Each operation is added to the existing batch(es) of running operations and
+        may be <i>batched</i>. Each operation is added to the existing batch(es) of running operations and
         are processed in order.</p>
     </li>
     <li><p>When running a backup operation or copying/moving content in Navigator the target path
@@ -267,81 +298,31 @@
         much faster and with far fewer mistakes.</p>
     </li>
     <li><p>For existing user-written scripts add the &quot;-C .&quot; option to set the working directory to the current
-        directory. See Command Line Changes, item 17.</p>
+        directory. See Command Line Changes.</p>
     </li>
-</ol>
-<h2 id="version-310">Version 3.1.0</h2>
-<p>Release 3.1.0 of ELS adds the Hint Status Tracker and a new mode - the Hint Status
-    Server (HSS). The Tracker coordinates hint completion status locally. The Server
-    tracks hint completion status for remote operations. These are needed when two
-    or more back-ups are being used with hints.</p>
-<p>The Tracker and new HSS mode are optional. All previous features and behavior remain the same.
-    The HSS is an additional separate process that is executed before any remote operation
-    requiring hint coordination. Options are available to allow the HSS to run continuously or
-    &quot;ordered&quot; to quit by a publisher or subscriber when an operation is completed. A
-    separate TCP/IP port is required for the status server listener.</p>
-<h3 id="enhancements-1">Enhancements</h3>
-<ol>
-    <li>ELS Hint Status Tracker and Hint Status Server, see <a href="Hint-Status">Hint Status</a>.</li>
-</ol>
-<h3 id="command-line-changes-1">Command Line Changes</h3>
-<ol>
-    <li><p>-h has been repurposed <em>and</em> -H added for hint support.</p>
-        <p>Previously the -h | --version options were used for help that only displayed
-            the version. The --version option still does that.</p>
-        <p>The -h option is now -h | --hints [file] : Hints Status Server file to enable
-            connection to the new ELS Hint Status Server.</p>
-        <p>Added -H | --hint-server [file] : Hints Status Server to execute continuous hint
-            status server daemon</p>
-    </li>
-    <li><p>Added -q | --quit-status : Send quit command to hint status server when operation
-        is complete. Allows either a publisher or subscriber to tell the HSS to shutdown.</p>
-        <p>The execution sequence <strong>must</strong> be the HSS, then subscriber, then publisher. The
-            publisher commands the subscriber to quit automatically when the operation is
-            done. So it is best to add the --quit-status option to the subscriber so when
-            it shuts down it will command the Hint Status Server to quit - if desired.</p>
-    </li>
-    <li><p>Added -Q | --force-quit : Special option that only connects to the HSS to
-        send a quit command, then it ends. Requires a --hint file and -p | -P publisher
-        file to specify the to/from connection ends respectively.</p>
-    </li>
-</ol>
-<h3 id="bug-fixes">Bug Fixes</h3>
-<ol>
-    <li><p>Issue #30 <em>&#39;Fix terminal_allowed handling&#39;</em>.</p>
-        <p>Added the logic necessary to use the terminal_allowed value in the JSON file.</p>
-    </li>
-    <li><p>Issue #34 <em>&#39;Fix empty -t | -T handling&#39;</em>.</p>
-        <p>Fixed the issue when using an empty -t | -T to use the sources as targets.</p>
-    </li>
-    <li><p>Issue #35 <em>&#39;Fix --remote M&#39;</em>.</p>
-        <p>Fixed the automated login issue when using --remote M.</p>
-    </li>
-</ol>
-<h3 id="developer-notes-1">Developer Notes</h3>
-<ol>
     <li><p>With the addition of the Hint Status Server where a remote ELS session is
-        employing 3 ELS processes - hint server, subscriber, and publisher - it was
-        necessary to rearrange the disconnect/shutdown logic and sequences. These
-        changes implement a more formal, and less brute-force, disconnect and quit
-        approach allowing for future n-way connection possibilities.</p>
+    employing 3 ELS processes - hint server, subscriber, and publisher - it was
+    necessary to rearrange the disconnect/shutdown logic and sequences. These
+    changes implement a more formal, and less brute-force, disconnect and quit
+    approach allowing for future n-way connection possibilities.</p>
     </li>
     <li><p>For IntelliJ to run and debug the multiple processes the Multirun plugin
-        has been added with a variety of configurations in the .idea project.</p>
+    has been added with a variety of configurations in the .idea project.</p>
     </li>
     <li><p>The mock directory has been completely rearranged to support testing and
-        provide a completely self-contained development and test environment.
-        In addition a mock/scripts/linux/ directory has been added with many scripts
-        to perform application-level tests using pre-set publisher and subscriber
-        collections and hint files.</p>
-        <p>These scripts show many of the various ways ELS may be executed using
-            different combinations of options. See the <strong>README</strong> in that directory for
-            more information and a description of the testing sequence.</p>
+    provide a completely self-contained development and test environment.
+    In addition a mock/scripts/linux/ directory has been added with many scripts
+    to perform application-level tests using pre-set publisher and subscriber
+    collections and hint files.</p>
+    <p>These scripts show many of the various ways ELS may be executed using
+    different combinations of options. See the **README** in that directory for
+    more information and a description of the testing sequence.</p>
     </li>
     <li><p>For IntelliJ users several run/debug configurations have been added that
-        match the scripts in the mock/scripts/linux/ directory organized in the
-        same way and use the same mock/ data.</p>
+    match the scripts in the mock/scripts/linux/ directory organized in the
+    same way and use the same mock/ data.</p>
     </li>
 </ol>
+<br/>
 </body>
 </html>

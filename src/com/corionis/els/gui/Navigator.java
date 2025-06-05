@@ -281,7 +281,6 @@ public class Navigator
         }
         context.mainFrame.menuItemExternalTools.setEnabled(false);
         context.mainFrame.menuItemPlexGenerator.setEnabled(false);
-        context.mainFrame.menuItemHandbrake.setEnabled(false);
 
         context.mainFrame.menuItemSplitHorizontal.setEnabled(enable);
         context.mainFrame.menuItemSplitVertical.setEnabled(enable);

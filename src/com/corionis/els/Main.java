@@ -377,14 +377,16 @@ public class Main
                         if (gui)
                         {
                             String prompt = context.cfg.gs("Navigator.install.update.version");
-                            String mprompt = context.cfg.gs("Navigator.install.new.version");
-                            message = java.text.MessageFormat.format(Utils.isOsMac() ? mprompt : prompt,
+                            //String mprompt = context.cfg.gs("Navigator.install.new.version");
+                            //message = java.text.MessageFormat.format(Utils.isOsMac() ? mprompt : prompt,
+                            message = java.text.MessageFormat.format(prompt,
                                     Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
                             Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
-                            Object[] mopts = {context.cfg.gs("Z.goto.website"), context.cfg.gs("Z.cancel"), context.cfg.gs("Navigator.recent.changes")};
+                            //Object[] mopts = {context.cfg.gs("Z.goto.website"), context.cfg.gs("Z.cancel"), context.cfg.gs("Navigator.recent.changes")};
                             reply = JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                                     JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null,
-                                    Utils.isOsMac() ? mopts : opts, Utils.isOsMac() ? mopts[0] : opts[0]);
+                                    opts, opts[0]);
+                                    //Utils.isOsMac() ? mopts : opts, Utils.isOsMac() ? mopts[0] : opts[0]);
                         }
 
                         // proceed?
@@ -804,7 +806,7 @@ public class Main
     public void process(String[] args)
     {
         ThreadGroup sessionThreads = null;
-        context.cfg = new Configuration(context);
+        new Configuration(context); // loads initial locale
 
         try
         {
@@ -873,20 +875,6 @@ public class Main
             context.preferences = new Preferences();
             Utils.readPreferences(context);
             context.preferences.setContext(context);
-
-            // attempt to load the language Java started with, default en_US
-            Locale locale = Locale.getDefault();
-            String lang = locale.getLanguage();
-            String country = locale.getCountry();
-            String filePart = lang + "_" + country;
-            context.cfg.loadLocale(filePart);
-            if (context.cfg.gs("Transfer.received.subscriber.commands").length() == 0)
-            {
-                logger.warn(context.cfg.gs("Process.local.locale.not.supported.loading.default"));
-                context.cfg.loadLocale("-");
-            }
-            else
-                localeAbbrev = filePart;
 
             // re-throw any configuration exception
             if (cfgException != null)

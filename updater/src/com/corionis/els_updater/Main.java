@@ -242,6 +242,28 @@ public class Main
                     boolean fault = false;
                     String message = "";
 
+                    String path = "";
+                    try
+                    {
+                        path = readPreferences();
+                        if (path.length() > 0)
+                        {
+                            if (!isInstallUpdate())
+                                preferences.initLookAndFeel("ELS Updater", true);
+                            cfg.loadLocale(preferences.getLocale(), cfg);
+                        }
+                        else
+                        {
+                            preferences = null;
+                            cfg.loadLocale("en_US", cfg);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.error(Utils.getStackTrace(e));
+                        // ignore any exception and use default LaF if necessary
+                    }
+
                     if (!readElsUpdaterInfo())
                     {
                         message = java.text.MessageFormat.format(cfg.gs("Updater.missing.or.malformed.els.updater.info.file.cannot.continue"), updaterInfoFile);
@@ -249,28 +271,6 @@ public class Main
                     }
                     else
                     {
-                        String path = "";
-                        try
-                        {
-                            path = readPreferences();
-                            if (path.length() > 0)
-                            {
-                                if (!isInstallUpdate())
-                                    preferences.initLookAndFeel("ELS Updater", true);
-                                cfg.loadLocale(preferences.getLocale(), cfg);
-                            }
-                            else
-                            {
-                                preferences = null;
-                                cfg.loadLocale("en_US", cfg);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            logger.error(Utils.getStackTrace(e));
-                            // ignore any exception and use default LaF if necessary
-                        }
-
                         logger.info(SHORT, cfg.gs("Updater.preferences") + path);
                         logger.info(SHORT, cfg.gs("Updater.commandline") + commandLine);
                         logger.info(SHORT, cfg.gs("Updater.installed.path") + installedPath);

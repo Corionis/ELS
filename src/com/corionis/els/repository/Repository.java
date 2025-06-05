@@ -724,12 +724,12 @@ public class Repository implements Comparable
         catch (Exception ioe)
         {
             String msg = MessageFormat.format(context.cfg.gs("Repository.exception.while.reading.library"), type) +
-                    filename + System.getProperty("line.separator") + ioe.getMessage();
+                    filename + System.getProperty("line.separator");
             if (context.main.isStartupActive())
             {
                 logger.error(msg);
                 int opt = JOptionPane.showConfirmDialog(context.guiLogAppender.getStartup(),
-                        "<html><body>" + msg + "<br/><br/>Continue?</body></html>",
+                        msg + "Continue?",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (opt == JOptionPane.YES_OPTION)
                 {

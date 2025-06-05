@@ -1014,7 +1014,7 @@ public class Utils
         workingDirectory = pipe(workingDirectory);
         path = pipe(path);
         if (!path.equals(workingDirectory) && path.startsWith(workingDirectory))
-            path = path.substring(workingDirectory.length() + 1);
+            path = path.substring(workingDirectory.length() + (workingDirectory.endsWith("|") ? 1 : 0));
         path = unpipe(path, "/");
         return path;
     }
