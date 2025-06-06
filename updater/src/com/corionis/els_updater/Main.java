@@ -3,6 +3,7 @@ package com.corionis.els_updater;
 // See els.xml target "updater-compile" where these classes are copied during builds
 
 import com.corionis.els.Configuration;
+import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.Preferences;
 
@@ -39,6 +40,7 @@ import static com.corionis.els.Configuration.APPLICATION_NAME;
 public class Main
 {
     public Configuration cfg = null;
+    public Context context = null;
     public Logger logger = null; // log4j2 logger singleton
     private Marker SHORT = MarkerManager.getMarker("SHORT");
     private String commandLine = "";
@@ -172,6 +174,8 @@ public class Main
 
     private void init(String[] args)
     {
+        context = new Context();
+
         try
         {
             if (args.length > 0)
@@ -238,31 +242,10 @@ public class Main
                 @Override
                 public void run()
                 {
-                    cfg = new Configuration(null);
+                    cfg = new Configuration(context);
                     boolean fault = false;
                     String message = "";
-
                     String path = "";
-                    try
-                    {
-                        path = readPreferences();
-                        if (path.length() > 0)
-                        {
-                            if (!isInstallUpdate())
-                                preferences.initLookAndFeel("ELS Updater", true);
-                            cfg.loadLocale(preferences.getLocale(), cfg);
-                        }
-                        else
-                        {
-                            preferences = null;
-                            cfg.loadLocale("en_US", cfg);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        logger.error(Utils.getStackTrace(e));
-                        // ignore any exception and use default LaF if necessary
-                    }
 
                     if (!readElsUpdaterInfo())
                     {
@@ -271,6 +254,27 @@ public class Main
                     }
                     else
                     {
+                        try
+                        {
+                            path = readPreferences();
+                            if (path.length() > 0)
+                            {
+                                if (!isInstallUpdate())
+                                    preferences.initLookAndFeel("ELS Updater", true);
+                                cfg.loadLocale(preferences.getLocale(), cfg);
+                            }
+                            else
+                            {
+                                preferences = null;
+                                cfg.loadLocale("en_US", cfg);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            logger.error(Utils.getStackTrace(e));
+                            // ignore any exception and use default LaF if necessary
+                        }
+
                         logger.info(SHORT, cfg.gs("Updater.preferences") + path);
                         logger.info(SHORT, cfg.gs("Updater.commandline") + commandLine);
                         logger.info(SHORT, cfg.gs("Updater.installed.path") + installedPath);
