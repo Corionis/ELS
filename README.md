@@ -2,82 +2,112 @@
 
 # ELS : Entertainment Library Synchronizer
 
-Entertainment Library Synchronizer (ELS) is a backup tool for home
-media systems. ELS views media spanning multiple hard drives the same
-way modern media systems do - on a logical library basis such as movies
-or TV shows. ELS combines the content of each library to determine what
-needs to be backed-up. The exact location of files in each library do not
-have to match on the back-up allowing a media library to grow "organically".
+_**Beta Release**_
 
-Movies, TV shows with seasons, music and more are handled by ELS. When
-new content is added, for example another episode of a TV show, a check
-is made whether it will fit in the original location as other episodes.
-If it will not fit it is copied to a matching target location for new
-content for that library.
+Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built library
+and title oriented tool for managing and backing-up data with expandable storage
+spanning multiple devices.
 
-The version 3.1.0 pre-built executable and a Zip including examples are available
-on the **[ELS Wiki Downloads](https://github.com/Corionis/ELS/wiki/Downloads)** page.
+Any project with large amounts of data for home videos, YouTube, TikTok, Instagram, 
+game development, 3D modeling, science, or media systems such as Plex and Jellyfin,
+organizing and managing your work is important. And backing it up is critical.
 
-See the **[ELS Wiki](https://github.com/Corionis/ELS/wiki)** for version 3.1.0
-features, downloads and documentation.
+<img src="https://corionis.github.io/ELS/assets/images/media-server-01.png" border="0"/>
 
-ELS version 4.0 has been in development since September of 2021. It is a large
-project that adds a powerful desktop application - ELS Navigator. The
-new version is not complete however large portions are done and quite useful.
-See **[ELS Version 4.0.0](https://github.com/Corionis/ELS/tree/Version-4.0.0)**.
+**Downloads**: **[ELS user site](https://corionis.github.io/ELS/)** on GitHub.
+
+**Documentation**: **[ELS Wiki](https://github.com/Corionis/ELS/wiki)**.
+
+**Community**: **[ELS Discussions](https://github.com/Corionis/ELS/discussions)**.
 
 ## Features
 
- * New ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
- * New ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
- * New ELS Hints to coordinate manual changes, new in 3.0.0.
+ELS was started in 2015 as a command line-only tool for home media systems. 
+Version 4.0 has been in development since September of 2021. It is a large
+project that adds a powerful desktop application - ELS Navigator.
 
- * Supports movies, television shows with season subdirectories, 
-   music with artists and albums, etc.
- * Supports any mix of storage devices of different sizes.
- * Optionally copies new files to an existing movie or TV show if space is 
-   available (back-fill).
- * Multiple targets may be defined for each library, e.g. movies. As 
-   one reaches a minimum available space the next target is used (automatic roll-over).
- * Optionally generates a What's New text file of what items were copied.
- * Optionally generates a Mismatches text file of the detailed differences between the publisher and subscriber.
- * Stand-alone and client/server modes of operation are supported.
- * An interactive terminal is available for both publisher and subscriber.
- * Standard SFTP such as [Filezilla](https://filezilla-project.org/) may interactively connect to ELS when in listener mode.
- * May be scheduled using operating system tools, e.g. Windows Task Scheduler or Linux cron.
- * Nothing is added, no overhead except when using hints.
- * Runs on Windows, Linux and Mac.
+*   Modes (where the Navigator is running)
+    *   On a data collection where Hints are tracked
+    *   On a separate workstation where Hints are not tracked
+*   Browser
+    *   Split-pane Publisher/Subscriber view
+    *   Collection and System tabs for each
+    *   Local or remote subscriber
+    *   Drag 'n Drop and Copy, Cut, Paste
+    *   Automatic Hint Tracking
+        *   Renames
+        *   Moves
+        *   Deletes
+    *   Multiple named tool configurations
+        *   Duplicate Finder
+        *   Empty Directory Finder
+        *   Junk Remover
+        *   Operations
+        *   Renamer
+        *   Sleep
+    *   Named jobs of sequenced tools to automate repetitive tasks
+*   Back-Up
+    *   Create named ELS back-up Jobs with different configurations
+    *   Execute and monitor back-up runs
+    *   Generate scripts for command line and/or scheduled background execution
+*   Libraries
+    *   Create and edit ELS Publisher, Subscriber, and Hint Server JSON files
+    *   Create and edit ELS Authentication keys, Hint keys, blacklist and whitelist
 
-ELS relies on a common directory structure used by modern home media
-systems such as [Plex Media Server](https://plex.tv). Each media type,
-such as a movie or television show, is contained in a unique directory
-within a library directory.
+Like the rest of ELS the Navigator is a general tool for anyone manipulating large
+volumes of data across multiple storage devices. Also compatible with modern
+media systems such a Plex Media Server and Jellyfin. Runs on Linux, Mac and Windows.
 
-For example:
+_It's all built-in_.
 
-![library directory structure](artifacts/images/library-directory.jpg "Library directory")
+## Ways to Execute ELS
 
-ELS uses two JSON files to describe the bibliographies of one or more
-libraries spread across multiple hard drives, one for the media system
-and the other for the backup.
+ELS is a multi-faceted application that may be executed in a variety of ways.
+Workstations and Collections (back-ups) may be local with all storage devices
+attached to one system, or remote over a LAN or the Internet with two systems
+running ELS.
 
-Another JSON file describes the target location(s) for new content. Each
-library may have multiple targets for automatic roll-over. When a target
-reaches a specified minimum amount of free space the next target is
-used.
+### From Navigator
+
+The provided start-up applications for each supported operating system execute
+the ELS Navigator desktop application with the provided arguments. If no arguments
+are specified Navigator will use the previous publisher, subscriber, etc. and
+default options.
+
+Inside Navigator there are two execution tools:
+
+*   File, Generate will generate a command line for the current Navigator
+    configuration including loaded publisher, subscriber, etc. That command
+    line may be copied to the clipboard or used to create a desktop shortcut.
+
+
+*   Jobs, Manage has two options:
+    <br/><br/>
+    1. Run ... that will execute the selected Job inside the current Navigator.
+       <br/><br/>
+    2.  Generate / Run ... will generate a command line for the current Job 
+        and offers immediate execution in the foreground or background with
+        its Run button outside of the current Navigator. The command line
+        may be copied to the clipboard or used create a desktop shortcut.
+
+### From Command Line
+
+ELS may also be executed from the command line two ways:
+
+*   Using either short or long options to define all the arguments needed for an Operation.
+
+
+*   Defining a Job inside Navigator then executing it from the command line.
+
+### Note for Linux and macOS Users
+
+When executing ELS with cron or a task scheduler set the -c | --console-level to Off so it only logs to the -d | --debug-level log file and not stdout to avoid cron error messages.
+
+
+## Add-On Tools
 
 An add-on tool is available to generate a basic ELS JSON file from a
 [Plex Media Server](https://www.plex.tv), see the [ELS Plex
-Generator](https://github.com/Corionis/ELS-Plex-Generator). However ELS
-will support any modern media system that uses the same directory structure.
+Generator](https://github.com/Corionis/ELS-Plex-Generator).
 
-ELS can run locally with attached storage devices as a single process or
-over a LAN or the Internet using two computers running ELS with built-in
-communications options.
-
-This software is written in Java and operates on Windows, Linux, and
-Apple systems. The media system and back-up do not have to be the same
-type.
-
-See the **[ELS Wiki](https://github.com/Corionis/ELS/wiki)** for
-features, downloads and documentation.
+<br/><br/>
