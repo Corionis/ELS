@@ -137,7 +137,10 @@ public class Configuration
             System.out.println(context.cfg.gs("Process.local.locale.not.supported.loading.default"));
         }
         else
-            context.main.localeAbbrev = filePart;
+        {
+            if (context.main != null)
+                context.main.localeAbbrev = filePart;
+        }
     }
 
     /**
