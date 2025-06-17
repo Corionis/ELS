@@ -7,6 +7,10 @@ show_blog: false
 <hr/>
 _**Beta Release**_
 
+_Note_: ELS is 10 years old. The desktop application, Navigator, is new after 3.5 years of
+work. Comments, bugs, and requests are invited in Discussions or Issues. Language
+translation contributors are requested.
+
 Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built library and title oriented tool for managing and backing-up data
 with expandable storage spanning multiple devices.
 
