@@ -19,6 +19,7 @@ hs_err_pid*
 /build/*.tar.gz
 /build/*.zip
 /deploy/ELS-nav.ja?
+/deploy/ELS_Updater.jar
 /deploy-previous/
 /deploy/Thumbs.d?
 /docs/_site/
