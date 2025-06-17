@@ -50,3 +50,4 @@ ELS is a free tool with both graphical and command line interfaces and a wide va
 | The components of ELS and other projects | <a href="{{ site.home_url }}" target="_blank"><b>Corionis <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a> |
 
 _ELS and all Corionis projects are Open Source and free._
+
