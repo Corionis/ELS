@@ -31,7 +31,7 @@ new FormModel {
 						"tabPlacement": 2
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 							"$columnSpecs": "0, 0"
-							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0"
+							"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0"
 							"$hGap": 5
 							"$vGap": 20
 							"$alignTop": true
@@ -132,10 +132,24 @@ new FormModel {
 								"gridy": 6
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "showGettingStarted"
+								"text": new FormMessage( null, "Settings.showGettingStarted.text" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridy": 7
+								"insets": new java.awt.Insets( 0, 8, 0, 0 )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "showGettingStartedCheckBox"
+								"toolTipText": "Uncheck to not show Getting Started at Navigator start"
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 1
+								"gridy": 7
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "macosLauncherLabel"
 								"text": new FormMessage( null, "Settings.macosLauncherLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 7
+								"gridy": 8
 								"insets": new java.awt.Insets( 0, 8, 0, 0 )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
@@ -143,7 +157,7 @@ new FormModel {
 								"toolTipText": "Uncheck to use ELS-Navigator.sh script internally and for shortcuts"
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
-								"gridy": 7
+								"gridy": 8
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.generalPanel.tab.title" )
@@ -475,7 +489,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 570, 470 )
+			"size": new java.awt.Dimension( 570, 505 )
 		} )
 	}
 }

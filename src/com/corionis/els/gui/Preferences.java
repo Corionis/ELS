@@ -40,17 +40,6 @@ public class Preferences implements Serializable
 
     private int collectionOneTableWidth = -1;
     private int collectionOneTreeWidth = -1;
-
-    private int getCollectionOneTableWidth()
-    {
-        return collectionOneTableWidth;
-    }
-
-    private int getCollectionOneTreeWidth()
-    {
-        return collectionOneTreeWidth;
-    }
-
     private int collectionTwoDateWidth = 80;
     private int collectionTwoDividerLocation = 150;
     private int collectionTwoNameWidth = 128;
@@ -59,17 +48,6 @@ public class Preferences implements Serializable
     private int collectionTwoSortDirection = 0;
     private int collectionTwoTableWidth = -1;
     private int collectionTwoTreeWidth = -1;
-
-    private int getCollectionTwoTableWidth()
-    {
-        return collectionTwoTableWidth;
-    }
-
-    private int getCollectionTwoTreeWidth()
-    {
-        return collectionTwoTreeWidth;
-    }
-
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss a";
     private boolean defaultDryrun = true;
@@ -142,6 +120,7 @@ public class Preferences implements Serializable
     private boolean showCcpConfirmation = true;
     private boolean showDeleteConfirmation = true;
     private boolean showDnDConfirmation = true;
+    private boolean showGettingStarted = true;
     private boolean showMnemonics = true;
     private boolean showToolbar = true;
     private boolean showTouchConfirmation = true;
@@ -154,30 +133,8 @@ public class Preferences implements Serializable
     private int systemOneSizeWidth = 80;
     private int systemOneSortColumn = 1;
     private int systemOneSortDirection = 0;
-
     private int systemOneTableWidth = -1;
     private int systemOneTreeWidth = -1;
-
-    public int getSystemOneTreeWidth()
-    {
-        return systemOneTreeWidth;
-    }
-
-    public void setSystemOneTreeWidth(int systemOneTreeWidth)
-    {
-        this.systemOneTreeWidth = systemOneTreeWidth;
-    }
-
-    public int getSystemOneTableWidth()
-    {
-        return systemOneTableWidth;
-    }
-
-    public void setSystemOneTableWidth(int systemOneTableWidth)
-    {
-        this.systemOneTableWidth = systemOneTableWidth;
-    }
-
     private int systemTwoDateWidth = 80;
     private int systemTwoDividerLocation = 152;
     private int systemTwoNameWidth = 128;
@@ -215,10 +172,8 @@ public class Preferences implements Serializable
     private int toolsSleepYpos = 0;
     private boolean tooltipsLargeTables = true;
     private boolean useLastPublisherSubscriber = true;
-
     private transient Context context;
     private transient boolean lookAndFeelInitialized = false;
-
     /**
      * Constructor
      */
@@ -518,6 +473,16 @@ public class Preferences implements Serializable
         return collectionOneSortDirection;
     }
 
+    private int getCollectionOneTableWidth()
+    {
+        return collectionOneTableWidth;
+    }
+
+    private int getCollectionOneTreeWidth()
+    {
+        return collectionOneTreeWidth;
+    }
+
     public int getCollectionTwoDateWidth()
     {
         return collectionTwoDateWidth;
@@ -546,6 +511,16 @@ public class Preferences implements Serializable
     public int getCollectionTwoSortDirection()
     {
         return collectionTwoSortDirection;
+    }
+
+    private int getCollectionTwoTableWidth()
+    {
+        return collectionTwoTableWidth;
+    }
+
+    private int getCollectionTwoTreeWidth()
+    {
+        return collectionTwoTreeWidth;
     }
 
     public String getDateFormat()
@@ -863,6 +838,16 @@ public class Preferences implements Serializable
     public int getSystemOneSortDirection()
     {
         return systemOneSortDirection;
+    }
+
+    public int getSystemOneTableWidth()
+    {
+        return systemOneTableWidth;
+    }
+
+    public int getSystemOneTreeWidth()
+    {
+        return systemOneTreeWidth;
     }
 
     public int getSystemTwoDateWidth()
@@ -1270,6 +1255,11 @@ public class Preferences implements Serializable
     public boolean isShowDnDConfirmation()
     {
         return showDnDConfirmation;
+    }
+
+    public boolean isShowGettingStarted()
+    {
+        return showGettingStarted;
     }
 
     public boolean isShowMnemonics()
@@ -1784,6 +1774,11 @@ public class Preferences implements Serializable
         this.showDnDConfirmation = showDnDConfirmation;
     }
 
+    public void setShowGettingStarted(boolean showGettingStarted)
+    {
+        this.showGettingStarted = showGettingStarted;
+    }
+
     public void setShowMnemonics(boolean showMnemonics)
     {
         this.showMnemonics = showMnemonics;
@@ -1842,6 +1837,16 @@ public class Preferences implements Serializable
     public void setSystemOneSortDirection(int systemOneSortDirection)
     {
         this.systemOneSortDirection = systemOneSortDirection;
+    }
+
+    public void setSystemOneTableWidth(int systemOneTableWidth)
+    {
+        this.systemOneTableWidth = systemOneTableWidth;
+    }
+
+    public void setSystemOneTreeWidth(int systemOneTreeWidth)
+    {
+        this.systemOneTreeWidth = systemOneTreeWidth;
     }
 
     public void setSystemTwoDateWidth(int systemTwoDateWidth)

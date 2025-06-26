@@ -14,10 +14,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 /**
  * ELS Help dialog
@@ -52,6 +55,11 @@ public class NavHelp extends JDialog
         initComponents();
         this.setTitle(title);
 
+        if (!resourceFilename.startsWith("gettingstarted_"))
+            showCheckBox.setVisible(false);
+        else
+            showCheckBox.setSelected(context.preferences.isShowGettingStarted());
+
         okButton.addActionListener(new AbstractAction()
         {
             @Override
@@ -59,6 +67,8 @@ public class NavHelp extends JDialog
             {
                 savePreferences();
                 setVisible(false);
+                if (previous == null)
+                    previous = context.mainFrame;
                 previous.requestFocus();
             }
         });
@@ -142,6 +152,7 @@ public class NavHelp extends JDialog
             }
 
             helpText.setText(text);
+            helpText.addHyperlinkListener(new HyperLink());
 
             // scroll to the top
             SwingUtilities.invokeLater(new Runnable()
@@ -164,6 +175,7 @@ public class NavHelp extends JDialog
 
     private void savePreferences()
     {
+        context.preferences.setShowGettingStarted(showCheckBox.isSelected());
         context.preferences.setHelpHeight(this.getHeight());
         context.preferences.setHelpWidth(this.getWidth());
         Point location = this.getLocation();
@@ -173,12 +185,38 @@ public class NavHelp extends JDialog
 
     private void thisWindowClosed(WindowEvent e)
     {
+        if (previous == null)
+            previous = context.mainFrame;
         previous.requestFocus();
     }
 
     private void thisWindowClosing(WindowEvent e)
     {
+        if (previous == null)
+            previous = context.mainFrame;
         previous.requestFocus();
+    }
+
+    public class HyperLink implements HyperlinkListener
+    {
+        @Override
+        public void hyperlinkUpdate(HyperlinkEvent hyperlinkEvent)
+        {
+            HyperlinkEvent.EventType type = hyperlinkEvent.getEventType();
+            if (type == HyperlinkEvent.EventType.ACTIVATED)
+            {
+                try
+                {
+                    URL url = hyperlinkEvent.getURL();
+                    URI uri = url.toURI();
+                    Desktop.getDesktop().browse(uri);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.launching.browser"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
     }
 
     // <editor-fold desc="Generated">
@@ -193,11 +231,11 @@ public class NavHelp extends JDialog
         scrollPane = new JScrollPane();
         helpText = new JEditorPane();
         buttonBar = new JPanel();
+        showCheckBox = new JCheckBox();
         okButton = new JButton();
 
         //======== this ========
         setName(context.cfg.gs("NavHelp.name"));
-        setTitle(context.cfg.gs("NavHelp.name"));
         setMinimumSize(new Dimension(100, 50));
         addWindowListener(new WindowAdapter() {
             @Override
@@ -241,6 +279,12 @@ public class NavHelp extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 80};
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0};
 
+                //---- showCheckBox ----
+                showCheckBox.setText(context.cfg.gs("NavHelp.showCheckBox.text"));
+                buttonBar.add(showCheckBox, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 0, 5), 0, 0));
+
                 //---- okButton ----
                 okButton.setText(context.cfg.gs("Z.ok"));
                 okButton.setActionCommand(context.cfg.gs("Z.ok"));
@@ -268,6 +312,7 @@ public class NavHelp extends JDialog
     public JScrollPane scrollPane;
     private JEditorPane helpText;
     private JPanel buttonBar;
+    private JCheckBox showCheckBox;
     private JButton okButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     //

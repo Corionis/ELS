@@ -29,9 +29,7 @@ Use the buttons at the top of this page <img style="vertical-align:middle" src="
    configuration directory. 
  * Using remote connections may require adjustments to network settings, firewalls, NAT, etc.
    which is beyond the scope of this document.
- <br/><br/>
- The following downloads contain an embedded JRE for that platform.
-
+ 
 ### &nbsp;&nbsp;&nbsp; Linux tar
 
  * Unpack the .tar.gz anywhere you have write permissions.<br/>
@@ -88,7 +86,7 @@ the bin/ directory.
 
 ## &bull; Configuration
 
- * By default ELS data files are store in your home directory in the **.els/** subdirectory.
+ * By default ELS data files are stored in your home directory in the **.els/** subdirectory.
    * That may be changed with the -C \| \--config option.
  
 

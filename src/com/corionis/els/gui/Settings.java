@@ -243,6 +243,7 @@ public class Settings extends JDialog
         showTouchConfirmationCheckBox.setSelected(context.preferences.isShowTouchConfirmation());
         defaultDryrunCheckBox.setSelected(context.preferences.isDefaultDryrun());
         generateLongOptionsCheckBox.setSelected(context.preferences.isGenerateLongOptions());
+        showGettingStartedCheckBox.setSelected(context.preferences.isShowGettingStarted());
         macosLauncherCheckBox.setSelected(context.preferences.isMacosLauncher());
 
         // appearance
@@ -324,6 +325,7 @@ public class Settings extends JDialog
         context.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
         context.preferences.setDefaultDryrun(defaultDryrunCheckBox.isSelected());
         context.preferences.setGenerateLongOptions(generateLongOptionsCheckBox.isSelected());
+        context.preferences.setShowGettingStarted(showGettingStartedCheckBox.isSelected());
         context.preferences.setMacosLauncher(macosLauncherCheckBox.isSelected());
 
         // appearance
@@ -407,6 +409,8 @@ public class Settings extends JDialog
         generateLongOptionsCheckBox = new JCheckBox();
         preserveFileTimestampsLabel = new JLabel();
         preserveFileTimestampsCheckBox = new JCheckBox();
+        showGettingStarted = new JLabel();
+        showGettingStartedCheckBox = new JCheckBox();
         macosLauncherLabel = new JLabel();
         macosLauncherCheckBox = new JCheckBox();
         apperancePanel = new JPanel();
@@ -484,9 +488,9 @@ public class Settings extends JDialog
                     {
                         generalPanel.setLayout(new GridBagLayout());
                         ((GridBagLayout)generalPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
-                        ((GridBagLayout)generalPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)generalPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                         ((GridBagLayout)generalPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                        ((GridBagLayout)generalPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)generalPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- showCcpConfirmationLabel ----
                         showCcpConfirmationLabel.setText(context.cfg.gs("Settings.showCcpConfirmationLabel.text"));
@@ -554,15 +558,27 @@ public class Settings extends JDialog
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
+                        //---- showGettingStarted ----
+                        showGettingStarted.setText(context.cfg.gs("Settings.showGettingStarted.text"));
+                        generalPanel.add(showGettingStarted, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+
+                        //---- showGettingStartedCheckBox ----
+                        showGettingStartedCheckBox.setToolTipText("Uncheck to not show Getting Started at Navigator start");
+                        generalPanel.add(showGettingStartedCheckBox, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
                         //---- macosLauncherLabel ----
                         macosLauncherLabel.setText(context.cfg.gs("Settings.macosLauncherLabel.text"));
-                        generalPanel.add(macosLauncherLabel, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+                        generalPanel.add(macosLauncherLabel, new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 0, 5), 0, 0));
 
                         //---- macosLauncherCheckBox ----
                         macosLauncherCheckBox.setToolTipText("Uncheck to use ELS-Navigator.sh script internally and for shortcuts");
-                        generalPanel.add(macosLauncherCheckBox, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
+                        generalPanel.add(macosLauncherCheckBox, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 0, 0), 0, 0));
                     }
@@ -855,6 +871,8 @@ public class Settings extends JDialog
     private JCheckBox generateLongOptionsCheckBox;
     private JLabel preserveFileTimestampsLabel;
     private JCheckBox preserveFileTimestampsCheckBox;
+    private JLabel showGettingStarted;
+    private JCheckBox showGettingStartedCheckBox;
     private JLabel macosLauncherLabel;
     private JCheckBox macosLauncherCheckBox;
     private JPanel apperancePanel;

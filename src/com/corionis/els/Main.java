@@ -1517,15 +1517,15 @@ public class Main
             }
         }
 
-        // is this a restarted Navigator instance after being updated?
         if (!context.fault)
         {
+            // is this a restarted Navigator instance after being updated?
             if (context.cfg.isNavigator() && (context.cfg.isUpdateSuccessful() || context.cfg.isUpdateFailed()))
             {
                 try
                 {
                     // give the GUI time to come up
-                    Thread.sleep(5000);
+                    Thread.sleep(4000);
                 }
                 catch (Exception e)
                 {
@@ -1542,6 +1542,22 @@ public class Main
                 JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update.status"),
                         JOptionPane.PLAIN_MESSAGE, context.cfg.isUpdateSuccessful() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE,
                         null, opts, opts[0]);
+            }
+            else if (context.cfg.isNavigator() && context.preferences.isShowGettingStarted()) // show Getting Started
+            {
+                try
+                {
+                    // give the GUI time to come up
+                    Thread.sleep(2000);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html", false);
+                if (!dialog.fault)
+                    dialog.buttonFocus();
             }
         }
 

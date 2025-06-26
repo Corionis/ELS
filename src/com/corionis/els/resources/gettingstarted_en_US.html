@@ -35,19 +35,25 @@
             ul {
                 margin-left: 22px;
             }
+
+            a {
+                font-weight: bold;
+            }
         </style>
 </head>
 <body>
 <h2>Getting Started</h2>
 
 <p>ELS uses a publisher/subscriber paradigm to present a collection of logical libraries from a
-local publisher to a subscriber, or back-up. The subscriber may be local, with all storage devices
-attached, or remote using another ELS instance operating as a Subscriber Listener.</p>
+local workstation or publisher to a subscriber, or back-up. The subscriber may be local, with
+all storage devices attached, or remote using another ELS instance operating as a
+Subscriber Listener.</p>
 <br/>
 <p>Each logical library may span multiple storage devices. This is the same approach used by
-modern media streaming systems, such as Plex, but is also useful for anyone producing large
-volumes of content, videos, music, images, data, etc. Each storage Location may specify a "Minimum
-Free Space". A library is defined as a Bibliography of Sources used by the library.</p>
+modern media streaming systems, such as Plex or Jellyfin, but is also useful for anyone
+producing large volumes of content, videos, music, images, data, etc. Each storage Location
+may specify a "Minimum Free Space". A library is defined as a Bibliography of Sources used
+by the library.</p>
 <br/>
 <p>ELS may be run in a variety of modes. The visible mode is this ELS Navigator. However, several
 other command line modes are available to automate ELS operations. ELS started as a command line
@@ -56,14 +62,14 @@ functionality.</p>
 
 <h3>Start-up Steps</h3>
 <ol>
-    <li>Define a publisher on the Libraries tab.</li>
+    <li>Define a publisher/workstation on the Libraries tab.</li>
     <li>Use File, Open Publisher to open the new publisher.</li>
     <li>Define one or more subscribers (back-ups) on the Libraries tab.</li>
     <li>Use File, Open Subscriber to open the new subscriber.</li>
 </ol>
 
 <h3>Browser</h3>
-<p>The Browser presents a publisher and subscriber in a drag 'n drop interface. Selections made in
+<p>The Browser presents a publisher/workstation and subscriber in a drag 'n drop interface. Selections made in
 the Browser are used by the Tools and Jobs. Selections may be changed while working with Tools and Jobs,
 e.g. using the Duplicate Finder select the Publisher and click "Run ...", then select the Subscriber and
 click "Run ..." again.</p>
@@ -75,34 +81,55 @@ computer's entire directory tree.</p>
 <p>Libraries are the core of ELS that define the parameters of an ELS instance. Those include
 how to access ELS remotely, which files to ignore, minimum storage space for each location,
 and the names and source(s) of each logical library.</p>
+
 <br/>
 <h3>Remote Subscribers and Hints</h3>
 <p>If a Subscriber is remote or Hints will be used Hint Keys and Authentication Keys are required. Use
-the System menu selections to define those using the keys from the library files.</p>
+the System menu to define those using the keys from the library files.</p>
 <br/>
-<p>Authentication Keys define Libraries that are allowed to connect to this ELS. Those may include publishers,
-subscribers and Navigators.</p>
+<p>Hints are a mechanism to coordinate manual changes to a collection at back-up time. Hints allow
+changes (deletes, moves and renames) to be made when not all subscribers are actively connected.
+A publisher may be opened as a <b>Collection</b>, where Hints are tracked, or as a <b>Workstation</b>
+where Hints are not tracked. See <a href="https://github.com/Corionis/ELS/wiki/Hints">Hints</a> in
+the ELS Wiki for more information.</p>
+<br/>
+<p>A Hint Tracker is local whereas a Hint Server is an ELS instance operating as a remote
+Hint Server listener.</p>
+<br/>
+<p>Authentication Keys define ELS instances that are allowed to connect to this ELS when operating
+as a Subscriber Listener or Hint Server. Those may include publishers/workstations, subscribers
+and Navigators.</p>
 <br/>
 <p>Hint Keys defined which publishers and subscribers are involved in Hint tracking.</p>
 <br/>
-<p>Blacklist and Whitelist define which IP addresses are allowed to connect
-to this ELS. Optional, but a good way to avoid hack attempts.</p>
+<p>Blacklist and Whitelist define which IP addresses are allowed to connect to ELS when operating
+as a Subscriber Listener or Hint Server. Optional but a good way to avoid hack attempts.</p>
+<br/>
+<p>See <a href="https://github.com/Corionis/ELS/wiki/Communications">Communications</a> in the
+ELS Wiki for more information.</p>
 
+<br/>
 <h3>Tools</h3>
-<p>Various Tools are provided to make building and maintaining libraries easier. The Duplicate Finder
+<p>Various Tools are provided to make building and maintaining a collection easier. The Duplicate Finder
 and Empty Directory Finder are used manually. The other Tools may be run by themselves or combined
 into Jobs.</p>
+
+<br/>
+<h3>Jobs</h3>
+<p>Jobs are composed of one or more Tasks which are a Tool with selections for the Publisher,
+Subscriber, and Hint Server as required. Some Tools also use Origin path lists to
+define where to execute the Tool.</p>
 <br/>
 <p>Tools define something to do. Tasks in Jobs define where to do it.</p>
-
-<h3>Jobs</h3>
-<p>Jobs are combinations of one or more Tools. Jobs are composed of Tasks which are a Tool with selections
-for the Publisher, Subscriber, and Hint Server as required. Some Tools also use Origin path lists to
-define exactly what is to be operated on.</p>
 
 <br/>
 <h3>Ways to Execute ELS</h3>
 <p>ELS is a multi-faceted application that may be executed in a variety of ways.</p>
+<br/>
+<center><img src="https://corionis.github.io/ELS/assets/images/basic-ways-small-transparent.png"><br/>
+<!-- file:basic-ways-small-transparent.png -->
+See <a href="https://corionis.github.io/ELS/features">Features</a></center>
+<br/>
 
 <h4>From Navigator</h4>
 <p>The provided start-up mechanism for each supported operating system executes the ELS Navigator user
@@ -116,17 +143,16 @@ interface with no arguments. That tells Navigator to use the previous publisher,
     the clipboard or used to create a desktop shortcut.<br/><br/></li>
     <li>Jobs, Manage has two options:<br/></li>
     <ol>
-        <li>Run ... that will execute the selected Job inside the current Navigator.<br/><br/></li>
+        <li>Run ... will execute the selected Job inside the current Navigator.<br/><br/></li>
         <li>Generate / Run ... will generate a command line for the current Job and
         offers either foreground or background immediate execution with its Run button outside
-        of the current Navigator, copy to the clipboard or create a desktop shortcut for
-        the currently-selected Job.</li>
+        of the current Navigator. And copy to the clipboard or create a desktop shortcut for
+        the selected Job.</li>
     </ol>
 </ul>
 
 <h4>From Command Line</h4>
-<p>ELS may also be executed from the command line two ways:</p>
-
+<p>ELS may also be executed from the command line two ways. See <a href="https://github.com/Corionis/ELS/wiki/Command-Line">Command Line</a> in the ELS Wiki for details.</p>
 <ul>
     <li>Using either short or long options to define all the arguments needed for an Operation.<br/><br/></li>
     <li>Defining a Job inside Navigator then executing it from the command line.</li>
@@ -134,15 +160,15 @@ interface with no arguments. That tells Navigator to use the previous publisher,
 
 <h4>Note for Linux and macOS users:</h4>
 <p>When executing ELS from the command line with cron, or a task scheduler, set the
--c | --console-level to Off so it only logs to the -d | --debug-level file and not
+-c | --console-level option to Off so it only logs to the -d | --debug-level file and not
 stdout to avoid cron error messages.</p>
 
 <br/>
 <h3>Remote Configurations</h3>
-When using remote publishers and/or subscribers the order of execution is:
+When using remote subscribers or Hint Server the order of execution is:
 <ol>
     <li>Hint Server, if used.</li>
-    <li>Subscriber(s).</li>
+    <li>Subscriber Listener.</li>
     <li>Publisher.</li>
 </ol>
 
