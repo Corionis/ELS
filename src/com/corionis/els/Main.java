@@ -1525,7 +1525,8 @@ public class Main
                 try
                 {
                     // give the GUI time to come up
-                    Thread.sleep(4000);
+                    while (context.navigator == null || context.mainFrame == null || !context.mainFrame.isVisible())
+                        Thread.sleep(1000);
                 }
                 catch (Exception e)
                 {
@@ -1548,7 +1549,8 @@ public class Main
                 try
                 {
                     // give the GUI time to come up
-                    Thread.sleep(2000);
+                    while (context.navigator == null || context.mainFrame == null || !context.mainFrame.isVisible())
+                        Thread.sleep(1000);
                 }
                 catch (Exception e)
                 {
