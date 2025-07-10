@@ -2365,7 +2365,12 @@ public class Navigator
                                     if (object instanceof JTree)
                                         tuo.node.selectMe();
                                     else
+                                    {
                                         ((JTable) object).setRowSelectionInterval(rows[0], rows[0]);
+                                        int row = context.browser.findRowIndex((JTable) object, tuo);
+                                        if (row > -1)
+                                            ((JTable) object).scrollRectToVisible(new Rectangle((((JTable) object).getCellRect(row, 0, true))));
+                                    }
                                 }
                                 catch (Exception e)
                                 {

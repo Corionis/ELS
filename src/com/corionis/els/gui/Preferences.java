@@ -295,6 +295,9 @@ public class Preferences implements Serializable
 
     public void fixColumnSizes(Context context, JTable table)
     {
+        if (table != null && context.navigator != null && context.mainFrame != null && context.mainFrame.isVisible())
+            context.preferences.extractPositionsSizes(context);
+
         // column sizes
         if (table == null || table.getName().equalsIgnoreCase("tableCollectionOne"))
         {
