@@ -982,7 +982,7 @@ public class MainFrame extends JFrame
 
                 //---- menuItemBookmarksDelete ----
                 menuItemBookmarksDelete.setText(context.cfg.gs("Navigator.menu.BookmarksManage.text"));
-                menuItemBookmarksDelete.setMnemonic(context.cfg.gs("Navigator.menu.BookmarksManage.mnemonic").charAt(0));
+                menuItemBookmarksDelete.setMnemonic(context.cfg.gs("Navigator.menuItemBookmarksDelete.mnemonic").charAt(0));
                 menuItemBookmarksDelete.setIcon(new ImageIcon(getClass().getResource("/bookmark-delete.png")));
                 menuBookmarks.add(menuItemBookmarksDelete);
                 menuBookmarks.addSeparator();

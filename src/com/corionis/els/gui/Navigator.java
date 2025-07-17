@@ -3,6 +3,7 @@ package com.corionis.els.gui;
 import com.corionis.els.*;
 import com.corionis.els.gui.bookmarks.Bookmark;
 import com.corionis.els.gui.bookmarks.Bookmarks;
+import com.corionis.els.gui.bookmarks.BookmarksUI;
 import com.corionis.els.gui.browser.NavTransferHandler;
 import com.corionis.els.gui.browser.NavTreeNode;
 import com.corionis.els.gui.browser.NavTreeUserObject;
@@ -2583,48 +2584,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                String message = context.cfg.gs("Browser.select.one.or.more.bookmarks.to.delete");
-                JList<String> names = new JList<String>();
-                DefaultListModel<String> listModel = new DefaultListModel<String>();
-                names.setModel(listModel);
-                names.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-                bookmarks.sort();
-                for (int i = 0; i < bookmarks.size(); ++i)
-                {
-                    Bookmark bm = bookmarks.get(i);
-                    listModel.addElement(bm.name);
-                }
-
-                JScrollPane pane = new JScrollPane();
-                pane.setViewportView(names);
-                names.requestFocus();
-                Object[] params = {message, pane};
-
-                int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.gs("Navigator.delete.bookmarks"), JOptionPane.OK_CANCEL_OPTION);
-                if (opt == JOptionPane.OK_OPTION)
-                {
-                    int[] selected = names.getSelectedIndices();
-                    if (selected != null && selected.length > 0)
-                    {
-                        for (int i = selected.length - 1; i > -1; --i)
-                        {
-                            bookmarks.delete(selected[i]);
-                        }
-
-                        try
-                        {
-                            bookmarks.write();
-                            loadBookmarksMenu();
-                        }
-                        catch (Exception e)
-                        {
-                            logger.error(Utils.getStackTrace(e));
-                            JOptionPane.showMessageDialog(context.mainFrame,
-                                    context.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
-                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                }
+                new BookmarksUI(context.mainFrame, context);
             }
         });
 

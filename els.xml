@@ -409,9 +409,11 @@
 
     <target name="All" depends="ELS, Updater" description="Build all deliverables"/>
 
-    <target name="All-Deploy" depends="All, Deploy" description="Build all deliverables and copy to deploy"/>
+    <!-- WHILE DEV WORK  target name="All-Deploy" depends="All, Deploy" description="Build all deliverables and copy to deploy"/ -->
 
-    <target name="Deploy" depends="deploy, deploy-website" description="Deploy ELS and web site" />
+    <target name="Dev-Deploy" depends="All, deploy" description="Build all development deliverables and copy to deploy"/>
+
+    <!-- WHILE DEV WORK  target name="Deploy" depends="deploy, deploy-website" description="Deploy ELS and web site" / -->
 
     <target name="ELS" depends="els-linux, els-windows, els-macos-tar" description="Build ELS"/>
 

@@ -28,6 +28,12 @@ public class Preferences implements Serializable
     private int appYpos = 0;
     private boolean autoRefresh = false;
     private boolean binaryScale = true; // true = 1024, false = 1000
+    private int bookmarksHeight = 320;
+    private int bookmarksNameWidth = -1;
+    private int bookmarksPathWidth = -1;
+    private int bookmarksWidth = 440;
+    private int bookmarksXpos = -1;
+    private int bookmarksYpos = 0;
     private int browserBottomSize = 90;
     private int centerDividerLocation = 188;
     private int centerDividerOrientation = 0;
@@ -37,7 +43,6 @@ public class Preferences implements Serializable
     private int collectionOneSizeWidth = 80;
     private int collectionOneSortColumn = 1;
     private int collectionOneSortDirection = 0;
-
     private int collectionOneTableWidth = -1;
     private int collectionOneTreeWidth = -1;
     private int collectionTwoDateWidth = 80;
@@ -174,6 +179,7 @@ public class Preferences implements Serializable
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient boolean lookAndFeelInitialized = false;
+
     /**
      * Constructor
      */
@@ -429,6 +435,36 @@ public class Preferences implements Serializable
     public int getAppYpos()
     {
         return appYpos;
+    }
+
+    public int getBookmarksHeight()
+    {
+        return bookmarksHeight;
+    }
+
+    public int getBookmarksNameWidth()
+    {
+        return bookmarksNameWidth;
+    }
+
+    public int getBookmarksPathWidth()
+    {
+        return bookmarksPathWidth;
+    }
+
+    public int getBookmarksWidth()
+    {
+        return bookmarksWidth;
+    }
+
+    public int getBookmarksXpos()
+    {
+        return bookmarksXpos;
+    }
+
+    public int getBookmarksYpos()
+    {
+        return bookmarksYpos;
     }
 
     public int getBrowserBottomSize()
@@ -1338,6 +1374,36 @@ public class Preferences implements Serializable
     public void setBinaryScale(boolean binaryScale)
     {
         this.binaryScale = binaryScale;
+    }
+
+    public void setBookmarksHeight(int bookmarksHeight)
+    {
+        this.bookmarksHeight = bookmarksHeight;
+    }
+
+    public void setBookmarksNameWidth(int bookmarksNameWidth)
+    {
+        this.bookmarksNameWidth = bookmarksNameWidth;
+    }
+
+    public void setBookmarksPathWidth(int bookmarksPathWidth)
+    {
+        this.bookmarksPathWidth = bookmarksPathWidth;
+    }
+
+    public void setBookmarksWidth(int bookmarksWidth)
+    {
+        this.bookmarksWidth = bookmarksWidth;
+    }
+
+    public void setBookmarksXpos(int bookmarksXpos)
+    {
+        this.bookmarksXpos = bookmarksXpos;
+    }
+
+    public void setBookmarksYpos(int bookmarksYpos)
+    {
+        this.bookmarksYpos = bookmarksYpos;
     }
 
     public void setBrowserBottomSize(int browserBottomSize)

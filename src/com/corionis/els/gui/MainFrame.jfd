@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.6" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -1747,7 +1747,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemBookmarksDelete"
 						"text": new FormMessage( null, "Navigator.menu.BookmarksManage.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.BookmarksManage.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemBookmarksDelete.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/bookmark-delete.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {

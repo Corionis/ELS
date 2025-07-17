@@ -138,6 +138,7 @@ public class HintsUI extends JDialog
 
             context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
 
+            setWidths();
             setVisible(true);
             requestFocus();
         }
@@ -533,8 +534,6 @@ public class HintsUI extends JDialog
                     subscriberDisplayName = context.cfg.gs("HintsUI.not.loaded");
                 }
 
-                tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
-                setWidths();
                 model.fireTableDataChanged();
                 refreshStatus();
             }
@@ -543,6 +542,7 @@ public class HintsUI extends JDialog
                 labelStatus.setText(context.cfg.gs("HintsUI.hint.tracker.server.not.enabled"));
             }
 
+            setWidths();
             context.navigator.checkForHints();
             setButtons();
         }
@@ -608,6 +608,8 @@ public class HintsUI extends JDialog
     {
         tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
         tableHints.getColumnModel().getColumn(0).setWidth(22);
+        tableHints.getColumnModel().getColumn(0).setMaxWidth(22);
+        tableHints.getColumnModel().getColumn(0).setMinWidth(22);
         tableHints.getColumnModel().getColumn(0).setResizable(false);
         tableHints.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getHintsSystemWidth());
         tableHints.getColumnModel().getColumn(1).setWidth(context.preferences.getHintsSystemWidth());
@@ -626,10 +628,13 @@ public class HintsUI extends JDialog
         tableHints.getColumnModel().getColumn(8).setPreferredWidth(context.preferences.getHintsToItemWidth());
         tableHints.getColumnModel().getColumn(8).setWidth(context.preferences.getHintsToItemWidth());
 
-        for (int i = 0; i < context.hintKeys.size(); ++i)
+        if (context.cfg.isHintTrackingEnabled())
         {
-            tableHints.getColumnModel().getColumn(i + 9).setPreferredWidth(context.preferences.getHintsStatusWidth());
-            tableHints.getColumnModel().getColumn(i + 9).setWidth(context.preferences.getHintsStatusWidth());
+            for (int i = 0; i < context.hintKeys.size(); ++i)
+            {
+                tableHints.getColumnModel().getColumn(i + 9).setPreferredWidth(context.preferences.getHintsStatusWidth());
+                tableHints.getColumnModel().getColumn(i + 9).setWidth(context.preferences.getHintsStatusWidth());
+            }
         }
     }
 

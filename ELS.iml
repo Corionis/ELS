@@ -5,7 +5,6 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/artifacts/images" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/com/groksoft/els/locales" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/com/corionis/els/locales" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/com/corionis/els/resources" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/mock/output" />
