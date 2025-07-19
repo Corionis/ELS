@@ -693,7 +693,9 @@ public class MainFrame extends JFrame
         bibliographyTab = new JPanel();
         splitPanelBiblio = new JSplitPane();
         panelBiblioLibraries = new JPanel();
-        labelBiblioLibraries = new JLabel();
+        panelHeader = new JPanel();
+        labelLibraries = new JLabel();
+        labelMatchDates = new JLabel();
         scrollPaneBiblioLibraries = new JScrollPane();
         tableBiblioLibraries = new JTable();
         panelSources = new JPanel();
@@ -1904,10 +1906,11 @@ public class MainFrame extends JFrame
                         splitPaneLibs.setDividerLocation(142);
                         splitPaneLibs.setLastDividerLocation(142);
                         splitPaneLibs.setResizeWeight(1.0);
+                        splitPaneLibs.setMinimumSize(new Dimension(10, 80));
 
                         //======== scrollPaneConfig ========
                         {
-                            scrollPaneConfig.setMinimumSize(new Dimension(140, 16));
+                            scrollPaneConfig.setMinimumSize(new Dimension(42, 16));
                             scrollPaneConfig.setPreferredSize(new Dimension(142, 146));
                             scrollPaneConfig.setName("librariesConfigScroll");
 
@@ -1917,6 +1920,7 @@ public class MainFrame extends JFrame
                             librariesConfigItems.setFillsViewportHeight(true);
                             librariesConfigItems.setShowHorizontalLines(false);
                             librariesConfigItems.setName("librariesConfig");
+                            librariesConfigItems.setMinimumSize(new Dimension(42, 40));
                             scrollPaneConfig.setViewportView(librariesConfigItems);
                         }
                         splitPaneLibs.setLeftComponent(scrollPaneConfig);
@@ -2457,34 +2461,51 @@ public class MainFrame extends JFrame
                                     //======== splitPanelBiblio ========
                                     {
                                         splitPanelBiblio.setDividerLocation(201);
+                                        splitPanelBiblio.setMinimumSize(new Dimension(10, 89));
 
                                         //======== panelBiblioLibraries ========
                                         {
                                             panelBiblioLibraries.setPreferredSize(new Dimension(200, 40));
-                                            panelBiblioLibraries.setMinimumSize(new Dimension(200, 40));
+                                            panelBiblioLibraries.setMinimumSize(new Dimension(42, 40));
                                             panelBiblioLibraries.setLayout(new GridBagLayout());
                                             ((GridBagLayout)panelBiblioLibraries.getLayout()).columnWidths = new int[] {200, 0};
                                             ((GridBagLayout)panelBiblioLibraries.getLayout()).rowHeights = new int[] {0, 0, 0};
                                             ((GridBagLayout)panelBiblioLibraries.getLayout()).columnWeights = new double[] {0.0, 1.0E-4};
                                             ((GridBagLayout)panelBiblioLibraries.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
-                                            //---- labelBiblioLibraries ----
-                                            labelBiblioLibraries.setText(context.cfg.gs("Libraries.labelBiblioLibraries.text"));
-                                            labelBiblioLibraries.setFont(labelBiblioLibraries.getFont().deriveFont(labelBiblioLibraries.getFont().getStyle() | Font.BOLD, labelBiblioLibraries.getFont().getSize() + 1f));
-                                            labelBiblioLibraries.setHorizontalAlignment(SwingConstants.LEFT);
-                                            labelBiblioLibraries.setHorizontalTextPosition(SwingConstants.LEFT);
-                                            panelBiblioLibraries.add(labelBiblioLibraries, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                            //======== panelHeader ========
+                                            {
+                                                panelHeader.setLayout(new BorderLayout());
+
+                                                //---- labelLibraries ----
+                                                labelLibraries.setText(context.cfg.gs("Libraries.labelBiblioLibraries.text"));
+                                                labelLibraries.setHorizontalAlignment(SwingConstants.LEFT);
+                                                labelLibraries.setFont(labelLibraries.getFont().deriveFont(labelLibraries.getFont().getStyle() | Font.BOLD, labelLibraries.getFont().getSize() + 1f));
+                                                labelLibraries.setVerticalAlignment(SwingConstants.BOTTOM);
+                                                panelHeader.add(labelLibraries, BorderLayout.WEST);
+
+                                                //---- labelMatchDates ----
+                                                labelMatchDates.setText(context.cfg.gs("Navigator.labelMatchDates.text"));
+                                                labelMatchDates.setHorizontalAlignment(SwingConstants.RIGHT);
+                                                labelMatchDates.setFont(labelMatchDates.getFont().deriveFont(labelMatchDates.getFont().getSize() - 1f));
+                                                labelMatchDates.setToolTipText(context.cfg.gs("MatchDateCell.checkBox.tooltip"));
+                                                labelMatchDates.setVerticalAlignment(SwingConstants.BOTTOM);
+                                                panelHeader.add(labelMatchDates, BorderLayout.EAST);
+                                            }
+                                            panelBiblioLibraries.add(panelHeader, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(8, 4, 0, 0), 0, 0));
+                                                new Insets(6, 4, 0, 2), 0, 0));
 
                                             //======== scrollPaneBiblioLibraries ========
                                             {
+                                                scrollPaneBiblioLibraries.setMinimumSize(new Dimension(42, 20));
 
                                                 //---- tableBiblioLibraries ----
                                                 tableBiblioLibraries.setFillsViewportHeight(true);
                                                 tableBiblioLibraries.setShowVerticalLines(false);
                                                 tableBiblioLibraries.setShowHorizontalLines(false);
                                                 tableBiblioLibraries.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                                                tableBiblioLibraries.setMinimumSize(new Dimension(42, 40));
                                                 scrollPaneBiblioLibraries.setViewportView(tableBiblioLibraries);
                                             }
                                             panelBiblioLibraries.add(scrollPaneBiblioLibraries, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
@@ -3041,7 +3062,9 @@ public class MainFrame extends JFrame
     public JPanel bibliographyTab;
     public JSplitPane splitPanelBiblio;
     public JPanel panelBiblioLibraries;
-    public JLabel labelBiblioLibraries;
+    public JPanel panelHeader;
+    public JLabel labelLibraries;
+    public JLabel labelMatchDates;
     public JScrollPane scrollPaneBiblioLibraries;
     public JTable tableBiblioLibraries;
     public JPanel panelSources;

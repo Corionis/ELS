@@ -247,6 +247,7 @@ public class Process
                             {
                                 if (!item.isDirectory())
                                 {
+                                    boolean diffDates = false;
                                     ++totalItems;
 
                                     // does the subscriber have a matching item?
@@ -255,7 +256,13 @@ public class Process
                                     {
                                         if (item.getHas().size() == 1) // no duplicates?
                                         {
-                                            if (item.getSize() != has.getSize())
+                                            // match dates?
+                                            if (subLib.matchDates && item.getModifiedDate().compareTo(has.getModifiedDate()) > 0)
+                                            {
+                                                diffDates = true;
+                                                has = null;
+                                            }
+                                            else if (item.getSize() != has.getSize())
                                             {
                                                 logger.warn(java.text.MessageFormat.format(context.cfg.gs("Process.subscriber.has.different.size"),
                                                         subLib.name,item.getItemPath()));
@@ -266,10 +273,15 @@ public class Process
                                                         subLib.name,item.getItemPath()));
                                         } // otherwise duplicates were logged in hasItem(), do not log again
                                     }
-                                    else
+
+                                    if (has == null)
                                     {
-                                        logger.info(java.text.MessageFormat.format(context.cfg.gs("Process.subscriber.missing"),
-                                                subLib.name,item.getItemPath()));
+                                        if (diffDates)
+                                            logger.info(java.text.MessageFormat.format(context.cfg.gs("Process.subscriber.out.of.date"),
+                                                    subLib.name,item.getItemPath()));
+                                        else
+                                            logger.info(java.text.MessageFormat.format(context.cfg.gs("Process.subscriber.missing"),
+                                                    subLib.name,item.getItemPath()));
 
                                         /* If the group is switching, process the current one. */
                                         if (context.transfer.isNewGrouping(item))

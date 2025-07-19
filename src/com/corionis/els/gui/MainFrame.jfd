@@ -666,9 +666,10 @@ new FormModel {
 							"dividerLocation": 142
 							"lastDividerLocation": 142
 							"resizeWeight": 1.0
+							"minimumSize": new java.awt.Dimension( 10, 80 )
 							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 								name: "scrollPaneConfig"
-								"minimumSize": new java.awt.Dimension( 140, 16 )
+								"minimumSize": new java.awt.Dimension( 42, 16 )
 								"preferredSize": new java.awt.Dimension( 142, 146 )
 								"name": "librariesConfigScroll"
 								add( new FormComponent( "javax.swing.JTable" ) {
@@ -678,6 +679,7 @@ new FormModel {
 									"fillsViewportHeight": true
 									"showHorizontalLines": false
 									"name": "librariesConfig"
+									"minimumSize": new java.awt.Dimension( 42, 40 )
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "left"
@@ -1240,6 +1242,7 @@ new FormModel {
 										add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 											name: "splitPanelBiblio"
 											"dividerLocation": 201
+											"minimumSize": new java.awt.Dimension( 10, 89 )
 											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 												"$columnSpecs": "200"
 												"$rowSpecs": "0, 0"
@@ -1248,25 +1251,41 @@ new FormModel {
 											} ) {
 												name: "panelBiblioLibraries"
 												"preferredSize": new java.awt.Dimension( 200, 40 )
-												"minimumSize": new java.awt.Dimension( 200, 40 )
-												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "labelBiblioLibraries"
-													"text": new FormMessage( null, "Libraries.labelBiblioLibraries.text" )
-													"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 1, false )
-													"horizontalAlignment": 2
-													"horizontalTextPosition": 2
+												"minimumSize": new java.awt.Dimension( 42, 40 )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+													name: "panelHeader"
+													add( new FormComponent( "javax.swing.JLabel" ) {
+														name: "labelLibraries"
+														"text": new FormMessage( null, "Libraries.labelBiblioLibraries.text" )
+														"horizontalAlignment": 2
+														"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 1, false )
+														"verticalAlignment": 3
+													}, new FormLayoutConstraints( class java.lang.String ) {
+														"value": "West"
+													} )
+													add( new FormComponent( "javax.swing.JLabel" ) {
+														name: "labelMatchDates"
+														"text": new FormMessage( null, "Navigator.labelMatchDates.text" )
+														"horizontalAlignment": 4
+														"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, -1, false )
+														"toolTipText": new FormMessage( null, "MatchDateCell.checkBox.tooltip" )
+														"verticalAlignment": 3
+													}, new FormLayoutConstraints( class java.lang.String ) {
+														"value": "East"
+													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-													"hAlign": 5
-													"insets": new java.awt.Insets( 8, 4, 0, 0 )
+													"insets": new java.awt.Insets( 6, 4, 0, 2 )
 												} )
 												add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 													name: "scrollPaneBiblioLibraries"
+													"minimumSize": new java.awt.Dimension( 42, 20 )
 													add( new FormComponent( "javax.swing.JTable" ) {
 														name: "tableBiblioLibraries"
 														"fillsViewportHeight": true
 														"showVerticalLines": false
 														"showHorizontalLines": false
 														"selectionMode": 0
+														"minimumSize": new java.awt.Dimension( 42, 40 )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridy": 1

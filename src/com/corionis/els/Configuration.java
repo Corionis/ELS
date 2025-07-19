@@ -2031,8 +2031,9 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
+        // Available:
+        //   M
         // Reserved:
-        //   M match dates
         //   R restrict Hint processing, i.e. do not execute
         //   U user authentication & authorization
         //   X execute Hints only. -X -R checks for Hints but does not execute

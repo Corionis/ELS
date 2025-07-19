@@ -16,6 +16,11 @@ public class Library implements Comparable<Library>
     public String name;
 
     /**
+     * Match dates in this library
+     */
+    public boolean matchDates = false;
+
+    /**
      * One or more Sources.
      */
     public String[] sources;

@@ -697,16 +697,21 @@ public class LibrariesUI
 
     private void actionOkClicked(ActionEvent e)
     {
+        LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+
         int state = saveConfigurations();
         if (state < 0)
             return;
 
-        LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
         savePreferences();
 
         int cci = configModel.findIndex(libMeta);
         if (cci >= 0)
+        {
+            currentConfigIndex = cci;
             configItems.setRowSelectionInterval(cci, cci);
+            loadGeneralTab();
+        }
 
         if (state > 0)
             mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.saved"));
@@ -1276,7 +1281,6 @@ public class LibrariesUI
                 column = directoryPicker.table.getColumnModel().getColumn(1);
                 column.setResizable(false);
 
-
                 mf.buttonNew.setEnabled(false);
                 mf.buttonCopy.setEnabled(false);
                 mf.buttonDelete.setEnabled(false);
@@ -1825,13 +1829,22 @@ public class LibrariesUI
 
         // bibliography tab
         biblioLibrariesTableModel = new BiblioLibrariesTableModel(context);
-        biblioLibrariesTableModel.setColumnCount(1);
+        biblioLibrariesTableModel.setColumnCount(2);
         biblioLibrariesTableModel.setDisplayName(displayName);
         mf.tableBiblioLibraries.setModel(biblioLibrariesTableModel);
 
         mf.tableBiblioLibraries.getTableHeader().setUI(null);
         mf.tableBiblioLibraries.setTableHeader(null);
         mf.scrollPaneBiblioLibraries.setColumnHeaderView(null);
+
+        mf.tableBiblioLibraries.getColumnModel().getColumn(0).setMinWidth(10);
+
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setPreferredWidth(24);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setWidth(24);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setMaxWidth(24);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setMinWidth(24);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setResizable(false);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setCellRenderer(new MatchDateCell(context));
 
         ListSelectionModel blsm = mf.tableBiblioLibraries.getSelectionModel();
         blsm.addListSelectionListener(new ListSelectionListener()
@@ -1856,6 +1869,23 @@ public class LibrariesUI
 
         listSourcesModel = new DefaultListModel();
         mf.listSources.setModel(listSourcesModel);
+        ListSelectionModel slsm = mf.listSources.getSelectionModel();
+        slsm.addListSelectionListener(new ListSelectionListener()
+        {
+            @Override
+            public void valueChanged(ListSelectionEvent listSelectionEvent)
+            {
+                if (!loading && !listSelectionEvent.getValueIsAdjusting())
+                {
+                    ListSelectionModel sm = (ListSelectionModel) listSelectionEvent.getSource();
+                    int index = sm.getMinSelectionIndex();
+                    if (index >= 0 && index != currentSourceIndex)
+                    {
+                        currentSourceIndex = index;
+                    }
+                }
+            }
+        });
 
         // Make Mode objects
         //  * library
@@ -2021,7 +2051,6 @@ public class LibrariesUI
                     biblioLibrariesTableModel.addRow(new Object[]{libraries[i]});
                 }
             }
-            currentLibraryIndex = 0;
 
             biblioLibrariesTableModel.fireTableDataChanged();
 
@@ -2038,7 +2067,11 @@ public class LibrariesUI
             {
                 mf.buttonRemoveLibrary.setEnabled(true);
                 mf.buttonAddSource.setEnabled(true);
-                if (((Library) biblioLibrariesTableModel.getValueAt(currentLibraryIndex, 0)).sources.length > 1)
+
+                int len = libMeta.repo.getLibraryData().libraries.bibliography.length;
+                if (len == 0 || currentLibraryIndex >= len)
+                    currentLibraryIndex = 0;
+                if (libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources.length > 1)
                 {
                     mf.buttonAddMultiSource.setEnabled(true);
                     mf.buttonUpSource.setEnabled(true);
@@ -2049,7 +2082,7 @@ public class LibrariesUI
                     mf.buttonUpSource.setEnabled(false);
                     mf.buttonDownSource.setEnabled(false);
                 }
-                if (((Library) biblioLibrariesTableModel.getValueAt(currentLibraryIndex, 0)).sources.length > 0)
+                if (libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources.length > 0)
                     mf.buttonRemoveSource.setEnabled(true);
 
                 mf.tableBiblioLibraries.changeSelection(currentLibraryIndex, 0, false, false);
@@ -2506,6 +2539,13 @@ public class LibrariesUI
         else if (lastTab == 2)
         {
             mf.bibliographyTab.requestFocus();
+
+            if (currentConfigIndex >= 0)
+                configItems.setRowSelectionInterval(currentConfigIndex, currentConfigIndex);
+            if (currentLibraryIndex >= 0)
+                mf.tableBiblioLibraries.setRowSelectionInterval(currentLibraryIndex, currentLibraryIndex);
+            if (currentSourceIndex >= 0)
+                mf.listSources.setSelectedIndex(currentSourceIndex);
         }
     }
 

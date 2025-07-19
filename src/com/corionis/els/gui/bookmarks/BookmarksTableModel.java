@@ -6,7 +6,7 @@ import com.corionis.els.gui.hints.HintsUI;
 
 import javax.swing.table.DefaultTableModel;
 
-public class BookmarksTableModel  extends DefaultTableModel
+public class BookmarksTableModel extends DefaultTableModel
 {
     Context context;
     Bookmarks bookmarks;

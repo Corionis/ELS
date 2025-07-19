@@ -2578,7 +2578,7 @@ public class Navigator
             }
         });
 
-        // --- Bookmarks Delete
+        // --- Bookmarks Edit
         context.mainFrame.menuItemBookmarksDelete.addActionListener(new AbstractAction()
         {
             @Override
