@@ -37,10 +37,10 @@ import java.awt.event.*;
  * <br/>
  * See also: <br/>
  *
- *  Menu icon color:  #3592C4
- *  Menu icon size:   14x14 px
- *  Accent color:     #2675BF  see Preferences
- *
+ *  Menu icon color:  #3592C4 <br/>
+ *  Menu icon size:   14x14 px <br/>
+ *  Accent color:     #2675BF  see Preferences <br/>
+ * <br/>
  *  Icon source:  https://www.iconsdb.com
  */
 public class MainFrame extends JFrame
@@ -502,6 +502,7 @@ public class MainFrame extends JFrame
         menuItemRefresh = new JMenuItem();
         radioButtonAutoRefresh = new JCheckBoxMenuItem();
         menuItemShowHidden = new JCheckBoxMenuItem();
+        menuItemShowNavigation = new JCheckBoxMenuItem();
         menuItemShowToolbar = new JCheckBoxMenuItem();
         menuItemWordWrap = new JCheckBoxMenuItem();
         menuBookmarks = new JMenu();
@@ -957,6 +958,11 @@ public class MainFrame extends JFrame
                 menuItemShowHidden.setDisplayedMnemonicIndex(5);
                 menuItemShowHidden.setIcon(null);
                 menuView.add(menuItemShowHidden);
+
+                //---- menuItemShowNavigation ----
+                menuItemShowNavigation.setText(context.cfg.gs("Navigator.menuItemShowNavigation.text"));
+                menuItemShowNavigation.setMnemonic(context.cfg.gs("Navigator.menuItemShowNavigation.mnemonic").charAt(0));
+                menuView.add(menuItemShowNavigation);
 
                 //---- menuItemShowToolbar ----
                 menuItemShowToolbar.setText(context.cfg.gs("Navigator.menuItemShowToolbar.text"));
@@ -2871,6 +2877,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemRefresh;
     public JCheckBoxMenuItem radioButtonAutoRefresh;
     public JCheckBoxMenuItem menuItemShowHidden;
+    public JCheckBoxMenuItem menuItemShowNavigation;
     public JCheckBoxMenuItem menuItemShowToolbar;
     public JCheckBoxMenuItem menuItemWordWrap;
     public JMenu menuBookmarks;

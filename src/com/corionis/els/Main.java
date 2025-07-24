@@ -17,8 +17,8 @@ import com.corionis.els.stty.ServeStty;
 import com.corionis.els.stty.hintServer.Datastore;
 import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.Tools;
-
 import com.corionis.els.tools.operations.OperationsTool;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
@@ -47,11 +47,11 @@ import static com.corionis.els.Configuration.*;
 /**
  * ELS main program
  *
- * <p>ELS uses an embedded JRE from the OpenJDK project.<br/>
- * * https://openjdk.org/<br/>
- * * https://github.com/AdoptOpenJDK<br/>
- * * https://github.com/adoptium<br/>
- * * Current https://github.com/adoptium/temurin19-binaries/releases/tag/jdk-19.0.2%2B7<br/>
+ * <p>ELS uses an embedded JRE from the OpenJDK project. <br/>
+ * * https://openjdk.org/ <br/>
+ * * https://github.com/AdoptOpenJDK <br/>
+ * * https://github.com/adoptium< br/>
+ * * Current https://github.com/adoptium/temurin19-binaries/releases/tag/jdk-19.0.2%2B7 <br/>
  */
 public class Main
 {
@@ -758,7 +758,7 @@ public class Main
             }
             catch (InterruptedException ignore)
             {
-                logger.error("OOPS! ");
+                logger.error("OOPS!");
             }
         }
     }

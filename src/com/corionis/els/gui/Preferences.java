@@ -127,6 +127,7 @@ public class Preferences implements Serializable
     private boolean showDnDConfirmation = true;
     private boolean showGettingStarted = true;
     private boolean showMnemonics = true;
+    private boolean showNavigation = true;
     private boolean showToolbar = true;
     private boolean showTouchConfirmation = true;
     private boolean sortCaseInsensitive = true;
@@ -1306,6 +1307,11 @@ public class Preferences implements Serializable
         return showMnemonics;
     }
 
+    public boolean isShowNavigation()
+    {
+        return showNavigation;
+    }
+
     public boolean isShowToolbar()
     {
         return showToolbar;
@@ -1851,6 +1857,11 @@ public class Preferences implements Serializable
     public void setShowMnemonics(boolean showMnemonics)
     {
         this.showMnemonics = showMnemonics;
+    }
+
+    public void setShowNavigation(boolean showNavigation)
+    {
+        this.showNavigation = showNavigation;
     }
 
     public void setShowToolbar(boolean showToolbar)

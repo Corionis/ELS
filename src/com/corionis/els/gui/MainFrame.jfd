@@ -1742,6 +1742,11 @@ new FormModel {
 						"icon": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
+						name: "menuItemShowNavigation"
+						"text": new FormMessage( null, "Navigator.menuItemShowNavigation.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemShowNavigation.mnemonic" )
+					} )
+					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "menuItemShowToolbar"
 						"text": new FormMessage( null, "Navigator.menuItemShowToolbar.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemShowToolbar.mnemonic" )

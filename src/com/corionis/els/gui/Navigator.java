@@ -2503,6 +2503,31 @@ public class Navigator
         else
             context.mainFrame.menuItemShowHidden.setSelected(true);
 
+        // --- Show Navigation bar
+        context.mainFrame.menuItemShowNavigation.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                context.preferences.setShowNavigation(context.mainFrame.menuItemShowNavigation.isSelected());
+                if (context.mainFrame.menuItemShowNavigation.isSelected())
+                {
+                    context.preferences.setShowNavigation(true);
+                    context.mainFrame.panelLocationAndButtons.setVisible(true);
+                }
+                else
+                {
+                    context.preferences.setShowNavigation(false);
+                    context.mainFrame.panelLocationAndButtons.setVisible(false);
+                }
+            }
+        });
+        // set initial state of Show Navigation checkbox
+        if (context.preferences.isShowNavigation())
+            context.mainFrame.menuItemShowNavigation.setSelected(true);
+        else
+            context.mainFrame.menuItemShowNavigation.setSelected(false);
+
         // --- Show Toolbar
         context.mainFrame.menuItemShowToolbar.addActionListener(new AbstractAction()
         {
@@ -3939,6 +3964,15 @@ public class Navigator
                         }
 
                         checkForHints();
+                    }
+
+                    if (context.preferences.isShowNavigation() && !isLogger())
+                    {
+                        context.mainFrame.panelLocationAndButtons.setVisible(true);
+                    }
+                    else
+                    {
+                        context.mainFrame.panelLocationAndButtons.setVisible(false);
                     }
 
                     if (context.preferences.isShowToolbar() && !isLogger())
