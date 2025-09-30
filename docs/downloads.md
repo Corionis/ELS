@@ -16,6 +16,8 @@ Use the buttons at the top of this page <img style="vertical-align:middle" src="
 
 ## &bull; Installation
 
+### &nbsp;&nbsp;&nbsp; General
+
  * ELS may be used with only the ELS jar. Requires a Java 19+ JRE.
  * The other downloads contain an embedded Java JRE that will not interfere with any existing Java installation, native
    launchers for each operating system and other supporting files.
