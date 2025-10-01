@@ -12,10 +12,11 @@ purpose. Use at your own risk. If you break it you own both parts.
 
 ## &bull; Downloads
 
-_**Beta Release**_<br/>
 Use the buttons at the top of this page <img style="vertical-align:middle" src="assets/images/swoop-up-arrow.png" border="0"/> for your platform.
 
 ## &bull; Installation
+
+### &nbsp;&nbsp;&nbsp; General
 
  * ELS may be used with only the ELS jar. Requires a Java 19+ JRE.
  * The other downloads contain an embedded Java JRE that will not interfere with any existing Java installation, native
