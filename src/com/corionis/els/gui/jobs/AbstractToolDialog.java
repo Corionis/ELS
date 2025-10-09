@@ -21,6 +21,6 @@ abstract public class AbstractToolDialog extends JDialog
         return deletedTools;
     }
 
-    abstract     public JTable getConfigItems();
+    abstract public JTable getConfigItems();
 
 }

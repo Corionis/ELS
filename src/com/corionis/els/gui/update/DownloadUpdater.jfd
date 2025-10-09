@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.10" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": false
@@ -100,6 +100,7 @@ new FormModel {
 					name: "buttonCancel"
 					"text": new FormMessage( null, "Z.cancel" )
 					"toolTipText": new FormMessage( null, "Z.cancel.download" )
+					"mnemonic": 76
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancel", true ) )
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {

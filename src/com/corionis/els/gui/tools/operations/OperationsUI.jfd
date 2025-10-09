@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.4" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": false
@@ -1596,6 +1596,7 @@ new FormModel {
 						name: "buttonOperationSave"
 						"text": new FormMessage( null, "Z.save" )
 						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
+						"mnemonic": 83
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
@@ -1605,6 +1606,7 @@ new FormModel {
 						name: "buttonOperationCancel"
 						"text": new FormMessage( null, "Z.cancel" )
 						"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
+						"mnemonic": 76
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 2

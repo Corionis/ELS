@@ -79,6 +79,11 @@ public class Repository implements Comparable
             noItems.libraryData.libraries.ignore_patterns = getLibraryData().libraries.ignore_patterns.clone();
         else
             noItems.libraryData.libraries.ignore_patterns = null;
+        noItems.libraryData.libraries.email = getLibraryData().libraries.email;
+        noItems.libraryData.libraries.format = getLibraryData().libraries.format;
+        noItems.libraryData.libraries.mismatches = getLibraryData().libraries.mismatches;
+        noItems.libraryData.libraries.whatsNew = getLibraryData().libraries.whatsNew;
+        noItems.libraryData.libraries.skipOffline = getLibraryData().libraries.skipOffline;
         if (getLibraryData().libraries.locations != null)
             noItems.libraryData.libraries.locations = getLibraryData().libraries.locations.clone();
         else

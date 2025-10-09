@@ -559,6 +559,7 @@ new FormModel {
 									"verifyInputWhenFocusTarget": false
 									"font": new java.awt.Font( "Courier 10 Pitch", 0, 12 )
 									"wrapStyleWord": true
+									addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "generalOptionsMouseClicked", true ) )
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPane.Log.tab.title" )
@@ -573,6 +574,7 @@ new FormModel {
 									"editable": false
 									"minimumSize": new java.awt.Dimension( 0, 0 )
 									"contentType": "text/html"
+									addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "generalOptionsMouseClicked", true ) )
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPane.Properties.tab.title" )
@@ -756,6 +758,7 @@ new FormModel {
 										name: "scrollPaneGeneral"
 										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
 											name: "generalOptions"
+											addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "generalOptionsMouseClicked", true ) )
 											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 												name: "panelGettingStartedCard"
 												add( new FormComponent( "javax.swing.JLabel" ) {
@@ -771,7 +774,7 @@ new FormModel {
 											} )
 											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 												"$columnSpecs": "0, 186, 12, 0, left:24"
-												"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
+												"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
 												"$hGap": 4
 												"$vGap": 4
 												"$alignTop": true
@@ -1091,10 +1094,11 @@ new FormModel {
 													"axis": 1
 												} ) {
 													name: "panelLibrariesIgnorePatternsBox"
-													"preferredSize": new java.awt.Dimension( 240, 120 )
-													"minimumSize": new java.awt.Dimension( 168, 120 )
+													"preferredSize": new java.awt.Dimension( 120, 126 )
+													"minimumSize": new java.awt.Dimension( 120, 120 )
 													add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 														name: "scrollPaneLibrariesIgnorePatterns"
+														"preferredSize": new java.awt.Dimension( 43, 134 )
 														add( new FormComponent( "javax.swing.JList" ) {
 															name: "listLibrariesIgnorePatterns"
 															"name": "ignorepatterns"
@@ -1108,6 +1112,9 @@ new FormModel {
 																addElement( "Item 6" )
 															}
 															"toolTipText": new FormMessage( null, "Navigator.listLibrariesIgnorePatterns.toolTipText" )
+															"preferredSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+															"minimumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+															"maximumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
 														} )
 													} )
 													add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
@@ -1145,7 +1152,7 @@ new FormModel {
 													"vAlign": 1
 													"gridy": 11
 													"gridx": 1
-													"gridheight": 6
+													"gridheight": 5
 													"gridwidth": 3
 												} )
 												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
@@ -1156,6 +1163,102 @@ new FormModel {
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridy": 11
 													"gridx": 2
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelEmailAddr"
+													"text": new FormMessage( null, "Navigator.labelEmailAddr.text" )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 16
+												} )
+												add( new FormComponent( "javax.swing.JTextField" ) {
+													name: "textFieldEmailAddr"
+													"name": "email"
+													"toolTipText": new FormMessage( null, "Navigator.textFieldEmailAddr.toolTipText" )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 16
+													"gridx": 1
+												} )
+												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+													name: "vSpacer44"
+													"minimumSize": #Dimension5
+													"preferredSize": #Dimension6
+													"maximumSize": #Dimension7
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 16
+													"gridx": 2
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelMismatches"
+													"text": new FormMessage( null, "Navigator.labelMismatches.text" )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 3
+													"gridy": 16
+												} )
+												add( new FormComponent( "javax.swing.JCheckBox" ) {
+													name: "checkBoxMismatches"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxMismatches.toolTipText" )
+													"name": "mismatches"
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 4
+													"gridy": 16
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelFormat"
+													"text": new FormMessage( null, "Navigator.labelFormat.text" )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 17
+												} )
+												add( new FormComponent( "javax.swing.JComboBox" ) {
+													name: "comboBoxFormat"
+													"toolTipText": new FormMessage( null, "Navigator.comboBoxFormat.toolTipText" )
+													"model": new javax.swing.DefaultComboBoxModel {
+														selectedItem: "HTML"
+														addElement( "HTML" )
+														addElement( "Text" )
+													}
+													"name": "format"
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 17
+													"gridx": 1
+													"hAlign": 2
+												} )
+												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+													name: "vSpacer43"
+													"minimumSize": #Dimension5
+													"preferredSize": #Dimension6
+													"maximumSize": #Dimension7
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 17
+													"gridx": 2
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelWhatsNew"
+													"text": new FormMessage( null, "Navigator.labelWhatsNew.text" )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 3
+													"gridy": 17
+												} )
+												add( new FormComponent( "javax.swing.JCheckBox" ) {
+													name: "checkBoxWhatsNew"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxWhatsNew.toolTipText" )
+													"name": "whatsnew"
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 4
+													"gridy": 17
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelSkipOffline"
+													"text": new FormMessage( null, "Navigator.labelSkipOffline.text" )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 18
+												} )
+												add( new FormComponent( "javax.swing.JCheckBox" ) {
+													name: "checkBoxSkipOffline"
+													"name": "skipoffline"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxSkipOffline.toolTipText" )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+													"gridy": 18
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "Library"
@@ -1391,7 +1494,7 @@ new FormModel {
 														"preferredSize": #Dimension14
 														"minimumSize": #Dimension15
 														"maximumSize": #Dimension16
-														"mnemonic": new FormMessage( null, "Navigator.buttonRemoveSource.mnemonic" )
+														"mnemonic": new FormMessage( null, "Navigator.buttonRemoveSource.mnemonic_2" )
 														"toolTipText": new FormMessage( null, "Navigator.buttonRemoveSource.toolTipText" )
 														"margin": new java.awt.Insets( 0, -10, 0, -10 )
 													} )
@@ -1430,6 +1533,7 @@ new FormModel {
 												"maximumSize": #Dimension16
 												"toolTipText": new FormMessage( null, "Navigator.buttonRemoveLibrary.toolTipText" )
 												"margin": new java.awt.Insets( 0, -10, 0, -10 )
+												"mnemonic": new FormMessage( null, "Navigator.buttonRemoveLibrary.mnemonic" )
 											} )
 										}, new FormLayoutConstraints( class java.lang.String ) {
 											"value": "South"
@@ -1460,7 +1564,7 @@ new FormModel {
 								name: "saveButton"
 								"text": new FormMessage( null, "Z.ok" )
 								"toolTipText": new FormMessage( null, "Libraries.save.toolTip.text" )
-								"mnemonic": new FormMessage( null, "Navigator.saveButton.mnemonic" )
+								"mnemonic": new FormMessage( null, "Navigator.saveButton.mnemonic_2" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "cancelButton"
@@ -1791,7 +1895,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemEmptyFinder"
 						"text": new FormMessage( null, "Navigator.menuItemEmptyFinder.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemEmptyFinder.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemEmptyFinder.mnemonic_2" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/empties.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -1899,6 +2003,15 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separatorSettings"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemEmail"
+						"text": new FormMessage( null, "Navigator.menu.Email.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemEmail.mnemonic" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/email.png" )
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator2"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSettings"
@@ -2063,8 +2176,8 @@ new FormModel {
 				} )
 			}
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 1040, 835 )
+			"location": new java.awt.Point( 5, 0 )
+			"size": new java.awt.Dimension( 1040, 980 )
 		} )
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "popupMenuBrowser"
@@ -2135,7 +2248,7 @@ new FormModel {
 				"accelerator": #KeyStroke6
 			} )
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 1045, 95 )
+			"location": new java.awt.Point( 1045, 100 )
 			"size": new java.awt.Dimension( 210, 194 )
 		} )
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
@@ -2191,7 +2304,7 @@ new FormModel {
 				"accelerator": #KeyStroke10
 			} )
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 1045, 330 )
+			"location": new java.awt.Point( 1045, 335 )
 			"size": new java.awt.Dimension( 190, 156 )
 		} )
 	}

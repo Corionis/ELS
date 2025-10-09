@@ -303,9 +303,18 @@ public class RenamerUI extends AbstractToolDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("Renamer.help"), "renamer_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("Renamer.help"), "renamer_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionSaveClicked(ActionEvent e)
@@ -568,11 +577,8 @@ public class RenamerUI extends AbstractToolDialog
 
     public boolean checkForChanges()
     {
-        for (int i = 0; i < deletedTools.size(); ++i)
-        {
-            if (deletedTools.get(i).isDataChanged())
-                return true;
-        }
+        if (!deletedTools.isEmpty())
+            return true;
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -859,6 +865,7 @@ public class RenamerUI extends AbstractToolDialog
             if (origins != null && origins.size() > 0)
             {
                 workerTask = new Task(renamer.getInternalName(), renamer.getConfigName());
+                workerTask.setContext(renamer.getContext());
                 workerTask.setDryRun(isDryRun);
                 workerTask.setOrigins(origins);
 
@@ -2255,6 +2262,7 @@ public class RenamerUI extends AbstractToolDialog
                 //---- saveButton ----
                 saveButton.setText(context.cfg.gs("Z.save"));
                 saveButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                saveButton.setMnemonic(context.cfg.gs("Renamer.saveButton.mnemonic").charAt(0));
                 saveButton.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2263,6 +2271,7 @@ public class RenamerUI extends AbstractToolDialog
                 //---- cancelButton ----
                 cancelButton.setText(context.cfg.gs("Z.cancel"));
                 cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setMnemonic(context.cfg.gs("Renamer.cancelButton.mnemonic_2").charAt(0));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

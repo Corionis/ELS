@@ -119,7 +119,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color"><span class="type-name-label">SftpClientHolder.</span><code><a href="../SftpClientHolder.html#getClient()" class="member-name-link">getClient</a>()</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.lang.String,int,java.lang.String,java.lang.String)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
+<div class="col-second even-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.lang.String,int,java.lang.String,java.lang.String)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
  int&nbsp;port,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password)</code></div>
@@ -127,37 +127,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates an SFTP session using the provided credentials</div>
 </div>
 <div class="col-first odd-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.lang.String,int,java.lang.String,java.security.KeyPair)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
- int&nbsp;port,
- <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
- <a href="https://docs.oracle.com/javase/8/docs/api/java/security/KeyPair.html" title="class or interface in java.security" class="external-link">KeyPair</a>&nbsp;identity)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Creates an SFTP session using the provided credentials</div>
-</div>
-<div class="col-first even-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
- <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
- <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Creates an SFTP session on the default port and logs in using the provided credentials</div>
-</div>
-<div class="col-first odd-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.lang.String,java.lang.String,java.security.KeyPair)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
- <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
- <a href="https://docs.oracle.com/javase/8/docs/api/java/security/KeyPair.html" title="class or interface in java.security" class="external-link">KeyPair</a>&nbsp;identity)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Creates an SFTP session on the default port and logs in using the provided credentials</div>
-</div>
-<div class="col-first even-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.net.InetAddress,int,java.lang.String,java.lang.String)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html" title="class or interface in java.net" class="external-link">InetAddress</a>&nbsp;host,
- int&nbsp;port,
- <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
- <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Creates an SFTP session using the provided credentials</div>
-</div>
-<div class="col-first odd-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.net.InetAddress,int,java.lang.String,java.security.KeyPair)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html" title="class or interface in java.net" class="external-link">InetAddress</a>&nbsp;host,
+<div class="col-second odd-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.lang.String,int,java.lang.String,java.security.KeyPair)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
  int&nbsp;port,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/security/KeyPair.html" title="class or interface in java.security" class="external-link">KeyPair</a>&nbsp;identity)</code></div>
@@ -165,14 +135,44 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates an SFTP session using the provided credentials</div>
 </div>
 <div class="col-first even-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.net.InetAddress,java.lang.String,java.lang.String)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html" title="class or interface in java.net" class="external-link">InetAddress</a>&nbsp;host,
+<div class="col-second even-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Creates an SFTP session on the default port and logs in using the provided credentials</div>
 </div>
 <div class="col-first odd-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.net.InetAddress,java.lang.String,java.security.KeyPair)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html" title="class or interface in java.net" class="external-link">InetAddress</a>&nbsp;host,
+<div class="col-second odd-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.lang.String,java.lang.String,java.security.KeyPair)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
+ <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
+ <a href="https://docs.oracle.com/javase/8/docs/api/java/security/KeyPair.html" title="class or interface in java.security" class="external-link">KeyPair</a>&nbsp;identity)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Creates an SFTP session on the default port and logs in using the provided credentials</div>
+</div>
+<div class="col-first even-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.net.InetAddress,int,java.lang.String,java.lang.String)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html" title="class or interface in java.net" class="external-link">InetAddress</a>&nbsp;server,
+ int&nbsp;port,
+ <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
+ <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Creates an SFTP session using the provided credentials</div>
+</div>
+<div class="col-first odd-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.net.InetAddress,int,java.lang.String,java.security.KeyPair)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html" title="class or interface in java.net" class="external-link">InetAddress</a>&nbsp;server,
+ int&nbsp;port,
+ <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
+ <a href="https://docs.oracle.com/javase/8/docs/api/java/security/KeyPair.html" title="class or interface in java.security" class="external-link">KeyPair</a>&nbsp;identity)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Creates an SFTP session using the provided credentials</div>
+</div>
+<div class="col-first even-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.net.InetAddress,java.lang.String,java.lang.String)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html" title="class or interface in java.net" class="external-link">InetAddress</a>&nbsp;server,
+ <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
+ <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Creates an SFTP session on the default port and logs in using the provided credentials</div>
+</div>
+<div class="col-first odd-row-color"><code>default <a href="../SftpClient.html" title="interface in org.apache.sshd.sftp.client">SftpClient</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">SimpleSftpClient.</span><code><a href="../SimpleSftpClient.html#sftpLogin(java.net.InetAddress,java.lang.String,java.security.KeyPair)" class="member-name-link">sftpLogin</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html" title="class or interface in java.net" class="external-link">InetAddress</a>&nbsp;server,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/security/KeyPair.html" title="class or interface in java.security" class="external-link">KeyPair</a>&nbsp;identity)</code></div>
 <div class="col-last odd-row-color">

@@ -40,6 +40,10 @@ public class Utils
 {
     private static Logger logger = LogManager.getLogger("applog");
 
+    // values that persist between layered threads when Context is cloned and/or a new Main is running
+    public static boolean couldNotConnect = false; // ClientStty command pipe could not connect
+    public static boolean faultEmailSent = false; // do not send fault emails more than once
+
     /**
      * Static methods - do not instantiate
      */

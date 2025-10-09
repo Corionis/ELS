@@ -13,6 +13,22 @@
 
 <hr/>
 
+<h3>8 October 2025</h3>
+<ul>
+    <li>Added a "Match Dates" checkbox in the Libraries tab, Bibliography, Libraries for back-up Operations.</li>
+    <li>Added an email handler for sending fault and Mismatches and/or What's New emails.</li>
+    <li>Added email-related options to the Library tab, General for receiving notifications.</li>
+    <li>Added Email Servers under the System menu for defining outgoing SMTP server(s) for notifications.</li>
+    <li>Added Default Email Server to System, Preferences, General for exception emails when no Email Server is specified.</li>
+    <li>Added an Email Server Task Origin in Jobs for publish (back-up) Operations.</li>
+    <li>Moved several options from System, Preferences, General tab to the new Behavior tab.</li>
+    <li>Added Ask before sending emails to System, Preferences, Behavior to prompt the user in Navigator or foreground ELS Logger.</li>
+    <li>Added generation of both text and HTML Mismatches and What's New files.</li>
+    <li>Added -M | --email option to specify an existing Email Server on the command line.</li>
+    <li>Modified Browser delete actions with better focus and selection handling.</li>
+    <li>Changed tooltip time-outs to 30 seconds.</li>
+</ul>S
+
 <h3>24 July 2025</h3>
 <ul>
     <li>Added Show/Hide Navigation bar to View menu.</li>
@@ -134,7 +150,7 @@
 <h3>10 February 2025</h3>
 <ul>
     <li>Fixed null pointer error when executing a Job.</li>
-    <li>Fixed Hint Server and remote Subscriber override host handling.</li>
+    <li>Fixed Hint Server and remote Subscriber override server handling.</li>
     <li>Fixed path handling during a backup operation.</li>
 </ul>
 
@@ -302,9 +318,9 @@
     <li>Fixed start-up bug when there are no repositories defined yet.</li>
     <li>Fixed File, Open Subscriber when there is an existing remote connection.</li>
     <li>Fixed a save/delete bug in all Tools.</li>
-    <li>Added a dialog during File, Open Subscriber and Open Hint Tracking to select the host or listen address for a remote connection.</li>
-    <li>Added -O | --override-host to use the listen address:port for out-going Subscriber connections from clients.</li>
-    <li>Added -J | --override-hints-host to use the listen address:port for out-going Hint Server connections from clients.</li>
+    <li>Added a dialog during File, Open Subscriber and Open Hint Tracking to select the server or listen address for a remote connection.</li>
+    <li>Added -O | --override-server to use the listen address:port for out-going Subscriber connections from clients.</li>
+    <li>Added -J | --override-hints-server to use the listen address:port for out-going Hint Server connections from clients.</li>
     <li>Note: "Clients" are Navigator and remote Publisher processes.</li>
     <li>Added Hint Tracker/Server to Jobs, Tasks, Origins when required by the Task.</li>
     <li>Hint Server previously used the Task Subscriber key for Job Tasks but was changed to have its own key.</li>

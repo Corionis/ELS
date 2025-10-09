@@ -164,9 +164,18 @@ public class OperationsUI extends AbstractToolDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("OperationsUI.help"), "operations_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("OperationsUI.help"), "operations_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionNewClicked(ActionEvent e)
@@ -305,11 +314,8 @@ public class OperationsUI extends AbstractToolDialog
 
     public boolean checkForChanges()
     {
-        for (int i = 0; i < deletedTools.size(); ++i)
-        {
-            if (deletedTools.get(i).isDataChanged())
-                return true;
-        }
+        if (!deletedTools.isEmpty())
+            return true;
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -3582,6 +3588,7 @@ public class OperationsUI extends AbstractToolDialog
                 //---- buttonOperationSave ----
                 buttonOperationSave.setText(context.cfg.gs("Z.save"));
                 buttonOperationSave.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                buttonOperationSave.setMnemonic('S');
                 buttonOperationSave.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(buttonOperationSave, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -3590,6 +3597,7 @@ public class OperationsUI extends AbstractToolDialog
                 //---- buttonOperationCancel ----
                 buttonOperationCancel.setText(context.cfg.gs("Z.cancel"));
                 buttonOperationCancel.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                buttonOperationCancel.setMnemonic('L');
                 buttonOperationCancel.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(buttonOperationCancel, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

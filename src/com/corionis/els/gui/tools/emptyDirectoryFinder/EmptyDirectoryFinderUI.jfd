@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.3" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -147,6 +147,7 @@ new FormModel {
 							name: "closeButton"
 							"text": new FormMessage( null, "EmptyDirectoryFinder.closeButton.text" )
 							"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.closeButton.toolTipText" )
+							"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.closeButton.mnemonic" )
 							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCloseClicked", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridx": 2

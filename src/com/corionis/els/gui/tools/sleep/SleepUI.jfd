@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.3" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.bundlePackage": "com.corionis.els.locales"
@@ -38,7 +38,7 @@ new FormModel {
 								name: "buttonNew"
 								"text": "New"
 								"mnemonic": 78
-								"toolTipText": "Add new tool configuration"
+								"toolTipText": new FormMessage( null, "Sleep.add.new.tool.configuration" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionNewClicked", true ) )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
@@ -146,6 +146,7 @@ new FormModel {
 						name: "saveButton"
 						"text": new FormMessage( null, "Z.save" )
 						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
+						"mnemonic": 83
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
@@ -154,6 +155,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "cancelButton"
 						"text": "Cancel"
+						"mnemonic": 76
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 2

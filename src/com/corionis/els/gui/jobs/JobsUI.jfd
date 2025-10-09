@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.3.0.386" Java: "17.0.11" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -208,7 +208,7 @@ new FormModel {
 										"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 											"$columnSpecs": "0, 0"
-											"$rowSpecs": "0, 0, 0"
+											"$rowSpecs": "0, 0, 0, 0"
 											"$hGap": 4
 											"$alignLeft": true
 											"$alignTop": true
@@ -291,6 +291,33 @@ new FormModel {
 												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionPubSubClicked", true ) )
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"gridy": 2
+												"gridx": 1
+											} )
+											add( new FormComponent( "javax.swing.JLabel" ) {
+												name: "labelEmail"
+												"maximumSize": #Dimension5
+												"minimumSize": #Dimension6
+												"preferredSize": #Dimension7
+												"font": #SwingDerivedFont0
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridy": 3
+												"weightx": 1.0
+												"insets": #Insets1
+											} )
+											add( new FormComponent( "javax.swing.JButton" ) {
+												name: "buttonEmail"
+												"text": "..."
+												"maximumSize": #Dimension8
+												"minimumSize": #Dimension9
+												"preferredSize": #Dimension10
+												"verticalTextPosition": 1
+												"font": #SwingDerivedFont1
+												"horizontalTextPosition": 10
+												"iconTextGap": 0
+												"actionCommand": "buttonEmail'"
+												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionEmailServerClicked", true ) )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridy": 3
 												"gridx": 1
 											} )
 										}, new FormLayoutConstraints( class java.lang.String ) {
@@ -446,6 +473,7 @@ new FormModel {
 						"text": new FormMessage( null, "Z.save" )
 						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
 						"actionCommand": new FormMessage( null, "Z.save" )
+						"mnemonic": new FormMessage( null, "JobsUI.saveButton.mnemonic" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
@@ -455,6 +483,7 @@ new FormModel {
 						name: "cancelButton"
 						"text": new FormMessage( null, "Z.cancel" )
 						"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
+						"mnemonic": new FormMessage( null, "JobsUI.cancelButton.mnemonic_2" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 2
@@ -468,7 +497,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 740, 470 )
+			"size": new java.awt.Dimension( 740, 495 )
 		} )
 	}
 }

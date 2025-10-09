@@ -26,6 +26,7 @@ public class Preferences implements Serializable
     private int appWidth = 1024;
     private int appXpos = -1;
     private int appYpos = 0;
+    private boolean askSendEmail = true;
     private boolean autoRefresh = false;
     private boolean binaryScale = true; // true = 1024, false = 1000
     private int bookmarksHeight = 320;
@@ -56,6 +57,7 @@ public class Preferences implements Serializable
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss a";
     private boolean defaultDryrun = true;
+    private String defaultEmailServer = "";
     private int directoryPickerXpos = -1;
     private int directoryPickerYpos = 0;
     private int fileEditorHeight = 365;
@@ -153,6 +155,11 @@ public class Preferences implements Serializable
     private int toolsDuplicateFinderWidth = 570;
     private int toolsDuplicateFinderXpos = -1;
     private int toolsDuplicateFinderYpos = 0;
+    private int toolsEmailDividerLocation = 142;
+    private int toolsEmailHeight = 470;
+    private int toolsEmailWidth = 570;
+    private int toolsEmailXpos = -1;
+    private int toolsEmailYpos = 0;
     private int toolsEmptyDirectoryFinderHeight = 470;
     private int toolsEmptyDirectoryFinderWidth = 570;
     private int toolsEmptyDirectoryFinderXpos = -1;
@@ -180,7 +187,6 @@ public class Preferences implements Serializable
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient boolean lookAndFeelInitialized = false;
-
     /**
      * Constructor
      */
@@ -573,6 +579,13 @@ public class Preferences implements Serializable
             }
         }
         return dateFormat;
+    }
+
+    public String getDefaultEmailServer()
+    {
+        if (defaultEmailServer.equalsIgnoreCase("None"))
+            return "";
+        return defaultEmailServer;
     }
 
     public int getDirectoryPickerXpos()
@@ -1003,6 +1016,31 @@ public class Preferences implements Serializable
         return toolsDuplicateFinderYpos;
     }
 
+    public int getToolsEmailDividerLocation()
+    {
+        return toolsEmailDividerLocation;
+    }
+
+    public int getToolsEmailHeight()
+    {
+        return toolsEmailHeight;
+    }
+
+    public int getToolsEmailWidth()
+    {
+        return toolsEmailWidth;
+    }
+
+    public int getToolsEmailXpos()
+    {
+        return toolsEmailXpos;
+    }
+
+    public int getToolsEmailYpos()
+    {
+        return toolsEmailYpos;
+    }
+
     public int getToolsEmptyDirectoryFinderHeight()
     {
         return toolsEmptyDirectoryFinderHeight;
@@ -1192,6 +1230,11 @@ public class Preferences implements Serializable
         }
     }
 
+    public boolean isAskSendEmail()
+    {
+        return askSendEmail;
+    }
+
     public boolean isAutoRefresh()
     {
         return autoRefresh;
@@ -1372,6 +1415,11 @@ public class Preferences implements Serializable
         this.appYpos = appYpos;
     }
 
+    public void setAskSendEmail(boolean askSendEmail)
+    {
+        this.askSendEmail = askSendEmail;
+    }
+
     public void setAutoRefresh(boolean autoRefresh)
     {
         this.autoRefresh = autoRefresh;
@@ -1502,6 +1550,11 @@ public class Preferences implements Serializable
     public void setDefaultDryrun(boolean defaultDryrun)
     {
         this.defaultDryrun = defaultDryrun;
+    }
+
+    public void setDefaultEmailServer(String defaultEmailServer)
+    {
+        this.defaultEmailServer = defaultEmailServer;
     }
 
     public void setDirectoryPickerXpos(int directoryPickerXpos)
@@ -1997,6 +2050,31 @@ public class Preferences implements Serializable
     public void setToolsDuplicateFinderYpos(int toolsDuplicateFinderYpos)
     {
         this.toolsDuplicateFinderYpos = toolsDuplicateFinderYpos;
+    }
+
+    public void setToolsEmailDividerLocation(int toolsEmailDividerLocation)
+    {
+        this.toolsEmailDividerLocation = toolsEmailDividerLocation;
+    }
+
+    public void setToolsEmailHeight(int toolsEmailHeight)
+    {
+        this.toolsEmailHeight = toolsEmailHeight;
+    }
+
+    public void setToolsEmailWidth(int toolsEmailWidth)
+    {
+        this.toolsEmailWidth = toolsEmailWidth;
+    }
+
+    public void setToolsEmailXpos(int toolsEmailXpos)
+    {
+        this.toolsEmailXpos = toolsEmailXpos;
+    }
+
+    public void setToolsEmailYpos(int toolsEmailYpos)
+    {
+        this.toolsEmailYpos = toolsEmailYpos;
     }
 
     public void setToolsEmptyDirectoryFinderHeight(int toolsEmptyDirectoryFinderHeight)

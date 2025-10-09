@@ -870,21 +870,42 @@ public class Browser
                 if (!error)
                 {
                     NavTreeNode parent = null;
+                    BrowserTableModel btm = null;
+                    JTable theTable = null;
+                    int firstRow = -1;
                     for (int i = rows.length - 1; i > -1; --i)
                     {
                         NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                         if (tuo.type == NavTreeUserObject.REAL)
                         {
+                            if (firstRow == -1)
+                            {
+                                theTable = tuo.node.getMyTable();
+                                firstRow = rows[i] -1;
+                            }
                             parent = (NavTreeNode) tuo.node.getParent();
-                            BrowserTableModel btm = (BrowserTableModel) parent.getMyTable().getModel();
+                            btm = (BrowserTableModel) parent.getMyTable().getModel();
                             ((BrowserTableModel) btm).setNode(parent);
                             parent.remove(tuo.node);
+                            ((BrowserTableModel) btm).fireTableRowsDeleted(rows[i], rows[i]);
                         }
                     }
+
                     if (parent != null)
                     {
                         refreshTree(parent.getMyTree());
-                        parent.selectMe();
+                        if (btm.getRowCount() > 0)
+                        {
+                            if (btm.getRowCount() -1 < firstRow)
+                                firstRow = btm.getRowCount() - 1;
+                            if (firstRow < btm.getRowCount())
+                                theTable.setRowSelectionInterval(firstRow, firstRow);
+                            else
+                                parent.selectMe();
+                        }
+                        else
+                            parent.selectMe();
+
                     }
                 }
             }
@@ -995,6 +1016,8 @@ public class Browser
                 if (!error)
                 {
                     NavTreeNode parent = null;
+                    BrowserTableModel btm = null;
+                    int firstRow = -1;
                     for (int i = paths.length - 1; i > -1; --i)
                     {
                         TreePath path = paths[i];
@@ -1003,15 +1026,30 @@ public class Browser
                         if (tuo.type == NavTreeUserObject.REAL)
                         {
                             parent = (NavTreeNode) tuo.node.getParent();
-                            BrowserTableModel btm = (BrowserTableModel) parent.getMyTable().getModel();
+                            if (firstRow == -1)
+                            {
+                                firstRow = tuo.node.getParent().getIndex(tuo.node);
+                            }
+                            btm = (BrowserTableModel) parent.getMyTable().getModel();
                             ((BrowserTableModel) btm).setNode(parent);
                             parent.remove(tuo.node);
                         }
                     }
+
                     if (parent != null)
                     {
                         refreshTree(parent.getMyTree());
-                        parent.selectMe();
+                        if (parent.getChildCount() > 0) //theTree.getRowCount() > 0)
+                        {
+                            if (parent.getChildCount() -1 < firstRow)
+                                firstRow = parent.getChildCount() - 1;
+                            if (firstRow < parent.getChildCount())
+                                ((NavTreeNode)parent.getChildAt(firstRow)).selectMe();
+                            else
+                                parent.selectMe();
+                        }
+                        else
+                            parent.selectMe();
                     }
                 }
             }

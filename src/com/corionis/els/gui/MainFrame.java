@@ -114,6 +114,8 @@ public class MainFrame extends JFrame
                 menuItemTouch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.META_DOWN_MASK));
                 menuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.META_DOWN_MASK));
             }
+
+            ToolTipManager.sharedInstance().setDismissDelay(30000);
         }
         catch(Exception ex)
         {
@@ -239,6 +241,11 @@ public class MainFrame extends JFrame
             context.navigator.dialogSleep.requestFocus();
             context.navigator.dialogSleep.saveButton.requestFocus();
         }
+    }
+
+    private void generalOptionsMouseClicked(MouseEvent e)
+    {
+        labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
     }
 
     /**
@@ -525,6 +532,7 @@ public class MainFrame extends JFrame
         menuItemHintKeys = new JMenuItem();
         menuItemBlacklist = new JMenuItem();
         menuItemWhitelist = new JMenuItem();
+        menuItemEmail = new JMenuItem();
         menuItemSettings = new JMenuItem();
         menuWindows = new JMenu();
         menuItemMaximize = new JMenuItem();
@@ -683,6 +691,18 @@ public class MainFrame extends JFrame
         buttonLibrariesAddIgnore = new JButton();
         buttonLibrariesRemoveIgnore = new JButton();
         vSpacer41 = new JPanel(null);
+        labelEmailAddr = new JLabel();
+        textFieldEmailAddr = new JTextField();
+        vSpacer44 = new JPanel(null);
+        labelMismatches = new JLabel();
+        checkBoxMismatches = new JCheckBox();
+        labelFormat = new JLabel();
+        comboBoxFormat = new JComboBox<>();
+        vSpacer43 = new JPanel(null);
+        labelWhatsNew = new JLabel();
+        checkBoxWhatsNew = new JCheckBox();
+        labelSkipOffline = new JLabel();
+        checkBoxSkipOffline = new JCheckBox();
         panelXCard = new JPanel();
         panelYCard = new JPanel();
         locationsTab = new JPanel();
@@ -1010,7 +1030,7 @@ public class MainFrame extends JFrame
 
                 //---- menuItemEmptyFinder ----
                 menuItemEmptyFinder.setText(context.cfg.gs("Navigator.menuItemEmptyFinder.text"));
-                menuItemEmptyFinder.setMnemonic(context.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic").charAt(0));
+                menuItemEmptyFinder.setMnemonic(context.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic_2").charAt(0));
                 menuItemEmptyFinder.setIcon(new ImageIcon(getClass().getResource("/empties.png")));
                 menuTools.add(menuItemEmptyFinder);
                 menuTools.addSeparator();
@@ -1110,6 +1130,13 @@ public class MainFrame extends JFrame
                 menuItemWhitelist.setMnemonic(context.cfg.gs("Navigator.menuItemWhitelist.mnemonic").charAt(0));
                 menuItemWhitelist.setIcon(new ImageIcon(getClass().getResource("/whitelist.png")));
                 menuSystem.add(menuItemWhitelist);
+                menuSystem.addSeparator();
+
+                //---- menuItemEmail ----
+                menuItemEmail.setText(context.cfg.gs("Navigator.menu.Email.text"));
+                menuItemEmail.setMnemonic(context.cfg.gs("Navigator.menuItemEmail.mnemonic").charAt(0));
+                menuItemEmail.setIcon(new ImageIcon(getClass().getResource("/email.png")));
+                menuSystem.add(menuItemEmail);
                 menuSystem.addSeparator();
 
                 //---- menuItemSettings ----
@@ -1810,6 +1837,12 @@ public class MainFrame extends JFrame
                             textAreaLog.setVerifyInputWhenFocusTarget(false);
                             textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
                             textAreaLog.setWrapStyleWord(true);
+                            textAreaLog.addMouseListener(new MouseAdapter() {
+                                @Override
+                                public void mouseClicked(MouseEvent e) {
+                                    generalOptionsMouseClicked(e);
+                                }
+                            });
                             scrollPaneLog.setViewportView(textAreaLog);
                         }
                         tabbedPaneNavigatorBottom.addTab(context.cfg.gs("Navigator.scrollPane.Log.tab.title"), scrollPaneLog);
@@ -1824,6 +1857,12 @@ public class MainFrame extends JFrame
                             textAreaProperties.setEditable(false);
                             textAreaProperties.setMinimumSize(new Dimension(0, 0));
                             textAreaProperties.setContentType("text/html");
+                            textAreaProperties.addMouseListener(new MouseAdapter() {
+                                @Override
+                                public void mouseClicked(MouseEvent e) {
+                                    generalOptionsMouseClicked(e);
+                                }
+                            });
                             scrollPaneProperties.setViewportView(textAreaProperties);
                         }
                         tabbedPaneNavigatorBottom.addTab(context.cfg.gs("Navigator.scrollPane.Properties.tab.title"), scrollPaneProperties);
@@ -2003,6 +2042,12 @@ public class MainFrame extends JFrame
 
                                     //======== generalOptions ========
                                     {
+                                        generalOptions.addMouseListener(new MouseAdapter() {
+                                            @Override
+                                            public void mouseClicked(MouseEvent e) {
+                                                generalOptionsMouseClicked(e);
+                                            }
+                                        });
                                         generalOptions.setLayout(new CardLayout());
 
                                         //======== panelGettingStartedCard ========
@@ -2021,8 +2066,8 @@ public class MainFrame extends JFrame
                                         {
                                             panelLibraryCard.setLayout(new GridBagLayout());
                                             ((GridBagLayout)panelLibraryCard.getLayout()).columnWidths = new int[] {0, 190, 16, 0, 24};
-                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                                             //---- hSpacer4 ----
                                             hSpacer4.setMinimumSize(new Dimension(0, 0));
@@ -2306,12 +2351,13 @@ public class MainFrame extends JFrame
 
                                             //======== panelLibrariesIgnorePatternsBox ========
                                             {
-                                                panelLibrariesIgnorePatternsBox.setPreferredSize(new Dimension(240, 120));
-                                                panelLibrariesIgnorePatternsBox.setMinimumSize(new Dimension(168, 120));
+                                                panelLibrariesIgnorePatternsBox.setPreferredSize(new Dimension(120, 126));
+                                                panelLibrariesIgnorePatternsBox.setMinimumSize(new Dimension(120, 120));
                                                 panelLibrariesIgnorePatternsBox.setLayout(new BoxLayout(panelLibrariesIgnorePatternsBox, BoxLayout.Y_AXIS));
 
                                                 //======== scrollPaneLibrariesIgnorePatterns ========
                                                 {
+                                                    scrollPaneLibrariesIgnorePatterns.setPreferredSize(new Dimension(43, 134));
 
                                                     //---- listLibrariesIgnorePatterns ----
                                                     listLibrariesIgnorePatterns.setName("ignorepatterns");
@@ -2331,6 +2377,9 @@ public class MainFrame extends JFrame
                                                         public String getElementAt(int i) { return values[i]; }
                                                     });
                                                     listLibrariesIgnorePatterns.setToolTipText(context.cfg.gs("Navigator.listLibrariesIgnorePatterns.toolTipText"));
+                                                    listLibrariesIgnorePatterns.setPreferredSize(null);
+                                                    listLibrariesIgnorePatterns.setMinimumSize(null);
+                                                    listLibrariesIgnorePatterns.setMaximumSize(null);
                                                     scrollPaneLibrariesIgnorePatterns.setViewportView(listLibrariesIgnorePatterns);
                                                 }
                                                 panelLibrariesIgnorePatternsBox.add(scrollPaneLibrariesIgnorePatterns);
@@ -2365,15 +2414,100 @@ public class MainFrame extends JFrame
                                                 }
                                                 panelLibrariesIgnorePatternsBox.add(panelLibrariesIgnorePatternsButtons);
                                             }
-                                            panelLibraryCard.add(panelLibrariesIgnorePatternsBox, new GridBagConstraints(1, 11, 3, 6, 0.0, 0.0,
+                                            panelLibraryCard.add(panelLibrariesIgnorePatternsBox, new GridBagConstraints(1, 11, 3, 5, 0.0, 0.0,
                                                 GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-                                                new Insets(0, 0, 0, 4), 0, 0));
+                                                new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- vSpacer41 ----
                                             vSpacer41.setMinimumSize(new Dimension(10, 30));
                                             vSpacer41.setPreferredSize(new Dimension(20, 30));
                                             vSpacer41.setMaximumSize(new Dimension(20, 30));
                                             panelLibraryCard.add(vSpacer41, new GridBagConstraints(2, 11, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelEmailAddr ----
+                                            labelEmailAddr.setText(context.cfg.gs("Navigator.labelEmailAddr.text"));
+                                            panelLibraryCard.add(labelEmailAddr, new GridBagConstraints(0, 16, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldEmailAddr ----
+                                            textFieldEmailAddr.setName("email");
+                                            textFieldEmailAddr.setToolTipText(context.cfg.gs("Navigator.textFieldEmailAddr.toolTipText"));
+                                            panelLibraryCard.add(textFieldEmailAddr, new GridBagConstraints(1, 16, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer44 ----
+                                            vSpacer44.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer44.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer44.setMaximumSize(new Dimension(20, 30));
+                                            panelLibraryCard.add(vSpacer44, new GridBagConstraints(2, 16, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelMismatches ----
+                                            labelMismatches.setText(context.cfg.gs("Navigator.labelMismatches.text"));
+                                            panelLibraryCard.add(labelMismatches, new GridBagConstraints(3, 16, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxMismatches ----
+                                            checkBoxMismatches.setToolTipText(context.cfg.gs("Navigator.checkBoxMismatches.toolTipText"));
+                                            checkBoxMismatches.setName("mismatches");
+                                            panelLibraryCard.add(checkBoxMismatches, new GridBagConstraints(4, 16, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                                                new Insets(0, 0, 4, 0), 0, 0));
+
+                                            //---- labelFormat ----
+                                            labelFormat.setText(context.cfg.gs("Navigator.labelFormat.text"));
+                                            panelLibraryCard.add(labelFormat, new GridBagConstraints(0, 17, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- comboBoxFormat ----
+                                            comboBoxFormat.setToolTipText(context.cfg.gs("Navigator.comboBoxFormat.toolTipText"));
+                                            comboBoxFormat.setModel(new DefaultComboBoxModel<>(new String[] {
+                                                "HTML",
+                                                "Text"
+                                            }));
+                                            comboBoxFormat.setName("format");
+                                            panelLibraryCard.add(comboBoxFormat, new GridBagConstraints(1, 17, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer43 ----
+                                            vSpacer43.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer43.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer43.setMaximumSize(new Dimension(20, 30));
+                                            panelLibraryCard.add(vSpacer43, new GridBagConstraints(2, 17, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelWhatsNew ----
+                                            labelWhatsNew.setText(context.cfg.gs("Navigator.labelWhatsNew.text"));
+                                            panelLibraryCard.add(labelWhatsNew, new GridBagConstraints(3, 17, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxWhatsNew ----
+                                            checkBoxWhatsNew.setToolTipText(context.cfg.gs("Navigator.checkBoxWhatsNew.toolTipText"));
+                                            checkBoxWhatsNew.setName("whatsnew");
+                                            panelLibraryCard.add(checkBoxWhatsNew, new GridBagConstraints(4, 17, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                                                new Insets(0, 0, 4, 0), 0, 0));
+
+                                            //---- labelSkipOffline ----
+                                            labelSkipOffline.setText(context.cfg.gs("Navigator.labelSkipOffline.text"));
+                                            panelLibraryCard.add(labelSkipOffline, new GridBagConstraints(0, 18, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxSkipOffline ----
+                                            checkBoxSkipOffline.setName("skipoffline");
+                                            checkBoxSkipOffline.setToolTipText(context.cfg.gs("Navigator.checkBoxSkipOffline.toolTipText"));
+                                            panelLibraryCard.add(checkBoxSkipOffline, new GridBagConstraints(1, 18, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
                                         }
@@ -2609,7 +2743,7 @@ public class MainFrame extends JFrame
                                                 buttonRemoveSource.setPreferredSize(new Dimension(78, 24));
                                                 buttonRemoveSource.setMinimumSize(new Dimension(78, 24));
                                                 buttonRemoveSource.setMaximumSize(new Dimension(78, 24));
-                                                buttonRemoveSource.setMnemonic(context.cfg.gs("Navigator.buttonRemoveSource.mnemonic").charAt(0));
+                                                buttonRemoveSource.setMnemonic(context.cfg.gs("Navigator.buttonRemoveSource.mnemonic_2").charAt(0));
                                                 buttonRemoveSource.setToolTipText(context.cfg.gs("Navigator.buttonRemoveSource.toolTipText"));
                                                 buttonRemoveSource.setMargin(new Insets(0, -10, 0, -10));
                                                 panelSourceButtons.add(buttonRemoveSource);
@@ -2643,6 +2777,7 @@ public class MainFrame extends JFrame
                                         buttonRemoveLibrary.setMaximumSize(new Dimension(78, 24));
                                         buttonRemoveLibrary.setToolTipText(context.cfg.gs("Navigator.buttonRemoveLibrary.toolTipText"));
                                         buttonRemoveLibrary.setMargin(new Insets(0, -10, 0, -10));
+                                        buttonRemoveLibrary.setMnemonic(context.cfg.gs("Navigator.buttonRemoveLibrary.mnemonic").charAt(0));
                                         panelBiblioButtons.add(buttonRemoveLibrary);
                                     }
                                     bibliographyTab.add(panelBiblioButtons, BorderLayout.SOUTH);
@@ -2668,7 +2803,7 @@ public class MainFrame extends JFrame
                         //---- saveButton ----
                         saveButton.setText(context.cfg.gs("Z.ok"));
                         saveButton.setToolTipText(context.cfg.gs("Libraries.save.toolTip.text"));
-                        saveButton.setMnemonic(context.cfg.gs("Navigator.saveButton.mnemonic").charAt(0));
+                        saveButton.setMnemonic(context.cfg.gs("Navigator.saveButton.mnemonic_2").charAt(0));
                         buttonBarLibs.add(saveButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 0, 0), 0, 0));
@@ -2900,6 +3035,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemHintKeys;
     public JMenuItem menuItemBlacklist;
     public JMenuItem menuItemWhitelist;
+    public JMenuItem menuItemEmail;
     public JMenuItem menuItemSettings;
     public JMenu menuWindows;
     public JMenuItem menuItemMaximize;
@@ -3058,6 +3194,18 @@ public class MainFrame extends JFrame
     public JButton buttonLibrariesAddIgnore;
     public JButton buttonLibrariesRemoveIgnore;
     public JPanel vSpacer41;
+    public JLabel labelEmailAddr;
+    public JTextField textFieldEmailAddr;
+    public JPanel vSpacer44;
+    public JLabel labelMismatches;
+    public JCheckBox checkBoxMismatches;
+    public JLabel labelFormat;
+    public JComboBox<String> comboBoxFormat;
+    public JPanel vSpacer43;
+    public JLabel labelWhatsNew;
+    public JCheckBox checkBoxWhatsNew;
+    public JLabel labelSkipOffline;
+    public JCheckBox checkBoxSkipOffline;
     public JPanel panelXCard;
     public JPanel panelYCard;
     public JPanel locationsTab;

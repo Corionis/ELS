@@ -3,13 +3,24 @@
 
 ## Current Short-List
 
+! Update ELS Plex Generator
+
+
+
+* ELS Email use cases:
+* - Send Mismatches/What's New notification, Publisher or Subscriber
+* - Send failure with log attachment, either Publisher or Subscriber
+* - Send ELS Navigator invitation (Version 5), Publisher
+* 
+* Ideas:
+* + Version 5 users can "subscribe" to Mismatches and What's New
+* + Add stty command to retrieve Subscriber users who have "subscribed" to Mismatches and/or What's New.
+
 #### Short List
- * Regression Test from a scratch installation.
-   * No pre-defined JSON files.
  * Test scripts, and match run profiles to o/s scripts
 
 #### Thoughts
- * ELS is going to need "reconnect" logic if a remote Subscriber or Hint Server connection fails.
+ * ELS is going to need "reconnect" logic if a remote Subscriber or Hint Server connection fails, reboots, etc.
 
 ### Issues
 

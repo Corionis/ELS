@@ -57,6 +57,7 @@ new FormModel {
 							name: "deleteButton"
 							"text": new FormMessage( null, "BookmarksUI.deleteButton.text" )
 							"toolTipText": new FormMessage( null, "Navigator.menuTbDelete.toolTipText" )
+							"mnemonic": 68
 							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDeleteClicked", true ) )
 						} )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
@@ -64,6 +65,7 @@ new FormModel {
 						name: "okButton"
 						"text": new FormMessage( null, "Z.save" )
 						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
+						"mnemonic": 83
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
@@ -73,6 +75,7 @@ new FormModel {
 						name: "cancelButton"
 						"text": "Cancel"
 						"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
+						"mnemonic": 76
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 2

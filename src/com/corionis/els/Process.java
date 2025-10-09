@@ -2,13 +2,19 @@ package com.corionis.els;
 
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
+import com.corionis.els.tools.Tools;
+import com.corionis.els.tools.email.EmailHandler;
+import com.corionis.els.tools.email.EmailTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import javax.swing.*;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 
@@ -27,11 +33,13 @@ public class Process
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isInitialized = false;
     private boolean justScannedPublisher = false;
-    private PrintWriter mismatchFile = null;
+    private PrintWriter mismatchesFile = null;
+    private PrintWriter mismatchesFileHtml = null;
     private long totalDirectories = 0;
     private long totalItems = 0;
     private int warnings = 0;
     private PrintWriter whatsNewFile = null;
+    private PrintWriter whatsNewFileHtml = null;
     private long whatsNewTotal = 0;
     private transient Logger logger = LogManager.getLogger("applog");
 
@@ -49,6 +57,38 @@ public class Process
     public Process(Context context)
     {
         this.context = context;
+    }
+
+    private void createOutputFiles(String filename, boolean isMismatches) throws MungeException
+    {
+        if (filename.length() > 0)
+        {
+            String where = Utils.getFullPathLocal(filename);
+            where = Utils.pipe(where);
+            where = Utils.unpipe(context.publisherRepo, where);
+            try
+            {
+                if (isMismatches)
+                    mismatchesFile = new PrintWriter(where);
+                else
+                    whatsNewFile = new PrintWriter(where);
+                logger.info(context.cfg.gs("Process.writing.to.file") + where);
+
+                where += ".html";
+                if (isMismatches)
+                    mismatchesFileHtml = new PrintWriter(where);
+                else
+                    whatsNewFileHtml = new PrintWriter(where);
+                logger.info(context.cfg.gs("Process.writing.to.file") + where);
+            }
+            catch (FileNotFoundException fnf)
+            {
+                fault = true;
+                String s = context.cfg.gs("Process.file.not.found.exception.for.output.file") + where;
+                logger.error(s);
+                throw new MungeException(s);
+            }
+        }
     }
 
     /**
@@ -155,23 +195,31 @@ public class Process
      */
     private void munge() throws Exception
     {
-        String currLib = "";
+        String currLibMismatch = "";
+        String currLibWhat = "";
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
 
-        String header = context.cfg.gs("Process.munging.back.up") + context.publisherRepo.getLibraryData().libraries.description +
+        String intro = context.cfg.gs("Process.munging.back.up") + context.publisherRepo.getLibraryData().libraries.description +
                 context.cfg.gs("Process.to") + context.subscriberRepo.getLibraryData().libraries.description +
                 (context.cfg.isDryRun() ? " (--dry-run)" : "");
 
-        if (mismatchFile != null)
+        if (mismatchesFile != null)
         {
-            mismatchFile.println(context.cfg.gs("Process.mismatches") + System.getProperty("line.separator") + System.getProperty("line.separator") + header);
-            mismatchFile.println("");
+            mismatchesFile.println(context.cfg.gs("Process.mismatches") + "\n\n" + intro);
+            mismatchesFile.println("");
+
+            mismatchesFileHtml.println("<h3>" + context.cfg.gs("Process.mismatches") + "</h3>\n" + intro);
+            mismatchesFileHtml.println("<br/><br/>");
         }
 
         if (whatsNewFile != null)
         {
-            whatsNewFile.println(context.cfg.gs("Process.whats.new") + System.getProperty("line.separator") + System.getProperty("line.separator") + header);
+            whatsNewFile.println(context.cfg.gs("Process.whats.new") + "\n\n" + intro);
+            whatsNewFile.println("");
+
+            whatsNewFileHtml.println("<h3>" + context.cfg.gs("Process.whats.new") + "</h3>\n" + intro);
+            whatsNewFileHtml.println("<br/><br/>");
         }
 
         boolean rescan = false;
@@ -189,11 +237,13 @@ public class Process
                     context.subscriberRepo.getLibraryData().libraries.description));
             if (context.cfg.isRemoteSubscriber())
                 context.transfer.requestCollection();
-            //else Is local, handled below
+            //else is local, handled below
         }
 
-        logger.info(header);
+        logger.info(intro);
 
+        boolean firstLibraryMismatch = true;
+        boolean firstLibraryWhats = true;
         try
         {
             for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
@@ -289,10 +339,27 @@ public class Process
                                             // There is a new group - process the previous group
                                             logger.info(java.text.MessageFormat.format(context.cfg.gs("Process.switching.groups.from.to"),
                                                     context.transfer.getLastGroupName(),context.transfer.getCurrentGroupName()));
-                                            context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite(), whatsNewFile, mismatchFile);
+                                            context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite(), whatsNewFile, whatsNewFileHtml, mismatchesFile, mismatchesFileHtml);
                                             totalSize = 0L;
 
-                                            if (context.cfg.getWhatsNewFilename().length() > 0)
+                                            if (mismatchesFile != null)
+                                            {
+                                                if (!item.getLibrary().equals(currLibWhat))
+                                                {
+                                                    currLibMismatch = item.getLibrary();
+                                                    if (!firstLibraryMismatch)
+                                                        mismatchesFile.println("");
+                                                    mismatchesFile.println(currLibMismatch);
+
+                                                    if (!firstLibraryMismatch)
+                                                        mismatchesFileHtml.println("</span><br/>");
+                                                    mismatchesFileHtml.println("<span style=\"font-family: Arial, Helvetica, sans-serif;\"><b>" + currLibMismatch + "</b><br/>");
+                                                    mismatchesFileHtml.println("</span><span style=\"font-family: monospace; font-size: 110%;\">");
+                                                    firstLibraryMismatch = false;
+                                                }
+                                            }
+
+                                            if (whatsNewFile != null)
                                             {
                                                 /*
                                                  * Unless the -W or --whatsnew-all option is used:
@@ -302,38 +369,53 @@ public class Process
                                                  * Lucifer
                                                  * Legion
                                                  */
-                                                if (!item.getLibrary().equals(currLib))
+                                                if (!item.getLibrary().equals(currLibWhat))
                                                 {
                                                     // If not first time display and reset the whatsNewTotal
-                                                    if (!currLib.equals(""))
+                                                    if (!currLibWhat.equals(""))
                                                     {
                                                         whatsNewFile.println("    ------------------------------------------");
-                                                        whatsNewFile.println(java.text.MessageFormat.format(context.cfg.gs("Process.total.for"), currLib,whatsNewTotal));
-                                                        whatsNewFile.println("    ==========================================");
+                                                        whatsNewFile.println(java.text.MessageFormat.format(context.cfg.gs("Process.total.for"), currLibWhat, whatsNewTotal));
+                                                        whatsNewFile.println("");
+
+                                                        whatsNewFileHtml.println("</span><span style=\"font-family: Arial, Helvetica, sans-serif;\">");
+                                                        whatsNewFileHtml.println("<hr style=\"margin-left: 30px; margin-right: auto; width: 50%;\">");
+                                                        whatsNewFileHtml.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + java.text.MessageFormat.format(context.cfg.gs("Process.total.for"), currLibWhat, whatsNewTotal));
+                                                        whatsNewFileHtml.println("<br/><br/>");
                                                         whatsNewTotal = 0;
                                                     }
-                                                    currLib = item.getLibrary();
-                                                    whatsNewFile.println("");
-                                                    whatsNewFile.println(currLib);
-                                                    whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
+
+                                                    currLibWhat = item.getLibrary();
+                                                    whatsNewFile.println(currLibWhat);
+
+                                                    whatsNewFileHtml.println("<b>" + currLibWhat + "</b><br/>");
+                                                    if (firstLibraryWhats)
+                                                        whatsNewFileHtml.println("<span style=\"font-family: monospace; font-size: 110%;\">");
+                                                    else
+                                                        whatsNewFileHtml.println("</span><span style=\"font-family: monospace; font-size: 110%;\">");
+                                                    firstLibraryWhats = false;
                                                 }
+
                                                 String path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
                                                 if (context.cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
                                                 {
                                                     whatsNewFile.println("    " + (context.cfg.isWhatsNewAll() ? item.getItemPath() : path));
+                                                    whatsNewFileHtml.println("&nbsp;&nbsp;&nbsp;&nbsp;" + (context.cfg.isWhatsNewAll() ? item.getItemPath() : path) + "<br/>");
                                                     currentWhatsNew = path;
                                                     whatsNewTotal++;
                                                 }
                                             }
 
                                             // Flush the output files
-                                            if (context.cfg.getWhatsNewFilename().length() > 0)
+                                            if (whatsNewFile != null)
                                             {
                                                 whatsNewFile.flush();
+                                                whatsNewFileHtml.flush();
                                             }
-                                            if (context.cfg.getMismatchFilename().length() > 0)
+                                            if (mismatchesFile != null)
                                             {
-                                                mismatchFile.flush();
+                                                mismatchesFile.flush();
+                                                mismatchesFileHtml.flush();
                                             }
                                         }
 
@@ -378,7 +460,7 @@ public class Process
                     // Process the last group
                     logger.info(java.text.MessageFormat.format(context.cfg.gs("Process.processing.last.group"),
                             context.transfer.getCurrentGroupName()));
-                    context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite(), whatsNewFile, mismatchFile);
+                    context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite(), whatsNewFile, whatsNewFileHtml, mismatchesFile, mismatchesFileHtml);
                 }
                 catch (Exception e)
                 {
@@ -391,25 +473,48 @@ public class Process
             }
 
             // Close all the files and show the results
-            if (mismatchFile != null)
+            if (mismatchesFile != null)
             {
-                mismatchFile.println("------------------------------------------");
+                mismatchesFile.println("------------------------------------------");
                 if (getWarnings() > 0)
-                    mismatchFile.println(MessageFormat.format(context.cfg.gs("Process.warnings"), getWarnings()));
+                    mismatchesFile.println(MessageFormat.format(context.cfg.gs("Process.warnings"), getWarnings()));
                 if (errorCount > 0)
-                    mismatchFile.println(MessageFormat.format(context.cfg.gs("Process.errors"), errorCount));
-                mismatchFile.println(context.cfg.gs("Process.total.items") + context.transfer.getGrandTotalItems());
-                mismatchFile.println(context.cfg.gs("Process.total.size") + Utils.formatLong(context.transfer.getGrandTotalSize(), true, context.cfg.getLongScale()));
-                mismatchFile.println("");
-                mismatchFile.close();
+                    mismatchesFile.println(MessageFormat.format(context.cfg.gs("Process.errors"), errorCount));
+                mismatchesFile.println(context.cfg.gs("Process.total.items") + context.transfer.getGrandTotalItems());
+                mismatchesFile.println(context.cfg.gs("Process.total.size") + Utils.formatLong(context.transfer.getGrandTotalSize(), true, context.cfg.getLongScale()));
+                mismatchesFile.println("\n");
+                mismatchesFile.println("------- " + context.cfg .gs("Email.do.not.reply") + " -------\n");
+                mismatchesFile.close();
+
+                mismatchesFileHtml.println("</span><span style=\"font-family: Arial, Helvetica, sans-serif;\">");
+                mismatchesFileHtml.println("<hr style=\"margin-left: 0; margin-right: auto; width: 50%;\">");
+                if (getWarnings() > 0)
+                    mismatchesFileHtml.println(MessageFormat.format(context.cfg.gs("Process.warnings"), getWarnings()) + "<br/>");
+                if (errorCount > 0)
+                    mismatchesFileHtml.println(MessageFormat.format(context.cfg.gs("Process.errors"), errorCount) + "<br/>");
+                mismatchesFileHtml.println(context.cfg.gs("Process.total.items") + context.transfer.getGrandTotalItems() + "<br/>");
+                mismatchesFileHtml.println(context.cfg.gs("Process.total.size") + Utils.formatLong(context.transfer.getGrandTotalSize(), true, context.cfg.getLongScale()) + "<br/>");
+                mismatchesFileHtml.println("</span>");
+                mismatchesFileHtml.println("<br/><br/>------- " + context.cfg .gs("Email.do.not.reply") + " -------<br/><br/>");
+                mismatchesFileHtml.println("</body></html>");
+                mismatchesFileHtml.close();
             }
+
             if (whatsNewFile != null)
             {
                 whatsNewFile.println("    ------------------------------------------");
-                whatsNewFile.println(java.text.MessageFormat.format(context.cfg.gs("Process.total.for"), currLib, whatsNewTotal));
-                whatsNewFile.println("    ==========================================");
-                whatsNewFile.println("");
+                whatsNewFile.println(java.text.MessageFormat.format(context.cfg.gs("Process.total.for"), currLibWhat, whatsNewTotal));
+                whatsNewFile.println("\n");
+                whatsNewFile.println("------- " + context.cfg .gs("Email.do.not.reply") + " -------\n");
                 whatsNewFile.close();
+
+                whatsNewFileHtml.println("</span><span style=\"font-family: Arial, Helvetica, sans-serif;\">");
+                whatsNewFileHtml.println("<hr style=\"margin-left: 30px; margin-right: auto; width: 50%;\">");
+                whatsNewFileHtml.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + java.text.MessageFormat.format(context.cfg.gs("Process.total.for"), currLibWhat, whatsNewTotal));
+                whatsNewFileHtml.println("</span>");
+                whatsNewFileHtml.println("<br/><br/><br/>------- " + context.cfg .gs("Email.do.not.reply") + " -------<br/><br/>");
+                whatsNewFileHtml.println("</body></html>");
+                whatsNewFileHtml.close();
             }
         }
 
@@ -481,44 +586,45 @@ public class Process
                 isInitialized = true;
             }
 
-            // setup the -m mismatch output file
+            String hostname = "";
+            try
+            {
+                hostname = " (" + InetAddress.getLocalHost().getHostName() + ")";
+            }
+            catch (UnknownHostException e)
+            {
+                // ignored
+            }
+            String from = context.publisherRepo.getLibraryData().libraries.description + hostname;
+
+            // setup the -m Mismatches output file
             if (context.cfg.getMismatchFilename().length() > 0)
             {
-                String where = Utils.getFullPathLocal(context.cfg.getMismatchFilename());
-                where = Utils.pipe(where);
-                where = Utils.unpipe(context.publisherRepo, where);
-                try
-                {
-                    mismatchFile = new PrintWriter(where);
-                    logger.info(context.cfg.gs("Process.writing.to.mismatches.file") + where);
-                }
-                catch (FileNotFoundException fnf)
-                {
-                    fault = true;
-                    String s = context.cfg.gs("Process.file.not.found.exception.for.mismatches.output.file") + where;
-                    logger.error(s);
-                    throw new MungeException(s);
-                }
+                createOutputFiles(context.cfg.getMismatchFilename(), true);
+
+                mismatchesFile.println("Automated email from: " + from);
+                mismatchesFile.println("------------------------------------------\n");
+
+                mismatchesFileHtml.println("<!DOCTYPE html><html><body style=\"font-family: Arial, Helvetica, sans-serif;font-size: 100%;\">");
+                mismatchesFileHtml.println("<div><img src='https://www.elsnavigator.com/assets/images/els-logo-64px.png' style=\"vertical-align: middle;\"/>");
+                mismatchesFileHtml.println("<span style=\"font-family: Arial, Helvetica, sans-serif;font-size: 120%;vertical-align: middle;\">");
+                mismatchesFileHtml.println("<b>&nbsp;&nbsp;Automated email from: " + from + "</b></span></div>");
+                mismatchesFileHtml.println("<hr/>");
             }
 
-            // setup the -w What's New output file
+            // setup the -w|-W What's New output file
             if (context.cfg.getWhatsNewFilename().length() > 0)
             {
-                String where = Utils.getFullPathLocal(context.cfg.getWhatsNewFilename());
-                where = Utils.pipe(where);
-                where = Utils.unpipe(context.publisherRepo, where);
-                try
-                {
-                    whatsNewFile = new PrintWriter(where);
-                    logger.info(context.cfg.gs("Process.writing.to.what.s.new.file") + where);
-                }
-                catch (FileNotFoundException fnf)
-                {
-                    fault = true;
-                    String s = context.cfg.gs("Process.file.not.found.exception.for.what.s.new.output.file") + where;
-                    logger.error(s);
-                    throw new MungeException(s);
-                }
+                createOutputFiles(context.cfg.getWhatsNewFilename(), false);
+
+                whatsNewFile.println("Automated email from: " + from);
+                whatsNewFile.println("------------------------------------------\n");
+
+                whatsNewFileHtml.println("<!DOCTYPE html><html><body style=\"font-family: Arial, Helvetica, sans-serif;font-size: 100%;\">");
+                whatsNewFileHtml.println("<div><img src='https://www.elsnavigator.com/assets/images/els-logo-64px.png' style=\"vertical-align: middle;\"/>");
+                whatsNewFileHtml.println("<span style=\"font-family: Arial, Helvetica, sans-serif;font-size: 120%;vertical-align: middle;\">");
+                whatsNewFileHtml.println("<b>&nbsp;&nbsp;Automated email from: " + from + "</b></span></div>");
+                whatsNewFileHtml.println("<hr/>");
             }
 
             // process ELS Hints locally, targets and no subscriber
@@ -529,7 +635,7 @@ public class Process
                             context.cfg.getSubscriberCollectionFilename().length() == 0))
             {
                 localHints = true; // skip munge
-                result = context.hintsHandler.hintsMunge(true, null);
+                result = context.hintsHandler.hintsMunge(true, null, null);
             }
 
             // process -e export text, publisher only
@@ -554,7 +660,7 @@ public class Process
             if (context.cfg.isHintTrackingEnabled() && context.cfg.isTargetsEnabled() &&
                     context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
             {
-                result = context.hintsHandler.hintsMunge(false, mismatchFile);
+                result = context.hintsHandler.hintsMunge(false, mismatchesFile, mismatchesFileHtml);
             }
 
             if (!result.toLowerCase().equals("fault"))
@@ -592,45 +698,53 @@ public class Process
                 {
                     logger.info(context.cfg.gs("Process.skipping.main.process"));
                 }
+            }
 
-                // Disconnect Subscriber
-                if (context.clientStty != null)
+            // Disconnect Subscriber
+            if (context.clientStty != null)
+            {
+                try
                 {
-                    try
-                    {
-                        if (!context.cfg.isKeepGoing())
-                            context.clientStty.send("quit", context.cfg.gs("Process.sending.quit.command.to.remote.subscriber"));
-                        else
-                            context.clientStty.send("bye", context.cfg.gs("Process.sending.bye.command.to.remote.subscriber"));
-                        Thread.sleep(1500);
-                    }
-                    catch (Exception e)
-                    {
-                        //
-                    }
+                    if (!context.cfg.isKeepGoing())
+                        context.clientStty.send("quit", context.cfg.gs("Process.sending.quit.command.to.remote.subscriber"));
+                    else
+                        context.clientStty.send("bye", context.cfg.gs("Process.sending.bye.command.to.remote.subscriber"));
+                    Thread.sleep(1500);
                 }
-
-                // Disconnect Hint Server
-                if (context.hintsStty != null)
+                catch (Exception e)
                 {
-                    try
-                    {
-                        if (context.cfg.isQuitStatusServer())
-                            context.hintsStty.send("quit", context.cfg.gs("Process.sending.quit.command.to.remote.hint.status.server"));
-                        else
-                            context.hintsStty.send("bye", context.cfg.gs("Process.sending.bye.command.to.remote.hint.status.server"));
-                        Thread.sleep(1500);
-                        context.hintsStty.disconnect();
-                        context.hintsStty = null;
-                    }
-                    catch (Exception e)
-                    {
-                        //
-                    }
+                    //
+                }
+            }
+
+            // Disconnect Hint Server
+            if (context.hintsStty != null)
+            {
+                try
+                {
+                    if (context.cfg.isQuitStatusServer())
+                        context.hintsStty.send("quit", context.cfg.gs("Process.sending.quit.command.to.remote.hint.status.server"));
+                    else
+                        context.hintsStty.send("bye", context.cfg.gs("Process.sending.bye.command.to.remote.hint.status.server"));
+                    Thread.sleep(1500);
+                    context.hintsStty.disconnect();
+                    context.hintsStty = null;
+                }
+                catch (Exception e)
+                {
+                    //
                 }
             }
         }
+
         context.fault = fault;
+
+        if (!fault &&
+                (context.transfer.getGrandTotalItems() > 0 || context.hintsHandler.getPerformed() > 0) &&
+                (mismatchesFile != null || whatsNewFile != null))
+        {
+            sendCompletionEmail();
+        }
     } // process
 
     /**
@@ -687,6 +801,72 @@ public class Process
             logger.debug(SIMPLE, "  " + item.getFullPath());
         return empties;
     }
+
+    public void sendCompletionEmail()
+    {
+        String toolName = "";
+        if (context.cfg.getEmailServer().length() > 0)
+            toolName = context.cfg.getEmailServer();
+        //else
+            //toolName = context.preferences.getDefaultEmailServer();
+
+        if  (toolName == null || toolName.length() == 0)
+        {
+            String msg = context.cfg.gs(context.cfg.gs(context.cfg.gs("Process.cannot.send.completion.email")));
+            logger.warn(msg);
+            //if ((context.navigator != null || context.cfg.isLoggerView()) && context.preferences.isAskSendEmail())
+            //    JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Tools emailTools = new Tools();
+        try
+        {
+            emailTools.loadAllTools(context, EmailTool.INTERNAL_NAME);
+        }
+        catch (Exception ex)
+        {
+            logger.error(Utils.getStackTrace(ex));
+            return;
+        }
+
+        EmailTool tool = (EmailTool) emailTools.getTool(EmailTool.INTERNAL_NAME, toolName);
+        if (tool != null)
+        {
+            if ((context.navigator != null || context.cfg.isLoggerView()) && context.preferences.isAskSendEmail())
+            {
+                int opt = JOptionPane.showConfirmDialog(context.mainFrame,
+                        context.cfg.gs("Process.back.up.completed.successfully.send.emails"),
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                if (opt != JOptionPane.YES_OPTION)
+                {
+                    return;
+                }
+            }
+
+            EmailHandler emailHandler = new EmailHandler(context, null, tool, EmailHandler.Function.SEND);
+            emailHandler.start();
+
+            try
+            {
+                while (emailHandler.isAlive())
+                {
+                    Thread.sleep(500);
+                }
+            }
+            catch (InterruptedException ie)
+            {
+            }
+        }
+        else
+        {
+            String msg = context.cfg.gs("Process.email.tool.not.found" + toolName);
+            logger.error(msg);
+            if ((context.navigator != null || context.cfg.isLoggerView()) && context.preferences.isAskSendEmail())
+                JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
 
     /**
      * Dump the list of ignored files

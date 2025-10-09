@@ -747,6 +747,7 @@ public class FileEditor extends JDialog
                 //---- okButton ----
                 okButton.setText(bundle.getString("Z.save"));
                 okButton.setToolTipText(bundle.getString("Z.save.toolTip.text"));
+                okButton.setMnemonic('S');
                 okButton.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -755,6 +756,7 @@ public class FileEditor extends JDialog
                 //---- cancelButton ----
                 cancelButton.setText(bundle.getString("Z.cancel"));
                 cancelButton.setToolTipText(bundle.getString("Z.cancel.changes.toolTipText"));
+                cancelButton.setMnemonic('L');
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

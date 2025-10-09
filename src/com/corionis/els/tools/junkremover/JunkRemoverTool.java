@@ -37,7 +37,6 @@ public class JunkRemoverTool extends AbstractTool
     private String internalName = INTERNAL_NAME;
     private ArrayList<JunkItem> junkList;
 
-    transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int deleteCount = 0;
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");

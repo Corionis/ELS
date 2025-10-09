@@ -215,6 +215,7 @@ public class BookmarksUI extends JDialog
                     //---- deleteButton ----
                     deleteButton.setText(context.cfg.gs("BookmarksUI.deleteButton.text"));
                     deleteButton.setToolTipText(context.cfg.gs("Navigator.menuTbDelete.toolTipText"));
+                    deleteButton.setMnemonic('D');
                     deleteButton.addActionListener(e -> actionDeleteClicked(e));
                     leftPanel.add(deleteButton);
                 }
@@ -225,6 +226,7 @@ public class BookmarksUI extends JDialog
                 //---- okButton ----
                 okButton.setText(context.cfg.gs("Z.save"));
                 okButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                okButton.setMnemonic('S');
                 okButton.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -233,6 +235,7 @@ public class BookmarksUI extends JDialog
                 //---- cancelButton ----
                 cancelButton.setText("Cancel");
                 cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setMnemonic('L');
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

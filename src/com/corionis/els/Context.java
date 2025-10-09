@@ -1,6 +1,9 @@
 package com.corionis.els;
 
-import com.corionis.els.gui.*;
+import com.corionis.els.gui.MainFrame;
+import com.corionis.els.gui.Navigator;
+import com.corionis.els.gui.Preferences;
+import com.corionis.els.gui.Progress;
 import com.corionis.els.gui.browser.Browser;
 import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.hints.HintKeys;
@@ -30,7 +33,7 @@ public class Context
     public ClientSftp clientSftpMetadata = null; // Navigator queries
     public ClientStty clientStty = null; // commands and JSON files
     public Configuration cfg = null;
-    public Datastore datastore = null; // Hints datastore
+    public Datastore datastore = null; // Hint Tracker/Server datastore
     public boolean fault = false; // process fault indicator
     public Hints hintsHandler = null;
     public HintKeys hintKeys = null;
@@ -40,6 +43,7 @@ public class Context
     public Main main = null;
     public Navigator navigator = null;
     public Context previousContext = null; // the previous Context during a secondary invocation
+    public Process process = null;
     public Repository publisherRepo = null;
     public ServeSftp serveSftp = null;
     public ServeStty serveStty = null;

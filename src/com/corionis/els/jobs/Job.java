@@ -59,7 +59,7 @@ public class Job extends AbstractTool
         return getConfigName().compareTo(((Job) o).getConfigName());
     }
 
-    public String generateCommandline(boolean isDryRun)
+    public String generateCommandLineJob(boolean isDryRun)
     {
         // generate-commandline
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
@@ -247,7 +247,7 @@ public class Job extends AbstractTool
             {
                 try
                 {
-                    String cmd = generateCommandline(isDryRun);
+                    String cmd = generateCommandLineJob(isDryRun);
                     List<String> list = ArgumentTokenizer.tokenize(cmd);
                     String[] args = list.toArray(new String[0]);
 
@@ -287,8 +287,9 @@ public class Job extends AbstractTool
                 if (isRequestStop())
                     break;
 
-                task.setContext(context);
+                task.localContext = context;
                 currentTask = task.clone();
+                currentTask.setContext((Context)context.clone());
                 currentTask.setDryRun(isDryRun);
 
                 // is the task a Job?

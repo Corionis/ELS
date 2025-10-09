@@ -2,6 +2,9 @@ package com.corionis.els.gui;
 
 import java.awt.event.*;
 
+import com.corionis.els.tools.AbstractTool;
+import com.corionis.els.tools.Tools;
+import com.corionis.els.tools.email.EmailTool;
 import com.formdev.flatlaf.FlatLaf;
 import com.corionis.els.Configuration;
 import com.corionis.els.Context;
@@ -14,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -28,6 +32,7 @@ public class Settings extends JDialog
     private NavHelp helpDialog;
     private int laf;
     private Settings thisDialog;
+    private ArrayList<AbstractTool> emailToolList = new ArrayList<AbstractTool>();
 
     public Settings(Window owner, Context context)
     {
@@ -35,7 +40,6 @@ public class Settings extends JDialog
         this.context = context;
         initComponents();
         thisDialog = this;
-        setDialog();
 
         cancelButton.addActionListener(new AbstractAction()
         {
@@ -63,6 +67,17 @@ public class Settings extends JDialog
             {
                 if (setPreferences())
                 {
+                    try
+                    {
+                        context.preferences.write(context);
+                    }
+                    catch (Exception e)
+                    {
+                        JOptionPane.showMessageDialog(context.mainFrame,
+                                context.cfg.gs("Z.exception") + e.getMessage(),
+                                context.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+
                     refreshLookAndFeel(context.preferences.getLookAndFeel());
                     if (helpDialog != null && helpDialog.isVisible())
                         helpDialog.setVisible(false);
@@ -141,13 +156,37 @@ public class Settings extends JDialog
             {
                 if (actionEvent.getActionCommand().equals("comboBoxChanged"))
                 {
-                    context.mainFrame.setBrowserTabs(tabPlacementComboBox.getSelectedIndex() );
+                    context.mainFrame.setBrowserTabs(tabPlacementComboBox.getSelectedIndex());
                     context.browser.refreshAll();
                 }
             }
         });
 
+        Tools tools = new Tools();
+        try
+        {
+            emailToolList = tools.loadAllTools(context, EmailTool.INTERNAL_NAME);
+            if (emailToolList.isEmpty())
+            {
+                labelDefaultEmailServer.setEnabled(false);
+                comboBoxEmailServer.setEnabled(false);
+            }
+            else
+            {
+                comboBoxEmailServer.addItem("None");
+                for (AbstractTool tool : emailToolList)
+                {
+                    comboBoxEmailServer.addItem(tool.getConfigName());
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // ignored
+        }
+
         laf = context.preferences.getLookAndFeel();
+        setDialog();
     }
 
     private void chooseColor(ActionEvent e) {
@@ -186,7 +225,6 @@ public class Settings extends JDialog
             JOptionPane.showMessageDialog(context.mainFrame,
                     context.cfg.gs("Z.exception") + ex.getMessage(),
                     context.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
-
         }
     }
 
@@ -236,13 +274,13 @@ public class Settings extends JDialog
     private void setDialog()
     {
         // general
-        preserveFileTimestampsCheckBox.setSelected(context.preferences.isPreserveFileTimes());
-        showDeleteConfirmationCheckBox.setSelected(context.preferences.isShowDeleteConfirmation());
-        showCcpConfirmationCheckBox.setSelected(context.preferences.isShowCcpConfirmation());
-        showDndConfirmationCheckBox.setSelected(context.preferences.isShowDnDConfirmation());
-        showTouchConfirmationCheckBox.setSelected(context.preferences.isShowTouchConfirmation());
         defaultDryrunCheckBox.setSelected(context.preferences.isDefaultDryrun());
+        if (context.preferences.getDefaultEmailServer().length() == 0)
+            comboBoxEmailServer.setSelectedIndex(0);
+        else
+            comboBoxEmailServer.setSelectedItem(context.preferences.getDefaultEmailServer());
         generateLongOptionsCheckBox.setSelected(context.preferences.isGenerateLongOptions());
+        preserveFileTimestampsCheckBox.setSelected(context.preferences.isPreserveFileTimes());
         showGettingStartedCheckBox.setSelected(context.preferences.isShowGettingStarted());
         macosLauncherCheckBox.setSelected(context.preferences.isMacosLauncher());
 
@@ -278,6 +316,13 @@ public class Settings extends JDialog
         scaleCheckBox.setSelected(!context.preferences.isBinaryScale());
         showArrowsCheckBox.setSelected(context.preferences.isShowArrows());
         showMnemonicsCheckBox.setSelected(context.preferences.isShowMnemonics());
+
+        // behavior
+        askSendEmailCheckBox.setSelected(context.preferences.isAskSendEmail());
+        showDeleteConfirmationCheckBox.setSelected(context.preferences.isShowDeleteConfirmation());
+        showCcpConfirmationCheckBox.setSelected(context.preferences.isShowCcpConfirmation());
+        showDndConfirmationCheckBox.setSelected(context.preferences.isShowDnDConfirmation());
+        showTouchConfirmationCheckBox.setSelected(context.preferences.isShowTouchConfirmation());
 
         // browser
         hideFilesInTreeCheckBox.setSelected(context.preferences.isHideFilesInTree());
@@ -317,14 +362,14 @@ public class Settings extends JDialog
         }
 
         // general
-        context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
-        context.cfg.setPreserveDates(context.preferences.isPreserveFileTimes());
-        context.preferences.setShowDeleteConfirmation(showDeleteConfirmationCheckBox.isSelected());
-        context.preferences.setShowCcpConfirmation(showCcpConfirmationCheckBox.isSelected());
-        context.preferences.setShowDnDConfirmation(showDndConfirmationCheckBox.isSelected());
-        context.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
         context.preferences.setDefaultDryrun(defaultDryrunCheckBox.isSelected());
+        String sel = comboBoxEmailServer.getSelectedItem().toString();
+        if (sel.equalsIgnoreCase("None"))
+            sel = "";
+        context.preferences.setDefaultEmailServer(sel);
+        context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
         context.preferences.setGenerateLongOptions(generateLongOptionsCheckBox.isSelected());
+        context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
         context.preferences.setShowGettingStarted(showGettingStartedCheckBox.isSelected());
         context.preferences.setMacosLauncher(macosLauncherCheckBox.isSelected());
 
@@ -352,6 +397,13 @@ public class Settings extends JDialog
         context.cfg.setLongScale(context.preferences.isBinaryScale());
         context.preferences.setShowArrows(showArrowsCheckBox.isSelected());
         context.preferences.setShowMnemonics(showMnemonicsCheckBox.isSelected());
+
+        // behavior
+        context.preferences.setAskSendEmail(askSendEmailCheckBox.isSelected());
+        context.preferences.setShowCcpConfirmation(showCcpConfirmationCheckBox.isSelected());
+        context.preferences.setShowDeleteConfirmation(showDeleteConfirmationCheckBox.isSelected());
+        context.preferences.setShowDnDConfirmation(showDndConfirmationCheckBox.isSelected());
+        context.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
 
         // browser
         context.preferences.setHideFilesInTree(hideFilesInTreeCheckBox.isSelected());
@@ -395,22 +447,18 @@ public class Settings extends JDialog
         settingsContentPanel = new JPanel();
         settingsTabbedPane = new JTabbedPane();
         generalPanel = new JPanel();
-        showCcpConfirmationLabel = new JLabel();
-        showCcpConfirmationCheckBox = new JCheckBox();
-        showDeleteConfirmationLabel = new JLabel();
-        showDeleteConfirmationCheckBox = new JCheckBox();
-        showDndConfirmationLabel = new JLabel();
-        showDndConfirmationCheckBox = new JCheckBox();
-        showTouchConfirmationLabel = new JLabel();
-        showTouchConfirmationCheckBox = new JCheckBox();
         showDefaultDryrunLabel = new JLabel();
         defaultDryrunCheckBox = new JCheckBox();
+        labelDefaultEmailServer = new JLabel();
+        comboBoxEmailServer = new JComboBox();
         generateLongOptionsLabel = new JLabel();
         generateLongOptionsCheckBox = new JCheckBox();
         preserveFileTimestampsLabel = new JLabel();
         preserveFileTimestampsCheckBox = new JCheckBox();
         showGettingStarted = new JLabel();
         showGettingStartedCheckBox = new JCheckBox();
+        useLastPubSubLabel = new JLabel();
+        uselastPubSubCheckBox = new JCheckBox();
         macosLauncherLabel = new JLabel();
         macosLauncherCheckBox = new JCheckBox();
         apperancePanel = new JPanel();
@@ -432,6 +480,17 @@ public class Settings extends JDialog
         showMnemonicsCheckBox = new JCheckBox();
         showArrowseLabel = new JLabel();
         showArrowsCheckBox = new JCheckBox();
+        behaviorPanel = new JPanel();
+        askSendEmailLabel = new JLabel();
+        askSendEmailCheckBox = new JCheckBox();
+        showCcpConfirmationLabel = new JLabel();
+        showCcpConfirmationCheckBox = new JCheckBox();
+        showDeleteConfirmationLabel = new JLabel();
+        showDeleteConfirmationCheckBox = new JCheckBox();
+        showDndConfirmationLabel = new JLabel();
+        showDndConfirmationCheckBox = new JCheckBox();
+        showTouchConfirmationLabel = new JLabel();
+        showTouchConfirmationCheckBox = new JCheckBox();
         browserPanel = new JPanel();
         hideFilesInTreeLabel = new JLabel();
         hideFilesInTreeCheckBox = new JCheckBox();
@@ -445,8 +504,6 @@ public class Settings extends JDialog
         tabPlacementComboBox = new JComboBox<>();
         tooltipLargeTableLabel = new JLabel();
         tooltipLargeTableCheckBox = new JCheckBox();
-        useLastPubSubLabel = new JLabel();
-        uselastPubSubCheckBox = new JCheckBox();
         buttonBar = new JPanel();
         okButton = new JButton();
         cancelButton = new JButton();
@@ -472,8 +529,6 @@ public class Settings extends JDialog
         //======== settingsDialogPane ========
         {
             settingsDialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
-            settingsDialogPane.setMinimumSize(new Dimension(500, 100));
-            settingsDialogPane.setPreferredSize(new Dimension(570, 470));
             settingsDialogPane.setLayout(new BorderLayout());
 
             //======== settingsContentPanel ========
@@ -488,99 +543,96 @@ public class Settings extends JDialog
                     {
                         generalPanel.setLayout(new GridBagLayout());
                         ((GridBagLayout)generalPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
-                        ((GridBagLayout)generalPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)generalPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
                         ((GridBagLayout)generalPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                        ((GridBagLayout)generalPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
-
-                        //---- showCcpConfirmationLabel ----
-                        showCcpConfirmationLabel.setText(context.cfg.gs("Settings.showCcpConfirmationLabel.text"));
-                        generalPanel.add(showCcpConfirmationLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(8, 8, 20, 5), 0, 0));
-                        generalPanel.add(showCcpConfirmationCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(8, 0, 20, 0), 0, 0));
-
-                        //---- showDeleteConfirmationLabel ----
-                        showDeleteConfirmationLabel.setText(context.cfg.gs("Settings.showDeleteConfirmationLabel.text"));
-                        generalPanel.add(showDeleteConfirmationLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 5), 0, 0));
-                        generalPanel.add(showDeleteConfirmationCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 20, 0), 0, 0));
-
-                        //---- showDndConfirmationLabel ----
-                        showDndConfirmationLabel.setText(context.cfg.gs("Settings.showDndConfirmationLabel.text"));
-                        generalPanel.add(showDndConfirmationLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 5), 0, 0));
-                        generalPanel.add(showDndConfirmationCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 20, 0), 0, 0));
-
-                        //---- showTouchConfirmationLabel ----
-                        showTouchConfirmationLabel.setText(context.cfg.gs("Settings.showTouchConfirmationLabel.text"));
-                        generalPanel.add(showTouchConfirmationLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 5), 0, 0));
-                        generalPanel.add(showTouchConfirmationCheckBox, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 20, 0), 0, 0));
+                        ((GridBagLayout)generalPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- showDefaultDryrunLabel ----
                         showDefaultDryrunLabel.setText(context.cfg.gs("Settings.default.dry.runLabel.text"));
-                        generalPanel.add(showDefaultDryrunLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showDefaultDryrunLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(8, 8, 20, 5), 0, 0));
+
+                        //---- defaultDryrunCheckBox ----
+                        defaultDryrunCheckBox.setToolTipText(context.cfg.gs("Settings.defaultDryrunCheckBox.toolTipText"));
+                        generalPanel.add(defaultDryrunCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(8, 0, 20, 0), 0, 0));
+
+                        //---- labelDefaultEmailServer ----
+                        labelDefaultEmailServer.setText(context.cfg.gs("Settings.labelDefaultEmailServer.text"));
+                        generalPanel.add(labelDefaultEmailServer, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
-                        generalPanel.add(defaultDryrunCheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+
+                        //---- comboBoxEmailServer ----
+                        comboBoxEmailServer.setMaximumRowCount(32);
+                        comboBoxEmailServer.setPreferredSize(new Dimension(240, 34));
+                        comboBoxEmailServer.setAutoscrolls(true);
+                        comboBoxEmailServer.setToolTipText(context.cfg.gs("Settings.comboBoxEmailServer.toolTipText"));
+                        generalPanel.add(comboBoxEmailServer, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- generateLongOptionsLabel ----
                         generateLongOptionsLabel.setText(context.cfg.gs("Settings.generateLongOptionsLabel.text"));
-                        generalPanel.add(generateLongOptionsLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                        generalPanel.add(generateLongOptionsLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- generateLongOptionsCheckBox ----
                         generateLongOptionsCheckBox.setToolTipText(context.cfg.gs("Settings.generateLongOptionsCheckBox.toolTipText"));
-                        generalPanel.add(generateLongOptionsCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                        generalPanel.add(generateLongOptionsCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- preserveFileTimestampsLabel ----
                         preserveFileTimestampsLabel.setText(context.cfg.gs("Settings.preserveFileTimestampsLabel.text"));
-                        generalPanel.add(preserveFileTimestampsLabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                        generalPanel.add(preserveFileTimestampsLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 47), 0, 0));
-                        generalPanel.add(preserveFileTimestampsCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                            new Insets(0, 8, 20, 50), 0, 0));
+
+                        //---- preserveFileTimestampsCheckBox ----
+                        preserveFileTimestampsCheckBox.setToolTipText(context.cfg.gs("Settings.preserveFileTimestampsCheckBox.toolTipText"));
+                        generalPanel.add(preserveFileTimestampsCheckBox, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- showGettingStarted ----
                         showGettingStarted.setText(context.cfg.gs("Settings.showGettingStarted.text"));
-                        generalPanel.add(showGettingStarted, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showGettingStarted, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- showGettingStartedCheckBox ----
                         showGettingStartedCheckBox.setToolTipText("Uncheck to not show Getting Started at Navigator start");
-                        generalPanel.add(showGettingStartedCheckBox, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showGettingStartedCheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
+                        //---- useLastPubSubLabel ----
+                        useLastPubSubLabel.setText(context.cfg.gs("Settings.useLastPubSubLabel.text"));
+                        generalPanel.add(useLastPubSubLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 24), 0, 0));
+
+                        //---- uselastPubSubCheckBox ----
+                        uselastPubSubCheckBox.setToolTipText(context.cfg.gs("Settings.uselastPubSubCheckBox.toolTipText"));
+                        generalPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- macosLauncherLabel ----
                         macosLauncherLabel.setText(context.cfg.gs("Settings.macosLauncherLabel.text"));
-                        generalPanel.add(macosLauncherLabel, new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
+                        generalPanel.add(macosLauncherLabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 0, 5), 0, 0));
+                            new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- macosLauncherCheckBox ----
                         macosLauncherCheckBox.setToolTipText("Uncheck to use ELS-Navigator.sh script internally and for shortcuts");
-                        generalPanel.add(macosLauncherCheckBox, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0,
+                        generalPanel.add(macosLauncherCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 0, 0), 0, 0));
+                            new Insets(0, 0, 20, 0), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
                     settingsTabbedPane.setMnemonicAt(0, context.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
@@ -625,6 +677,7 @@ public class Settings extends JDialog
                             "en_US"
                         }));
                         localeComboBox.setName("localeCombo");
+                        localeComboBox.setToolTipText("Select language");
                         apperancePanel.add(localeComboBox, new GridBagConstraints(2, 1, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(-6, 0, 14, 0), 0, 0));
@@ -703,6 +756,7 @@ public class Settings extends JDialog
                             new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- showMnemonicsCheckBox ----
+                        showMnemonicsCheckBox.setToolTipText(context.cfg.gs("Settings.showMnemonicsCheckBox.toolTipText"));
                         showMnemonicsCheckBox.addActionListener(e -> updateLookAndFeel(e));
                         apperancePanel.add(showMnemonicsCheckBox, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -715,6 +769,7 @@ public class Settings extends JDialog
                             new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- showArrowsCheckBox ----
+                        showArrowsCheckBox.setToolTipText(context.cfg.gs("Settings.showArrowsCheckBox.toolTipText"));
                         showArrowsCheckBox.addActionListener(e -> updateLookAndFeel(e));
                         apperancePanel.add(showArrowsCheckBox, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -723,13 +778,72 @@ public class Settings extends JDialog
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.appearance.tab.title"), apperancePanel);
                     settingsTabbedPane.setMnemonicAt(1, context.cfg.gs("Settings.appearancePanel.tab.mnemonic").charAt(0));
 
+                    //======== behaviorPanel ========
+                    {
+                        behaviorPanel.setLayout(new GridBagLayout());
+                        ((GridBagLayout)behaviorPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
+                        ((GridBagLayout)behaviorPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)behaviorPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)behaviorPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+
+                        //---- askSendEmailLabel ----
+                        askSendEmailLabel.setText(context.cfg.gs("Settings.askSendEmailLabel.text"));
+                        behaviorPanel.add(askSendEmailLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(8, 8, 20, 39), 0, 0));
+
+                        //---- askSendEmailCheckBox ----
+                        askSendEmailCheckBox.setToolTipText(context.cfg.gs("Settings.askSendEmailCheckbox"));
+                        behaviorPanel.add(askSendEmailCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(8, 0, 20, 0), 0, 0));
+
+                        //---- showCcpConfirmationLabel ----
+                        showCcpConfirmationLabel.setText(context.cfg.gs("Settings.showCcpConfirmationLabel.text"));
+                        behaviorPanel.add(showCcpConfirmationLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        behaviorPanel.add(showCcpConfirmationCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
+                        //---- showDeleteConfirmationLabel ----
+                        showDeleteConfirmationLabel.setText(context.cfg.gs("Settings.showDeleteConfirmationLabel.text"));
+                        behaviorPanel.add(showDeleteConfirmationLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        behaviorPanel.add(showDeleteConfirmationCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
+                        //---- showDndConfirmationLabel ----
+                        showDndConfirmationLabel.setText(context.cfg.gs("Settings.showDndConfirmationLabel.text"));
+                        behaviorPanel.add(showDndConfirmationLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        behaviorPanel.add(showDndConfirmationCheckBox, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
+                        //---- showTouchConfirmationLabel ----
+                        showTouchConfirmationLabel.setText(context.cfg.gs("Settings.showTouchConfirmationLabel.text"));
+                        behaviorPanel.add(showTouchConfirmationLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+                        behaviorPanel.add(showTouchConfirmationCheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+                    }
+                    settingsTabbedPane.addTab(context.cfg.gs("Settings.behaviorPanel.tab.title"), behaviorPanel);
+                    settingsTabbedPane.setMnemonicAt(2, context.cfg.gs("Settings.behaviorPanel.tab.mnemonic").charAt(0));
+
                     //======== browserPanel ========
                     {
                         browserPanel.setLayout(new GridBagLayout());
                         ((GridBagLayout)browserPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
-                        ((GridBagLayout)browserPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)browserPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0};
                         ((GridBagLayout)browserPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                        ((GridBagLayout)browserPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)browserPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- hideFilesInTreeLabel ----
                         hideFilesInTreeLabel.setText(context.cfg.gs("Settings.hideFilesInTreeLabel.text"));
@@ -753,7 +867,7 @@ public class Settings extends JDialog
                         sortFoldersBeforeFilesLabel.setText(context.cfg.gs("Settings.sortFoldersBeforeFilesLabel.text"));
                         browserPanel.add(sortFoldersBeforeFilesLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 49), 0, 0));
+                            new Insets(0, 8, 20, 57), 0, 0));
                         browserPanel.add(sortFoldersBeforeFilesCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
@@ -784,7 +898,7 @@ public class Settings extends JDialog
                         tabPlacementComboBox.setName("tabPlacementCombo");
                         browserPanel.add(tabPlacementComboBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(-6, 0, 14, 0), 0, 0));
+                            new Insets(0, 0, 14, 0), 0, 0));
 
                         //---- tooltipLargeTableLabel ----
                         tooltipLargeTableLabel.setText(context.cfg.gs("Settings.tooltipLargeTableLabel.text"));
@@ -797,21 +911,9 @@ public class Settings extends JDialog
                         browserPanel.add(tooltipLargeTableCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
-
-                        //---- useLastPubSubLabel ----
-                        useLastPubSubLabel.setText(context.cfg.gs("Settings.useLastPubSubLabel.text"));
-                        browserPanel.add(useLastPubSubLabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 21), 0, 0));
-
-                        //---- uselastPubSubCheckBox ----
-                        uselastPubSubCheckBox.setToolTipText(context.cfg.gs("Settings.use.last.PubSub.CheckBox.toolTipText"));
-                        browserPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 20, 0), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
-                    settingsTabbedPane.setMnemonicAt(2, context.cfg.gs("Settings.browserPanel.tab.mnemonic").charAt(0));
+                    settingsTabbedPane.setMnemonicAt(3, context.cfg.gs("Settings.browserPanel.tab.mnemonic_2").charAt(0));
                 }
                 settingsContentPanel.add(settingsTabbedPane);
             }
@@ -827,6 +929,7 @@ public class Settings extends JDialog
                 //---- okButton ----
                 okButton.setText(context.cfg.gs("Z.save"));
                 okButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                okButton.setMnemonic(context.cfg.gs("Settings.okButton.mnemonic").charAt(0));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
@@ -834,6 +937,7 @@ public class Settings extends JDialog
                 //---- cancelButton ----
                 cancelButton.setText(context.cfg.gs("Z.cancel"));
                 cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setMnemonic(context.cfg.gs("Settings.cancelButton.mnemonic_2").charAt(0));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
@@ -857,22 +961,18 @@ public class Settings extends JDialog
     private JPanel settingsContentPanel;
     private JTabbedPane settingsTabbedPane;
     private JPanel generalPanel;
-    private JLabel showCcpConfirmationLabel;
-    private JCheckBox showCcpConfirmationCheckBox;
-    private JLabel showDeleteConfirmationLabel;
-    private JCheckBox showDeleteConfirmationCheckBox;
-    private JLabel showDndConfirmationLabel;
-    private JCheckBox showDndConfirmationCheckBox;
-    private JLabel showTouchConfirmationLabel;
-    private JCheckBox showTouchConfirmationCheckBox;
     private JLabel showDefaultDryrunLabel;
     private JCheckBox defaultDryrunCheckBox;
+    private JLabel labelDefaultEmailServer;
+    private JComboBox comboBoxEmailServer;
     private JLabel generateLongOptionsLabel;
     private JCheckBox generateLongOptionsCheckBox;
     private JLabel preserveFileTimestampsLabel;
     private JCheckBox preserveFileTimestampsCheckBox;
     private JLabel showGettingStarted;
     private JCheckBox showGettingStartedCheckBox;
+    private JLabel useLastPubSubLabel;
+    private JCheckBox uselastPubSubCheckBox;
     private JLabel macosLauncherLabel;
     private JCheckBox macosLauncherCheckBox;
     private JPanel apperancePanel;
@@ -894,6 +994,17 @@ public class Settings extends JDialog
     private JCheckBox showMnemonicsCheckBox;
     private JLabel showArrowseLabel;
     private JCheckBox showArrowsCheckBox;
+    private JPanel behaviorPanel;
+    private JLabel askSendEmailLabel;
+    private JCheckBox askSendEmailCheckBox;
+    private JLabel showCcpConfirmationLabel;
+    private JCheckBox showCcpConfirmationCheckBox;
+    private JLabel showDeleteConfirmationLabel;
+    private JCheckBox showDeleteConfirmationCheckBox;
+    private JLabel showDndConfirmationLabel;
+    private JCheckBox showDndConfirmationCheckBox;
+    private JLabel showTouchConfirmationLabel;
+    private JCheckBox showTouchConfirmationCheckBox;
     private JPanel browserPanel;
     private JLabel hideFilesInTreeLabel;
     private JCheckBox hideFilesInTreeCheckBox;
@@ -907,8 +1018,6 @@ public class Settings extends JDialog
     private JComboBox<String> tabPlacementComboBox;
     private JLabel tooltipLargeTableLabel;
     private JCheckBox tooltipLargeTableCheckBox;
-    private JLabel useLastPubSubLabel;
-    private JCheckBox uselastPubSubCheckBox;
     private JPanel buttonBar;
     private JButton okButton;
     private JButton cancelButton;

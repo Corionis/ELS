@@ -9,6 +9,7 @@ import com.corionis.els.gui.browser.NavTreeNode;
 import com.corionis.els.gui.browser.NavTreeUserObject;
 import com.corionis.els.gui.hints.HintsUI;
 import com.corionis.els.gui.tools.duplicateFinder.DuplicateFinderUI;
+import com.corionis.els.gui.tools.email.EmailUI;
 import com.corionis.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.corionis.els.gui.tools.junkRemover.JunkRemoverUI;
 import com.corionis.els.gui.tools.operations.OperationsUI;
@@ -43,6 +44,7 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
@@ -67,6 +69,7 @@ public class Navigator
     public Bookmarks bookmarks;
     public Context context;
     public DuplicateFinderUI dialogDuplicateFinder;
+    public EmailUI dialogEmail;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
     public HintsUI dialogHints = null;
     public JobsUI dialogJobs = null;
@@ -1375,7 +1378,7 @@ public class Navigator
                             context.preferences.setLastHintKeysOpenPath(last.getPath());
                             context.preferences.setLastHintKeysIsOpen(true);
                             context.cfg.setHintKeysFile(file.getPath());
-                            context.main.setupHints(context.publisherRepo);
+                            context.main.connectHints(context.publisherRepo);
                             //context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                         }
                         catch (Exception e)
@@ -1647,7 +1650,7 @@ public class Navigator
                             }
 
                             // connect to the hint tracker or status server
-                            context.main.setupHints(context.publisherRepo);
+                            context.main.connectHints(context.publisherRepo);
                             //context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.browser.setupHintTrackingButton();
                             setQuitTerminateVisibility();
@@ -1858,6 +1861,28 @@ public class Navigator
             }
         };
         context.mainFrame.menuItemGenerate.addActionListener(generateAction);
+
+        // --- Save Layout
+        AbstractAction saveLayoutAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    context.preferences.write(context);
+                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.preferences.saved"));
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
         // --- Quit & Stop Remote(s)
         context.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()
@@ -2824,29 +2849,26 @@ public class Navigator
             }
         });
 
-        // --- Settings
-        AbstractAction saveLayoutAction = new AbstractAction()
+        // --- Email Tool
+        context.mainFrame.menuItemEmail.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                try
+                if (dialogEmail == null || !dialogEmail.isShowing())
                 {
-                    context.preferences.write(context);
-                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.preferences.saved"));
+                    dialogEmail = new EmailUI(context.mainFrame, context);
+                    dialogEmail.setVisible(true);
                 }
-                catch (Exception e)
+                else
                 {
-                    logger.error(Utils.getStackTrace(e));
-                    JOptionPane.showMessageDialog(context.mainFrame,
-                            context.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
-                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    dialogEmail.toFront();
+                    dialogEmail.requestFocus();
                 }
             }
-        };
-        context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
+        });
 
-        // --- Settings
+        // --- Preferences
         if (Utils.isOsMac())
         {
             FlatDesktop.setPreferencesHandler(() -> {
@@ -2988,7 +3010,7 @@ public class Navigator
             {
                 try
                 {
-                    URI uri = new URI("https://corionis.github.io/ELS/");
+                    URI uri = new URI("https://www.elsnavigator.com/");
                     Desktop.getDesktop().browse(uri);
                 }
                 catch (Exception e)
@@ -3790,7 +3812,7 @@ public class Navigator
         }
 
         // connect to the hint status server if defined
-        context.main.setupHints(context.publisherRepo);
+        context.main.connectHints(context.publisherRepo);
 
         if (context.cfg.isRemoteOperation())
         {
@@ -4147,10 +4169,42 @@ public class Navigator
      */
     public void stop()
     {
-        //if (context.cfg.isRemoteActive())
-        //    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Main.disconnecting"));
+        // disconnecting can take a few seconds - show a status message
+        if (context.cfg.isRemoteActive())
+        {
+            // show disconnecting status message
+            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.disconnecting"));
+            Graphics gfx = context.mainFrame.labelStatusMiddle.getGraphics();
+            if (gfx != null)
+                context.mainFrame.labelStatusMiddle.update(gfx);
+            context.mainFrame.labelStatusMiddle.repaint();
 
+            // give it time to be updated
+            final Timer time = new Timer(1500, new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    stopNavigator();
+                }
+            });
+            time.start();
+        }
+        else
+            stopNavigator();
+    }
+
+    /**
+     * Perform the actual stop work
+     */
+    private void stopNavigator()
+    {
         quitByeRemotes(true, true);
+
+        // if the HTTP server is running stop it and it's thread
+        if (dialogEmail != null && dialogEmail.getEmailHandler() != null && dialogEmail.getEmailHandler().isWorkerRunning())
+        {
+            dialogEmail.getEmailHandler().interrupt();
+        }
 
         if (context.mainFrame != null)
         {

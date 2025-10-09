@@ -1,0 +1,381 @@
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": false
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "EmailUI"
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.i18nGetStringFormat": "context.cfg.gs(${key})"
+		}
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"defaultCloseOperation": 0
+			"title": new FormMessage( null, "EmailUI.title" )
+			"name": "emailUI"
+			"minimumSize": new java.awt.Dimension( 150, 126 )
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "windowClosing", true ) )
+			addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentHidden", "windowHidden", true ) )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				"preferredSize": new java.awt.Dimension( 595, 525 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+					name: "contentPanel"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+						name: "panelTop"
+						"minimumSize": new java.awt.Dimension( 140, 38 )
+						"preferredSize": new java.awt.Dimension( 570, 38 )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+							"alignment": 0
+							"hgap": 2
+							"vgap": 4
+						} ) {
+							name: "panelTopButtons"
+							"minimumSize": new java.awt.Dimension( 140, 38 )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonNew"
+								"text": new FormMessage( null, "EmailUI.buttonNew.text" )
+								"mnemonic": new FormMessage( null, "EmailUI.buttonNew.mnemonic" )
+								"toolTipText": new FormMessage( null, "EmailUI.buttonNew.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionNewClicked", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonCopy"
+								"text": new FormMessage( null, "EmailUI.buttonCopy.text" )
+								"mnemonic": new FormMessage( null, "EmailUI.buttonCopy.mnemonic" )
+								"toolTipText": new FormMessage( null, "EmailUI.buttonCopy.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCopyClicked", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonDelete"
+								"text": new FormMessage( null, "EmailUI.buttonDelete.text" )
+								"mnemonic": new FormMessage( null, "EmailUI.buttonDelete.mnemonic" )
+								"toolTipText": new FormMessage( null, "EmailUI.buttonDelete.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDeleteClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "West"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+							"alignment": 2
+							"hgap": 4
+							"vgap": 4
+						} ) {
+							name: "panelHelp"
+							"preferredSize": new java.awt.Dimension( 40, 38 )
+							"minimumSize": new java.awt.Dimension( 0, 38 )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "labelHelp"
+								"icon": new com.jformdesigner.model.SwingIcon( 2, "OptionPane.informationIcon" )
+								"preferredSize": new java.awt.Dimension( 32, 30 )
+								"minimumSize": new java.awt.Dimension( 32, 30 )
+								"maximumSize": new java.awt.Dimension( 32, 30 )
+								"toolTipText": new FormMessage( null, "EmailUI.labelHelp.toolTipText" )
+								"cursor": new java.awt.Cursor( 12 )
+								"iconTextGap": 0
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "actionHelpClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "East"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "North"
+					} )
+					add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
+						name: "splitPaneContent"
+						"dividerLocation": 142
+						"lastDividerLocation": 142
+						"minimumSize": new java.awt.Dimension( 140, 80 )
+						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+							name: "scrollPaneConfig"
+							"minimumSize": new java.awt.Dimension( 140, 16 )
+							"preferredSize": new java.awt.Dimension( 142, 146 )
+							add( new FormComponent( "javax.swing.JTable" ) {
+								name: "configItems"
+								"selectionMode": 0
+								"showVerticalLines": false
+								"fillsViewportHeight": true
+								"showHorizontalLines": false
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "configItemsMouseClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "left"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+							name: "panelOptions"
+							"minimumSize": new java.awt.Dimension( 0, 78 )
+							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+								name: "scrollPaneOptions"
+								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+									"$columnSpecs": "0, 0"
+									"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0"
+									"$hGap": 4
+									"$vGap": 4
+									"$alignTop": true
+								} ) {
+									name: "panelServer"
+									add( new FormComponent( "javax.swing.JLabel" ) {
+										name: "label1"
+										"text": new FormMessage( null, "EmailUI.label1.text" )
+										"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 1, false )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridwidth": 2
+										"insets": new java.awt.Insets( 4, 0, 2, 0 )
+									} )
+									add( new FormComponent( "javax.swing.JLabel" ) {
+										name: "labelProfile"
+										"text": new FormMessage( null, "EmailUI.labelProfile.text" )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"insets": &Insets0 new java.awt.Insets( 0, 4, 0, 0 )
+										"gridy": 1
+									} )
+									add( new FormComponent( "javax.swing.JComboBox" ) {
+										name: "comboBoxProfile"
+										"name": "profile"
+										"model": new javax.swing.DefaultComboBoxModel {
+											selectedItem: "Apple"
+											addElement( "Apple" )
+											addElement( "GMail" )
+											addElement( "Outlook" )
+											addElement( "SMTP" )
+											addElement( "Zoho" )
+										}
+										"toolTipText": new FormMessage( null, "EmailUI.comboBoxProfile.toolTipText" )
+										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridx": 1
+										"gridy": 1
+										"hAlign": 2
+									} )
+									add( new FormComponent( "javax.swing.JLabel" ) {
+										name: "labelServerName"
+										"text": new FormMessage( null, "EmailUI.labelServerName.text" )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"insets": #Insets0
+										"gridy": 2
+									} )
+									add( new FormComponent( "javax.swing.JTextField" ) {
+										name: "textFieldServerName"
+										"minimumSize": new java.awt.Dimension( 240, 34 )
+										"name": "server"
+										"preferredSize": new java.awt.Dimension( 240, 34 )
+										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+										addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridx": 1
+										"hAlign": 5
+										"gridy": 2
+									} )
+									add( new FormComponent( "javax.swing.JLabel" ) {
+										name: "labelUsername"
+										"text": new FormMessage( null, "EmailUI.labelUsername.text" )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridy": 3
+										"insets": new java.awt.Insets( 0, 4, 0, 0 )
+									} )
+									add( new FormComponent( "javax.swing.JTextField" ) {
+										name: "textFieldUsername"
+										"name": "username"
+										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+										addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridx": 1
+										"gridy": 3
+										"hAlign": 5
+									} )
+									add( new FormComponent( "javax.swing.JLabel" ) {
+										name: "labelPassword"
+										"text": new FormMessage( null, "EmailUI.labelPassword.text" )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridy": 4
+										"insets": new java.awt.Insets( 0, 4, 0, 0 )
+									} )
+									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+										name: "panelPassword"
+										add( new FormComponent( "javax.swing.JButton" ) {
+											name: "buttonPassword"
+											"icon": new com.jformdesigner.model.SwingIcon( 0, "/password.png" )
+											"toolTipText": new FormMessage( null, "EmailUI.buttonPassword.toolTipText" )
+											"preferredSize": new java.awt.Dimension( 28, 28 )
+											"minimumSize": new java.awt.Dimension( 28, 28 )
+											"maximumSize": new java.awt.Dimension( 28, 28 )
+											"opaque": false
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionPasswordClicked", true ) )
+										}, new FormLayoutConstraints( class java.lang.String ) {
+											"value": "East"
+										} )
+										add( new FormComponent( "javax.swing.JPasswordField" ) {
+											name: "passwordField"
+											"name": "password"
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+										}, new FormLayoutConstraints( class java.lang.String ) {
+											"value": "Center"
+										} )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridx": 1
+										"gridy": 4
+									} )
+									add( new FormComponent( "javax.swing.JLabel" ) {
+										name: "labelPort"
+										"text": new FormMessage( null, "EmailUI.labelPort.text" )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridy": 5
+										"insets": new java.awt.Insets( 0, 4, 0, 0 )
+									} )
+									add( new FormComponent( "javax.swing.JTextField" ) {
+										name: "textFieldPort"
+										"name": "port"
+										"preferredSize": new java.awt.Dimension( 64, 34 )
+										"maximumSize": new java.awt.Dimension( 64, 2147483647 )
+										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+										addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridx": 1
+										"gridy": 5
+										"hAlign": 2
+									} )
+									add( new FormComponent( "javax.swing.JLabel" ) {
+										name: "labelSecurity"
+										"text": new FormMessage( null, "EmailUI.labelSecurity.text" )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridy": 6
+										"insets": new java.awt.Insets( 0, 4, 0, 0 )
+									} )
+									add( new FormComponent( "javax.swing.JComboBox" ) {
+										name: "comboBoxSecurity"
+										"model": new javax.swing.DefaultComboBoxModel {
+											selectedItem: "STARTTLS"
+											addElement( "STARTTLS" )
+											addElement( "SSL/TLS" )
+											addElement( "None" )
+										}
+										"name": "security"
+										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridx": 1
+										"gridy": 6
+										"hAlign": 2
+									} )
+									add( new FormComponent( "javax.swing.JLabel" ) {
+										name: "labelAuthMethod"
+										"text": new FormMessage( null, "EmailUI.labelAuthMethod.text" )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridy": 7
+										"insets": new java.awt.Insets( 0, 4, 0, 4 )
+									} )
+									add( new FormComponent( "javax.swing.JComboBox" ) {
+										name: "comboBoxAuthMethod"
+										"model": new javax.swing.DefaultComboBoxModel {
+											selectedItem: "Plain"
+											addElement( "Plain" )
+											addElement( "Login" )
+											addElement( "OAuth2" )
+										}
+										"name": "authmethod"
+										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+										"gridx": 1
+										"gridy": 7
+										"hAlign": 2
+									} )
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "Center"
+							} )
+							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+								"alignment": 0
+								"vgap": 2
+								"hgap": 4
+							} ) {
+								name: "panelOptionsButtons"
+								add( new FormComponent( "javax.swing.JButton" ) {
+									name: "buttonAuth"
+									"text": new FormMessage( null, "EmailUI.buttonAuth.text" )
+									"font": &SwingDerivedFont0 new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
+									"preferredSize": new java.awt.Dimension( 110, 24 )
+									"minimumSize": new java.awt.Dimension( 110, 24 )
+									"maximumSize": new java.awt.Dimension( 110, 24 )
+									"mnemonic": 65
+									"toolTipText": new FormMessage( null, "EmailUI.buttonAuth.toolTipText" )
+									"margin": &Insets1 new java.awt.Insets( 0, -10, 0, -10 )
+									auxiliary() {
+										"JavaCodeGenerator.variableModifiers": 1
+									}
+									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionAuthClicked", true ) )
+								} )
+								add( new FormComponent( "javax.swing.JButton" ) {
+									name: "buttonTest"
+									"text": new FormMessage( null, "EmailUI.buttonTest.text" )
+									"font": #SwingDerivedFont0
+									"preferredSize": new java.awt.Dimension( 78, 24 )
+									"minimumSize": new java.awt.Dimension( 78, 24 )
+									"maximumSize": new java.awt.Dimension( 78, 24 )
+									"mnemonic": 84
+									"toolTipText": new FormMessage( null, "EmailUI.buttonTest.toolTipText" )
+									"margin": #Insets1
+									auxiliary() {
+										"JavaCodeGenerator.variableModifiers": 1
+									}
+									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionTestClicked", true ) )
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "South"
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "right"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "Center"
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0, 80, 80"
+					"$rowSpecs": "0"
+					"$hGap": 5
+					"$vGap": 5
+				} ) {
+					name: "buttonBar"
+					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelStatus"
+						auxiliary() {
+							"JavaCodeGenerator.variableModifiers": 1
+						}
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "saveButton"
+						"text": "Save"
+						"toolTipText": new FormMessage( null, "EmailUI.saveButton.toolTipText" )
+						"mnemonic": 83
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+						"gridy": 0
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "cancelButton"
+						"text": "Cancel"
+						"toolTipText": new FormMessage( null, "EmailUI.cancelButton.toolTipText" )
+						"mnemonic": 76
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 2
+						"gridy": 0
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "South"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 595, 525 )
+		} )
+	}
+}

@@ -191,9 +191,18 @@ public class LibrariesUI
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(mf, mf, context, context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(mf, mf, context, context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionIgnorePatternAdd(ActionEvent e)
@@ -1575,11 +1584,8 @@ public class LibrariesUI
 
     public boolean checkForChanges()
     {
-        for (int i = 0; i < deletedLibraries.size(); ++i)
-        {
-            if (deletedLibraries.get(i).isDataChanged())
-                return true;
-        }
+        if (!deletedLibraries.isEmpty())
+            return true;
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -2002,6 +2008,21 @@ public class LibrariesUI
         mf.buttonLibrariesAddIgnore.addActionListener(e -> actionIgnorePatternAdd(e));
         mf.buttonLibrariesRemoveIgnore.addActionListener(e -> actionIgnorePatternRemove(e));
 
+        mf.textFieldEmailAddr.addActionListener(e -> genericAction(e));
+        mf.textFieldEmailAddr.addFocusListener(new FocusAdapter()
+        {
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+                genericTextFieldFocusLost(e);
+            }
+        });
+        mf.comboBoxFormat.addActionListener(e -> genericAction(e));
+        mf.checkBoxMismatches.addActionListener(e -> genericAction(e));
+        mf.checkBoxWhatsNew.addActionListener(e -> genericAction(e));
+        mf.checkBoxSkipOffline.addActionListener(e -> genericAction(e));
+
+
         // locations tab ==========================================
 
         mf.buttonAddLocation.addActionListener(e -> actionLocationAddClicked(e));
@@ -2034,6 +2055,7 @@ public class LibrariesUI
     {
         mf.tableBiblioLibraries.removeAll();
         biblioLibrariesTableModel.getDataVector().removeAllElements();
+        biblioLibrariesTableModel.setEditable(true);
         if (!loading && currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
         {
             loading = true;
@@ -2100,6 +2122,7 @@ public class LibrariesUI
                 mf.buttonUpSource.setEnabled(false);
                 mf.buttonDownSource.setEnabled(false);
                 mf.buttonRemoveSource.setEnabled(false);
+                biblioLibrariesTableModel.setEditable(false);
             }
             else
             {
@@ -2232,6 +2255,21 @@ public class LibrariesUI
                 mf.listLibrariesIgnorePatterns.setModel(model);
                 mf.scrollPaneLibrariesIgnorePatterns.setViewportView(mf.listLibrariesIgnorePatterns);
                 mf.listLibrariesIgnorePatterns.setSelectionInterval(0, 0);
+
+                mf.textFieldEmailAddr.setText((libraries.email));
+                mf.comboBoxFormat.setSelectedItem(libraries.format);
+                if (libraries.mismatches != null)
+                    mf.checkBoxMismatches.setSelected(libraries.mismatches);
+                else
+                    mf.checkBoxMismatches.setSelected(false);
+                if (libraries.whatsNew != null)
+                    mf.checkBoxWhatsNew.setSelected(libraries.whatsNew);
+                else
+                    mf.checkBoxWhatsNew.setSelected(false);
+                if (libraries.skipOffline != null)
+                    mf.checkBoxSkipOffline.setSelected(libraries.skipOffline);
+                else
+                    mf.checkBoxSkipOffline.setSelected(true);
             }
             
             if (repo.isDynamic())
@@ -2252,6 +2290,11 @@ public class LibrariesUI
                 mf.checkBoxTerminalAllowed.setEnabled(false);
                 mf.buttonLibrariesAddIgnore.setEnabled(false);
                 mf.buttonLibrariesRemoveIgnore.setEnabled(false);
+                mf.textFieldEmailAddr.setEnabled(false);
+                mf.comboBoxFormat.setEnabled(false);
+                mf.checkBoxMismatches.setEnabled(false);
+                mf.checkBoxWhatsNew.setEnabled(false);
+                mf.checkBoxSkipOffline.setEnabled(false);
             }
             else 
             {
@@ -2271,6 +2314,11 @@ public class LibrariesUI
                 mf.checkBoxTerminalAllowed.setEnabled(true);
                 mf.buttonLibrariesAddIgnore.setEnabled(true);
                 mf.buttonLibrariesRemoveIgnore.setEnabled(true);
+                mf.textFieldEmailAddr.setEnabled(true);
+                mf.comboBoxFormat.setEnabled(true);
+                mf.checkBoxMismatches.setEnabled(true);
+                mf.checkBoxWhatsNew.setEnabled(true);
+                mf.checkBoxSkipOffline.setEnabled(true);
             }
             
             loading = false;
@@ -2633,6 +2681,10 @@ public class LibrariesUI
                             current = libMeta.repo.getLibraryData().libraries.temp_location;
                             libMeta.repo.getLibraryData().libraries.temp_location = tf.getText();
                             break;
+                        case "email":
+                            current = libMeta.repo.getLibraryData().libraries.email;
+                            libMeta.repo.getLibraryData().libraries.email = tf.getText();
+                            break;
                     }
                     if (tf != null && current != null && !current.equals(tf.getText()))
                     {
@@ -2659,6 +2711,18 @@ public class LibrariesUI
                             state = libMeta.repo.getLibraryData().libraries.terminal_allowed;
                             libMeta.repo.getLibraryData().libraries.terminal_allowed = cb.isSelected();
                             break;
+                        case "mismatches":
+                            state = libMeta.repo.getLibraryData().libraries.mismatches;
+                            libMeta.repo.getLibraryData().libraries.mismatches = cb.isSelected();
+                            break;
+                        case "whatsnew":
+                            state = libMeta.repo.getLibraryData().libraries.whatsNew;
+                            libMeta.repo.getLibraryData().libraries.whatsNew = cb.isSelected();
+                            break;
+                        case "skipoffline":
+                            state = libMeta.repo.getLibraryData().libraries.skipOffline;
+                            libMeta.repo.getLibraryData().libraries.skipOffline = cb.isSelected();
+                            break;
                     }
                     if (state != cb.isSelected())
                     {
@@ -2679,6 +2743,10 @@ public class LibrariesUI
                             current = libMeta.repo.getLibraryData().libraries.flavor.toLowerCase().equals("linux") ? 0 :
                                     (libMeta.repo.getLibraryData().libraries.flavor.toLowerCase().equals("mac") ? 1 : 2);
                             libMeta.repo.getLibraryData().libraries.flavor = (String) combo.getSelectedItem();
+                            break;
+                        case "format":
+                            current = libMeta.repo.getLibraryData().libraries.format.toLowerCase().equals("html") ? 0 : 1;
+                            libMeta.repo.getLibraryData().libraries.format = (String) combo.getSelectedItem();
                             break;
                     }
                     if (index != current)

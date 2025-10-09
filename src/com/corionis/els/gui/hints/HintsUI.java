@@ -233,9 +233,18 @@ public class HintsUI extends JDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionNoneClicked(ActionEvent e)
@@ -354,7 +363,7 @@ public class HintsUI extends JDialog
         {
             try
             {
-                String result = context.hintsHandler.hintsMunge(pendingFor, isPublisher, model, null);
+                String result = context.hintsHandler.hintsMunge(pendingFor, isPublisher, model, null, null);
                 if (!result.toLowerCase().equals("false"))
                 {
                     if (context.preferences.isAutoRefresh())
@@ -821,6 +830,7 @@ public class HintsUI extends JDialog
                     //---- okButton ----
                     okButton.setText(context.cfg.gs("Z.ok"));
                     okButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                    okButton.setMnemonic('O');
                     okButton.addActionListener(e -> actionOkClicked(e));
                     buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -829,6 +839,7 @@ public class HintsUI extends JDialog
                     //---- cancelButton ----
                     cancelButton.setText(context.cfg.gs("Z.cancel"));
                     cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                    cancelButton.setMnemonic('L');
                     cancelButton.addActionListener(e -> actionCancelClicked(e));
                     buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,

@@ -576,7 +576,7 @@ public class DownloadUpdater extends JFrame
                 String debugLevel = context.cfg.getDebugLevel();
                 boolean overwriteLog = context.cfg.isLogOverwrite();
                 String log = context.cfg.getLogFileFullPath();
-                String restartCommand = context.cfg.generateCurrentCommandline(consoleLevel, debugLevel, overwriteLog, log);
+                String restartCommand = context.cfg.generateCommandLine(consoleLevel, debugLevel, overwriteLog, log);
 
                 FileWriter writer = new FileWriter(infoPath, false);
                 writer.write(installedPath + System.getProperty("line.separator"));
@@ -707,6 +707,7 @@ public class DownloadUpdater extends JFrame
             //---- buttonCancel ----
             buttonCancel.setText(bundle.getString("Z.cancel"));
             buttonCancel.setToolTipText(bundle.getString("Z.cancel.download"));
+            buttonCancel.setMnemonic('L');
             buttonCancel.addActionListener(e -> actionCancel(e));
             panelControls.add(buttonCancel);
         }

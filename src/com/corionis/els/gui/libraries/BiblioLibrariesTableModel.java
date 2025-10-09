@@ -9,14 +9,21 @@ import javax.swing.table.DefaultTableModel;
 
 public class BiblioLibrariesTableModel extends DefaultTableModel
 {
-    Context context;
-    String displayName;
-    LibrariesUI.LibMeta libMeta;
+    private Context context;
+    private String displayName;
+    private boolean editable = true;
+    private LibrariesUI.LibMeta libMeta;
 
     public BiblioLibrariesTableModel(Context context)
     {
         super();
         this.context = context;
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column)
+    {
+        return editable;
     }
 
     @Override
@@ -53,6 +60,11 @@ public class BiblioLibrariesTableModel extends DefaultTableModel
     public void setDisplayName(String displayName)
     {
         this.displayName = displayName;
+    }
+
+    public void setEditable(boolean editable)
+    {
+        this.editable = editable;
     }
 
     public void setLibMeta(LibrariesUI.LibMeta libMeta)

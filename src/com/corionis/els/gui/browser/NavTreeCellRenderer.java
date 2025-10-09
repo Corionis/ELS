@@ -71,6 +71,20 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                         setIcon(UIManager.getIcon("InternalFrame.closeIcon")); // something that looks like an error
                         break;
                 }
+
+/* Does not work due to ELS lazy-loading of content
+                Icon EMPTY_ICON = new ImageIcon(new byte[0]);
+                if (leaf)
+                {
+                    setOpenIcon(EMPTY_ICON);
+                    setClosedIcon(EMPTY_ICON);
+                }
+                else
+                {
+                    setOpenIcon(getDefaultOpenIcon());
+                    setClosedIcon(getDefaultClosedIcon());
+                }
+ */
             }
             else
             {

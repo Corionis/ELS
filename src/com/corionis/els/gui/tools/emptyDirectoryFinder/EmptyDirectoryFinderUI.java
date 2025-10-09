@@ -163,9 +163,18 @@ public class EmptyDirectoryFinderUI extends JDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionNoneClicked(ActionEvent e)
@@ -595,6 +604,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                     //---- closeButton ----
                     closeButton.setText(context.cfg.gs("EmptyDirectoryFinder.closeButton.text"));
                     closeButton.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.closeButton.toolTipText"));
+                    closeButton.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.closeButton.mnemonic").charAt(0));
                     closeButton.addActionListener(e -> actionCloseClicked(e));
                     buttonBar.add(closeButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,

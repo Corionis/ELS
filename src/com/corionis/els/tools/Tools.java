@@ -1,5 +1,6 @@
 package com.corionis.els.tools;
 
+import com.corionis.els.tools.email.EmailTool;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.corionis.els.Context;
@@ -54,18 +55,6 @@ public class Tools
     }
 
     /**
-     * Get currently-loaded list of tools, does not include Jobs
-     *
-     * @return List of tools
-     */
-    public ArrayList<AbstractTool> getToolList(Context context) throws Exception
-    {
-        if (toolList == null)
-            loadAllTools(context, null);
-        return toolList;
-    }
-
-    /**
      * Load a specific tool from disk
      *
      * @param context The Context
@@ -78,7 +67,38 @@ public class Tools
     {
         AbstractTool tool = null;
 
-        if (internalName.equals(OperationsTool.INTERNAL_NAME))
+        if (internalName.equals(EmailTool.INTERNAL_NAME))
+        {
+            // begin Email
+            EmailTool tmpTool = new EmailTool(context);
+            File toolDir = new File(tmpTool.getDirectoryPath());
+            if (toolDir.exists() && toolDir.isDirectory())
+            {
+                EmailParser emailParser = new EmailParser();
+                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
+                for (File entry : files)
+                {
+                    if (!entry.isDirectory())
+                    {
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        if (json != null)
+                        {
+                            AbstractTool but = emailParser.parseTool(context, json);
+                            if (but != null)
+                            {
+                                if (but.getConfigName().equalsIgnoreCase(configName))
+                                {
+                                    tool = but;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end Email
+        }
+        else if (internalName.equals(OperationsTool.INTERNAL_NAME))
         {
             // begin Operations
             OperationsTool tmpTool = new OperationsTool(context);
@@ -249,6 +269,16 @@ public class Tools
         if (toolList != toolObjects)
             toolList = new ArrayList<AbstractTool>();
 
+        // begin EmailUI
+        if (internalName != null && internalName.equals(EmailTool.INTERNAL_NAME)) // must be specified
+        {
+            toolParser = new EmailParser();
+            EmailTool tmpEmail = new EmailTool(context);
+            toolDir = new File(tmpEmail.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end EmailUI
+
         // begin OperationsUI
         if (internalName == null || internalName.equals(OperationsTool.INTERNAL_NAME))
         {
@@ -316,7 +346,11 @@ public class Tools
     public AbstractTool makeTempTool(String internalName, Context context)
     {
         AbstractTool tmpTool = null;
-        if (internalName.equals(OperationsTool.INTERNAL_NAME))
+        if (internalName.equals(EmailTool.INTERNAL_NAME))
+        {
+            tmpTool = new EmailTool(context);
+        }
+        else if (internalName.equals(OperationsTool.INTERNAL_NAME))
         {
             tmpTool = new OperationsTool(context);
         }
@@ -378,6 +412,39 @@ public class Tools
     }
 
     //=================================================================================================================
+
+    /**
+     * ToolParserI implementation for the EmailTool
+     */
+    private class EmailParser implements ToolParserI
+    {
+        /**
+         * Parse a EmailTool
+         *
+         * Treated like a Tool but under the System menu. Does not appear under Jobs, Tasks, Add ...
+         *
+         * @param context The Context
+         * @param json String of JSON to parse
+         * @return AbstractTool instance
+         */
+        @Override
+        public AbstractTool parseTool(Context context, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new EmailTool(context);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(EmailTool.class, new objInstanceCreator());
+            EmailTool tool = builder.create().fromJson(json, EmailTool.class);
+            return tool;
+        }
+    }
 
     /**
      * ToolParserI implementation for the OperationsTool

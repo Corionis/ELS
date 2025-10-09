@@ -281,6 +281,7 @@ public class NavHelp extends JDialog
 
                 //---- showCheckBox ----
                 showCheckBox.setText(context.cfg.gs("NavHelp.showCheckBox.text"));
+                showCheckBox.setMnemonic(context.cfg.gs("NavHelp.showCheckBox.mnemonic").charAt(0));
                 buttonBar.add(showCheckBox, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
@@ -288,6 +289,7 @@ public class NavHelp extends JDialog
                 //---- okButton ----
                 okButton.setText(context.cfg.gs("Z.ok"));
                 okButton.setActionCommand(context.cfg.gs("Z.ok"));
+                okButton.setMnemonic(context.cfg.gs("NavHelp.okButton.mnemonic").charAt(0));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));

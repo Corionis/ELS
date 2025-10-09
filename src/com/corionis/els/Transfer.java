@@ -126,7 +126,7 @@ public class Transfer
      * @throws MungeException the els exception
      */
     public String copyGroup(ArrayList<Item> group, long totalSize, boolean overwrite,
-                            PrintWriter whatsNewFile, PrintWriter mismatchFile) throws Exception
+                            PrintWriter whatsNewFile, PrintWriter whatsNewFileHtml, PrintWriter mismatchFile, PrintWriter mismatchFileHtml) throws Exception
     {
         String response = "";
         if (!context.cfg.isTargetsEnabled())
@@ -170,7 +170,10 @@ public class Transfer
                         grandTotalSize = grandTotalSize + groupItem.getSize();
 
                         if (mismatchFile != null)
-                            mismatchFile.println(to);
+                        {
+                            mismatchFile.println("    " + to);
+                            mismatchFileHtml.println("&nbsp;&nbsp;&nbsp;&nbsp;" + to + "<br/>");
+                        }
                     }
                     else
                     {
@@ -178,12 +181,20 @@ public class Transfer
                                 group.get(0).getLibrary(), lastGroupName,
                                 Utils.formatLong(totalSize, false, context.cfg.getLongScale()), groupItem.getItemShortName());
                         logger.warn(response);
-                        if (context.main.process != null)
-                            context.main.process.setWarnings(context.main.process.getWarnings() + 1);
+
+                        if (context.process != null)
+                            context.process.setWarnings(context.process.getWarnings() + 1);
+
                         if (whatsNewFile != null)
-                            whatsNewFile.println("    " + response);
+                        {
+                            whatsNewFile.println(context.cfg.gs("Z.warning")  + response);
+                            whatsNewFileHtml.println(context.cfg.gs("Z.warning")  + response);
+                        }
                         if (mismatchFile != null)
+                        {
                             mismatchFile.println(context.cfg.gs("Z.warning") + response);
+                            mismatchFileHtml.println(context.cfg.gs("Z.warning") + response);
+                        }
                         break;
                     }
                 }
@@ -539,8 +550,8 @@ public class Transfer
         if (i < 0)
         {
             logger.warn(context.cfg.gs("Transfer.no.subdirectory.in.path") + publisherItem.getItemPath());
-            if (context.main.process != null)
-                context.main.process.setWarnings(context.main.process.getWarnings() + 1);
+            if (context.process != null)
+                context.process.setWarnings(context.process.getWarnings() + 1);
             return true;
         }
         String path = publisherItem.getItemPath().substring(0, i);

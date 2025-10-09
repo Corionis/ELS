@@ -52,7 +52,7 @@ public class Generator
     public Generator(Context context, boolean isFileGenerate)
     {
         this.context = context;
-        this.fileGenerate = isFileGenerate;
+        this.fileGenerate = isFileGenerate; // from File, Generate
     }
 
     private void createDesktopShortcut(JDialog owner, String name, String commandLine)
@@ -240,11 +240,11 @@ public class Generator
         {
             if (tool == null) // File, Generate ...
             {
-                generated = context.cfg.generateCurrentCommandline(consoleLevel, debugLevel, overwrite, log);
+                generated = context.cfg.generateCommandLine(consoleLevel, debugLevel, overwrite, log);
             }
             else if (tool instanceof Job)
             {
-                generated = generateJobCommandline(tool, consoleLevel, debugLevel, overwrite, log, foreground);
+                generated = generateCommandLineJob(tool, consoleLevel, debugLevel, overwrite, log, foreground);
             }
 /*
     // this has been removed from OperationsUI; But OperationsTool.generateCommandLine() is used when running a Job
@@ -262,13 +262,13 @@ public class Generator
         return generated;
     }
 
-    private String generateJobCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log, boolean foreground) throws Exception
+    private String generateCommandLineJob(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log, boolean foreground) throws Exception
     {
         // generate-commandline
         boolean glo = context.preferences.isGenerateLongOptions();
         String exec = context.cfg.getExecutablePath();
         String jar = ""; //(Utils.isOsLinux() ? context.cfg.getElsJar() : "");
-        String opts = ((Job) tool).generateCommandline(dryRun);
+        String opts = ((Job) tool).generateCommandLineJob(dryRun);
         if (foreground)
             opts += " --logger";
         String overOpt = overwriteLog ? (glo ? "--log-overwrite" : "-F") : (glo ? "--log-file" : "-f");
