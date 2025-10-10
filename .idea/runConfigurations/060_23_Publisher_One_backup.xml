@@ -2,7 +2,7 @@
   <configuration default="false" name="060-23 Publisher One backup" type="Application" factoryName="Application" folderName="060-00 Local Hint Tracker - Local Backup">
     <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-C . --hints &quot;libraries/Hint Server.json&quot; -k system/hint.keys -c debug -d debug -p &quot;libraries/Publisher.json&quot; -s &quot;libraries/Subscriber One.json&quot; -T -m output/060-23_Publisher-One-backup_mismatches.txt -W output/060-23_Publisher-One-backup_whatsnew.txt -F output/060-23_Publisher-One-backup.log -M els.backup@monkeyboy.com" />
+    <option name="PROGRAM_PARAMETERS" value="-C . --hints &quot;libraries/Hint Server.json&quot; -k system/hint.keys -c debug -d debug -p &quot;libraries/Publisher.json&quot; -s &quot;libraries/Subscriber One.json&quot; -T -m output/060-23_Publisher-One-backup_mismatches.txt -W output/060-23_Publisher-One-backup_whatsnew.txt -F output/060-23_Publisher-One-backup.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <method v="2">

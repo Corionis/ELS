@@ -121,6 +121,7 @@ public class Preferences implements Serializable
     private int progressWidth = -1;
     private int progressXpos = -1;
     private int progressYpos = 0;
+    private boolean roundedEdges = true;
     private int runOption = 0;
     private int schema = 1;
     private boolean showArrows = true;
@@ -1219,6 +1220,14 @@ public class Preferences implements Serializable
                     break;
             }
 
+            if (context.preferences.isRoundedEdges())
+            {
+                UIManager.put( "Button.arc", 500);
+                UIManager.put( "Component.arc", 500);
+                UIManager.put( "ProgressBar.arc", 500);
+                UIManager.put( "TextComponent.arc", 500);
+            }
+
             FlatLaf.updateUI();
             lookAndFeelInitialized = true;
         }
@@ -1318,6 +1327,11 @@ public class Preferences implements Serializable
     public boolean isPreserveFileTimes()
     {
         return preserveFileTimes;
+    }
+
+    public boolean isRoundedEdges()
+    {
+        return roundedEdges;
     }
 
     public boolean isShowArrows()
@@ -1870,6 +1884,11 @@ public class Preferences implements Serializable
     public void setProgressYpos(int progressYpos)
     {
         this.progressYpos = progressYpos;
+    }
+
+    public void setRoundedEdges(boolean roundedEdges)
+    {
+        this.roundedEdges = roundedEdges;
     }
 
     public void setRunOption(int runOption)

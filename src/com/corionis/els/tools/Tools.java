@@ -9,10 +9,11 @@ import com.corionis.els.tools.junkremover.JunkRemoverTool;
 import com.corionis.els.tools.renamer.RenamerTool;
 import com.corionis.els.tools.sleep.SleepTool;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,12 +76,13 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 EmailParser emailParser = new EmailParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-                for (File entry : files)
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
                 {
-                    if (!entry.isDirectory())
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                         if (json != null)
                         {
                             AbstractTool but = emailParser.parseTool(context, json);
@@ -106,12 +108,13 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 OperationParser operationParser = new OperationParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-                for (File entry : files)
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
                 {
-                    if (!entry.isDirectory())
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                         if (json != null)
                         {
                             AbstractTool but = operationParser.parseTool(context, json);
@@ -137,12 +140,13 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 JunkRemoverParser junkRemoverParser = new JunkRemoverParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-                for (File entry : files)
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
                 {
-                    if (!entry.isDirectory())
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                         if (json != null)
                         {
                             AbstractTool jrt = junkRemoverParser.parseTool(context, json);
@@ -168,12 +172,13 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 RenamerParser renamerParser = new RenamerParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-                for (File entry : files)
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
                 {
-                    if (!entry.isDirectory())
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                         if (json != null)
                         {
                             AbstractTool jrt = renamerParser.parseTool(context, json);
@@ -199,12 +204,13 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 SleepParser sleepParser = new SleepParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-                for (File entry : files)
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
                 {
-                    if (!entry.isDirectory())
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                         if (json != null)
                         {
                             AbstractTool slp = sleepParser.parseTool(context, json);
@@ -383,12 +389,13 @@ public class Tools
     {
         if (toolDir.exists() && toolDir.isDirectory())
         {
-            File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-            for (File entry : files)
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+            for (Path entry : directoryStream)
             {
-                if (!entry.isDirectory())
+                boolean isDir = Files.isDirectory(entry);
+                if (!isDir)
                 {
-                    String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                    String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                     if (json != null)
                     {
                         AbstractTool tool = parser.parseTool(context, json);

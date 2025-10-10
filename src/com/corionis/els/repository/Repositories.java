@@ -6,8 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -246,12 +248,13 @@ public class Repositories
         File libDir = new File(getDirectoryPath());
         if (libDir.exists() && libDir.isDirectory())
         {
-            File[] files = FileSystemView.getFileSystemView().getFiles(libDir, true);
-            for (File entry : files)
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(libDir.toPath());
+            for (Path entry : directoryStream)
             {
-                if (!entry.isDirectory())
+                boolean isDir = Files.isDirectory(entry);
+                if (!isDir)
                 {
-                    addRepo(context, entry.getCanonicalPath());
+                    addRepo(context, entry.toString());
                 }
             }
 

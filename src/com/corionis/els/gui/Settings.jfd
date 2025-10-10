@@ -284,10 +284,25 @@ new FormModel {
 								"gridwidth": 2
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "labelRounded"
+								"text": new FormMessage( null, "Settings.labelRounded.text" )
+								"toolTipText": new FormMessage( null, "Settings.labelRounded.toolTipText" )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridy": 6
+								"insets": new java.awt.Insets( 0, 8, 0, 0 )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "roundedCheckBox"
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "updateLookAndFeel", true ) )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 2
+								"gridy": 6
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "showMnemonicsLabel"
 								"text": new FormMessage( null, "Settings.showMnemonicsLabel.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 6
+								"gridy": 7
 								"insets": &Insets0 new java.awt.Insets( 0, 8, 0, 0 )
 								"gridwidth": 2
 							} )
@@ -297,13 +312,13 @@ new FormModel {
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "updateLookAndFeel", true ) )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 2
-								"gridy": 6
+								"gridy": 7
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "showArrowseLabel"
 								"text": new FormMessage( null, "Settings.show.Arrows.Label.text" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridy": 7
+								"gridy": 8
 								"insets": #Insets0
 								"gridwidth": 2
 							} )
@@ -313,7 +328,7 @@ new FormModel {
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "updateLookAndFeel", true ) )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 2
-								"gridy": 7
+								"gridy": 8
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.appearance.tab.title" )
@@ -537,7 +552,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 570, 450 )
+			"size": new java.awt.Dimension( 570, 495 )
 		} )
 	}
 }

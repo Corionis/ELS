@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.8" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -1925,9 +1925,6 @@ new FormModel {
 						"mnemonic": new FormMessage( null, "Navigator.menuItemSleep.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/sleep.png" )
 					} )
-					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separatorTools1"
-					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemExternalTools"
 						"text": new FormMessage( null, "Navigator.menu.ExternalTools.text" )
@@ -1936,6 +1933,7 @@ new FormModel {
 						"displayedMnemonicIndex": new FormMessage( null, "Navigator.menuItemExternalTools.displayedMnemonicIndex" )
 						"toolTipText": new FormMessage( null, "Z.not.implemented.yet" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/external-manage.png" )
+						"visible": false
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemPlexGenerator"
@@ -1943,6 +1941,7 @@ new FormModel {
 						"enabled": false
 						"margin": new java.awt.Insets( 2, 18, 2, 2 )
 						"toolTipText": new FormMessage( null, "Z.not.implemented.yet" )
+						"visible": false
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {

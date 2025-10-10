@@ -566,7 +566,14 @@ public class EmailHandler extends Thread
         //message.addHeader("Authorization: ", "Zoho-oauthtoken " + tool.getAccessToken());
 
         // set subject field
-        String ends = context.publisherRepo.getLibraryData().libraries.description + "-" + context.subscriberRepo.getLibraryData().libraries.description + " ";
+        String ends = "";
+        if (context.publisherRepo != null)
+            ends = context.publisherRepo.getLibraryData().libraries.description + "-";
+        if (context.subscriberRepo != null)
+            ends += context.subscriberRepo.getLibraryData().libraries.description + " ";
+        else if (context.hintsRepo != null)
+            ends = context.hintsRepo.getLibraryData().libraries.description + " ";
+
         if (function == Function.FAULT)
         {
             message.setSubject("ELS Problem: " + ends + now);
@@ -640,7 +647,13 @@ public class EmailHandler extends Thread
             {
                 // ignored
             }
-            String from = context.publisherRepo.getLibraryData().libraries.description + hostname;
+            String from = "";
+            if (context.publisherRepo != null)
+                from = context.publisherRepo.getLibraryData().libraries.description + hostname;
+            else if (context.subscriberRepo != null)
+                from = context.subscriberRepo.getLibraryData().libraries.description + hostname;
+            else if (context.hintsRepo != null)
+                from = context.hintsRepo.getLibraryData().libraries.description + hostname;
 
             // header
             if (recipient.format.equalsIgnoreCase("html"))
@@ -768,6 +781,14 @@ public class EmailHandler extends Thread
                 if ((!Utils.couldNotConnect && lib.skipOffline) ||
                         (function == Function.FAULT && Utils.couldNotConnect && !lib.skipOffline))
                     recipients.add(new Recipient(lib.email, lib.format, lib.mismatches, lib.whatsNew));
+            }
+        }
+        else if (function == Function.FAULT && context.hintsRepo != null)
+        {
+            Libraries lib = context.hintsRepo.getLibraryData().libraries;
+            if (lib.email != null && !lib.email.isEmpty())
+            {
+                recipients.add(new Recipient(lib.email, lib.format, lib.mismatches, lib.whatsNew));
             }
         }
 

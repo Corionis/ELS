@@ -1058,7 +1058,6 @@ public class MainFrame extends JFrame
                 menuItemSleep.setMnemonic(context.cfg.gs("Navigator.menuItemSleep.mnemonic").charAt(0));
                 menuItemSleep.setIcon(new ImageIcon(getClass().getResource("/sleep.png")));
                 menuTools.add(menuItemSleep);
-                menuTools.addSeparator();
 
                 //---- menuItemExternalTools ----
                 menuItemExternalTools.setText(context.cfg.gs("Navigator.menu.ExternalTools.text"));
@@ -1067,6 +1066,7 @@ public class MainFrame extends JFrame
                 menuItemExternalTools.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemExternalTools.displayedMnemonicIndex")));
                 menuItemExternalTools.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
                 menuItemExternalTools.setIcon(new ImageIcon(getClass().getResource("/external-manage.png")));
+                menuItemExternalTools.setVisible(false);
                 menuTools.add(menuItemExternalTools);
 
                 //---- menuItemPlexGenerator ----
@@ -1074,6 +1074,7 @@ public class MainFrame extends JFrame
                 menuItemPlexGenerator.setEnabled(false);
                 menuItemPlexGenerator.setMargin(new Insets(2, 18, 2, 2));
                 menuItemPlexGenerator.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
+                menuItemPlexGenerator.setVisible(false);
                 menuTools.add(menuItemPlexGenerator);
             }
             menuBarMain.add(menuTools);

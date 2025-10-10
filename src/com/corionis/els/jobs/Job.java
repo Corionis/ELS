@@ -11,11 +11,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -182,12 +183,13 @@ public class Job extends AbstractTool
             builder.registerTypeAdapter(Job.class, new objInstanceCreator());
 
             String json;
-            File[] files = FileSystemView.getFileSystemView().getFiles(jobDir, true);
-            for (File entry : files)
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(jobDir.toPath());
+            for (Path entry : directoryStream)
             {
-                if (!entry.isDirectory())
+                boolean isDir = Files.isDirectory(entry);
+                if (!isDir)
                 {
-                    json = new String(Files.readAllBytes(Paths.get(entry.getPath())));
+                    json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                     if (json != null && json.length() > 0)
                     {
                         Job tmpJob = builder.create().fromJson(json, Job.class);

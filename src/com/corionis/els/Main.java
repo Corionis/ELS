@@ -1720,11 +1720,6 @@ public class Main
                     {
                         if (primaryExecution)
                         {
-                            if (context.fault && !context.cfg.isNavigator() && !Utils.faultEmailSent)
-                            {
-                                sendFaultEmail();
-                            }
-
                             Runtime.getRuntime().halt(context.fault ? 1 : 0);
                         }
                     }
@@ -1780,12 +1775,6 @@ public class Main
         }
 
         flushLogger();
-
-        if (context.fault && !context.cfg.isNavigator() && !Utils.faultEmailSent)
-        {
-            sendFaultEmail();
-            flushLogger();
-        }
 
         if (primaryExecution && context.fault)
         {
@@ -2021,6 +2010,11 @@ public class Main
     {
         try
         {
+            if (context.fault && !context.cfg.isNavigator() && !Utils.faultEmailSent)
+            {
+                sendFaultEmail();
+            }
+
             logger.trace(context.cfg.gs("Main.shutdown.via.main"));
             if (context.main.job != null || (context.previousContext != null && context.previousContext.main.job != null))
             {

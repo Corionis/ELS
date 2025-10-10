@@ -814,7 +814,7 @@ public class Process
         {
             String msg = context.cfg.gs(context.cfg.gs(context.cfg.gs("Process.cannot.send.completion.email")));
             logger.warn(msg);
-            //if ((context.navigator != null || context.cfg.isLoggerView()) && context.preferences.isAskSendEmail())
+            //if (context.navigator != null || context.cfg.isLoggerView())
             //    JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             return;
         }

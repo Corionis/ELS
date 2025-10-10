@@ -49,6 +49,7 @@ public class Settings extends JDialog
                 context.preferences.setLookAndFeel(laf);
                 textFieldAccentColor.setText(context.preferences.getAccentColor());
                 scaleCheckBox.setSelected(!context.preferences.isBinaryScale());
+                roundedCheckBox.setSelected(context.preferences.isRoundedEdges());
                 showArrowsCheckBox.setSelected(context.preferences.isShowArrows());
                 showMnemonicsCheckBox.setSelected(context.preferences.isShowMnemonics());
                 updateLookAndFeel(null);
@@ -212,6 +213,20 @@ public class Settings extends JDialog
         try
         {
             setAccentColor();
+            if (roundedCheckBox.isSelected())
+            {
+                UIManager.put( "Button.arc", 500);
+                UIManager.put( "Component.arc", 500);
+                UIManager.put( "ProgressBar.arc", 500);
+                UIManager.put( "TextComponent.arc", 500);
+            }
+            else
+            {
+                UIManager.put( "Button.arc", 5);
+                UIManager.put( "Component.arc", 5);
+                UIManager.put( "ProgressBar.arc", 5);
+                UIManager.put( "TextComponent.arc", 5);
+            }
             UIManager.put("ScrollBar.showButtons", showArrowsCheckBox.isSelected()); // show scrollbar up/down buttons
             UIManager.put("Component.hideMnemonics", !showMnemonicsCheckBox.isSelected()); // show/hide mnemonic letters
             Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
@@ -314,6 +329,7 @@ public class Settings extends JDialog
         }
         textFieldAccentColor.setText(context.preferences.getAccentColor());
         scaleCheckBox.setSelected(!context.preferences.isBinaryScale());
+        roundedCheckBox.setSelected(context.preferences.isRoundedEdges());
         showArrowsCheckBox.setSelected(context.preferences.isShowArrows());
         showMnemonicsCheckBox.setSelected(context.preferences.isShowMnemonics());
 
@@ -395,6 +411,7 @@ public class Settings extends JDialog
             context.preferences.setAccentColor(textFieldAccentColor.getText());
         context.preferences.setBinaryScale(!scaleCheckBox.isSelected());
         context.cfg.setLongScale(context.preferences.isBinaryScale());
+        context.preferences.setRoundedEdges(roundedCheckBox.isSelected());
         context.preferences.setShowArrows(showArrowsCheckBox.isSelected());
         context.preferences.setShowMnemonics(showMnemonicsCheckBox.isSelected());
 
@@ -476,6 +493,8 @@ public class Settings extends JDialog
         dateFormatTextField = new JTextField();
         scaleLabel = new JLabel();
         scaleCheckBox = new JCheckBox();
+        labelRounded = new JLabel();
+        roundedCheckBox = new JCheckBox();
         showMnemonicsLabel = new JLabel();
         showMnemonicsCheckBox = new JCheckBox();
         showArrowseLabel = new JLabel();
@@ -749,31 +768,44 @@ public class Settings extends JDialog
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
+                        //---- labelRounded ----
+                        labelRounded.setText(context.cfg.gs("Settings.labelRounded.text"));
+                        labelRounded.setToolTipText(context.cfg.gs("Settings.labelRounded.toolTipText"));
+                        apperancePanel.add(labelRounded, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+
+                        //---- roundedCheckBox ----
+                        roundedCheckBox.addActionListener(e -> updateLookAndFeel(e));
+                        apperancePanel.add(roundedCheckBox, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 5), 0, 0));
+
                         //---- showMnemonicsLabel ----
                         showMnemonicsLabel.setText(context.cfg.gs("Settings.showMnemonicsLabel.text"));
-                        apperancePanel.add(showMnemonicsLabel, new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0,
+                        apperancePanel.add(showMnemonicsLabel, new GridBagConstraints(0, 7, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- showMnemonicsCheckBox ----
                         showMnemonicsCheckBox.setToolTipText(context.cfg.gs("Settings.showMnemonicsCheckBox.toolTipText"));
                         showMnemonicsCheckBox.addActionListener(e -> updateLookAndFeel(e));
-                        apperancePanel.add(showMnemonicsCheckBox, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
+                        apperancePanel.add(showMnemonicsCheckBox, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 5), 0, 0));
 
                         //---- showArrowseLabel ----
                         showArrowseLabel.setText(context.cfg.gs("Settings.show.Arrows.Label.text"));
-                        apperancePanel.add(showArrowseLabel, new GridBagConstraints(0, 7, 2, 1, 0.0, 0.0,
+                        apperancePanel.add(showArrowseLabel, new GridBagConstraints(0, 8, 2, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 5), 0, 0));
+                            new Insets(0, 8, 0, 5), 0, 0));
 
                         //---- showArrowsCheckBox ----
                         showArrowsCheckBox.setToolTipText(context.cfg.gs("Settings.showArrowsCheckBox.toolTipText"));
                         showArrowsCheckBox.addActionListener(e -> updateLookAndFeel(e));
-                        apperancePanel.add(showArrowsCheckBox, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0,
+                        apperancePanel.add(showArrowsCheckBox, new GridBagConstraints(2, 8, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 20, 5), 0, 0));
+                            new Insets(0, 0, 0, 5), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.appearance.tab.title"), apperancePanel);
                     settingsTabbedPane.setMnemonicAt(1, context.cfg.gs("Settings.appearancePanel.tab.mnemonic").charAt(0));
@@ -990,6 +1022,8 @@ public class Settings extends JDialog
     private JTextField dateFormatTextField;
     private JLabel scaleLabel;
     private JCheckBox scaleCheckBox;
+    private JLabel labelRounded;
+    private JCheckBox roundedCheckBox;
     private JLabel showMnemonicsLabel;
     private JCheckBox showMnemonicsCheckBox;
     private JLabel showArrowseLabel;

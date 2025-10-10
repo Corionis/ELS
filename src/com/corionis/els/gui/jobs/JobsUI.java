@@ -1624,6 +1624,10 @@ public class JobsUI extends AbstractToolDialog
         boolean needHints = currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
                 ((((OperationsTool) currentTool).isToolHintServer() || ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.StatusQuit)) ||
                 (!((OperationsTool) currentTool).getOptKeys().isEmpty()));
+        boolean optionalEmail = currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
+                (((OperationsTool) currentTool).isToolPublisher() ||
+                ((OperationsTool) currentTool).isToolSubscriber() ||
+                ((OperationsTool) currentTool).isToolHintServer());
 
         if (needPublisher || currentTool.isToolPublisher()) // -------------------------------------------------------- Publisher
         {
@@ -1815,8 +1819,7 @@ public class JobsUI extends AbstractToolDialog
             buttonHints.setToolTipText(value);
         }
 
-        if (currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) && // ------------------ Email Server
-                ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.Publisher))
+        if (optionalEmail) // ------------------------------------------------------------------------ Email Server
         {
             String email = currentTask.getEmailTool();
             if (email.isEmpty())
