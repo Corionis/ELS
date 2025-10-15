@@ -17,7 +17,7 @@ Use the buttons at the top of this page <img style="vertical-align:middle" src="
 If you are interested in the latest development work see: <a href="https://github.com/Corionis/ELS/tree/Version-4.1.0/deploy" target="_blank"><b>Version 4.1 deploy <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a>
 
 See: <a href="https://html-preview.github.io/?url=https://github.com/Corionis/ELS/blob/Version-4.1.0/build/changes.html" target="_blank"><b>Version 4.1 Changelist <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom" border="0"/></b></a>
- for recent changed.
+ for recent changes.
 
 ## &bull; Installation
 
