@@ -482,7 +482,7 @@ public class Main
                 Files.createDirectories(dir);
         }
 
-        String[] toolDirs = {"JunkRemover", "Operations", "Renamer", "Sleep"};
+        String[] toolDirs = {"Archiver", "JunkRemover", "Operations", "Renamer", "Sleep"};
         for (int i = 0; i < toolDirs.length; ++i)
         {
             Path dir = Paths.get(working, "tools", toolDirs[i]);
@@ -641,14 +641,14 @@ public class Main
     {
         try
         {
-            Utils.couldNotConnect = false;
+            Persistent.couldNotConnect = false;
             if (context.publisherRepo != null && context.subscriberRepo != null)
             {
                 // start the clientStty
                 context.clientStty = new ClientStty(context, isTerminal, true, false);
                 if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                 {
-                    Utils.couldNotConnect = true;
+                    Persistent.couldNotConnect = true;
                     throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Main.remote.subscriber.failed.to.connect"),
                             context.subscriberRepo.getLibraryData().libraries.description));
                 }
@@ -1083,7 +1083,7 @@ public class Main
             logger = LogManager.getLogger("applog");
             context.trace = context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
 
-            Utils.couldNotConnect = false;
+            Persistent.couldNotConnect = false;
 
             context.preferences = new Preferences();
             Utils.readPreferences(context);
@@ -1938,10 +1938,10 @@ public class Main
         String toolName = "";
 
         // with layers of threads and cloned objects do not sent fault notifications more than once
-        if (Utils.faultEmailSent)
+        if (Persistent.faultEmailSent)
             return;
 
-        Utils.faultEmailSent = true;
+        Persistent.faultEmailSent = true;
 
         if (context.cfg.getEmailServer().length() > 0)
             toolName = context.cfg.getEmailServer(); // on command line
@@ -2010,7 +2010,7 @@ public class Main
     {
         try
         {
-            if (context.fault && !context.cfg.isNavigator() && !Utils.faultEmailSent)
+            if (context.fault && !context.cfg.isNavigator() && !Persistent.faultEmailSent)
             {
                 sendFaultEmail();
             }

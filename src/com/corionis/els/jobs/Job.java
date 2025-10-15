@@ -330,6 +330,10 @@ public class Job extends AbstractTool
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 context.mainFrame.labelStatusMiddle.setText(null);
             }
+
+            // invalid outside of a Job
+            Persistent.lastPublisherRepo = null;
+            Persistent.lastSubscriberRepo = null;
         }
         else
             throw new MungeException(context.cfg.gs("JobsUI.job.has.no.tasks") + job.getConfigName());
@@ -407,7 +411,8 @@ public class Job extends AbstractTool
                     }
                     if (!skip)
                     {
-                        if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
+                        if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0 &&
+                                task.getOrigins().isEmpty())
                         {
                             status = cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName();
                             break;

@@ -425,7 +425,7 @@ public class RenamerTool extends AbstractTool
         if (repo == null)
         {
             context.fault = true;
-            logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer..has.no.repository.defined"), getConfigName()));
+            logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer.has.no.repository.defined"), getConfigName()));
             return;
         }
 

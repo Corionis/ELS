@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.8" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -39,11 +39,8 @@ new FormModel {
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"
 				} )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-					"$columnSpecs": "0:1.0, 80"
-					"$rowSpecs": "0"
-					"$hGap": 5
-					"$vGap": 5
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) {
+					"hgap": 8
 				} ) {
 					name: "buttonBar"
 					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
@@ -51,15 +48,22 @@ new FormModel {
 						name: "showCheckBox"
 						"text": new FormMessage( null, "NavHelp.showCheckBox.text" )
 						"mnemonic": new FormMessage( null, "NavHelp.showCheckBox.mnemonic" )
-					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "West"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelStatus"
+						"horizontalAlignment": 0
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "Center"
+					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "okButton"
 						"text": new FormMessage( null, "Z.ok" )
 						"actionCommand": new FormMessage( null, "Z.ok" )
 						"mnemonic": new FormMessage( null, "NavHelp.okButton.mnemonic" )
-					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-						"gridx": 1
-						"gridy": 0
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "East"
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "South"

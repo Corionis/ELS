@@ -4,6 +4,7 @@
 ## Current Short-List
 
 ! Update ELS Plex Generator
+! Test on Windows where software is in AppData
 * Test scripts, and match run profiles to o/s scripts
 
 

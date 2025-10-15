@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.7" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.8" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": false
@@ -117,8 +117,8 @@ new FormModel {
 								} ) {
 									name: "panelServer"
 									add( new FormComponent( "javax.swing.JLabel" ) {
-										name: "label1"
-										"text": new FormMessage( null, "EmailUI.label1.text" )
+										name: "labelPanelTitle"
+										"text": new FormMessage( null, "EmailUI.labelPanelTitle.text" )
 										"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 1, false )
 									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 										"gridwidth": 2
@@ -142,7 +142,7 @@ new FormModel {
 											addElement( "SMTP" )
 											addElement( "Zoho" )
 										}
-										"toolTipText": new FormMessage( null, "EmailUI.comboBoxProfile.toolTipText" )
+										"toolTipText": new FormMessage( null, "EmailUI.comboBox.Profile.toolTipText" )
 										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 									}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 										"gridx": 1
@@ -349,7 +349,7 @@ new FormModel {
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "saveButton"
-						"text": "Save"
+						"text": new FormMessage( null, "EmailUI.saveButton.text" )
 						"toolTipText": new FormMessage( null, "EmailUI.saveButton.toolTipText" )
 						"mnemonic": 83
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
@@ -359,7 +359,7 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "cancelButton"
-						"text": "Cancel"
+						"text": new FormMessage( null, "EmailUI.cancelButton.text" )
 						"toolTipText": new FormMessage( null, "EmailUI.cancelButton.toolTipText" )
 						"mnemonic": 76
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
@@ -375,7 +375,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 595, 525 )
+			"size": new java.awt.Dimension( 635, 510 )
 		} )
 	}
 }

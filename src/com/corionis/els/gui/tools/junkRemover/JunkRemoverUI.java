@@ -35,6 +35,7 @@ public class JunkRemoverUI extends AbstractToolDialog
     private NavHelp helpDialog;
     private boolean isDryRun;
     private boolean isSubscriber;
+    private JunkRemoverUI me;
     private SwingWorker<Void, Void> worker;
     private JunkRemoverTool workerJrt = null;
     private boolean workerRunning = false;
@@ -44,6 +45,7 @@ public class JunkRemoverUI extends AbstractToolDialog
     {
         super(owner);
         this.context = context;
+        this.me = this;
 
         initComponents();
 
@@ -414,7 +416,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                                         if (context != null)
                                         {
                                             logger.error(msg);
-                                            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                                            JOptionPane.showMessageDialog(me, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                                         }
                                         else
                                             logger.error(msg);

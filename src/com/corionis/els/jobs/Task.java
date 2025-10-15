@@ -2,6 +2,7 @@ package com.corionis.els.jobs;
 
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
+import com.corionis.els.Persistent;
 import com.corionis.els.Utils;
 import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
@@ -415,6 +416,11 @@ public class Task implements Comparable, Serializable
                 else if (getHintsKey().equals(Task.ANY_SERVER))
                     throw new MungeException("\"Any Server\" defined for Hint Status Server but none specified");
             }
+
+            if (publisherRepo != null)
+                Persistent.lastPublisherRepo = publisherRepo;
+            if (subscriberRepo != null)
+                Persistent.lastSubscriberRepo = subscriberRepo;
 
             localContext.cfg.setOperation(remoteType);
 

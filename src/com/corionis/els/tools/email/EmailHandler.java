@@ -1,6 +1,7 @@
 package com.corionis.els.tools.email;
 
 import com.corionis.els.Context;
+import com.corionis.els.Persistent;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.tools.email.EmailUI;
 import com.corionis.els.repository.Libraries;
@@ -322,7 +323,7 @@ public class EmailHandler extends Thread
             if (success)
             {
                 msg = context.cfg.gs(context.cfg.gs("EmailHandler.email.sent.successfully"));
-                logger.info(msg);
+                logger.debug(msg);
             }
             else if (nothingToDo)
             {
@@ -778,8 +779,8 @@ public class EmailHandler extends Thread
             Libraries lib = context.subscriberRepo.getLibraryData().libraries;
             if (lib.email != null && !lib.email.isEmpty())
             {
-                if ((!Utils.couldNotConnect && lib.skipOffline) ||
-                        (function == Function.FAULT && Utils.couldNotConnect && !lib.skipOffline))
+                if ((!Persistent.couldNotConnect && lib.skipOffline) ||
+                        (function == Function.FAULT && Persistent.couldNotConnect && !lib.skipOffline))
                     recipients.add(new Recipient(lib.email, lib.format, lib.mismatches, lib.whatsNew));
             }
         }

@@ -115,9 +115,18 @@ public class NavHelp extends JDialog
 
         load(resourceFilename);
 
-        setModal(modal);
-        setVisible(true);
-        buttonFocus();
+        if (!fault)
+        {
+            setModal(modal);
+            setVisible(true);
+            buttonFocus();
+        }
+        else
+        {
+            if (previous == null)
+                previous = context.mainFrame;
+            previous.requestFocus();
+        }
     }
 
     public void buttonFocus()
@@ -216,6 +225,15 @@ public class NavHelp extends JDialog
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.launching.browser"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
+            else if (type == HyperlinkEvent.EventType.ENTERED)
+            {
+                String url = hyperlinkEvent.getURL().toString();
+                labelStatus.setText(url);
+            }
+            else if (type == HyperlinkEvent.EventType.EXITED)
+            {
+                labelStatus.setText("  ");
+            }
         }
     }
 
@@ -232,6 +250,7 @@ public class NavHelp extends JDialog
         helpText = new JEditorPane();
         buttonBar = new JPanel();
         showCheckBox = new JCheckBox();
+        labelStatus = new JLabel();
         okButton = new JButton();
 
         //======== this ========
@@ -275,24 +294,22 @@ public class NavHelp extends JDialog
             //======== buttonBar ========
             {
                 buttonBar.setBorder(new EmptyBorder(12, 0, 0, 0));
-                buttonBar.setLayout(new GridBagLayout());
-                ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 80};
-                ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0};
+                buttonBar.setLayout(new BorderLayout(8, 0));
 
                 //---- showCheckBox ----
                 showCheckBox.setText(context.cfg.gs("NavHelp.showCheckBox.text"));
                 showCheckBox.setMnemonic(context.cfg.gs("NavHelp.showCheckBox.mnemonic").charAt(0));
-                buttonBar.add(showCheckBox, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 0, 5), 0, 0));
+                buttonBar.add(showCheckBox, BorderLayout.WEST);
+
+                //---- labelStatus ----
+                labelStatus.setHorizontalAlignment(SwingConstants.CENTER);
+                buttonBar.add(labelStatus, BorderLayout.CENTER);
 
                 //---- okButton ----
                 okButton.setText(context.cfg.gs("Z.ok"));
                 okButton.setActionCommand(context.cfg.gs("Z.ok"));
                 okButton.setMnemonic(context.cfg.gs("NavHelp.okButton.mnemonic").charAt(0));
-                buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 0, 0), 0, 0));
+                buttonBar.add(okButton, BorderLayout.EAST);
             }
             dialogPane.add(buttonBar, BorderLayout.SOUTH);
         }
@@ -315,6 +332,7 @@ public class NavHelp extends JDialog
     private JEditorPane helpText;
     private JPanel buttonBar;
     private JCheckBox showCheckBox;
+    private JLabel labelStatus;
     private JButton okButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     //

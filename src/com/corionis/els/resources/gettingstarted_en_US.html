@@ -108,13 +108,24 @@ as a Subscriber Listener or Hint Server. Optional but a good way to avoid hack a
 <p>See <a href="https://github.com/Corionis/ELS/wiki/Communications">Communications</a> in the
 ELS Wiki for more information.</p>
 
-<br/>
 <h3>Tools</h3>
 <p>Various Tools are provided to make building and maintaining a collection easier. The Duplicate Finder
 and Empty Directory Finder are used manually. The other Tools may be run by themselves or combined
 into Jobs.</p>
 
 <br/>
+
+<p>And some Tools are built-in and will be used if configured. Those are:</p>
+    <ul>
+        <li>Email Servers for notifications, that require:</li>
+        <ul>
+            <li>At least one System, Email Servers configuration.</li>
+            <li>Entries in the email-related options in Libraries, General.</li>
+            <li>Selection of a Default Email Server in System, Preferences.<br/></li>
+        </ul>
+        <li>Hints, see above.</li>
+    </ul>
+
 <h3>Jobs</h3>
 <p>Jobs are composed of one or more Tasks which are a Tool with selections for the Publisher,
 Subscriber, and Hint Server as required. Some Tools also use Origin path lists to

@@ -153,8 +153,7 @@ public class JobsUI extends AbstractToolDialog
         });
 
         // setup the publisher/subscriber Task Origins table
-        Border border = buttonPub.getBorder();
-        panelPubSub.setBorder(border);
+        panelPubSub.setBorder(context.mainFrame.scrollPaneTableCollectionOne.getBorder());
 
         repositories = getRepositories();
         loadConfigurations();
@@ -1625,9 +1624,9 @@ public class JobsUI extends AbstractToolDialog
                 ((((OperationsTool) currentTool).isToolHintServer() || ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.StatusQuit)) ||
                 (!((OperationsTool) currentTool).getOptKeys().isEmpty()));
         boolean optionalEmail = currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
-                (((OperationsTool) currentTool).isToolPublisher() ||
-                ((OperationsTool) currentTool).isToolSubscriber() ||
-                ((OperationsTool) currentTool).isToolHintServer());
+                (((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.Publisher) ||
+                ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.Listener) ||
+                ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.HintServer));
 
         if (needPublisher || currentTool.isToolPublisher()) // -------------------------------------------------------- Publisher
         {
@@ -2392,7 +2391,6 @@ public class JobsUI extends AbstractToolDialog
 
                                 //======== panelOriginInstance ========
                                 {
-                                    panelOriginInstance.setBorder(null);
                                     panelOriginInstance.setLayout(new BorderLayout());
 
                                     //======== panelPubSub ========
@@ -2406,7 +2404,7 @@ public class JobsUI extends AbstractToolDialog
                                         //---- labelPub ----
                                         labelPub.setMaximumSize(new Dimension(24, 18));
                                         labelPub.setMinimumSize(new Dimension(24, 18));
-                                        labelPub.setPreferredSize(new Dimension(24, 18));
+                                        labelPub.setPreferredSize(new Dimension(24, 30));
                                         labelPub.setFont(labelPub.getFont().deriveFont(labelPub.getFont().getSize() + 1f));
                                         panelPubSub.add(labelPub, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2430,7 +2428,7 @@ public class JobsUI extends AbstractToolDialog
                                         //---- labelSub ----
                                         labelSub.setMaximumSize(new Dimension(24, 18));
                                         labelSub.setMinimumSize(new Dimension(24, 18));
-                                        labelSub.setPreferredSize(new Dimension(24, 18));
+                                        labelSub.setPreferredSize(new Dimension(24, 30));
                                         labelSub.setFont(labelSub.getFont().deriveFont(labelSub.getFont().getSize() + 1f));
                                         panelPubSub.add(labelSub, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2454,7 +2452,7 @@ public class JobsUI extends AbstractToolDialog
                                         //---- labelHints ----
                                         labelHints.setMaximumSize(new Dimension(24, 18));
                                         labelHints.setMinimumSize(new Dimension(24, 18));
-                                        labelHints.setPreferredSize(new Dimension(24, 18));
+                                        labelHints.setPreferredSize(new Dimension(24, 30));
                                         labelHints.setFont(labelHints.getFont().deriveFont(labelHints.getFont().getSize() + 1f));
                                         panelPubSub.add(labelHints, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2478,7 +2476,7 @@ public class JobsUI extends AbstractToolDialog
                                         //---- labelEmail ----
                                         labelEmail.setMaximumSize(new Dimension(24, 18));
                                         labelEmail.setMinimumSize(new Dimension(24, 18));
-                                        labelEmail.setPreferredSize(new Dimension(24, 18));
+                                        labelEmail.setPreferredSize(new Dimension(24, 30));
                                         labelEmail.setFont(labelEmail.getFont().deriveFont(labelEmail.getFont().getSize() + 1f));
                                         panelPubSub.add(labelEmail, new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,

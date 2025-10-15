@@ -174,6 +174,8 @@ public class MainFrame extends JFrame
         // TODO EXTEND+ Add other Tool checkForChanges() here
         if (context.libraries != null && context.libraries.checkForChanges())
             changes = true;
+        else if (context.navigator.dialogArchiver != null && context.navigator.dialogArchiver.checkForChanges())
+            changes = true;
         else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
             changes = true;
         else if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
@@ -183,6 +185,8 @@ public class MainFrame extends JFrame
         else if (context.navigator.dialogRenamer != null && context.navigator.dialogRenamer.checkForChanges())
             changes = true;
         else if (context.navigator.dialogSleep != null && context.navigator.dialogSleep.checkForChanges())
+            changes = true;
+        else if (context.navigator.dialogEmail != null && context.navigator.dialogEmail.checkForChanges())
             changes = true;
         return changes;
     }
@@ -518,6 +522,7 @@ public class MainFrame extends JFrame
         menuTools = new JMenu();
         menuItemDuplicates = new JMenuItem();
         menuItemEmptyFinder = new JMenuItem();
+        menuItemArchiver = new JMenuItem();
         menuItemJunk = new JMenuItem();
         menuItemOperations = new JMenuItem();
         menuItemRenamer = new JMenuItem();
@@ -1030,10 +1035,16 @@ public class MainFrame extends JFrame
 
                 //---- menuItemEmptyFinder ----
                 menuItemEmptyFinder.setText(context.cfg.gs("Navigator.menuItemEmptyFinder.text"));
-                menuItemEmptyFinder.setMnemonic(context.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic_2").charAt(0));
+                menuItemEmptyFinder.setMnemonic(context.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic").charAt(0));
                 menuItemEmptyFinder.setIcon(new ImageIcon(getClass().getResource("/empties.png")));
                 menuTools.add(menuItemEmptyFinder);
                 menuTools.addSeparator();
+
+                //---- menuItemArchiver ----
+                menuItemArchiver.setText(context.cfg.gs("Navigator.menuItemArchiver.text"));
+                menuItemArchiver.setMnemonic(context.cfg.gs("Navigator.menuItemArchiver.mnemonic").charAt(0));
+                menuItemArchiver.setIcon(new ImageIcon(getClass().getResource("/archiver.png")));
+                menuTools.add(menuItemArchiver);
 
                 //---- menuItemJunk ----
                 menuItemJunk.setText(context.cfg.gs("Navigator.menu.Junk.text"));
@@ -1436,20 +1447,19 @@ public class MainFrame extends JFrame
                         //======== panelLocationAndButtons ========
                         {
                             panelLocationAndButtons.setFocusable(false);
-                            panelLocationAndButtons.setPreferredSize(new Dimension(952, 34));
-                            panelLocationAndButtons.setMinimumSize(new Dimension(219, 34));
-                            panelLocationAndButtons.setMaximumSize(new Dimension(32767, 34));
+                            panelLocationAndButtons.setMinimumSize(new Dimension(219, 36));
+                            panelLocationAndButtons.setMaximumSize(new Dimension(32767, 36));
                             panelLocationAndButtons.setLayout(new BorderLayout());
 
                             //======== panelLocationAndTracker ========
                             {
-                                panelLocationAndTracker.setPreferredSize(new Dimension(1088, 34));
+                                panelLocationAndTracker.setPreferredSize(new Dimension(1088, 38));
                                 panelLocationAndTracker.setLayout(new BorderLayout());
 
                                 //---- vSpacer1 ----
-                                vSpacer1.setPreferredSize(new Dimension(10, 2));
-                                vSpacer1.setMinimumSize(new Dimension(12, 2));
-                                vSpacer1.setMaximumSize(new Dimension(32767, 2));
+                                vSpacer1.setPreferredSize(new Dimension(10, 4));
+                                vSpacer1.setMinimumSize(new Dimension(12, 4));
+                                vSpacer1.setMaximumSize(new Dimension(32767, 4));
                                 panelLocationAndTracker.add(vSpacer1, BorderLayout.NORTH);
 
                                 //======== panelLocation ========
@@ -1472,9 +1482,9 @@ public class MainFrame extends JFrame
 
                                         //---- buttonBack ----
                                         buttonBack.setText("<html>&lt;</html>");
-                                        buttonBack.setMaximumSize(new Dimension(36, 30));
-                                        buttonBack.setMinimumSize(new Dimension(36, 30));
-                                        buttonBack.setPreferredSize(new Dimension(36, 30));
+                                        buttonBack.setMaximumSize(new Dimension(32, 24));
+                                        buttonBack.setMinimumSize(new Dimension(32, 24));
+                                        buttonBack.setPreferredSize(new Dimension(32, 24));
                                         buttonBack.setToolTipText(context.cfg.gs("Navigator.buttonBack.toolTipText"));
                                         buttonBack.setActionCommand("navBack");
                                         buttonBack.setFocusable(false);
@@ -1486,9 +1496,9 @@ public class MainFrame extends JFrame
 
                                         //---- buttonForward ----
                                         buttonForward.setText("<html>&gt;</html>");
-                                        buttonForward.setMaximumSize(new Dimension(36, 30));
-                                        buttonForward.setMinimumSize(new Dimension(36, 30));
-                                        buttonForward.setPreferredSize(new Dimension(36, 30));
+                                        buttonForward.setMaximumSize(new Dimension(32, 24));
+                                        buttonForward.setMinimumSize(new Dimension(32, 24));
+                                        buttonForward.setPreferredSize(new Dimension(32, 24));
                                         buttonForward.setToolTipText(context.cfg.gs("Navigator.buttonForward.toolTipText"));
                                         buttonForward.setActionCommand("NavForward");
                                         buttonForward.setFocusable(false);
@@ -1500,9 +1510,9 @@ public class MainFrame extends JFrame
 
                                         //---- buttonUp ----
                                         buttonUp.setText("^");
-                                        buttonUp.setMaximumSize(new Dimension(36, 30));
-                                        buttonUp.setMinimumSize(new Dimension(36, 30));
-                                        buttonUp.setPreferredSize(new Dimension(36, 30));
+                                        buttonUp.setMaximumSize(new Dimension(32, 24));
+                                        buttonUp.setMinimumSize(new Dimension(32, 24));
+                                        buttonUp.setPreferredSize(new Dimension(32, 24));
                                         buttonUp.setToolTipText(context.cfg.gs("Navigator.buttonUp.toolTipText"));
                                         buttonUp.setActionCommand("NavUp");
                                         buttonUp.setFocusable(false);
@@ -1558,14 +1568,14 @@ public class MainFrame extends JFrame
                                     panelHintTracking.add(hSpacer2, BorderLayout.EAST);
                                 }
                                 panelLocationAndTracker.add(panelHintTracking, BorderLayout.EAST);
+
+                                //---- vSpacer2 ----
+                                vSpacer2.setPreferredSize(new Dimension(10, 2));
+                                vSpacer2.setMinimumSize(new Dimension(10, 2));
+                                vSpacer2.setMaximumSize(new Dimension(10, 2));
+                                panelLocationAndTracker.add(vSpacer2, BorderLayout.SOUTH);
                             }
                             panelLocationAndButtons.add(panelLocationAndTracker, BorderLayout.CENTER);
-
-                            //---- vSpacer2 ----
-                            vSpacer2.setPreferredSize(new Dimension(10, 2));
-                            vSpacer2.setMinimumSize(new Dimension(10, 2));
-                            vSpacer2.setMaximumSize(new Dimension(10, 2));
-                            panelLocationAndButtons.add(vSpacer2, BorderLayout.SOUTH);
                         }
                         panelBrowserTop.add(panelLocationAndButtons, BorderLayout.NORTH);
 
@@ -3022,6 +3032,7 @@ public class MainFrame extends JFrame
     public JMenu menuTools;
     public JMenuItem menuItemDuplicates;
     public JMenuItem menuItemEmptyFinder;
+    public JMenuItem menuItemArchiver;
     public JMenuItem menuItemJunk;
     public JMenuItem menuItemOperations;
     public JMenuItem menuItemRenamer;

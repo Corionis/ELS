@@ -169,7 +169,7 @@ public class LibrariesUI
         currentConfigIndex = configItems.getSelectedRow();
         if (currentConfigIndex >= 0)
         {
-            int reply = JOptionPane.YES_OPTION;
+            int reply = JOptionPane.NO_OPTION;
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
             if (libMeta.key != null && libMeta.key.length() > 0)
             {
@@ -178,7 +178,12 @@ public class LibrariesUI
                 String message = context.cfg.gs("Libraries.this.will.overwrite.any.existing.uuid");
                 String question = context.cfg.gs("Z.are.you.sure");
                 Object[] params = {description, blank, message, question};
-                reply = JOptionPane.showConfirmDialog(mf, params, displayName, JOptionPane.OK_CANCEL_OPTION);
+                Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
+
+                reply = JOptionPane.showOptionDialog(context.mainFrame,
+                        params,
+                        context.cfg.gs("Navigator.splitPane.Libraries.tab.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                        null, opts, opts[1]);
             }
             if (reply == JOptionPane.YES_OPTION)
             {
@@ -2415,16 +2420,20 @@ public class LibrariesUI
                         mf.buttonAddSource.setEnabled(true);
                         if (lib.sources.length > 1)
                         {
-                            mf.buttonAddMultiSource.setEnabled(true);
                             mf.buttonUpSource.setEnabled(true);
                             mf.buttonDownSource.setEnabled(true);
                         }
                         else
                         {
-                            mf.buttonAddMultiSource.setEnabled(false);
                             mf.buttonUpSource.setEnabled(false);
                             mf.buttonDownSource.setEnabled(false);
                         }
+
+                        if (libMeta.repo.getLibraryData().libraries.bibliography.length > 1)
+                            mf.buttonAddMultiSource.setEnabled(true);
+                        else
+                            mf.buttonAddMultiSource.setEnabled(false);
+
                         mf.buttonRemoveSource.setEnabled(true);
                     }
                     if (currentSourceIndex >= 0)
@@ -2656,7 +2665,7 @@ public class LibrariesUI
                                     if (!processJobKeyChanges(libMeta.key, conflicts))
                                     {
                                         tf.setText(libMeta.key); // restore old value
-                                        libMeta.setDataHasChanged();
+                                        libMeta.setDataHasChanged(false);
                                         return;
                                     }
                                 }

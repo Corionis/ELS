@@ -19,6 +19,7 @@ import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -212,6 +213,16 @@ public class Settings extends JDialog
     {
         try
         {
+            /* Dump all UIManager keys
+            UIDefaults defaults = UIManager.getDefaults();
+            Enumeration<Object> keysEnumeration = defaults.keys();
+            ArrayList<Object> keysList = Collections.list(keysEnumeration);
+            for (Object key : keysList)
+            {
+                System.out.println(key);
+            }
+            */
+
             setAccentColor();
             if (roundedCheckBox.isSelected())
             {

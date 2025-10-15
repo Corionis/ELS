@@ -8,6 +8,7 @@ import com.corionis.els.gui.browser.NavTransferHandler;
 import com.corionis.els.gui.browser.NavTreeNode;
 import com.corionis.els.gui.browser.NavTreeUserObject;
 import com.corionis.els.gui.hints.HintsUI;
+import com.corionis.els.gui.tools.archiver.ArchiverUI;
 import com.corionis.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.corionis.els.gui.tools.email.EmailUI;
 import com.corionis.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
@@ -66,6 +67,7 @@ import static com.corionis.els.gui.system.FileEditor.EditorTypes.*;
 
 public class Navigator
 {
+    public ArchiverUI dialogArchiver;
     public Bookmarks bookmarks;
     public Context context;
     public DuplicateFinderUI dialogDuplicateFinder;
@@ -714,7 +716,7 @@ public class Navigator
 
                 jp.setLayout(layout);
                 jp.setBackground(UIManager.getColor("TextField.background"));
-                jp.setBorder(context.mainFrame.textFieldLocation.getBorder());
+                jp.setBorder(context.mainFrame.scrollPaneTableCollectionOne.getBorder());
 
                 JLabel lab = new JLabel(context.cfg.gs("Navigator.menu.Open.publisher.system.type"));
                 Font font = lab.getFont();
@@ -889,7 +891,7 @@ public class Navigator
                 jp.setLayout(gb);
 
                 jp.setBackground(UIManager.getColor("TextField.background"));
-                jp.setBorder(context.mainFrame.textFieldLocation.getBorder());
+                jp.setBorder(context.mainFrame.scrollPaneTableCollectionOne.getBorder());
 
                 JLabel cbLabel = new JLabel(context.cfg.gs("Navigator.labelRemote.text"));
                 Font font = cbLabel.getFont();
@@ -1458,7 +1460,7 @@ public class Navigator
                 jp.setLayout(gb);
 
                 jp.setBackground(UIManager.getColor("TextField.background"));
-                jp.setBorder(context.mainFrame.textFieldLocation.getBorder());
+                jp.setBorder(context.mainFrame.scrollPaneTableCollectionOne.getBorder());
 
                 JLabel cbLabel = new JLabel(context.cfg.gs("Navigator.labelRemote.text"));
                 Font font = cbLabel.getFont();
@@ -2678,6 +2680,26 @@ public class Navigator
                 }
             }
         });
+        
+        // Archiver Tool
+        context.mainFrame.menuItemArchiver.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogArchiver == null || !dialogArchiver.isShowing())
+                {
+                    dialogArchiver = new ArchiverUI(context.mainFrame, context);
+                    dialogArchiver.setVisible(true);
+                }
+                else
+                {
+                    dialogArchiver.toFront();
+                    dialogArchiver.requestFocus();
+                }
+            }
+        });
+
 
         // --- Junk Remover Tool
         context.mainFrame.menuItemJunk.addActionListener(new AbstractAction()

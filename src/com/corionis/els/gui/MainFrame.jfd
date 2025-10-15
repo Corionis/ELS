@@ -159,17 +159,16 @@ new FormModel {
 							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 								name: "panelLocationAndButtons"
 								"focusable": false
-								"preferredSize": new java.awt.Dimension( 952, 34 )
-								"minimumSize": new java.awt.Dimension( 219, 34 )
-								"maximumSize": new java.awt.Dimension( 32767, 34 )
+								"minimumSize": new java.awt.Dimension( 219, 36 )
+								"maximumSize": new java.awt.Dimension( 32767, 36 )
 								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 									name: "panelLocationAndTracker"
-									"preferredSize": new java.awt.Dimension( 1088, 34 )
+									"preferredSize": new java.awt.Dimension( 1088, 38 )
 									add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 										name: "vSpacer1"
-										"preferredSize": new java.awt.Dimension( 10, 2 )
-										"minimumSize": new java.awt.Dimension( 12, 2 )
-										"maximumSize": new java.awt.Dimension( 32767, 2 )
+										"preferredSize": new java.awt.Dimension( 10, 4 )
+										"minimumSize": new java.awt.Dimension( 12, 4 )
+										"maximumSize": new java.awt.Dimension( 32767, 4 )
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "North"
 									} )
@@ -191,9 +190,9 @@ new FormModel {
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonBack"
 												"text": "<html>&lt;</html>"
-												"maximumSize": new java.awt.Dimension( 36, 30 )
-												"minimumSize": new java.awt.Dimension( 36, 30 )
-												"preferredSize": new java.awt.Dimension( 36, 30 )
+												"maximumSize": new java.awt.Dimension( 32, 24 )
+												"minimumSize": new java.awt.Dimension( 32, 24 )
+												"preferredSize": new java.awt.Dimension( 32, 24 )
 												"toolTipText": new FormMessage( null, "Navigator.buttonBack.toolTipText" )
 												"actionCommand": "navBack"
 												"focusable": false
@@ -205,9 +204,9 @@ new FormModel {
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonForward"
 												"text": "<html>&gt;</html>"
-												"maximumSize": new java.awt.Dimension( 36, 30 )
-												"minimumSize": new java.awt.Dimension( 36, 30 )
-												"preferredSize": new java.awt.Dimension( 36, 30 )
+												"maximumSize": new java.awt.Dimension( 32, 24 )
+												"minimumSize": new java.awt.Dimension( 32, 24 )
+												"preferredSize": new java.awt.Dimension( 32, 24 )
 												"toolTipText": new FormMessage( null, "Navigator.buttonForward.toolTipText" )
 												"actionCommand": "NavForward"
 												"focusable": false
@@ -220,9 +219,9 @@ new FormModel {
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonUp"
 												"text": "^"
-												"maximumSize": new java.awt.Dimension( 36, 30 )
-												"minimumSize": new java.awt.Dimension( 36, 30 )
-												"preferredSize": new java.awt.Dimension( 36, 30 )
+												"maximumSize": new java.awt.Dimension( 32, 24 )
+												"minimumSize": new java.awt.Dimension( 32, 24 )
+												"preferredSize": new java.awt.Dimension( 32, 24 )
 												"toolTipText": new FormMessage( null, "Navigator.buttonUp.toolTipText" )
 												"actionCommand": "NavUp"
 												"focusable": false
@@ -288,16 +287,16 @@ new FormModel {
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "East"
 									} )
+									add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+										name: "vSpacer2"
+										"preferredSize": new java.awt.Dimension( 10, 2 )
+										"minimumSize": new java.awt.Dimension( 10, 2 )
+										"maximumSize": new java.awt.Dimension( 10, 2 )
+									}, new FormLayoutConstraints( class java.lang.String ) {
+										"value": "South"
+									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "Center"
-								} )
-								add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
-									name: "vSpacer2"
-									"preferredSize": new java.awt.Dimension( 10, 2 )
-									"minimumSize": new java.awt.Dimension( 10, 2 )
-									"maximumSize": new java.awt.Dimension( 10, 2 )
-								}, new FormLayoutConstraints( class java.lang.String ) {
-									"value": "South"
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "North"
@@ -1895,11 +1894,17 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemEmptyFinder"
 						"text": new FormMessage( null, "Navigator.menuItemEmptyFinder.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemEmptyFinder.mnemonic_2" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemEmptyFinder.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/empties.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator14"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemArchiver"
+						"text": new FormMessage( null, "Navigator.menuItemArchiver.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemArchiver.mnemonic" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/archiver.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemJunk"

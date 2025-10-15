@@ -1,5 +1,6 @@
 package com.corionis.els.tools;
 
+import com.corionis.els.tools.archiver.ArchiverTool;
 import com.corionis.els.tools.email.EmailTool;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -68,7 +69,39 @@ public class Tools
     {
         AbstractTool tool = null;
 
-        if (internalName.equals(EmailTool.INTERNAL_NAME))
+        if (internalName.equals(ArchiverTool.INTERNAL_NAME))
+        {
+            // begin Archiver
+            ArchiverTool tmpTool = new ArchiverTool(context);
+            File toolDir = new File(tmpTool.getDirectoryPath());
+            if (toolDir.exists() && toolDir.isDirectory())
+            {
+                ArchiverParser ArchiverParser = new ArchiverParser();
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
+                {
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
+                    {
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
+                        if (json != null)
+                        {
+                            AbstractTool but = ArchiverParser.parseTool(context, json);
+                            if (but != null)
+                            {
+                                if (but.getConfigName().equalsIgnoreCase(configName))
+                                {
+                                    tool = but;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end Archiver
+        }
+        else if (internalName.equals(EmailTool.INTERNAL_NAME))
         {
             // begin Email
             EmailTool tmpTool = new EmailTool(context);
@@ -275,6 +308,16 @@ public class Tools
         if (toolList != toolObjects)
             toolList = new ArrayList<AbstractTool>();
 
+        // begin ArchiverUI
+        if (internalName == null || internalName.equals(ArchiverTool.INTERNAL_NAME))
+        {
+            toolParser = new ArchiverParser();
+            ArchiverTool tmpArchiver = new ArchiverTool(context);
+            toolDir = new File(tmpArchiver.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end ArchiverUI
+
         // begin EmailUI
         if (internalName != null && internalName.equals(EmailTool.INTERNAL_NAME)) // must be specified
         {
@@ -352,7 +395,11 @@ public class Tools
     public AbstractTool makeTempTool(String internalName, Context context)
     {
         AbstractTool tmpTool = null;
-        if (internalName.equals(EmailTool.INTERNAL_NAME))
+        if (internalName.equals(ArchiverTool.INTERNAL_NAME))
+        {
+            tmpTool = new ArchiverTool(context);
+        }
+        else if (internalName.equals(EmailTool.INTERNAL_NAME))
         {
             tmpTool = new EmailTool(context);
         }
@@ -419,6 +466,33 @@ public class Tools
     }
 
     //=================================================================================================================
+
+    /**
+     * ToolParserI implementation for the ArchiverTool
+     */
+    private class ArchiverParser implements ToolParserI
+    {
+        /**
+         * Parse a ArchiverTool
+         */
+        @Override
+        public AbstractTool parseTool(Context context, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new ArchiverTool(context);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(ArchiverTool.class, new objInstanceCreator());
+            ArchiverTool tool = builder.create().fromJson(json, ArchiverTool.class);
+            return tool;
+        }
+    }
 
     /**
      * ToolParserI implementation for the EmailTool

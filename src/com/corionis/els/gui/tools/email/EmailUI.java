@@ -466,17 +466,18 @@ public class EmailUI extends AbstractToolDialog
                 passwordField.setText(currentTool.getPassword());
                 hidePassword = false;
                 buttonPassword.doClick();
+                textFieldPort.setText(currentTool.getPort());
+                comboBoxProfile.setSelectedItem(currentTool.getProfile());
+                comboBoxSecurity.setSelectedItem(currentTool.getSecurity());
+                comboBoxAuthMethod.setSelectedItem(currentTool.getAuthMethod());
             }
             else
             {
+                currentTool = null;
                 passwordField.setText("");
                 hidePassword = true;
                 buttonPassword.doClick();
             }
-            textFieldPort.setText(currentTool.getPort());
-            comboBoxProfile.setSelectedItem(currentTool.getProfile());
-            comboBoxSecurity.setSelectedItem(currentTool.getSecurity());
-            comboBoxAuthMethod.setSelectedItem(currentTool.getAuthMethod());
             updateControls();
         }
         else
@@ -682,14 +683,14 @@ public class EmailUI extends AbstractToolDialog
                 }
                 else
                 {
-                    buttonTest.setToolTipText(context.cfg.gs("EmailUI.buttonTest.toolTipText"));
+                    buttonTest.setToolTipText(context.cfg.gs("EmailUI.buttonTest.toolTipText") + " " + context.publisherRepo.getLibraryData().libraries.email);
                 }
             }
             else
             {
                 buttonAuth.setEnabled(false);
                 buttonTest.setEnabled(false);
-                buttonTest.setToolTipText(context.cfg.gs("EmailUI.buttonTest.toolTipText"));
+                buttonTest.setToolTipText(context.cfg.gs("EmailUI.buttonTest.toolTipText") + " " + context.publisherRepo.getLibraryData().libraries.email);
             }
         }
         else
@@ -750,7 +751,7 @@ public class EmailUI extends AbstractToolDialog
         panelOptions = new JPanel();
         scrollPaneOptions = new JScrollPane();
         panelServer = new JPanel();
-        label1 = new JLabel();
+        labelPanelTitle = new JLabel();
         labelProfile = new JLabel();
         comboBoxProfile = new JComboBox<>();
         labelServerName = new JLabel();
@@ -905,10 +906,10 @@ public class EmailUI extends AbstractToolDialog
                                 ((GridBagLayout)panelServer.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                                 ((GridBagLayout)panelServer.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
-                                //---- label1 ----
-                                label1.setText(context.cfg.gs("EmailUI.label1.text"));
-                                label1.setFont(label1.getFont().deriveFont(label1.getFont().getStyle() | Font.BOLD, label1.getFont().getSize() + 1f));
-                                panelServer.add(label1, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
+                                //---- labelPanelTitle ----
+                                labelPanelTitle.setText(context.cfg.gs("EmailUI.labelPanelTitle.text"));
+                                labelPanelTitle.setFont(labelPanelTitle.getFont().deriveFont(labelPanelTitle.getFont().getStyle() | Font.BOLD, labelPanelTitle.getFont().getSize() + 1f));
+                                panelServer.add(labelPanelTitle, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
                                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                     new Insets(4, 0, 6, 0), 0, 0));
 
@@ -927,7 +928,7 @@ public class EmailUI extends AbstractToolDialog
                                     "SMTP",
                                     "Zoho"
                                 }));
-                                comboBoxProfile.setToolTipText(context.cfg.gs("EmailUI.comboBoxProfile.toolTipText"));
+                                comboBoxProfile.setToolTipText(context.cfg.gs("EmailUI.comboBox.Profile.toolTipText"));
                                 comboBoxProfile.addActionListener(e -> genericAction(e));
                                 panelServer.add(comboBoxProfile, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
@@ -1116,7 +1117,7 @@ public class EmailUI extends AbstractToolDialog
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- saveButton ----
-                saveButton.setText("Save");
+                saveButton.setText(context.cfg.gs("EmailUI.saveButton.text"));
                 saveButton.setToolTipText(context.cfg.gs("EmailUI.saveButton.toolTipText"));
                 saveButton.setMnemonic('S');
                 saveButton.addActionListener(e -> actionSaveClicked(e));
@@ -1125,7 +1126,7 @@ public class EmailUI extends AbstractToolDialog
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText("Cancel");
+                cancelButton.setText(context.cfg.gs("EmailUI.cancelButton.text"));
                 cancelButton.setToolTipText(context.cfg.gs("EmailUI.cancelButton.toolTipText"));
                 cancelButton.setMnemonic('L');
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
@@ -1157,7 +1158,7 @@ public class EmailUI extends AbstractToolDialog
     private JPanel panelOptions;
     private JScrollPane scrollPaneOptions;
     private JPanel panelServer;
-    private JLabel label1;
+    private JLabel labelPanelTitle;
     private JLabel labelProfile;
     private JComboBox<String> comboBoxProfile;
     private JLabel labelServerName;

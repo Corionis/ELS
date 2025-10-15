@@ -152,6 +152,11 @@ public class Preferences implements Serializable
     private int systemTwoSortDirection = 0;
     private int tabPlacement = 0; // top
     private int toolOperationsDividerConfigLocation = 142;
+    private int toolsArchiverDividerLocation = 142;
+    private int toolsArchiverHeight = 470;
+    private int toolsArchiverWidth = 570;
+    private int toolsArchiverXpos = -1;
+    private int toolsArchiverYpos = 0;
     private int toolsDuplicateFinderHeight = 470;
     private int toolsDuplicateFinderWidth = 570;
     private int toolsDuplicateFinderXpos = -1;
@@ -997,6 +1002,31 @@ public class Preferences implements Serializable
         return toolOperationsDividerConfigLocation;
     }
 
+    public int getToolsArchiverDividerLocation()
+    {
+        return toolsArchiverDividerLocation;
+    }
+
+    public int getToolsArchiverHeight()
+    {
+        return toolsArchiverHeight;
+    }
+
+    public int getToolsArchiverWidth()
+    {
+        return toolsArchiverWidth;
+    }
+
+    public int getToolsArchiverXpos()
+    {
+        return toolsArchiverXpos;
+    }
+
+    public int getToolsArchiverYpos()
+    {
+        return toolsArchiverYpos;
+    }
+
     public int getToolsDuplicateFinderHeight()
     {
         return toolsDuplicateFinderHeight;
@@ -1222,10 +1252,10 @@ public class Preferences implements Serializable
 
             if (context.preferences.isRoundedEdges())
             {
-                UIManager.put( "Button.arc", 500);
-                UIManager.put( "Component.arc", 500);
-                UIManager.put( "ProgressBar.arc", 500);
-                UIManager.put( "TextComponent.arc", 500);
+                UIManager.put("Button.arc", 500);
+                UIManager.put("Component.arc", 500);
+                UIManager.put("ProgressBar.arc", 500);
+                UIManager.put("TextComponent.arc", 500);
             }
 
             FlatLaf.updateUI();
@@ -2049,6 +2079,31 @@ public class Preferences implements Serializable
     public void setToolOperationsDividerConfigLocation(int toolOperationsDividerConfigLocation)
     {
         this.toolOperationsDividerConfigLocation = toolOperationsDividerConfigLocation;
+    }
+
+    public void setToolsArchiverDividerLocation(int toolsArchiverDividerLocation)
+    {
+        this.toolsArchiverDividerLocation = toolsArchiverDividerLocation;
+    }
+
+    public void setToolsArchiverHeight(int toolsArchiverHeight)
+    {
+        this.toolsArchiverHeight = toolsArchiverHeight;
+    }
+
+    public void setToolsArchiverWidth(int toolsArchiverWidth)
+    {
+        this.toolsArchiverWidth = toolsArchiverWidth;
+    }
+
+    public void setToolsArchiverXpos(int toolsArchiverXpos)
+    {
+        this.toolsArchiverXpos = toolsArchiverXpos;
+    }
+
+    public void setToolsArchiverYpos(int toolsArchiverYpos)
+    {
+        this.toolsArchiverYpos = toolsArchiverYpos;
     }
 
     public void setToolsDuplicateFinderHeight(int toolsDuplicateFinderHeight)

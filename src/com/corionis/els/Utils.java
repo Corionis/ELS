@@ -40,10 +40,6 @@ public class Utils
 {
     private static Logger logger = LogManager.getLogger("applog");
 
-    // values that persist between layered threads when Context is cloned and/or a new Main is running
-    public static boolean couldNotConnect = false; // ClientStty command pipe could not connect
-    public static boolean faultEmailSent = false; // do not send fault emails more than once
-
     /**
      * Static methods - do not instantiate
      */
@@ -466,6 +462,28 @@ public class Utils
             hostname = "";
         }
         return hostname;
+    }
+
+    /**
+     * Gets last path that exists
+     *
+     * @param full the full
+     * @param sep  The directory separator for the local O/S, if null get separator from full
+     * @return the last path
+     */
+    public static synchronized String getLastExistingPath(String full, String sep)
+    {
+        String path = full;
+        if (sep == null)
+            sep = getSeparatorFromPath(full);
+        while (path.length() > 0)
+        {
+            File file = new File(path);
+            if (file.exists())
+                break;
+            path = getLeftPath(path, sep);
+        }
+        return path;
     }
 
     /**
@@ -1135,6 +1153,7 @@ public class Utils
         path = path.replaceAll(separator, "|");
         separator = "/";
         path = path.replaceAll(separator, "|");
+        path = path.replaceAll("\\|\\|", "|");
         return path;
     }
 
