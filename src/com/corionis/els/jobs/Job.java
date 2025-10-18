@@ -2,6 +2,8 @@ package com.corionis.els.jobs;
 
 import com.corionis.els.*;
 import com.corionis.els.gui.util.ArgumentTokenizer;
+import com.corionis.els.tools.archiver.ArchiverTool;
+import com.corionis.els.tools.cleanup.CleanupTool;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.corionis.els.tools.AbstractTool;
@@ -376,8 +378,9 @@ public class Job extends AbstractTool
         return false;
     }
 
-    public String validate(Configuration cfg)
+    public String validate(Configuration cfg, boolean isThisInstance)
     {
+        boolean hasPub = false;
         Job job = this;
         String status = "";
         if (job.getTasks() != null && job.getTasks().size() > 0)
@@ -387,8 +390,7 @@ public class Job extends AbstractTool
                 task.setContext(context);
 
                 // if not a Job or using cached task
-                if (!task.getInternalName().equals(Job.INTERNAL_NAME) &&
-                        !task.getInternalName().equals(SleepTool.INTERNAL_NAME) &&
+                if (!task.getInternalName().equals(SleepTool.INTERNAL_NAME) &&
                         !task.getPublisherKey().equals(Task.CACHEDLASTTASK))
                 {
                     boolean skip = false;
@@ -409,20 +411,26 @@ public class Job extends AbstractTool
                                     context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                    if (!skip)
+                    if (!skip && !task.getInternalName().equals(Job.INTERNAL_NAME)) // Jobs are validated when created
                     {
-                        if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0 &&
-                                task.getOrigins().isEmpty())
+                        if ((task.getOrigins() == null || task.getOrigins().size() == 0) &&
+                                !task.getInternalName().equals(OperationsTool.INTERNAL_NAME))
                         {
-                            status = cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName();
+                            status = java.text.MessageFormat.format(cfg.gs("JobsUI.task.has.no.origins"), task.getConfigName(),  job.getConfigName());
                             break;
                         }
-                        else if ((task.getOrigins() == null || task.getOrigins().size() == 0) && !task.getInternalName().equals("Operations"))
+                        else if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
                         {
-                            status = cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName();
+                            if ((hasPub || (isThisInstance && context.publisherRepo != null)) &&
+                                    (task.getInternalName().equals(ArchiverTool.INTERNAL_NAME) || task.getInternalName().equals(CleanupTool.INTERNAL_NAME)))
+                                    continue;
+
+                                status = java.text.MessageFormat.format(cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber"),
+                                        task.getConfigName(), job.getConfigName());
                             break;
                         }
                     }
+                    hasPub = true;
                 }
             }
         }

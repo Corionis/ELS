@@ -261,6 +261,7 @@ public class JunkRemoverUI extends AbstractToolDialog
         }
         else
         {
+            helpDialog.setVisible(true);
             helpDialog.toFront();
             helpDialog.requestFocus();
             helpDialog.buttonFocus();

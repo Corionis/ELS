@@ -465,7 +465,7 @@ public class Generator
                         File file = fc.getSelectedFile();
                         if (file.isDirectory())
                         {
-                            JOptionPane.showMessageDialog(context.mainFrame,
+                            JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner,
                                     context.cfg.gs("Navigator.open.error.select.a.file.only"),
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
@@ -627,15 +627,28 @@ public class Generator
                 {
                     if (tool.isDataChanged())
                     {
-                        JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner, context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner,
+                                context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                         return;
+                    }
+
+                    if (tool.getInternalName().equalsIgnoreCase(Job.INTERNAL_NAME))
+                    {
+                        String status = ((Job)tool).validate(context.cfg, false);
+                        if (status.length() > 0)
+                        {
+                            JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner, status,
+                                    context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
                     }
 
                     String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), tool.getConfigName());
                     Object[] params = {message};
 
                     // confirm run of job
-                    int reply = JOptionPane.showConfirmDialog((owner == null) ? context.mainFrame.panelMain : owner, params, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+                    int reply = JOptionPane.showConfirmDialog((owner == null) ? context.mainFrame.panelMain : owner, params,
+                            context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)
                     {
                         try
@@ -654,7 +667,7 @@ public class Generator
                             logger.error(Utils.getStackTrace(e));
                             message = context.cfg.gs("Generator.error.launching") + tool.getConfigName() + ", " + e.getMessage();
                             Object[] opts = {context.cfg.gs("Z.ok")};
-                            JOptionPane.showOptionDialog(context.mainFrame, message, getTitle(tool),
+                            JOptionPane.showOptionDialog((owner == null) ? context.mainFrame.panelMain : owner, message, getTitle(tool),
                                     JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
                         }
                     }

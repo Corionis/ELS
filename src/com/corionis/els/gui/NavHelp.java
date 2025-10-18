@@ -60,6 +60,18 @@ public class NavHelp extends JDialog
         else
             showCheckBox.setSelected(context.preferences.isShowGettingStarted());
 
+        helpText.addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyTyped(KeyEvent keyEvent)
+            {
+                if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER || keyEvent.getKeyChar() == KeyEvent.VK_ESCAPE)
+                {
+                    okButton.doClick();
+                }
+            }
+        });
+
         okButton.addActionListener(new AbstractAction()
         {
             @Override

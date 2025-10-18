@@ -1,6 +1,8 @@
 
 # Project To Do
 
+! Standardize on "Toggle All" instead of All / None
+
 ## Current Short-List
 
 ! Update ELS Plex Generator

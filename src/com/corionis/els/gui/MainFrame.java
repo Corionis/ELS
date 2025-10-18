@@ -523,6 +523,7 @@ public class MainFrame extends JFrame
         menuItemDuplicates = new JMenuItem();
         menuItemEmptyFinder = new JMenuItem();
         menuItemArchiver = new JMenuItem();
+        menuItemCleanup = new JMenuItem();
         menuItemJunk = new JMenuItem();
         menuItemOperations = new JMenuItem();
         menuItemRenamer = new JMenuItem();
@@ -808,14 +809,12 @@ public class MainFrame extends JFrame
 
                 //---- menuItemOpenHintKeys ----
                 menuItemOpenHintKeys.setText(context.cfg.gs("Navigator.menu.OpenHintKeys.text"));
-                menuItemOpenHintKeys.setSelected(true);
                 menuItemOpenHintKeys.setMnemonic(context.cfg.gs("Navigator.menu.OpenHintKeys.mnemonic").charAt(0));
                 menuItemOpenHintKeys.setIcon(new ImageIcon(getClass().getResource("/open-hint-keys.png")));
                 menuFile.add(menuItemOpenHintKeys);
 
                 //---- menuItemOpenHintTracking ----
                 menuItemOpenHintTracking.setText(context.cfg.gs("Navigator.menuItemOpenHintTracking.text"));
-                menuItemOpenHintTracking.setSelected(true);
                 menuItemOpenHintTracking.setMnemonic(context.cfg.gs("Navigator.menuItemOpenHintTracking.mnemonic_2").charAt(0));
                 menuItemOpenHintTracking.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemOpenHintTracking.displayedMnemonicIndex")));
                 menuItemOpenHintTracking.setIcon(new ImageIcon(getClass().getResource("/open-hint-tracking.png")));
@@ -974,6 +973,7 @@ public class MainFrame extends JFrame
 
                 //---- radioButtonAutoRefresh ----
                 radioButtonAutoRefresh.setText(context.cfg.gs("Navigator.radioButtonAutoRefresh.text"));
+                radioButtonAutoRefresh.setMnemonic(context.cfg.gs("Navigator.radioButtonAutoRefresh.mnemonic").charAt(0));
                 menuView.add(radioButtonAutoRefresh);
 
                 //---- menuItemShowHidden ----
@@ -1045,6 +1045,12 @@ public class MainFrame extends JFrame
                 menuItemArchiver.setMnemonic(context.cfg.gs("Navigator.menuItemArchiver.mnemonic").charAt(0));
                 menuItemArchiver.setIcon(new ImageIcon(getClass().getResource("/archiver.png")));
                 menuTools.add(menuItemArchiver);
+
+                //---- menuItemCleanup ----
+                menuItemCleanup.setText(context.cfg.gs("Navigator.menuItemCleanup.text"));
+                menuItemCleanup.setMnemonic(context.cfg.gs("Navigator.menuItemCleanup.mnemonic").charAt(0));
+                menuItemCleanup.setIcon(new ImageIcon(getClass().getResource("/cleanup.png")));
+                menuTools.add(menuItemCleanup);
 
                 //---- menuItemJunk ----
                 menuItemJunk.setText(context.cfg.gs("Navigator.menu.Junk.text"));
@@ -1484,7 +1490,7 @@ public class MainFrame extends JFrame
                                         buttonBack.setText("<html>&lt;</html>");
                                         buttonBack.setMaximumSize(new Dimension(32, 24));
                                         buttonBack.setMinimumSize(new Dimension(32, 24));
-                                        buttonBack.setPreferredSize(new Dimension(32, 24));
+                                        buttonBack.setPreferredSize(new Dimension(32, 30));
                                         buttonBack.setToolTipText(context.cfg.gs("Navigator.buttonBack.toolTipText"));
                                         buttonBack.setActionCommand("navBack");
                                         buttonBack.setFocusable(false);
@@ -1498,7 +1504,7 @@ public class MainFrame extends JFrame
                                         buttonForward.setText("<html>&gt;</html>");
                                         buttonForward.setMaximumSize(new Dimension(32, 24));
                                         buttonForward.setMinimumSize(new Dimension(32, 24));
-                                        buttonForward.setPreferredSize(new Dimension(32, 24));
+                                        buttonForward.setPreferredSize(new Dimension(32, 30));
                                         buttonForward.setToolTipText(context.cfg.gs("Navigator.buttonForward.toolTipText"));
                                         buttonForward.setActionCommand("NavForward");
                                         buttonForward.setFocusable(false);
@@ -1512,7 +1518,7 @@ public class MainFrame extends JFrame
                                         buttonUp.setText("^");
                                         buttonUp.setMaximumSize(new Dimension(32, 24));
                                         buttonUp.setMinimumSize(new Dimension(32, 24));
-                                        buttonUp.setPreferredSize(new Dimension(32, 24));
+                                        buttonUp.setPreferredSize(new Dimension(32, 30));
                                         buttonUp.setToolTipText(context.cfg.gs("Navigator.buttonUp.toolTipText"));
                                         buttonUp.setActionCommand("NavUp");
                                         buttonUp.setFocusable(false);
@@ -3033,6 +3039,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemDuplicates;
     public JMenuItem menuItemEmptyFinder;
     public JMenuItem menuItemArchiver;
+    public JMenuItem menuItemCleanup;
     public JMenuItem menuItemJunk;
     public JMenuItem menuItemOperations;
     public JMenuItem menuItemRenamer;

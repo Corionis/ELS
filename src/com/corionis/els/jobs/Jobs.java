@@ -56,7 +56,7 @@ public class Jobs
                 job = (Job) jobList.get(i);
                 if (job.isDataChanged())
                 {
-                    String status = job.validate(context.cfg);
+                    String status = job.validate(context.cfg, false);
                     if (status.length() > 0)
                     {
                         JOptionPane.showMessageDialog(context.mainFrame, status, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);

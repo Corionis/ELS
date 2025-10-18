@@ -1,6 +1,7 @@
 package com.corionis.els.tools;
 
 import com.corionis.els.tools.archiver.ArchiverTool;
+import com.corionis.els.tools.cleanup.CleanupTool;
 import com.corionis.els.tools.email.EmailTool;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -100,6 +101,38 @@ public class Tools
                 }
             }
             // end Archiver
+        }
+        else if (internalName.equals(CleanupTool.INTERNAL_NAME))
+        {
+            // begin Cleanup
+            CleanupTool tmpTool = new CleanupTool(context);
+            File toolDir = new File(tmpTool.getDirectoryPath());
+            if (toolDir.exists() && toolDir.isDirectory())
+            {
+                CleanupParser CleanupParser = new CleanupParser();
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
+                {
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
+                    {
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
+                        if (json != null)
+                        {
+                            AbstractTool but = CleanupParser.parseTool(context, json);
+                            if (but != null)
+                            {
+                                if (but.getConfigName().equalsIgnoreCase(configName))
+                                {
+                                    tool = but;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end Cleanup
         }
         else if (internalName.equals(EmailTool.INTERNAL_NAME))
         {
@@ -318,6 +351,16 @@ public class Tools
         }
         // end ArchiverUI
 
+        // begin CleanupUI
+        if (internalName == null || internalName.equals(CleanupTool.INTERNAL_NAME))
+        {
+            toolParser = new CleanupParser();
+            CleanupTool tmpCleanup = new CleanupTool(context);
+            toolDir = new File(tmpCleanup.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end CleanupUI
+
         // begin EmailUI
         if (internalName != null && internalName.equals(EmailTool.INTERNAL_NAME)) // must be specified
         {
@@ -398,6 +441,10 @@ public class Tools
         if (internalName.equals(ArchiverTool.INTERNAL_NAME))
         {
             tmpTool = new ArchiverTool(context);
+        }
+        else if (internalName.equals(CleanupTool.INTERNAL_NAME))
+        {
+            tmpTool = new CleanupTool(context);
         }
         else if (internalName.equals(EmailTool.INTERNAL_NAME))
         {
@@ -490,6 +537,33 @@ public class Tools
             GsonBuilder builder = new GsonBuilder();
             builder.registerTypeAdapter(ArchiverTool.class, new objInstanceCreator());
             ArchiverTool tool = builder.create().fromJson(json, ArchiverTool.class);
+            return tool;
+        }
+    }
+
+    /**
+     * ToolParserI implementation for the CleanupTool
+     */
+    private class CleanupParser implements ToolParserI
+    {
+        /**
+         * Parse a CleanupTool
+         */
+        @Override
+        public AbstractTool parseTool(Context context, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new CleanupTool(context);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(CleanupTool.class, new objInstanceCreator());
+            CleanupTool tool = builder.create().fromJson(json, CleanupTool.class);
             return tool;
         }
     }

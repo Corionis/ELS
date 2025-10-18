@@ -192,7 +192,7 @@ new FormModel {
 												"text": "<html>&lt;</html>"
 												"maximumSize": new java.awt.Dimension( 32, 24 )
 												"minimumSize": new java.awt.Dimension( 32, 24 )
-												"preferredSize": new java.awt.Dimension( 32, 24 )
+												"preferredSize": new java.awt.Dimension( 32, 30 )
 												"toolTipText": new FormMessage( null, "Navigator.buttonBack.toolTipText" )
 												"actionCommand": "navBack"
 												"focusable": false
@@ -206,7 +206,7 @@ new FormModel {
 												"text": "<html>&gt;</html>"
 												"maximumSize": new java.awt.Dimension( 32, 24 )
 												"minimumSize": new java.awt.Dimension( 32, 24 )
-												"preferredSize": new java.awt.Dimension( 32, 24 )
+												"preferredSize": new java.awt.Dimension( 32, 30 )
 												"toolTipText": new FormMessage( null, "Navigator.buttonForward.toolTipText" )
 												"actionCommand": "NavForward"
 												"focusable": false
@@ -221,7 +221,7 @@ new FormModel {
 												"text": "^"
 												"maximumSize": new java.awt.Dimension( 32, 24 )
 												"minimumSize": new java.awt.Dimension( 32, 24 )
-												"preferredSize": new java.awt.Dimension( 32, 24 )
+												"preferredSize": new java.awt.Dimension( 32, 30 )
 												"toolTipText": new FormMessage( null, "Navigator.buttonUp.toolTipText" )
 												"actionCommand": "NavUp"
 												"focusable": false
@@ -1661,14 +1661,12 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemOpenHintKeys"
 						"text": new FormMessage( null, "Navigator.menu.OpenHintKeys.text" )
-						"selected": true
 						"mnemonic": new FormMessage( null, "Navigator.menu.OpenHintKeys.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/open-hint-keys.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemOpenHintTracking"
 						"text": new FormMessage( null, "Navigator.menuItemOpenHintTracking.text" )
-						"selected": true
 						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenHintTracking.mnemonic_2" )
 						"displayedMnemonicIndex": new FormMessage( null, "Navigator.menuItemOpenHintTracking.displayedMnemonicIndex" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/open-hint-tracking.png" )
@@ -1835,6 +1833,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "radioButtonAutoRefresh"
 						"text": new FormMessage( null, "Navigator.radioButtonAutoRefresh.text" )
+						"mnemonic": new FormMessage( null, "Navigator.radioButtonAutoRefresh.mnemonic" )
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "menuItemShowHidden"
@@ -1905,6 +1904,12 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemArchiver.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemArchiver.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/archiver.png" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemCleanup"
+						"text": new FormMessage( null, "Navigator.menuItemCleanup.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemCleanup.mnemonic" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/cleanup.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemJunk"

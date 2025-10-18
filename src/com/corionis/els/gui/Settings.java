@@ -787,6 +787,7 @@ public class Settings extends JDialog
                             new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- roundedCheckBox ----
+                        roundedCheckBox.setToolTipText(context.cfg.gs("Settings.roundedCheckBox.toolTipText"));
                         roundedCheckBox.addActionListener(e -> updateLookAndFeel(e));
                         apperancePanel.add(roundedCheckBox, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,

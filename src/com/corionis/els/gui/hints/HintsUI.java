@@ -22,6 +22,7 @@ import javax.swing.border.*;
 
 public class HintsUI extends JDialog
 {
+    private boolean allSelected = false;
     private Context context;
     private boolean changesMade = false;
     private NavHelp helpDialog;
@@ -148,9 +149,10 @@ public class HintsUI extends JDialog
     {
         if (model != null && hints != null)
         {
+            allSelected = !allSelected;
             for (Hint hint : hints)
             {
-                hint.selected = true;
+                hint.selected = allSelected;
             }
             model.fireTableDataChanged();
         }
@@ -241,24 +243,11 @@ public class HintsUI extends JDialog
         }
         else
         {
+            helpDialog.setVisible(true);
             helpDialog.toFront();
             helpDialog.requestFocus();
             helpDialog.buttonFocus();
         }
-    }
-
-    private void actionNoneClicked(ActionEvent e)
-    {
-        if (model != null && hints != null)
-        {
-            for (Hint hint : hints)
-            {
-                hint.selected = false;
-            }
-            model.fireTableDataChanged();
-        }
-        setButtons();
-        labelStatus.setText("");
     }
 
     private void actionRunClicked(ActionEvent e)
@@ -675,7 +664,6 @@ public class HintsUI extends JDialog
         tableHints = new JTable();
         panelOptionsButtons = new JPanel();
         buttonAll = new JButton();
-        buttonNone = new JButton();
         panelBottom = new JPanel();
         labelStatus = new JLabel();
         buttonBar = new JPanel();
@@ -795,18 +783,6 @@ public class HintsUI extends JDialog
                     buttonAll.setMargin(new Insets(0, -10, 0, -10));
                     buttonAll.addActionListener(e -> actionAllClicked(e));
                     panelOptionsButtons.add(buttonAll);
-
-                    //---- buttonNone ----
-                    buttonNone.setText(context.cfg.gs("HintsUI.buttonNone.text"));
-                    buttonNone.setFont(buttonNone.getFont().deriveFont(buttonNone.getFont().getSize() - 2f));
-                    buttonNone.setPreferredSize(new Dimension(78, 24));
-                    buttonNone.setMinimumSize(new Dimension(78, 24));
-                    buttonNone.setMaximumSize(new Dimension(78, 24));
-                    buttonNone.setMnemonic(context.cfg.gs("HintsUI.buttonNone.mnemonic").charAt(0));
-                    buttonNone.setToolTipText(context.cfg.gs("HintsUI.buttonNone.toolTipText"));
-                    buttonNone.setMargin(new Insets(0, -10, 0, -10));
-                    buttonNone.addActionListener(e -> actionNoneClicked(e));
-                    panelOptionsButtons.add(buttonNone);
                 }
                 contentPanel.add(panelOptionsButtons, BorderLayout.SOUTH);
             }
@@ -869,7 +845,6 @@ public class HintsUI extends JDialog
     public JTable tableHints;
     public JPanel panelOptionsButtons;
     public JButton buttonAll;
-    public JButton buttonNone;
     public JPanel panelBottom;
     public JLabel labelStatus;
     public JPanel buttonBar;

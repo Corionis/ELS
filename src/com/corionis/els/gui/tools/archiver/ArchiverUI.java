@@ -199,6 +199,7 @@ public class ArchiverUI extends AbstractToolDialog
         }
         else
         {
+            helpDialog.setVisible(true);
             helpDialog.toFront();
             helpDialog.requestFocus();
             helpDialog.buttonFocus();
@@ -511,6 +512,7 @@ public class ArchiverUI extends AbstractToolDialog
             checkBoxDeleteFiles.setSelected(currentTool.isDeleteFiles());
             comboBoxFormat.setSelectedItem(currentTool.getFormat());
             textFieldTarget.setText(currentTool.getTarget());
+            textFieldTarget.setEnabled(true);
 
             buttonCopy.setEnabled(true);
             buttonDelete.setEnabled(true);
@@ -524,6 +526,7 @@ public class ArchiverUI extends AbstractToolDialog
         else
         {
             currentTool = null;
+            textFieldTarget.setEnabled(false);
             buttonCopy.setEnabled(false);
             buttonDelete.setEnabled(false);
             buttonRun.setEnabled(false);

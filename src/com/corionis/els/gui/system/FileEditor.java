@@ -143,8 +143,13 @@ public class FileEditor extends JDialog
             }
             helpDialog = new NavHelp(this, this, context, title, helpName + context.preferences.getLocale() + ".html", false);
         }
-        if (!helpDialog.fault)
+        else
+        {
+            helpDialog.setVisible(true);
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionRemoveClicked(ActionEvent e)

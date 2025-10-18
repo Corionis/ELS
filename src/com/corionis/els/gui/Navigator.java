@@ -9,6 +9,7 @@ import com.corionis.els.gui.browser.NavTreeNode;
 import com.corionis.els.gui.browser.NavTreeUserObject;
 import com.corionis.els.gui.hints.HintsUI;
 import com.corionis.els.gui.tools.archiver.ArchiverUI;
+import com.corionis.els.gui.tools.cleanup.CleanupUI;
 import com.corionis.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.corionis.els.gui.tools.email.EmailUI;
 import com.corionis.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
@@ -68,6 +69,7 @@ import static com.corionis.els.gui.system.FileEditor.EditorTypes.*;
 public class Navigator
 {
     public ArchiverUI dialogArchiver;
+    public CleanupUI dialogCleanup;
     public Bookmarks bookmarks;
     public Context context;
     public DuplicateFinderUI dialogDuplicateFinder;
@@ -392,6 +394,12 @@ public class Navigator
      */
     public void enableDisableToolMenus(AbstractToolDialog dialog, boolean enable)
     {
+        context.mainFrame.menuItemArchiver.setEnabled(enable);
+        context.mainFrame.menuItemArchiver.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
+        context.mainFrame.menuItemCleanup.setEnabled(enable);
+        context.mainFrame.menuItemCleanup.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
         context.mainFrame.menuItemJunk.setEnabled(enable);
         context.mainFrame.menuItemJunk.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
 
@@ -412,7 +420,17 @@ public class Navigator
 
         if (!enable)
         {
-            if (dialog instanceof JunkRemoverUI)
+            if (dialog instanceof ArchiverUI)
+            {
+                context.mainFrame.menuItemArchiver.setEnabled(true);
+                context.mainFrame.menuItemArchiver.setToolTipText("");
+            }
+            else if (dialog instanceof CleanupUI)
+            {
+                context.mainFrame.menuItemCleanup.setEnabled(true);
+                context.mainFrame.menuItemCleanup.setToolTipText("");
+            }
+            else if (dialog instanceof JunkRemoverUI)
             {
                 context.mainFrame.menuItemJunk.setEnabled(true);
                 context.mainFrame.menuItemJunk.setToolTipText("");
@@ -2700,6 +2718,24 @@ public class Navigator
             }
         });
 
+        // Cleanup Tool
+        context.mainFrame.menuItemCleanup.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogCleanup == null || !dialogCleanup.isShowing())
+                {
+                    dialogCleanup = new CleanupUI(context.mainFrame, context);
+                    dialogCleanup.setVisible(true);
+                }
+                else
+                {
+                    dialogCleanup.toFront();
+                    dialogCleanup.requestFocus();
+                }
+            }
+        });
 
         // --- Junk Remover Tool
         context.mainFrame.menuItemJunk.addActionListener(new AbstractAction()
@@ -3430,16 +3466,14 @@ public class Navigator
     private void processJob(Job job)
     {
         // validate job tasks and origins
-        String status = job.validate(context.cfg);
+        String status = job.validate(context.cfg, true);
         if (status.length() == 0)
         {
             // make dialog pieces
             String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
 
             JPanel panel = new JPanel();
-            panel.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 0));
-
-            String spacer = "\n";
+            panel.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 8));
 
             JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun") + "        ");
             checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
@@ -3466,7 +3500,7 @@ public class Navigator
             panel.add(checkbox);
             panel.add(generateButton);
 
-            Object[] params = {message, spacer, panel};
+            Object[] params = {message, panel};
 
             // confirm run of job
             int reply = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.getNavigatorName(), JOptionPane.OK_CANCEL_OPTION);

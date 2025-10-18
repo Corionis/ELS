@@ -293,6 +293,7 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "roundedCheckBox"
+								"toolTipText": new FormMessage( null, "Settings.roundedCheckBox.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "updateLookAndFeel", true ) )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 2

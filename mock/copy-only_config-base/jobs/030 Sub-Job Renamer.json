@@ -2,7 +2,7 @@
   "configName": "030 Sub-Job Renamer",
   "tasks": [
     {
-      "configName": "020 Multi-Renamer publisher L",
+      "configName": "020 Multi-Renamer Publisher L",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",

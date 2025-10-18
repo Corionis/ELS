@@ -157,6 +157,11 @@ public class Preferences implements Serializable
     private int toolsArchiverWidth = 570;
     private int toolsArchiverXpos = -1;
     private int toolsArchiverYpos = 0;
+    private int toolsCleanupDividerLocation = 142;
+    private int toolsCleanupHeight = 470;
+    private int toolsCleanupWidth = 570;
+    private int toolsCleanupXpos = -1;
+    private int toolsCleanupYpos = 0;
     private int toolsDuplicateFinderHeight = 470;
     private int toolsDuplicateFinderWidth = 570;
     private int toolsDuplicateFinderXpos = -1;
@@ -1025,6 +1030,31 @@ public class Preferences implements Serializable
     public int getToolsArchiverYpos()
     {
         return toolsArchiverYpos;
+    }
+
+    public int getToolsCleanupDividerLocation()
+    {
+        return toolsCleanupDividerLocation;
+    }
+
+    public int getToolsCleanupHeight()
+    {
+        return toolsCleanupHeight;
+    }
+
+    public int getToolsCleanupWidth()
+    {
+        return toolsCleanupWidth;
+    }
+
+    public int getToolsCleanupXpos()
+    {
+        return toolsCleanupXpos;
+    }
+
+    public int getToolsCleanupYpos()
+    {
+        return toolsCleanupYpos;
     }
 
     public int getToolsDuplicateFinderHeight()
@@ -2104,6 +2134,31 @@ public class Preferences implements Serializable
     public void setToolsArchiverYpos(int toolsArchiverYpos)
     {
         this.toolsArchiverYpos = toolsArchiverYpos;
+    }
+
+    public void setToolsCleanupDividerLocation(int toolsCleanupDividerLocation)
+    {
+        this.toolsCleanupDividerLocation = toolsCleanupDividerLocation;
+    }
+
+    public void setToolsCleanupHeight(int toolsCleanupHeight)
+    {
+        this.toolsCleanupHeight = toolsCleanupHeight;
+    }
+
+    public void setToolsCleanupWidth(int toolsCleanupWidth)
+    {
+        this.toolsCleanupWidth = toolsCleanupWidth;
+    }
+
+    public void setToolsCleanupXpos(int toolsCleanupXpos)
+    {
+        this.toolsCleanupXpos = toolsCleanupXpos;
+    }
+
+    public void setToolsCleanupYpos(int toolsCleanupYpos)
+    {
+        this.toolsCleanupYpos = toolsCleanupYpos;
     }
 
     public void setToolsDuplicateFinderHeight(int toolsDuplicateFinderHeight)

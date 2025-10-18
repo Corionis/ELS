@@ -433,7 +433,7 @@ public class Task implements Comparable, Serializable
             context.fault = localContext.fault;
         }
         else
-            throw new MungeException(localContext.cfg.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
+            throw new MungeException(localContext.cfg.gs("Task.tool.not.found") + getInternalName() + ": " + getConfigName());
 
         return true;
     }

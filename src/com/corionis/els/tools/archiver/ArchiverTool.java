@@ -286,12 +286,6 @@ public class ArchiverTool extends AbstractTool
     }
 
     @Override
-    public boolean isToolPubOrSub()
-    {
-        return true;
-    }
-
-    @Override
     public boolean isToolSubscriber()
     {
         return false;

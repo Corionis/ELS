@@ -204,6 +204,7 @@ public class LibrariesUI
         }
         else
         {
+            helpDialog.setVisible(true);
             helpDialog.toFront();
             helpDialog.requestFocus();
             helpDialog.buttonFocus();

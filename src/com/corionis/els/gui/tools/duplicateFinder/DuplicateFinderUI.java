@@ -116,6 +116,7 @@ public class DuplicateFinderUI extends JDialog
         }
         else
         {
+            helpDialog.setVisible(true);
             helpDialog.toFront();
             helpDialog.requestFocus();
             helpDialog.buttonFocus();

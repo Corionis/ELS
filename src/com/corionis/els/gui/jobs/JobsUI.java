@@ -20,7 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -320,6 +319,7 @@ public class JobsUI extends AbstractToolDialog
         }
         else
         {
+            helpDialog.setVisible(true);
             helpDialog.toFront();
             helpDialog.requestFocus();
             helpDialog.buttonFocus();
@@ -1859,7 +1859,7 @@ public class JobsUI extends AbstractToolDialog
     public void processJob(Job job)
     {
         // validate job tasks and origins
-        String status = job.validate(context.cfg);
+        String status = job.validate(context.cfg, true);
         if (status.length() == 0)
         {
             // make dialog pieces
