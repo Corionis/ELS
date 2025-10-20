@@ -462,23 +462,21 @@ public class EmailUI extends AbstractToolDialog
             currentTool = (EmailTool) configModel.getValueAt(index, 0);
             textFieldServerName.setText(currentTool.getServer());
             textFieldUsername.setText(currentTool.getUsername());
+            textFieldPort.setText(currentTool.getPort());
+            comboBoxProfile.setSelectedItem(currentTool.getProfile());
+            comboBoxSecurity.setSelectedItem(currentTool.getSecurity());
+            comboBoxAuthMethod.setSelectedItem(currentTool.getAuthMethod());
             if (currentTool.getPassword().length() > 0)
             {
                 passwordField.setText(currentTool.getPassword());
                 hidePassword = false;
-                buttonPassword.doClick();
-                textFieldPort.setText(currentTool.getPort());
-                comboBoxProfile.setSelectedItem(currentTool.getProfile());
-                comboBoxSecurity.setSelectedItem(currentTool.getSecurity());
-                comboBoxAuthMethod.setSelectedItem(currentTool.getAuthMethod());
             }
             else
             {
-                currentTool = null;
                 passwordField.setText("");
                 hidePassword = true;
-                buttonPassword.doClick();
             }
+            buttonPassword.doClick(); // toggles hide password
             updateControls();
         }
         else

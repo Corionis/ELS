@@ -1455,11 +1455,13 @@ public class MainFrame extends JFrame
                             panelLocationAndButtons.setFocusable(false);
                             panelLocationAndButtons.setMinimumSize(new Dimension(219, 36));
                             panelLocationAndButtons.setMaximumSize(new Dimension(32767, 36));
+                            panelLocationAndButtons.setPreferredSize(new Dimension(1088, 36));
                             panelLocationAndButtons.setLayout(new BorderLayout());
 
                             //======== panelLocationAndTracker ========
                             {
                                 panelLocationAndTracker.setPreferredSize(new Dimension(1088, 38));
+                                panelLocationAndTracker.setMinimumSize(new Dimension(327, 38));
                                 panelLocationAndTracker.setLayout(new BorderLayout());
 
                                 //---- vSpacer1 ----
@@ -1488,9 +1490,9 @@ public class MainFrame extends JFrame
 
                                         //---- buttonBack ----
                                         buttonBack.setText("<html>&lt;</html>");
-                                        buttonBack.setMaximumSize(new Dimension(32, 24));
-                                        buttonBack.setMinimumSize(new Dimension(32, 24));
-                                        buttonBack.setPreferredSize(new Dimension(32, 30));
+                                        buttonBack.setMaximumSize(new Dimension(24, 24));
+                                        buttonBack.setMinimumSize(new Dimension(24, 24));
+                                        buttonBack.setPreferredSize(new Dimension(24, 24));
                                         buttonBack.setToolTipText(context.cfg.gs("Navigator.buttonBack.toolTipText"));
                                         buttonBack.setActionCommand("navBack");
                                         buttonBack.setFocusable(false);
@@ -1502,9 +1504,9 @@ public class MainFrame extends JFrame
 
                                         //---- buttonForward ----
                                         buttonForward.setText("<html>&gt;</html>");
-                                        buttonForward.setMaximumSize(new Dimension(32, 24));
-                                        buttonForward.setMinimumSize(new Dimension(32, 24));
-                                        buttonForward.setPreferredSize(new Dimension(32, 30));
+                                        buttonForward.setMaximumSize(new Dimension(24, 24));
+                                        buttonForward.setMinimumSize(new Dimension(24, 24));
+                                        buttonForward.setPreferredSize(new Dimension(24, 24));
                                         buttonForward.setToolTipText(context.cfg.gs("Navigator.buttonForward.toolTipText"));
                                         buttonForward.setActionCommand("NavForward");
                                         buttonForward.setFocusable(false);
@@ -1516,9 +1518,9 @@ public class MainFrame extends JFrame
 
                                         //---- buttonUp ----
                                         buttonUp.setText("^");
-                                        buttonUp.setMaximumSize(new Dimension(32, 24));
-                                        buttonUp.setMinimumSize(new Dimension(32, 24));
-                                        buttonUp.setPreferredSize(new Dimension(32, 30));
+                                        buttonUp.setMaximumSize(new Dimension(24, 24));
+                                        buttonUp.setMinimumSize(new Dimension(24, 24));
+                                        buttonUp.setPreferredSize(new Dimension(24, 24));
                                         buttonUp.setToolTipText(context.cfg.gs("Navigator.buttonUp.toolTipText"));
                                         buttonUp.setActionCommand("NavUp");
                                         buttonUp.setFocusable(false);
@@ -1538,6 +1540,7 @@ public class MainFrame extends JFrame
                                     textFieldLocation.setEditable(false);
                                     textFieldLocation.setMaximumSize(new Dimension(2147483647, 30));
                                     textFieldLocation.setMargin(new Insets(0, 6, 0, 6));
+                                    textFieldLocation.setMinimumSize(new Dimension(49, 30));
                                     panelLocation.add(textFieldLocation, BorderLayout.CENTER);
 
                                     //---- hSpacer1 ----

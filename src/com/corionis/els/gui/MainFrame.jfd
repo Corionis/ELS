@@ -161,9 +161,11 @@ new FormModel {
 								"focusable": false
 								"minimumSize": new java.awt.Dimension( 219, 36 )
 								"maximumSize": new java.awt.Dimension( 32767, 36 )
+								"preferredSize": new java.awt.Dimension( 1088, 36 )
 								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 									name: "panelLocationAndTracker"
 									"preferredSize": new java.awt.Dimension( 1088, 38 )
+									"minimumSize": new java.awt.Dimension( 327, 38 )
 									add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 										name: "vSpacer1"
 										"preferredSize": new java.awt.Dimension( 10, 4 )
@@ -190,9 +192,9 @@ new FormModel {
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonBack"
 												"text": "<html>&lt;</html>"
-												"maximumSize": new java.awt.Dimension( 32, 24 )
-												"minimumSize": new java.awt.Dimension( 32, 24 )
-												"preferredSize": new java.awt.Dimension( 32, 30 )
+												"maximumSize": new java.awt.Dimension( 24, 24 )
+												"minimumSize": new java.awt.Dimension( 24, 24 )
+												"preferredSize": new java.awt.Dimension( 24, 24 )
 												"toolTipText": new FormMessage( null, "Navigator.buttonBack.toolTipText" )
 												"actionCommand": "navBack"
 												"focusable": false
@@ -204,9 +206,9 @@ new FormModel {
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonForward"
 												"text": "<html>&gt;</html>"
-												"maximumSize": new java.awt.Dimension( 32, 24 )
-												"minimumSize": new java.awt.Dimension( 32, 24 )
-												"preferredSize": new java.awt.Dimension( 32, 30 )
+												"maximumSize": new java.awt.Dimension( 24, 24 )
+												"minimumSize": new java.awt.Dimension( 24, 24 )
+												"preferredSize": new java.awt.Dimension( 24, 24 )
 												"toolTipText": new FormMessage( null, "Navigator.buttonForward.toolTipText" )
 												"actionCommand": "NavForward"
 												"focusable": false
@@ -219,9 +221,9 @@ new FormModel {
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonUp"
 												"text": "^"
-												"maximumSize": new java.awt.Dimension( 32, 24 )
-												"minimumSize": new java.awt.Dimension( 32, 24 )
-												"preferredSize": new java.awt.Dimension( 32, 30 )
+												"maximumSize": new java.awt.Dimension( 24, 24 )
+												"minimumSize": new java.awt.Dimension( 24, 24 )
+												"preferredSize": new java.awt.Dimension( 24, 24 )
 												"toolTipText": new FormMessage( null, "Navigator.buttonUp.toolTipText" )
 												"actionCommand": "NavUp"
 												"focusable": false
@@ -243,6 +245,7 @@ new FormModel {
 											"editable": false
 											"maximumSize": new java.awt.Dimension( 2147483647, 30 )
 											"margin": new java.awt.Insets( 0, 6, 0, 6 )
+											"minimumSize": new java.awt.Dimension( 49, 30 )
 										}, new FormLayoutConstraints( class java.lang.String ) {
 											"value": "Center"
 										} )

@@ -1034,15 +1034,6 @@ public class RenamerUI extends AbstractToolDialog
         pd.setDocumentFilter(numberFilter);
     }
 
-    private void setRenamerOptions(int index)
-    {
-        if (index < 0)
-            index = currentConfigIndex;
-
-        RenamerTool renamer = (RenamerTool) configItems.getModel().getValueAt(index, 0);
-        setRenamerOptions(renamer);
-    }
-
     private void setRenamerOptions(RenamerTool renamer)
     {
         if (renamer != null && !loading)

@@ -983,7 +983,6 @@ public class Main
                     System.out.println(message);
             }
         }
-
         return key;
     }
 
@@ -1787,7 +1786,7 @@ public class Main
      * Read either a publisher or subscriber repository
      *
      * @param context  The Context
-     * @param purpose  Is this the PUBLISHER, SUBSCRIBER or HINT_SERVER
+     * @param purpose  Is this the PUBLISHER or SUBSCRIBER
      * @param validate Validate repository against actual directories and files true/false
      * @return Repository object
      * @throws Exception
