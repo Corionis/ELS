@@ -37,10 +37,10 @@ import java.awt.event.*;
  * <br/>
  * See also: <br/>
  *
- *  Menu icon color:  #3592C4 <br/>
- *  Menu icon size:   14x14 px <br/>
- *  Accent color:     #2675BF  see Preferences <br/>
- * <br/>
+ *  Menu icon color:  #3592C4
+ *  Menu icon size:   14x14 px
+ *  Accent color:     #2675BF  see Preferences
+ *
  *  Icon source:  https://www.iconsdb.com
  */
 public class MainFrame extends JFrame
@@ -114,8 +114,6 @@ public class MainFrame extends JFrame
                 menuItemTouch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.META_DOWN_MASK));
                 menuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.META_DOWN_MASK));
             }
-
-            ToolTipManager.sharedInstance().setDismissDelay(30000);
         }
         catch(Exception ex)
         {
@@ -174,8 +172,6 @@ public class MainFrame extends JFrame
         // TODO EXTEND+ Add other Tool checkForChanges() here
         if (context.libraries != null && context.libraries.checkForChanges())
             changes = true;
-        else if (context.navigator.dialogArchiver != null && context.navigator.dialogArchiver.checkForChanges())
-            changes = true;
         else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
             changes = true;
         else if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
@@ -185,8 +181,6 @@ public class MainFrame extends JFrame
         else if (context.navigator.dialogRenamer != null && context.navigator.dialogRenamer.checkForChanges())
             changes = true;
         else if (context.navigator.dialogSleep != null && context.navigator.dialogSleep.checkForChanges())
-            changes = true;
-        else if (context.navigator.dialogEmail != null && context.navigator.dialogEmail.checkForChanges())
             changes = true;
         return changes;
     }
@@ -245,11 +239,6 @@ public class MainFrame extends JFrame
             context.navigator.dialogSleep.requestFocus();
             context.navigator.dialogSleep.saveButton.requestFocus();
         }
-    }
-
-    private void generalOptionsMouseClicked(MouseEvent e)
-    {
-        labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
     }
 
     /**
@@ -473,6 +462,10 @@ public class MainFrame extends JFrame
             if (context.browser != null)
                 context.libraries.selectLastTab();
         }
+    }
+
+    private void generalOptionsMouseClicked(MouseEvent e) {
+        // TODO add your code here
     }
 
   // ================================================================================================================

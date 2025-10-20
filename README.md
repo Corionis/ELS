@@ -2,6 +2,19 @@
 
 # ELS : Entertainment Library Synchronizer
 
+_**Release 4.1**_
+
+Added Email Servers, Archivers and Cleanup Tools along with a number of refinements.
+
+Now automation of scheduled back-up actions can send notification emails of the Mismatches
+and What's New files in plain text or HTML formats. And archive the resulting logs and
+data files then manage how many archive files are retained. This provides a fully self-maintaining
+back-up mechanism that will notify if anything goes wrong with fault emails as well.
+
+OAuth2 support does not work at this time due to providers still implementing and testing.
+However the ELS implementation works through "_Sign-In With_". Unfortunately actually
+sending emails via OAuth2 still does not work.
+
 _**Release 4.0**_
 
 _Note_: ELS is 10 years old. The desktop application, Navigator, is new after 3.5 years of
