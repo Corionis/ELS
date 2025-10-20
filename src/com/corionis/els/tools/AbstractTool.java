@@ -175,6 +175,11 @@ public abstract class AbstractTool implements Comparable, Serializable
 
     abstract public void setConfigName(String configName);
 
+    public void setContext(Context context)
+    {
+        this.context = context;
+    }
+
     public void setDataHasChanged()
     {
         dataHasChanged = true;

@@ -169,7 +169,7 @@ public class LibrariesUI
         currentConfigIndex = configItems.getSelectedRow();
         if (currentConfigIndex >= 0)
         {
-            int reply = JOptionPane.YES_OPTION;
+            int reply = JOptionPane.NO_OPTION;
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
             if (libMeta.key != null && libMeta.key.length() > 0)
             {
@@ -178,7 +178,12 @@ public class LibrariesUI
                 String message = context.cfg.gs("Libraries.this.will.overwrite.any.existing.uuid");
                 String question = context.cfg.gs("Z.are.you.sure");
                 Object[] params = {description, blank, message, question};
-                reply = JOptionPane.showConfirmDialog(mf, params, displayName, JOptionPane.OK_CANCEL_OPTION);
+                Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
+
+                reply = JOptionPane.showOptionDialog(context.mainFrame,
+                        params,
+                        context.cfg.gs("Navigator.splitPane.Libraries.tab.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                        null, opts, opts[1]);
             }
             if (reply == JOptionPane.YES_OPTION)
             {
@@ -191,9 +196,19 @@ public class LibrariesUI
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(mf, mf, context, context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(mf, mf, context, context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.setVisible(true);
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionIgnorePatternAdd(ActionEvent e)
@@ -697,16 +712,21 @@ public class LibrariesUI
 
     private void actionOkClicked(ActionEvent e)
     {
+        LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+
         int state = saveConfigurations();
         if (state < 0)
             return;
 
-        LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
         savePreferences();
 
         int cci = configModel.findIndex(libMeta);
         if (cci >= 0)
+        {
+            currentConfigIndex = cci;
             configItems.setRowSelectionInterval(cci, cci);
+            loadGeneralTab();
+        }
 
         if (state > 0)
             mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.saved"));
@@ -1276,7 +1296,6 @@ public class LibrariesUI
                 column = directoryPicker.table.getColumnModel().getColumn(1);
                 column.setResizable(false);
 
-
                 mf.buttonNew.setEnabled(false);
                 mf.buttonCopy.setEnabled(false);
                 mf.buttonDelete.setEnabled(false);
@@ -1571,11 +1590,8 @@ public class LibrariesUI
 
     public boolean checkForChanges()
     {
-        for (int i = 0; i < deletedLibraries.size(); ++i)
-        {
-            if (deletedLibraries.get(i).isDataChanged())
-                return true;
-        }
+        if (!deletedLibraries.isEmpty())
+            return true;
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -1825,13 +1841,22 @@ public class LibrariesUI
 
         // bibliography tab
         biblioLibrariesTableModel = new BiblioLibrariesTableModel(context);
-        biblioLibrariesTableModel.setColumnCount(1);
+        biblioLibrariesTableModel.setColumnCount(2);
         biblioLibrariesTableModel.setDisplayName(displayName);
         mf.tableBiblioLibraries.setModel(biblioLibrariesTableModel);
 
         mf.tableBiblioLibraries.getTableHeader().setUI(null);
         mf.tableBiblioLibraries.setTableHeader(null);
         mf.scrollPaneBiblioLibraries.setColumnHeaderView(null);
+
+        mf.tableBiblioLibraries.getColumnModel().getColumn(0).setMinWidth(10);
+
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setPreferredWidth(24);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setWidth(24);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setMaxWidth(24);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setMinWidth(24);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setResizable(false);
+        mf.tableBiblioLibraries.getColumnModel().getColumn(1).setCellRenderer(new MatchDateCell(context));
 
         ListSelectionModel blsm = mf.tableBiblioLibraries.getSelectionModel();
         blsm.addListSelectionListener(new ListSelectionListener()
@@ -1856,6 +1881,23 @@ public class LibrariesUI
 
         listSourcesModel = new DefaultListModel();
         mf.listSources.setModel(listSourcesModel);
+        ListSelectionModel slsm = mf.listSources.getSelectionModel();
+        slsm.addListSelectionListener(new ListSelectionListener()
+        {
+            @Override
+            public void valueChanged(ListSelectionEvent listSelectionEvent)
+            {
+                if (!loading && !listSelectionEvent.getValueIsAdjusting())
+                {
+                    ListSelectionModel sm = (ListSelectionModel) listSelectionEvent.getSource();
+                    int index = sm.getMinSelectionIndex();
+                    if (index >= 0 && index != currentSourceIndex)
+                    {
+                        currentSourceIndex = index;
+                    }
+                }
+            }
+        });
 
         // Make Mode objects
         //  * library
@@ -1972,6 +2014,21 @@ public class LibrariesUI
         mf.buttonLibrariesAddIgnore.addActionListener(e -> actionIgnorePatternAdd(e));
         mf.buttonLibrariesRemoveIgnore.addActionListener(e -> actionIgnorePatternRemove(e));
 
+        mf.textFieldEmailAddr.addActionListener(e -> genericAction(e));
+        mf.textFieldEmailAddr.addFocusListener(new FocusAdapter()
+        {
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+                genericTextFieldFocusLost(e);
+            }
+        });
+        mf.comboBoxFormat.addActionListener(e -> genericAction(e));
+        mf.checkBoxMismatches.addActionListener(e -> genericAction(e));
+        mf.checkBoxWhatsNew.addActionListener(e -> genericAction(e));
+        mf.checkBoxSkipOffline.addActionListener(e -> genericAction(e));
+
+
         // locations tab ==========================================
 
         mf.buttonAddLocation.addActionListener(e -> actionLocationAddClicked(e));
@@ -2004,6 +2061,7 @@ public class LibrariesUI
     {
         mf.tableBiblioLibraries.removeAll();
         biblioLibrariesTableModel.getDataVector().removeAllElements();
+        biblioLibrariesTableModel.setEditable(true);
         if (!loading && currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
         {
             loading = true;
@@ -2021,7 +2079,6 @@ public class LibrariesUI
                     biblioLibrariesTableModel.addRow(new Object[]{libraries[i]});
                 }
             }
-            currentLibraryIndex = 0;
 
             biblioLibrariesTableModel.fireTableDataChanged();
 
@@ -2038,7 +2095,11 @@ public class LibrariesUI
             {
                 mf.buttonRemoveLibrary.setEnabled(true);
                 mf.buttonAddSource.setEnabled(true);
-                if (((Library) biblioLibrariesTableModel.getValueAt(currentLibraryIndex, 0)).sources.length > 1)
+
+                int len = libMeta.repo.getLibraryData().libraries.bibliography.length;
+                if (len == 0 || currentLibraryIndex >= len)
+                    currentLibraryIndex = 0;
+                if (libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources.length > 1)
                 {
                     mf.buttonAddMultiSource.setEnabled(true);
                     mf.buttonUpSource.setEnabled(true);
@@ -2049,7 +2110,7 @@ public class LibrariesUI
                     mf.buttonUpSource.setEnabled(false);
                     mf.buttonDownSource.setEnabled(false);
                 }
-                if (((Library) biblioLibrariesTableModel.getValueAt(currentLibraryIndex, 0)).sources.length > 0)
+                if (libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources.length > 0)
                     mf.buttonRemoveSource.setEnabled(true);
 
                 mf.tableBiblioLibraries.changeSelection(currentLibraryIndex, 0, false, false);
@@ -2067,6 +2128,7 @@ public class LibrariesUI
                 mf.buttonUpSource.setEnabled(false);
                 mf.buttonDownSource.setEnabled(false);
                 mf.buttonRemoveSource.setEnabled(false);
+                biblioLibrariesTableModel.setEditable(false);
             }
             else
             {
@@ -2199,6 +2261,21 @@ public class LibrariesUI
                 mf.listLibrariesIgnorePatterns.setModel(model);
                 mf.scrollPaneLibrariesIgnorePatterns.setViewportView(mf.listLibrariesIgnorePatterns);
                 mf.listLibrariesIgnorePatterns.setSelectionInterval(0, 0);
+
+                mf.textFieldEmailAddr.setText((libraries.email));
+                mf.comboBoxFormat.setSelectedItem(libraries.format);
+                if (libraries.mismatches != null)
+                    mf.checkBoxMismatches.setSelected(libraries.mismatches);
+                else
+                    mf.checkBoxMismatches.setSelected(false);
+                if (libraries.whatsNew != null)
+                    mf.checkBoxWhatsNew.setSelected(libraries.whatsNew);
+                else
+                    mf.checkBoxWhatsNew.setSelected(false);
+                if (libraries.skipOffline != null)
+                    mf.checkBoxSkipOffline.setSelected(libraries.skipOffline);
+                else
+                    mf.checkBoxSkipOffline.setSelected(true);
             }
             
             if (repo.isDynamic())
@@ -2219,6 +2296,11 @@ public class LibrariesUI
                 mf.checkBoxTerminalAllowed.setEnabled(false);
                 mf.buttonLibrariesAddIgnore.setEnabled(false);
                 mf.buttonLibrariesRemoveIgnore.setEnabled(false);
+                mf.textFieldEmailAddr.setEnabled(false);
+                mf.comboBoxFormat.setEnabled(false);
+                mf.checkBoxMismatches.setEnabled(false);
+                mf.checkBoxWhatsNew.setEnabled(false);
+                mf.checkBoxSkipOffline.setEnabled(false);
             }
             else 
             {
@@ -2238,6 +2320,11 @@ public class LibrariesUI
                 mf.checkBoxTerminalAllowed.setEnabled(true);
                 mf.buttonLibrariesAddIgnore.setEnabled(true);
                 mf.buttonLibrariesRemoveIgnore.setEnabled(true);
+                mf.textFieldEmailAddr.setEnabled(true);
+                mf.comboBoxFormat.setEnabled(true);
+                mf.checkBoxMismatches.setEnabled(true);
+                mf.checkBoxWhatsNew.setEnabled(true);
+                mf.checkBoxSkipOffline.setEnabled(true);
             }
             
             loading = false;
@@ -2334,16 +2421,20 @@ public class LibrariesUI
                         mf.buttonAddSource.setEnabled(true);
                         if (lib.sources.length > 1)
                         {
-                            mf.buttonAddMultiSource.setEnabled(true);
                             mf.buttonUpSource.setEnabled(true);
                             mf.buttonDownSource.setEnabled(true);
                         }
                         else
                         {
-                            mf.buttonAddMultiSource.setEnabled(false);
                             mf.buttonUpSource.setEnabled(false);
                             mf.buttonDownSource.setEnabled(false);
                         }
+
+                        if (libMeta.repo.getLibraryData().libraries.bibliography.length > 1)
+                            mf.buttonAddMultiSource.setEnabled(true);
+                        else
+                            mf.buttonAddMultiSource.setEnabled(false);
+
                         mf.buttonRemoveSource.setEnabled(true);
                     }
                     if (currentSourceIndex >= 0)
@@ -2506,6 +2597,13 @@ public class LibrariesUI
         else if (lastTab == 2)
         {
             mf.bibliographyTab.requestFocus();
+
+            if (currentConfigIndex >= 0)
+                configItems.setRowSelectionInterval(currentConfigIndex, currentConfigIndex);
+            if (currentLibraryIndex >= 0)
+                mf.tableBiblioLibraries.setRowSelectionInterval(currentLibraryIndex, currentLibraryIndex);
+            if (currentSourceIndex >= 0)
+                mf.listSources.setSelectedIndex(currentSourceIndex);
         }
     }
 
@@ -2568,7 +2666,7 @@ public class LibrariesUI
                                     if (!processJobKeyChanges(libMeta.key, conflicts))
                                     {
                                         tf.setText(libMeta.key); // restore old value
-                                        libMeta.setDataHasChanged();
+                                        libMeta.setDataHasChanged(false);
                                         return;
                                     }
                                 }
@@ -2592,6 +2690,10 @@ public class LibrariesUI
                         case "templocation":
                             current = libMeta.repo.getLibraryData().libraries.temp_location;
                             libMeta.repo.getLibraryData().libraries.temp_location = tf.getText();
+                            break;
+                        case "email":
+                            current = libMeta.repo.getLibraryData().libraries.email;
+                            libMeta.repo.getLibraryData().libraries.email = tf.getText();
                             break;
                     }
                     if (tf != null && current != null && !current.equals(tf.getText()))
@@ -2619,6 +2721,18 @@ public class LibrariesUI
                             state = libMeta.repo.getLibraryData().libraries.terminal_allowed;
                             libMeta.repo.getLibraryData().libraries.terminal_allowed = cb.isSelected();
                             break;
+                        case "mismatches":
+                            state = libMeta.repo.getLibraryData().libraries.mismatches;
+                            libMeta.repo.getLibraryData().libraries.mismatches = cb.isSelected();
+                            break;
+                        case "whatsnew":
+                            state = libMeta.repo.getLibraryData().libraries.whatsNew;
+                            libMeta.repo.getLibraryData().libraries.whatsNew = cb.isSelected();
+                            break;
+                        case "skipoffline":
+                            state = libMeta.repo.getLibraryData().libraries.skipOffline;
+                            libMeta.repo.getLibraryData().libraries.skipOffline = cb.isSelected();
+                            break;
                     }
                     if (state != cb.isSelected())
                     {
@@ -2639,6 +2753,10 @@ public class LibrariesUI
                             current = libMeta.repo.getLibraryData().libraries.flavor.toLowerCase().equals("linux") ? 0 :
                                     (libMeta.repo.getLibraryData().libraries.flavor.toLowerCase().equals("mac") ? 1 : 2);
                             libMeta.repo.getLibraryData().libraries.flavor = (String) combo.getSelectedItem();
+                            break;
+                        case "format":
+                            current = libMeta.repo.getLibraryData().libraries.format.toLowerCase().equals("html") ? 0 : 1;
+                            libMeta.repo.getLibraryData().libraries.format = (String) combo.getSelectedItem();
                             break;
                     }
                     if (index != current)

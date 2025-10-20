@@ -17,8 +17,10 @@ import com.corionis.els.stty.ServeStty;
 import com.corionis.els.stty.hintServer.Datastore;
 import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.Tools;
-
+import com.corionis.els.tools.email.EmailHandler;
+import com.corionis.els.tools.email.EmailTool;
 import com.corionis.els.tools.operations.OperationsTool;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
@@ -47,11 +49,11 @@ import static com.corionis.els.Configuration.*;
 /**
  * ELS main program
  *
- * <p>ELS uses an embedded JRE from the OpenJDK project.<br/>
- * * https://openjdk.org/<br/>
- * * https://github.com/AdoptOpenJDK<br/>
- * * https://github.com/adoptium<br/>
- * * Current https://github.com/adoptium/temurin19-binaries/releases/tag/jdk-19.0.2%2B7<br/>
+ * <p>ELS uses an embedded JRE from the OpenJDK project. <br/>
+ * * https://openjdk.org/ <br/>
+ * * https://github.com/AdoptOpenJDK <br/>
+ * * https://github.com/adoptium< br/>
+ * * Current https://github.com/adoptium/temurin19-binaries/releases/tag/jdk-19.0.2%2B7 <br/>
  */
 public class Main
 {
@@ -61,9 +63,9 @@ public class Main
     public boolean mockMode = false; // instead of downloading get from mock/bin/; see els_updater/Main
     public String operationName = ""; // secondary invocation name
     public boolean primaryExecution = true;
-    public Process process = null;
     public boolean secondaryNavigator = false;
     public Date stamp = new Date(); // runtime stamp for this invocation
+    public String systemKey = "";
     public String whatsRunning = "";
 
     private boolean catchExceptions = true;
@@ -92,7 +94,7 @@ public class Main
     }
 
     /**
-     * Main application constructor for Jobs and Operations
+     * Main application constructor for Jobs
      */
     public Main(String[] args, Context context, String operationName)
     {
@@ -377,12 +379,9 @@ public class Main
                         if (gui)
                         {
                             String prompt = context.cfg.gs("Navigator.install.update.version");
-                            //String mprompt = context.cfg.gs("Navigator.install.new.version");
-                            //message = java.text.MessageFormat.format(Utils.isOsMac() ? mprompt : prompt,
                             message = java.text.MessageFormat.format(prompt,
                                     Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
                             Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
-                            //Object[] mopts = {context.cfg.gs("Z.goto.website"), context.cfg.gs("Z.cancel"), context.cfg.gs("Navigator.recent.changes")};
                             reply = JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                                     JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null,
                                     opts, opts[0]);
@@ -470,7 +469,7 @@ public class Main
     /**
      * Check for the basic directory structure, create as needed
      * <p>
-     * Call -after- localContext.cfg.configureWorkingDirectory
+     * Call -after- localContext.cfg.configureWorkingDirectory()
      */
     public void checkWorkingDirectories() throws Exception
     {
@@ -483,12 +482,152 @@ public class Main
                 Files.createDirectories(dir);
         }
 
-        String[] toolDirs = {"JunkRemover", "Operations", "Renamer", "Sleep"};
+        String[] toolDirs = {"Archiver", "JunkRemover", "Operations", "Renamer", "Sleep"};
         for (int i = 0; i < toolDirs.length; ++i)
         {
             Path dir = Paths.get(working, "tools", toolDirs[i]);
             if (!Files.exists(dir))
                 Files.createDirectories(dir);
+        }
+
+        // make sure there is a system key
+        systemKey = getSystemKey();
+    }
+
+    /**
+     * Setup hint keys & tracking, connect to Hint Server if specified
+     * <br/><br/>
+     * Hint Keys are required for Hint Tracking/Daemon.<br/><br/>
+     * Will connect to a Hint Server, if specified, or local Hint Tracker, if specified.
+     * If none of those things are defined in the configuration this method simply returns.
+     *
+     * @param repo The Repository that is connecting to the tracker/server
+     * @throws Exception Configuration and connection exceptions
+     */
+    public void connectHints(Repository repo) throws Exception
+    {
+        String msg = "";
+        try
+        {
+            if (context.cfg.isHintTrackingEnabled() || context.cfg.getHintKeysFile().length() > 0)
+            {
+                if (context.cfg.getHintKeysFile().length() > 0)
+                {
+                    // Hints Keys
+                    context.hintKeys = new HintKeys(context);
+                    msg = context.cfg.gs("Main.exception.while.reading.hint.keys");
+                    context.hintKeys.read(context.cfg.getHintKeysFile());
+                    context.hintsHandler = new Hints(context, context.hintKeys);
+                    context.preferences.setLastHintKeysIsOpen(true);
+                }
+                else
+                {
+                    if (!context.cfg.isQuitStatusServer())
+                        throw new MungeException(context.cfg.gs("Main.hint.keys.are.required.to.use.hint.tracking"));
+                }
+
+                if (context.cfg.isHintTrackingEnabled())
+                {
+                    context.hintsRepo = new Repository(context, Repository.HINT_SERVER);
+
+                    // Remote Hint Status Server
+                    if (context.cfg.getHintsDaemonFilename().length() > 0 && repo != null)
+                    {
+                        // exceptions handle by read()
+                        catchExceptions = false;
+                        msg = context.cfg.gs("Main.exception.while.reading.hint.server");
+
+                        if (context.hintsRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true))
+                        {
+                            catchExceptions = true;
+
+                            // start the hintsStty client connection to the Hint Status Server
+                            context.hintsStty = new ClientStty(context, false, true, true); //primaryServers);
+                            if (!context.hintsStty.connect(repo, context.hintsRepo))
+                            {
+                                msg = "";
+                                throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Main.hint.status.server.failed.to.connect"),
+                                        context.hintsRepo.getLibraryData().libraries.description));
+                            }
+
+                            String response = context.hintsStty.receive("", 5000); // check the initial prompt
+                            if (!response.startsWith("CMD"))
+                            {
+                                msg = "";
+                                throw new MungeException(context.cfg.gs("Main.bad.initial.response.from.hint.status.server") +
+                                        context.hintsRepo.getLibraryData().libraries.description);
+                            }
+
+                            context.preferences.setLastHintTrackingIsRemote(true);
+                            context.preferences.setLastHintTrackingIsOpen(true);
+                        }
+                        else
+                        {
+                            catchExceptions = true;
+                            context.cfg.setHintsDaemonFilename("");
+                        }
+                    }
+                    else // Local Hint Tracker
+                    {
+                        // exceptions handle by read()
+                        catchExceptions = false;
+                        msg = context.cfg.gs("Main.exception.while.reading.hint.tracker");
+
+                        if (context.hintsRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
+                        {
+                            // Setup the Hint Tracker datastore, single instance
+                            catchExceptions = true;
+                            context.datastore = new Datastore(context);
+                            boolean valid = context.datastore.initialize();
+                            if (!valid)
+                            {
+                                throw new MungeException(context.cfg.gs("Main.error.initializing.from.hint.status.server.json.file"));
+                            }
+
+                            context.preferences.setLastHintTrackingIsRemote(false);
+                            context.preferences.setLastHintTrackingIsOpen(true);
+                        }
+                        else
+                        {
+                            catchExceptions = true;
+                            context.cfg.setHintTrackerFilename("");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                context.preferences.setLastHintKeysIsOpen(false);
+                context.preferences.setLastHintTrackingIsOpen(false);
+            }
+        }
+        catch (Exception e)
+        {
+            if (catchExceptions)
+            {
+                msg = (msg.length() > 0 ? msg : "") + e.getMessage();
+                logger.error(msg);
+
+                //context.cfg.setHintKeysFile("");
+                context.cfg.setHintsDaemonFilename("");
+                context.cfg.setHintTrackerFilename("");
+                context.hintsRepo = null;
+
+                if (isStartupActive())
+                {
+                    int opt = JOptionPane.showConfirmDialog(context.guiLogAppender.getStartup(),
+                            "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
+                            context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                    if (opt == JOptionPane.YES_OPTION)
+                    {
+                        context.preferences.setLastHintTrackingIsOpen(false);
+                        context.fault = false;
+                        return;
+                    }
+                }
+                catchExceptions = false;
+            }
+            throw new MungeException(msg);
         }
     }
 
@@ -502,12 +641,14 @@ public class Main
     {
         try
         {
+            Persistent.couldNotConnect = false;
             if (context.publisherRepo != null && context.subscriberRepo != null)
             {
                 // start the clientStty
                 context.clientStty = new ClientStty(context, isTerminal, true, false);
                 if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                 {
+                    Persistent.couldNotConnect = true;
                     throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Main.remote.subscriber.failed.to.connect"),
                             context.subscriberRepo.getLibraryData().libraries.description));
                 }
@@ -523,16 +664,12 @@ public class Main
         {
             String msg = e.getMessage();
             logger.error(msg);
-
             context.clientStty = null;
             context.clientSftp = null;
             context.clientSftpMetadata = null;
-            context.subscriberRepo = null;
             context.cfg.setOperation("-");
-            context.cfg.setSubscriberCollectionFilename("");
-            context.cfg.setSubscriberLibrariesFileName("");
 
-            if (isStartupActive())
+            if (isStartupActive() && promptOnFailure)
             {
                 int opt = JOptionPane.showConfirmDialog(context.guiLogAppender.getStartup(),
                         "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
@@ -593,25 +730,28 @@ public class Main
     public synchronized byte[] encrypt(String key, String text)
     {
         byte[] encrypted = {};
-        try
+        if (text.length() > 0)
         {
-            // Create key and cipher
-            key = key.replaceAll("-", "");
-            if (key.length() > 16)
+            try
             {
-                key = key.substring(0, 16);
+                // Create key and cipher
+                key = key.replaceAll("-", "");
+                if (key.length() > 16)
+                {
+                    key = key.substring(0, 16);
+                }
+                //logger.trace("  encrypt with " + key + ", " + text + ", " + whatsRunning); // todo comment out
+                Key aesKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+                Cipher cipher = Cipher.getInstance("AES");
+                // encrypt the text
+                cipher.init(Cipher.ENCRYPT_MODE, aesKey);
+                //logger.trace("  encrypted " + text.getBytes().length + " bytes, " + whatsRunning);  // todo comment out
+                encrypted = cipher.doFinal(text.getBytes("UTF-8"));
             }
-            //logger.trace("  encrypt with " + key + ", " + text + ", " + whatsRunning); // todo comment out
-            Key aesKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
-            Cipher cipher = Cipher.getInstance("AES");
-            // encrypt the text
-            cipher.init(Cipher.ENCRYPT_MODE, aesKey);
-            //logger.trace("  encrypted " + text.getBytes().length + " bytes, " + whatsRunning);  // todo comment out
-            encrypted = cipher.doFinal(text.getBytes("UTF-8"));
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage());
+            catch (Exception e)
+            {
+                logger.error(e.getMessage());
+            }
         }
         return encrypted;
     }
@@ -758,7 +898,7 @@ public class Main
             }
             catch (InterruptedException ignore)
             {
-                logger.error("OOPS! ");
+                logger.error("OOPS!");
             }
         }
     }
@@ -776,6 +916,74 @@ public class Main
         Map<String, Appender> appenders = loggerConfig.getAppenders();
         context.guiLogAppender = (GuiLogAppender) appenders.get("GuiLogAppender");
         context.rollingFileAppender = (RollingFileAppender) appenders.get("applog");
+    }
+
+    public String getSystemKey()
+    {
+        String key = null;
+        boolean writeNew = false;
+
+        String fileName = System.getProperty("user.dir") + System.getProperty("file.separator") + "local" + System.getProperty("file.separator") + "els.key";
+        File file = new File(fileName);
+        if (file.exists())
+        {
+            try
+            {
+                BufferedReader br = new BufferedReader(new FileReader(fileName));
+                String line;
+                while ((line = br.readLine()) != null)
+                {
+                    line = line.trim();
+                    if (line.length() > 0 && !line.startsWith("#"))
+                    {
+                        key = line;
+                        break;
+                    }
+                }
+            }
+            catch (IOException e)
+            {
+                writeNew = true;
+            }
+        }
+        else
+            writeNew = true;
+
+        if (writeNew)
+        {
+            boolean gui = (context.cfg.isNavigator() && context.navigator != null &&
+                    !(context.cfg.isCheckForUpdate() || context.cfg.isInstallUpdate()));
+
+            UUID uuid = java.util.UUID.randomUUID();
+            key = uuid.toString();
+            try
+            {
+                BufferedWriter fw = new BufferedWriter(new FileWriter(fileName));
+                String header;
+                header = "# ELS System Key" + System.getProperty("line.separator");
+                header += "# Auto-generated when ELS is first launched." + System.getProperty("line.separator");
+                header += "# Used for encrypting passwords and tokens." + System.getProperty("line.separator");
+                header += "# ***DO NOT*** change this key." + System.getProperty("line.separator");
+                header += "#" + System.getProperty("line.separator");
+                fw.write(header + System.getProperty("line.separator"));
+                fw.write(key + System.getProperty("line.separator") + System.getProperty("line.separator"));
+                fw.close();
+            }
+            catch (Exception e)
+            {
+                String message = context.cfg.gs("Main.error.writing.system.key") + Utils.getStackTrace(e);
+                logger.error(message);
+                if (gui)
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    JOptionPane.showMessageDialog(context.mainFrame, message +
+                            e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+                else
+                    System.out.println(message);
+            }
+        }
+        return key;
     }
 
     /**
@@ -874,6 +1082,8 @@ public class Main
             logger = LogManager.getLogger("applog");
             context.trace = context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
 
+            Persistent.couldNotConnect = false;
+
             context.preferences = new Preferences();
             Utils.readPreferences(context);
             context.preferences.setContext(context);
@@ -929,7 +1139,7 @@ public class Main
                         context.tools.loadAllTools(context, null);
 
                         // setup the hint status server if defined
-                        setupHints(context.publisherRepo);
+                        connectHints(context.publisherRepo);
 
                         context.navigator = new Navigator(context);
                         if (!context.fault)
@@ -959,12 +1169,12 @@ public class Main
                         }
 
                         // setup the hint status server for local use if defined
-                        setupHints(context.publisherRepo);
+                        connectHints(context.publisherRepo);
 
                         // the Process class handles the ELS process
-                        process = new Process(context);
-                        process.process();
-                        process = null;
+                        context.process = new Process(context);
+                        context.process.process();
+                        context.process = null;
                     }
                     break;
 
@@ -987,7 +1197,7 @@ public class Main
                             context.cfg.disableHintTracking();
                             logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
                         }
-                        setupHints(context.publisherRepo);
+                        connectHints(context.publisherRepo);
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("publisher.listener");
@@ -1024,7 +1234,7 @@ public class Main
                             context.cfg.disableHintTracking();
                             logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
                         }
-                        setupHints(context.publisherRepo);
+                        connectHints(context.publisherRepo);
 
                         // start the serveStty client interactively
                         if (connectSubscriber(true, false))
@@ -1065,7 +1275,7 @@ public class Main
                     {
                         // connect to the hint status server if defined
                         boolean commOk = true;
-                        setupHints(context.publisherRepo);
+                        connectHints(context.publisherRepo);
 
                         // start the serveStty client for automation
                         if (connectSubscriber(false, true))
@@ -1109,9 +1319,9 @@ public class Main
                             if (commOk)
                             {
                                 // the Process class handles the ELS process
-                                process = new Process(context);
-                                process.process();
-                                process = null;
+                                context.process = new Process(context);
+                                context.process.process();
+                                context.process = null;
                             }
                         }
                     }
@@ -1154,7 +1364,7 @@ public class Main
                             context.cfg.disableHintTracking();
                             logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
                         }
-                        setupHints(context.subscriberRepo);
+                        connectHints(context.subscriberRepo);
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("subscriber.listener");
@@ -1191,7 +1401,7 @@ public class Main
                             context.cfg.disableHintTracking();
                             logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
                         }
-                        setupHints(context.subscriberRepo);
+                        connectHints(context.subscriberRepo);
 
                         // start the serveStty client interactively
                         if (connectSubscriber(true, false))
@@ -1294,7 +1504,7 @@ public class Main
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
 
-                    setupHints(context.publisherRepo);
+                    connectHints(context.publisherRepo);
 
                     if (context.publisherRepo.isInitialized() && context.hintsStty.isConnected())
                     {
@@ -1405,7 +1615,7 @@ public class Main
                         context.cfg.dump();
 
                         // setup the hint status server if defined
-                        setupHints(context.publisherRepo);
+                        connectHints(context.publisherRepo);
 
                         context.transfer = new Transfer(context);
                         context.transfer.initialize();
@@ -1576,7 +1786,7 @@ public class Main
      * Read either a publisher or subscriber repository
      *
      * @param context  The Context
-     * @param purpose  Is this the PUBLISHER, SUBSCRIBER or HINT_SERVER
+     * @param purpose  Is this the PUBLISHER or SUBSCRIBER
      * @param validate Validate repository against actual directories and files true/false
      * @return Repository object
      * @throws Exception
@@ -1722,6 +1932,59 @@ public class Main
         return input;
     }
 
+    public void sendFaultEmail()
+    {
+        String toolName = "";
+
+        // with layers of threads and cloned objects do not sent fault notifications more than once
+        if (Persistent.faultEmailSent)
+            return;
+
+        Persistent.faultEmailSent = true;
+
+        if (context.cfg.getEmailServer().length() > 0)
+            toolName = context.cfg.getEmailServer(); // on command line
+        else
+            toolName = context.preferences.getDefaultEmailServer(); // use default in Preferences
+
+        if (toolName == null || toolName.length() == 0)
+        {
+            logger.warn(context.cfg.gs(context.cfg.gs("Main.cannot.send.fault.email")));
+            return;
+        }
+
+        Tools emailTools = new Tools();
+        try
+        {
+            emailTools.loadAllTools(context, EmailTool.INTERNAL_NAME);
+        }
+        catch (Exception ex)
+        {
+            logger.error(Utils.getStackTrace(ex));
+            return;
+        }
+
+        EmailTool tool = (EmailTool) emailTools.getTool(EmailTool.INTERNAL_NAME, toolName);
+        if (tool != null)
+        {
+            EmailHandler emailHandler = new EmailHandler(context, null, tool, EmailHandler.Function.FAULT);
+            emailHandler.start();
+
+            try
+            {
+                while (emailHandler.isAlive())
+                {
+                    Thread.sleep(500);
+                }
+            }
+            catch (InterruptedException ie)
+            {
+            }
+        }
+        else
+            logger.error(context.cfg.gs("Process.email.tool.not.found") + toolName);
+    }
+
     /**
      * Walk through all nested Contexts and set isListening for this process
      *
@@ -1738,143 +2001,6 @@ public class Main
     }
 
     /**
-     * Setup hint keys & tracking, connect to Hint Server if specified
-     * <br/><br/>
-     * Hint Keys are required for Hint Tracking/Daemon.<br/><br/>
-     * Will connect to a Hint Server, if specified, or local Hint Tracker, if specified.
-     * If none of those things are defined in the configuration this method simply returns.
-     *
-     * @param repo The Repository that is connecting to the tracker/server
-     * @throws Exception Configuration and connection exceptions
-     */
-    public void setupHints(Repository repo) throws Exception
-    {
-        String msg = "";
-        try
-        {
-            if (context.cfg.isHintTrackingEnabled() || context.cfg.getHintKeysFile().length() > 0)
-            {
-                if (context.cfg.getHintKeysFile().length() > 0)
-                {
-                    // Hints Keys
-                    context.hintKeys = new HintKeys(context);
-                    msg = context.cfg.gs("Main.exception.while.reading.hint.keys");
-                    context.hintKeys.read(context.cfg.getHintKeysFile());
-                    context.hintsHandler = new Hints(context, context.hintKeys);
-                    context.preferences.setLastHintKeysIsOpen(true);
-                }
-                else
-                {
-                    if (!context.cfg.isQuitStatusServer())
-                        throw new MungeException(context.cfg.gs("Main.hint.keys.are.required.to.use.hint.tracking"));
-                }
-
-                if (context.cfg.isHintTrackingEnabled())
-                {
-                    context.hintsRepo = new Repository(context, Repository.HINT_SERVER);
-
-                    // Remote Hint Status Server
-                    if (context.cfg.getHintsDaemonFilename().length() > 0 && repo != null)
-                    {
-                        // exceptions handle by read()
-                        catchExceptions = false;
-                        msg = context.cfg.gs("Main.exception.while.reading.hint.server");
-
-                        if (context.hintsRepo.read(context.cfg.getHintsDaemonFilename(), "Hint Status Server", true))
-                        {
-                            catchExceptions = true;
-
-                            // start the hintsStty client connection to the Hint Status Server
-                            context.hintsStty = new ClientStty(context, false, true, true); //primaryServers);
-                            if (!context.hintsStty.connect(repo, context.hintsRepo))
-                            {
-                                msg = "";
-                                throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("Main.hint.status.server.failed.to.connect"),
-                                        context.hintsRepo.getLibraryData().libraries.description));
-                            }
-
-                            String response = context.hintsStty.receive("", 5000); // check the initial prompt
-                            if (!response.startsWith("CMD"))
-                            {
-                                msg = "";
-                                throw new MungeException(context.cfg.gs("Main.bad.initial.response.from.hint.status.server") +
-                                        context.hintsRepo.getLibraryData().libraries.description);
-                            }
-
-                            context.preferences.setLastHintTrackingIsRemote(true);
-                            context.preferences.setLastHintTrackingIsOpen(true);
-                        }
-                        else
-                        {
-                            catchExceptions = true;
-                            context.cfg.setHintsDaemonFilename("");
-                        }
-                    }
-                    else // Local Hint Tracker
-                    {
-                        // exceptions handle by read()
-                        catchExceptions = false;
-                        msg = context.cfg.gs("Main.exception.while.reading.hint.tracker");
-
-                        if (context.hintsRepo.read(context.cfg.getHintTrackerFilename(), "Hint Tracker", true))
-                        {
-                            // Setup the Hint Tracker datastore, single instance
-                            catchExceptions = true;
-                            context.datastore = new Datastore(context);
-                            boolean valid = context.datastore.initialize();
-                            if (!valid)
-                            {
-                                throw new MungeException(context.cfg.gs("Main.error.initializing.from.hint.status.server.json.file"));
-                            }
-
-                            context.preferences.setLastHintTrackingIsRemote(false);
-                            context.preferences.setLastHintTrackingIsOpen(true);
-                        }
-                        else
-                        {
-                            catchExceptions = true;
-                            context.cfg.setHintTrackerFilename("");
-                        }
-                    }
-                }
-            }
-            else
-            {
-                context.preferences.setLastHintKeysIsOpen(false);
-                context.preferences.setLastHintTrackingIsOpen(false);
-            }
-        }
-        catch (Exception e)
-        {
-            if (catchExceptions)
-            {
-                msg = (msg.length() > 0 ? msg : "") + e.getMessage();
-                logger.error(msg);
-
-                //context.cfg.setHintKeysFile("");
-                context.cfg.setHintsDaemonFilename("");
-                context.cfg.setHintTrackerFilename("");
-                context.hintsRepo = null;
-
-                if (isStartupActive())
-                {
-                    int opt = JOptionPane.showConfirmDialog(context.guiLogAppender.getStartup(),
-                            "<html><body>" + msg + "<br/><br/>" + context.cfg.gs(("Main.continue")) + "</body></html>",
-                            context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
-                    if (opt == JOptionPane.YES_OPTION)
-                    {
-                        context.preferences.setLastHintTrackingIsOpen(false);
-                        context.fault = false;
-                        return;
-                    }
-                }
-                catchExceptions = false;
-            }
-            throw new MungeException(msg);
-        }
-    }
-
-    /**
      * Shutdown services and display the stop verbiage
      *
      * Call BEFORE System.exit() as appropriate outside any shutDownHook()
@@ -1883,6 +2009,11 @@ public class Main
     {
         try
         {
+            if (context.fault && !context.cfg.isNavigator() && !Persistent.faultEmailSent)
+            {
+                sendFaultEmail();
+            }
+
             logger.trace(context.cfg.gs("Main.shutdown.via.main"));
             if (context.main.job != null || (context.previousContext != null && context.previousContext.main.job != null))
             {
@@ -1973,6 +2104,8 @@ public class Main
 
     /**
      * Log completion statistics
+     * <p>
+     * Logged as FATAL so the completion is always logged unless OFF
      */
     public void stopVerbiage()
     {

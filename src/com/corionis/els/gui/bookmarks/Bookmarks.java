@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class Bookmarks implements Serializable
+public class Bookmarks implements Cloneable, Serializable
 {
     ArrayList<Bookmark> bookmarks;
     transient Context context;
@@ -32,6 +32,18 @@ public class Bookmarks implements Serializable
             delete(bookmark);
         }
         bookmarks.add(bookmark);
+    }
+
+    @Override
+    public Object clone()
+    {
+        Bookmarks clone;
+        clone = new Bookmarks(context);
+        for (Bookmark bookmark : bookmarks)
+        {
+            clone.add((Bookmark) bookmark.clone());
+        }
+        return clone;
     }
 
     public void delete(Bookmark bookmark)

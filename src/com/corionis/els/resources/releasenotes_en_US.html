@@ -178,14 +178,14 @@
     <li><p>Added --marker &quot;arg&quot; to aid in identifying a running process. Any &quot;arg&quot; is ignored.
         This option has no effect on ELS and is intended to help with scripting.</p>
     </li>
-    <li><p>Added -O | --override-subscriber-host [address:port]. If address:port is defined that is used,
-        otherwise the Listen port is used for out-going connections to a Subscriber instead of the host.
+    <li><p>Added -O | --override-subscriber-server [address:port]. If address:port is defined that is used,
+        otherwise the Listen port is used for out-going connections to a Subscriber instead of the server.
         Subscriber listeners use the Listen address unless the [address:port] is defined. If Listen is
         not defined the Host is used. Outgoing connections use the Host address unless the -O option
         for Listen or the [address:port] are defined.</p>
     </li>
-    <li><p>Added -J | --override-hint-host to use the listen address:port for out-going connections
-        to a Hint Server instead of the host. Used for outgoing LAN connections where host is used
+    <li><p>Added -J | --override-hint-server to use the listen address:port for out-going connections
+        to a Hint Server instead of the server. Used for outgoing LAN connections where server is used
         over the Internet. Hint Server uses the Listen address. There is no optional [address:port]
         because there can be only one.</p>
     </li>

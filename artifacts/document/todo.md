@@ -3,13 +3,17 @@
 
 ## Current Short-List
 
-#### Short List
- * Regression Test from a scratch installation.
-   * No pre-defined JSON files.
- * Test scripts, and match run profiles to o/s scripts
+! Update ELS Plex Generator
+! Test on Windows where software is in AppData
+* Test scripts, and match run profiles to o/s scripts
+
+
+### Ideas
+ + Version 5 users can "subscribe" to Mismatches and What's New
+ + Add stty command to retrieve Subscriber users who have "subscribed" to Mismatches and/or What's New.
 
 #### Thoughts
- * ELS is going to need "reconnect" logic if a remote Subscriber or Hint Server connection fails.
+ * ELS is going to need "reconnect" logic if a remote Subscriber or Hint Server connection fails, reboots, etc.
 
 ### Issues
 

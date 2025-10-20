@@ -465,6 +465,28 @@ public class Utils
     }
 
     /**
+     * Gets last path that exists
+     *
+     * @param full the full
+     * @param sep  The directory separator for the local O/S, if null get separator from full
+     * @return the last path
+     */
+    public static synchronized String getLastExistingPath(String full, String sep)
+    {
+        String path = full;
+        if (sep == null)
+            sep = getSeparatorFromPath(full);
+        while (path.length() > 0)
+        {
+            File file = new File(path);
+            if (file.exists())
+                break;
+            path = getLeftPath(path, sep);
+        }
+        return path;
+    }
+
+    /**
      * Gets last path that includes a filename
      *
      * @param full the full
@@ -1131,6 +1153,7 @@ public class Utils
         path = path.replaceAll(separator, "|");
         separator = "/";
         path = path.replaceAll(separator, "|");
+        path = path.replaceAll("\\|\\|", "|");
         return path;
     }
 

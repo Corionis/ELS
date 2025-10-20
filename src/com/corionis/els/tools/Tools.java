@@ -1,5 +1,8 @@
 package com.corionis.els.tools;
 
+import com.corionis.els.tools.archiver.ArchiverTool;
+import com.corionis.els.tools.cleanup.CleanupTool;
+import com.corionis.els.tools.email.EmailTool;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.corionis.els.Context;
@@ -8,10 +11,11 @@ import com.corionis.els.tools.junkremover.JunkRemoverTool;
 import com.corionis.els.tools.renamer.RenamerTool;
 import com.corionis.els.tools.sleep.SleepTool;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,18 +58,6 @@ public class Tools
     }
 
     /**
-     * Get currently-loaded list of tools, does not include Jobs
-     *
-     * @return List of tools
-     */
-    public ArrayList<AbstractTool> getToolList(Context context) throws Exception
-    {
-        if (toolList == null)
-            loadAllTools(context, null);
-        return toolList;
-    }
-
-    /**
      * Load a specific tool from disk
      *
      * @param context The Context
@@ -78,7 +70,103 @@ public class Tools
     {
         AbstractTool tool = null;
 
-        if (internalName.equals(OperationsTool.INTERNAL_NAME))
+        if (internalName.equals(ArchiverTool.INTERNAL_NAME))
+        {
+            // begin Archiver
+            ArchiverTool tmpTool = new ArchiverTool(context);
+            File toolDir = new File(tmpTool.getDirectoryPath());
+            if (toolDir.exists() && toolDir.isDirectory())
+            {
+                ArchiverParser ArchiverParser = new ArchiverParser();
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
+                {
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
+                    {
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
+                        if (json != null)
+                        {
+                            AbstractTool but = ArchiverParser.parseTool(context, json);
+                            if (but != null)
+                            {
+                                if (but.getConfigName().equalsIgnoreCase(configName))
+                                {
+                                    tool = but;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end Archiver
+        }
+        else if (internalName.equals(CleanupTool.INTERNAL_NAME))
+        {
+            // begin Cleanup
+            CleanupTool tmpTool = new CleanupTool(context);
+            File toolDir = new File(tmpTool.getDirectoryPath());
+            if (toolDir.exists() && toolDir.isDirectory())
+            {
+                CleanupParser CleanupParser = new CleanupParser();
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
+                {
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
+                    {
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
+                        if (json != null)
+                        {
+                            AbstractTool but = CleanupParser.parseTool(context, json);
+                            if (but != null)
+                            {
+                                if (but.getConfigName().equalsIgnoreCase(configName))
+                                {
+                                    tool = but;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end Cleanup
+        }
+        else if (internalName.equals(EmailTool.INTERNAL_NAME))
+        {
+            // begin Email
+            EmailTool tmpTool = new EmailTool(context);
+            File toolDir = new File(tmpTool.getDirectoryPath());
+            if (toolDir.exists() && toolDir.isDirectory())
+            {
+                EmailParser emailParser = new EmailParser();
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
+                {
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
+                    {
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
+                        if (json != null)
+                        {
+                            AbstractTool but = emailParser.parseTool(context, json);
+                            if (but != null)
+                            {
+                                if (but.getConfigName().equalsIgnoreCase(configName))
+                                {
+                                    tool = but;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end Email
+        }
+        else if (internalName.equals(OperationsTool.INTERNAL_NAME))
         {
             // begin Operations
             OperationsTool tmpTool = new OperationsTool(context);
@@ -86,12 +174,13 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 OperationParser operationParser = new OperationParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-                for (File entry : files)
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
                 {
-                    if (!entry.isDirectory())
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                         if (json != null)
                         {
                             AbstractTool but = operationParser.parseTool(context, json);
@@ -117,12 +206,13 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 JunkRemoverParser junkRemoverParser = new JunkRemoverParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-                for (File entry : files)
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
                 {
-                    if (!entry.isDirectory())
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                         if (json != null)
                         {
                             AbstractTool jrt = junkRemoverParser.parseTool(context, json);
@@ -148,12 +238,13 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 RenamerParser renamerParser = new RenamerParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-                for (File entry : files)
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
                 {
-                    if (!entry.isDirectory())
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                         if (json != null)
                         {
                             AbstractTool jrt = renamerParser.parseTool(context, json);
@@ -179,12 +270,13 @@ public class Tools
             if (toolDir.exists() && toolDir.isDirectory())
             {
                 SleepParser sleepParser = new SleepParser();
-                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-                for (File entry : files)
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+                for (Path entry : directoryStream)
                 {
-                    if (!entry.isDirectory())
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
                     {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                        String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                         if (json != null)
                         {
                             AbstractTool slp = sleepParser.parseTool(context, json);
@@ -248,6 +340,36 @@ public class Tools
 
         if (toolList != toolObjects)
             toolList = new ArrayList<AbstractTool>();
+
+        // begin ArchiverUI
+        if (internalName == null || internalName.equals(ArchiverTool.INTERNAL_NAME))
+        {
+            toolParser = new ArchiverParser();
+            ArchiverTool tmpArchiver = new ArchiverTool(context);
+            toolDir = new File(tmpArchiver.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end ArchiverUI
+
+        // begin CleanupUI
+        if (internalName == null || internalName.equals(CleanupTool.INTERNAL_NAME))
+        {
+            toolParser = new CleanupParser();
+            CleanupTool tmpCleanup = new CleanupTool(context);
+            toolDir = new File(tmpCleanup.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end CleanupUI
+
+        // begin EmailUI
+        if (internalName != null && internalName.equals(EmailTool.INTERNAL_NAME)) // must be specified
+        {
+            toolParser = new EmailParser();
+            EmailTool tmpEmail = new EmailTool(context);
+            toolDir = new File(tmpEmail.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end EmailUI
 
         // begin OperationsUI
         if (internalName == null || internalName.equals(OperationsTool.INTERNAL_NAME))
@@ -316,7 +438,19 @@ public class Tools
     public AbstractTool makeTempTool(String internalName, Context context)
     {
         AbstractTool tmpTool = null;
-        if (internalName.equals(OperationsTool.INTERNAL_NAME))
+        if (internalName.equals(ArchiverTool.INTERNAL_NAME))
+        {
+            tmpTool = new ArchiverTool(context);
+        }
+        else if (internalName.equals(CleanupTool.INTERNAL_NAME))
+        {
+            tmpTool = new CleanupTool(context);
+        }
+        else if (internalName.equals(EmailTool.INTERNAL_NAME))
+        {
+            tmpTool = new EmailTool(context);
+        }
+        else if (internalName.equals(OperationsTool.INTERNAL_NAME))
         {
             tmpTool = new OperationsTool(context);
         }
@@ -349,12 +483,13 @@ public class Tools
     {
         if (toolDir.exists() && toolDir.isDirectory())
         {
-            File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, true);
-            for (File entry : files)
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(toolDir.toPath());
+            for (Path entry : directoryStream)
             {
-                if (!entry.isDirectory())
+                boolean isDir = Files.isDirectory(entry);
+                if (!isDir)
                 {
-                    String json = new String(Files.readAllBytes(Paths.get(entry.getCanonicalPath())));
+                    String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                     if (json != null)
                     {
                         AbstractTool tool = parser.parseTool(context, json);
@@ -378,6 +513,93 @@ public class Tools
     }
 
     //=================================================================================================================
+
+    /**
+     * ToolParserI implementation for the ArchiverTool
+     */
+    private class ArchiverParser implements ToolParserI
+    {
+        /**
+         * Parse a ArchiverTool
+         */
+        @Override
+        public AbstractTool parseTool(Context context, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new ArchiverTool(context);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(ArchiverTool.class, new objInstanceCreator());
+            ArchiverTool tool = builder.create().fromJson(json, ArchiverTool.class);
+            return tool;
+        }
+    }
+
+    /**
+     * ToolParserI implementation for the CleanupTool
+     */
+    private class CleanupParser implements ToolParserI
+    {
+        /**
+         * Parse a CleanupTool
+         */
+        @Override
+        public AbstractTool parseTool(Context context, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new CleanupTool(context);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(CleanupTool.class, new objInstanceCreator());
+            CleanupTool tool = builder.create().fromJson(json, CleanupTool.class);
+            return tool;
+        }
+    }
+
+    /**
+     * ToolParserI implementation for the EmailTool
+     */
+    private class EmailParser implements ToolParserI
+    {
+        /**
+         * Parse a EmailTool
+         *
+         * Treated like a Tool but under the System menu. Does not appear under Jobs, Tasks, Add ...
+         *
+         * @param context The Context
+         * @param json String of JSON to parse
+         * @return AbstractTool instance
+         */
+        @Override
+        public AbstractTool parseTool(Context context, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new EmailTool(context);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(EmailTool.class, new objInstanceCreator());
+            EmailTool tool = builder.create().fromJson(json, EmailTool.class);
+            return tool;
+        }
+    }
 
     /**
      * ToolParserI implementation for the OperationsTool

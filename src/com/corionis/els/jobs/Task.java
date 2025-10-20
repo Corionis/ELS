@@ -2,6 +2,7 @@ package com.corionis.els.jobs;
 
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
+import com.corionis.els.Persistent;
 import com.corionis.els.Utils;
 import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
@@ -22,6 +23,7 @@ public class Task implements Comparable, Serializable
 
     public String configName = null; // name of tool configuration
     public String internalName = null; // internal name of tool
+    public String emailTool = "";
     public String hintsKey = "";
     public boolean hintsOverrideHost = false;
     public String hintsPath = "";
@@ -39,7 +41,6 @@ public class Task implements Comparable, Serializable
     transient public boolean dryRun = false; // set before calling process(task)
     transient public Repository hintsRepo = null;
     transient public Context localContext = null;
-    transient public Context originalContext = null;
     transient public Task previousTask = null;
     transient public Repository publisherRepo = null;
     transient public String remoteType = null;
@@ -51,6 +52,7 @@ public class Task implements Comparable, Serializable
     {
         // hide default constructor
     }
+
     /**
      * Task used in a Job
      *
@@ -64,6 +66,19 @@ public class Task implements Comparable, Serializable
         this.origins = new ArrayList<Origin>();
     }
 
+    /**
+     * Task used directly with a tool
+     *
+     * @param currentTool
+     */
+    public Task(AbstractTool currentTool)
+    {
+        this.currentTool = currentTool;
+        this.configName = currentTool.getConfigName();
+        this.internalName = currentTool.getInternalName();
+        this.origins = new ArrayList<Origin>();
+    }
+
     public void addOrigins(ArrayList<Origin> origins)
     {
         this.origins.addAll(origins);
@@ -74,6 +89,7 @@ public class Task implements Comparable, Serializable
     {
         Task task = new Task(this.getInternalName(), this.getConfigName());
         task.setContext(this.localContext);
+        task.setEmailTool(this.getEmailTool());
         task.setHintsKey(this.getHintsKey());
         task.setHintsOverrideHost(this.isHintsOverrideHost());
         task.setHintsPath(this.getHintsPath());
@@ -110,6 +126,11 @@ public class Task implements Comparable, Serializable
     public String getConfigName()
     {
         return configName;
+    }
+
+    public String getEmailTool()
+    {
+        return emailTool;
     }
 
     public String getHintsKey()
@@ -318,12 +339,14 @@ public class Task implements Comparable, Serializable
      */
     public boolean process(Context context) throws Exception
     {
-        this.localContext = (Context)context.clone();
-
         if (logger == null)
             logger = LogManager.getLogger("applog");
 
-        currentTool = getTool();
+        if (currentTool == null)
+            currentTool = getTool();
+        else
+            currentTool.setContext(localContext);
+
         if (currentTool != null)
         {
             if ((origins == null || origins.size() == 0) && !useCachedLastTask(localContext) && currentTool.isToolOriginsUsed())
@@ -394,6 +417,11 @@ public class Task implements Comparable, Serializable
                     throw new MungeException("\"Any Server\" defined for Hint Status Server but none specified");
             }
 
+            if (publisherRepo != null)
+                Persistent.lastPublisherRepo = publisherRepo;
+            if (subscriberRepo != null)
+                Persistent.lastSubscriberRepo = subscriberRepo;
+
             localContext.cfg.setOperation(remoteType);
 
             // run it
@@ -405,7 +433,7 @@ public class Task implements Comparable, Serializable
             context.fault = localContext.fault;
         }
         else
-            throw new MungeException(localContext.cfg.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
+            throw new MungeException(localContext.cfg.gs("Task.tool.not.found") + getInternalName() + ": " + getConfigName());
 
         return true;
     }
@@ -431,6 +459,11 @@ public class Task implements Comparable, Serializable
     public void setDryRun(boolean sense)
     {
         this.dryRun = sense;
+    }
+
+    public void setEmailTool(String emailTool)
+    {
+        this.emailTool = emailTool;
     }
 
     public void setHintsKey(String hintsKey)

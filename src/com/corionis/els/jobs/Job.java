@@ -2,6 +2,8 @@ package com.corionis.els.jobs;
 
 import com.corionis.els.*;
 import com.corionis.els.gui.util.ArgumentTokenizer;
+import com.corionis.els.tools.archiver.ArchiverTool;
+import com.corionis.els.tools.cleanup.CleanupTool;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.corionis.els.tools.AbstractTool;
@@ -11,11 +13,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +62,7 @@ public class Job extends AbstractTool
         return getConfigName().compareTo(((Job) o).getConfigName());
     }
 
-    public String generateCommandline(boolean isDryRun)
+    public String generateCommandLineJob(boolean isDryRun)
     {
         // generate-commandline
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
@@ -182,12 +185,13 @@ public class Job extends AbstractTool
             builder.registerTypeAdapter(Job.class, new objInstanceCreator());
 
             String json;
-            File[] files = FileSystemView.getFileSystemView().getFiles(jobDir, true);
-            for (File entry : files)
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(jobDir.toPath());
+            for (Path entry : directoryStream)
             {
-                if (!entry.isDirectory())
+                boolean isDir = Files.isDirectory(entry);
+                if (!isDir)
                 {
-                    json = new String(Files.readAllBytes(Paths.get(entry.getPath())));
+                    json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                     if (json != null && json.length() > 0)
                     {
                         Job tmpJob = builder.create().fromJson(json, Job.class);
@@ -247,7 +251,7 @@ public class Job extends AbstractTool
             {
                 try
                 {
-                    String cmd = generateCommandline(isDryRun);
+                    String cmd = generateCommandLineJob(isDryRun);
                     List<String> list = ArgumentTokenizer.tokenize(cmd);
                     String[] args = list.toArray(new String[0]);
 
@@ -287,8 +291,9 @@ public class Job extends AbstractTool
                 if (isRequestStop())
                     break;
 
-                task.setContext(context);
+                task.localContext = context;
                 currentTask = task.clone();
+                currentTask.setContext((Context)context.clone());
                 currentTask.setDryRun(isDryRun);
 
                 // is the task a Job?
@@ -327,6 +332,10 @@ public class Job extends AbstractTool
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 context.mainFrame.labelStatusMiddle.setText(null);
             }
+
+            // invalid outside of a Job
+            Persistent.lastPublisherRepo = null;
+            Persistent.lastSubscriberRepo = null;
         }
         else
             throw new MungeException(context.cfg.gs("JobsUI.job.has.no.tasks") + job.getConfigName());
@@ -369,8 +378,9 @@ public class Job extends AbstractTool
         return false;
     }
 
-    public String validate(Configuration cfg)
+    public String validate(Configuration cfg, boolean isThisInstance)
     {
+        boolean hasPub = false;
         Job job = this;
         String status = "";
         if (job.getTasks() != null && job.getTasks().size() > 0)
@@ -380,8 +390,7 @@ public class Job extends AbstractTool
                 task.setContext(context);
 
                 // if not a Job or using cached task
-                if (!task.getInternalName().equals(Job.INTERNAL_NAME) &&
-                        !task.getInternalName().equals(SleepTool.INTERNAL_NAME) &&
+                if (!task.getInternalName().equals(SleepTool.INTERNAL_NAME) &&
                         !task.getPublisherKey().equals(Task.CACHEDLASTTASK))
                 {
                     boolean skip = false;
@@ -402,19 +411,26 @@ public class Job extends AbstractTool
                                     context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                    if (!skip)
+                    if (!skip && !task.getInternalName().equals(Job.INTERNAL_NAME)) // Jobs are validated when created
                     {
-                        if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
+                        if ((task.getOrigins() == null || task.getOrigins().size() == 0) &&
+                                !task.getInternalName().equals(OperationsTool.INTERNAL_NAME))
                         {
-                            status = cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName();
+                            status = java.text.MessageFormat.format(cfg.gs("JobsUI.task.has.no.origins"), task.getConfigName(),  job.getConfigName());
                             break;
                         }
-                        else if ((task.getOrigins() == null || task.getOrigins().size() == 0) && !task.getInternalName().equals("Operations"))
+                        else if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
                         {
-                            status = cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName();
+                            if ((hasPub || (isThisInstance && context.publisherRepo != null)) &&
+                                    (task.getInternalName().equals(ArchiverTool.INTERNAL_NAME) || task.getInternalName().equals(CleanupTool.INTERNAL_NAME)))
+                                    continue;
+
+                                status = java.text.MessageFormat.format(cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber"),
+                                        task.getConfigName(), job.getConfigName());
                             break;
                         }
                     }
+                    hasPub = true;
                 }
             }
         }

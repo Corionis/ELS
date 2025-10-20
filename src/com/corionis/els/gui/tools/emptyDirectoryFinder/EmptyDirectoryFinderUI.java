@@ -21,6 +21,7 @@ import javax.swing.table.TableColumn;
 
 public class EmptyDirectoryFinderUI extends JDialog
 {
+    private boolean allSelected = false;
     private Context context;
     private ArrayList<Empty> empties;
     private boolean isPublisher = false;
@@ -78,16 +79,16 @@ public class EmptyDirectoryFinderUI extends JDialog
         context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
         buttonDelete.setEnabled(false);
         buttonAll.setEnabled(false);
-        buttonNone.setEnabled(false);
     }
 
     private void actionAllClicked(ActionEvent e)
     {
         if (empties.size() > 0)
         {
+            allSelected = !allSelected;
             for (int i = 0; i < empties.size(); ++i)
             {
-                empties.get(i).isSelected = true;
+                empties.get(i).isSelected = allSelected;
             }
             EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
             etm.fireTableDataChanged();
@@ -163,9 +164,19 @@ public class EmptyDirectoryFinderUI extends JDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.setVisible(true);
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionNoneClicked(ActionEvent e)
@@ -262,7 +273,6 @@ public class EmptyDirectoryFinderUI extends JDialog
                 buttonDelete.setEnabled(false);
                 buttonRun.setEnabled(false);
                 buttonAll.setEnabled(false);
-                buttonNone.setEnabled(false);
 
                 empties = new ArrayList<Empty>();
                 EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
@@ -356,7 +366,6 @@ public class EmptyDirectoryFinderUI extends JDialog
                         {
                             buttonDelete.setEnabled(true);
                             buttonAll.setEnabled(true);
-                            buttonNone.setEnabled(true);
                         }
 
                         return null;
@@ -450,7 +459,6 @@ public class EmptyDirectoryFinderUI extends JDialog
         tableEmpties = new JTable();
         panelOptionsButtons = new JPanel();
         buttonAll = new JButton();
-        buttonNone = new JButton();
         panelBottom = new JPanel();
         labelStatus = new JLabel();
         buttonBar = new JPanel();
@@ -563,18 +571,6 @@ public class EmptyDirectoryFinderUI extends JDialog
                     buttonAll.setMargin(new Insets(0, -10, 0, -10));
                     buttonAll.addActionListener(e -> actionAllClicked(e));
                     panelOptionsButtons.add(buttonAll);
-
-                    //---- buttonNone ----
-                    buttonNone.setText(context.cfg.gs("EmptyDirectoryFinder.buttonNone.text"));
-                    buttonNone.setFont(buttonNone.getFont().deriveFont(buttonNone.getFont().getSize() - 2f));
-                    buttonNone.setPreferredSize(new Dimension(78, 24));
-                    buttonNone.setMinimumSize(new Dimension(78, 24));
-                    buttonNone.setMaximumSize(new Dimension(78, 24));
-                    buttonNone.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.buttonNone.mnemonic_2").charAt(0));
-                    buttonNone.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.buttonNone.toolTipText"));
-                    buttonNone.setMargin(new Insets(0, -10, 0, -10));
-                    buttonNone.addActionListener(e -> actionNoneClicked(e));
-                    panelOptionsButtons.add(buttonNone);
                 }
                 contentPanel.add(panelOptionsButtons, BorderLayout.SOUTH);
             }
@@ -595,6 +591,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                     //---- closeButton ----
                     closeButton.setText(context.cfg.gs("EmptyDirectoryFinder.closeButton.text"));
                     closeButton.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.closeButton.toolTipText"));
+                    closeButton.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.closeButton.mnemonic").charAt(0));
                     closeButton.addActionListener(e -> actionCloseClicked(e));
                     buttonBar.add(closeButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -624,7 +621,6 @@ public class EmptyDirectoryFinderUI extends JDialog
     private JTable tableEmpties;
     private JPanel panelOptionsButtons;
     private JButton buttonAll;
-    private JButton buttonNone;
     private JPanel panelBottom;
     private JLabel labelStatus;
     private JPanel buttonBar;

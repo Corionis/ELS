@@ -24,7 +24,6 @@ public class SleepTool extends AbstractTool
     private String internalName = INTERNAL_NAME;
     private int sleep = 0;
 
-    transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
     // @formatter:on

@@ -139,9 +139,9 @@ public class Listener extends Thread
                 if (isListed(socket, false)) // blacklisted, disconnect
                 {
                     socket.close();
-                    logger.warn(context.cfg.gs("Stty.blacklisted.ip") +
+                    logger.warn(context.cfg.gs("Comm.blacklisted.ip") +
                             socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") +
-                            context.cfg.gs("Stty.attempted.login"));
+                            context.cfg.gs("Comm.attempted.login"));
                 }
                 else if (isListed(socket, true)) // if it is whitelisted or there is no whitelist
                 {
@@ -150,9 +150,9 @@ public class Listener extends Thread
                 else // not whitelisted, disconnect
                 {
                     socket.close();
-                    logger.warn(context.cfg.gs("Stty.not.whitelisted.ip") +
+                    logger.warn(context.cfg.gs("Comm.not.whitelisted.ip") +
                             socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") +
-                            context.cfg.gs("Stty.attempted.login"));
+                            context.cfg.gs("Comm.attempted.login"));
                 }
             }
             catch (SocketTimeoutException e)

@@ -73,15 +73,15 @@ public class OperationsTool extends AbstractTool
     private boolean optNavigator = false; // -n | --navigator
     private boolean optNoBackFill = false; // -b | --no-back-fill
     private boolean optOverwrite = false; // -o | --overwrite
-    private boolean optPreserveDates = false; // -y | --preserve-dates
+    private boolean optPreserveDates = true; // -y | --preserve-dates
     private boolean optQuitStatus = false; // -q | --quit-status
     private String optTargets = ""; // -t | --targets
     private boolean optValidate = false; // -v | --validate
     private String optWhatsNew = ""; // -w | --whatsnew
     private String optWhatsNewAll = ""; // -W | --whatsnew-all
 
-    transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private Logger logger = LogManager.getLogger("applog");
+    transient private String emailTool;
     transient private String hintPath;
     transient private String pubPath;
     transient private String subPath;
@@ -236,6 +236,12 @@ public class OperationsTool extends AbstractTool
             case SubscriberListenerQuit:
             case SubscriberTerminal:
                 break;
+        }
+
+        // --- email server
+        if (!emailTool.isEmpty())
+        {
+            sb.append(" " + (glo ? "--email" : "-M") + " \"" + emailTool + "\"");
         }
 
         // --- security
@@ -522,6 +528,7 @@ public class OperationsTool extends AbstractTool
         hintPath = task.hintsPath;
         pubPath = task.publisherPath;
         subPath = task.subscriberPath;
+        emailTool = task.emailTool;
 
         // construct the arguments
         String cmd = generateCommandLine(task.dryRun);

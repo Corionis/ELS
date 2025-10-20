@@ -58,6 +58,24 @@ public class NavTreeModel extends DefaultTreeModel
         return ((NavTreeNode)parent).findChildIndex((NavTreeNode) child, true, true);
     }
 
+/* Does not work due to ELS lazy-loading of content
+    @Override
+    public boolean isLeaf(Object node)
+    {
+        boolean hasSubDirs = false;
+        for (int i = 0; i < ((NavTreeNode)node).getChildCount(); i++)
+        {
+            NavTreeNode ntn = (NavTreeNode) ((NavTreeNode)node).getChildAt(i);
+            if (ntn.getUserObject().isDir)
+            {
+                hasSubDirs = true;
+                break;
+            }
+        }
+        return !hasSubDirs;
+    }
+*/
+
     public boolean isActivatedFilter()
     {
         return filterIsActive;

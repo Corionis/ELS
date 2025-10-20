@@ -2,7 +2,6 @@ package com.corionis.els.hints;
 
 import com.corionis.els.Context;
 import com.corionis.els.gui.hints.HintDate;
-import com.corionis.els.repository.Repository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

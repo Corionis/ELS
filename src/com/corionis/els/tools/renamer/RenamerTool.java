@@ -47,7 +47,6 @@ public class RenamerTool extends AbstractTool
     private boolean option3 = false;
 
     transient private int counter = -1;
-    transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int renameCount = 0;
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
@@ -426,7 +425,7 @@ public class RenamerTool extends AbstractTool
         if (repo == null)
         {
             context.fault = true;
-            logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer..has.no.repository.defined"), getConfigName()));
+            logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer.has.no.repository.defined"), getConfigName()));
             return;
         }
 

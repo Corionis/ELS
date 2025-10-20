@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.3" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.8" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -101,7 +101,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "buttonAll"
 							"text": new FormMessage( null, "EmptyDirectoryFinder.buttonAll.text" )
-							"font": &SwingDerivedFont0 new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
+							"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
 							"preferredSize": new java.awt.Dimension( 78, 24 )
 							"minimumSize": new java.awt.Dimension( 78, 24 )
 							"maximumSize": new java.awt.Dimension( 78, 24 )
@@ -109,18 +109,6 @@ new FormModel {
 							"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.buttonAll.toolTipText" )
 							"margin": new java.awt.Insets( 0, -10, 0, -10 )
 							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionAllClicked", true ) )
-						} )
-						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "buttonNone"
-							"text": new FormMessage( null, "EmptyDirectoryFinder.buttonNone.text" )
-							"font": #SwingDerivedFont0
-							"preferredSize": new java.awt.Dimension( 78, 24 )
-							"minimumSize": new java.awt.Dimension( 78, 24 )
-							"maximumSize": new java.awt.Dimension( 78, 24 )
-							"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.buttonNone.mnemonic_2" )
-							"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.buttonNone.toolTipText" )
-							"margin": new java.awt.Insets( 0, -10, 0, -10 )
-							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionNoneClicked", true ) )
 						} )
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "South"
@@ -147,6 +135,7 @@ new FormModel {
 							name: "closeButton"
 							"text": new FormMessage( null, "EmptyDirectoryFinder.closeButton.text" )
 							"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.closeButton.toolTipText" )
+							"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.closeButton.mnemonic" )
 							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCloseClicked", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridx": 2

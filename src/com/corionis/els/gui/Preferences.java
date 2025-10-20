@@ -26,8 +26,15 @@ public class Preferences implements Serializable
     private int appWidth = 1024;
     private int appXpos = -1;
     private int appYpos = 0;
+    private boolean askSendEmail = true;
     private boolean autoRefresh = false;
     private boolean binaryScale = true; // true = 1024, false = 1000
+    private int bookmarksHeight = 320;
+    private int bookmarksNameWidth = -1;
+    private int bookmarksPathWidth = -1;
+    private int bookmarksWidth = 440;
+    private int bookmarksXpos = -1;
+    private int bookmarksYpos = 0;
     private int browserBottomSize = 90;
     private int centerDividerLocation = 188;
     private int centerDividerOrientation = 0;
@@ -37,7 +44,6 @@ public class Preferences implements Serializable
     private int collectionOneSizeWidth = 80;
     private int collectionOneSortColumn = 1;
     private int collectionOneSortDirection = 0;
-
     private int collectionOneTableWidth = -1;
     private int collectionOneTreeWidth = -1;
     private int collectionTwoDateWidth = 80;
@@ -51,6 +57,7 @@ public class Preferences implements Serializable
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss a";
     private boolean defaultDryrun = true;
+    private String defaultEmailServer = "";
     private int directoryPickerXpos = -1;
     private int directoryPickerYpos = 0;
     private int fileEditorHeight = 365;
@@ -114,6 +121,7 @@ public class Preferences implements Serializable
     private int progressWidth = -1;
     private int progressXpos = -1;
     private int progressYpos = 0;
+    private boolean roundedEdges = true;
     private int runOption = 0;
     private int schema = 1;
     private boolean showArrows = true;
@@ -122,6 +130,7 @@ public class Preferences implements Serializable
     private boolean showDnDConfirmation = true;
     private boolean showGettingStarted = true;
     private boolean showMnemonics = true;
+    private boolean showNavigation = true;
     private boolean showToolbar = true;
     private boolean showTouchConfirmation = true;
     private boolean sortCaseInsensitive = true;
@@ -143,10 +152,25 @@ public class Preferences implements Serializable
     private int systemTwoSortDirection = 0;
     private int tabPlacement = 0; // top
     private int toolOperationsDividerConfigLocation = 142;
+    private int toolsArchiverDividerLocation = 142;
+    private int toolsArchiverHeight = 470;
+    private int toolsArchiverWidth = 570;
+    private int toolsArchiverXpos = -1;
+    private int toolsArchiverYpos = 0;
+    private int toolsCleanupDividerLocation = 142;
+    private int toolsCleanupHeight = 470;
+    private int toolsCleanupWidth = 570;
+    private int toolsCleanupXpos = -1;
+    private int toolsCleanupYpos = 0;
     private int toolsDuplicateFinderHeight = 470;
     private int toolsDuplicateFinderWidth = 570;
     private int toolsDuplicateFinderXpos = -1;
     private int toolsDuplicateFinderYpos = 0;
+    private int toolsEmailDividerLocation = 142;
+    private int toolsEmailHeight = 470;
+    private int toolsEmailWidth = 570;
+    private int toolsEmailXpos = -1;
+    private int toolsEmailYpos = 0;
     private int toolsEmptyDirectoryFinderHeight = 470;
     private int toolsEmptyDirectoryFinderWidth = 570;
     private int toolsEmptyDirectoryFinderXpos = -1;
@@ -431,6 +455,36 @@ public class Preferences implements Serializable
         return appYpos;
     }
 
+    public int getBookmarksHeight()
+    {
+        return bookmarksHeight;
+    }
+
+    public int getBookmarksNameWidth()
+    {
+        return bookmarksNameWidth;
+    }
+
+    public int getBookmarksPathWidth()
+    {
+        return bookmarksPathWidth;
+    }
+
+    public int getBookmarksWidth()
+    {
+        return bookmarksWidth;
+    }
+
+    public int getBookmarksXpos()
+    {
+        return bookmarksXpos;
+    }
+
+    public int getBookmarksYpos()
+    {
+        return bookmarksYpos;
+    }
+
     public int getBrowserBottomSize()
     {
         return browserBottomSize;
@@ -536,6 +590,13 @@ public class Preferences implements Serializable
             }
         }
         return dateFormat;
+    }
+
+    public String getDefaultEmailServer()
+    {
+        if (defaultEmailServer.equalsIgnoreCase("None"))
+            return "";
+        return defaultEmailServer;
     }
 
     public int getDirectoryPickerXpos()
@@ -946,6 +1007,56 @@ public class Preferences implements Serializable
         return toolOperationsDividerConfigLocation;
     }
 
+    public int getToolsArchiverDividerLocation()
+    {
+        return toolsArchiverDividerLocation;
+    }
+
+    public int getToolsArchiverHeight()
+    {
+        return toolsArchiverHeight;
+    }
+
+    public int getToolsArchiverWidth()
+    {
+        return toolsArchiverWidth;
+    }
+
+    public int getToolsArchiverXpos()
+    {
+        return toolsArchiverXpos;
+    }
+
+    public int getToolsArchiverYpos()
+    {
+        return toolsArchiverYpos;
+    }
+
+    public int getToolsCleanupDividerLocation()
+    {
+        return toolsCleanupDividerLocation;
+    }
+
+    public int getToolsCleanupHeight()
+    {
+        return toolsCleanupHeight;
+    }
+
+    public int getToolsCleanupWidth()
+    {
+        return toolsCleanupWidth;
+    }
+
+    public int getToolsCleanupXpos()
+    {
+        return toolsCleanupXpos;
+    }
+
+    public int getToolsCleanupYpos()
+    {
+        return toolsCleanupYpos;
+    }
+
     public int getToolsDuplicateFinderHeight()
     {
         return toolsDuplicateFinderHeight;
@@ -964,6 +1075,31 @@ public class Preferences implements Serializable
     public int getToolsDuplicateFinderYpos()
     {
         return toolsDuplicateFinderYpos;
+    }
+
+    public int getToolsEmailDividerLocation()
+    {
+        return toolsEmailDividerLocation;
+    }
+
+    public int getToolsEmailHeight()
+    {
+        return toolsEmailHeight;
+    }
+
+    public int getToolsEmailWidth()
+    {
+        return toolsEmailWidth;
+    }
+
+    public int getToolsEmailXpos()
+    {
+        return toolsEmailXpos;
+    }
+
+    public int getToolsEmailYpos()
+    {
+        return toolsEmailYpos;
     }
 
     public int getToolsEmptyDirectoryFinderHeight()
@@ -1144,6 +1280,14 @@ public class Preferences implements Serializable
                     break;
             }
 
+            if (context.preferences.isRoundedEdges())
+            {
+                UIManager.put("Button.arc", 500);
+                UIManager.put("Component.arc", 500);
+                UIManager.put("ProgressBar.arc", 500);
+                UIManager.put("TextComponent.arc", 500);
+            }
+
             FlatLaf.updateUI();
             lookAndFeelInitialized = true;
         }
@@ -1153,6 +1297,11 @@ public class Preferences implements Serializable
                 context.fault = true;
             throw e;
         }
+    }
+
+    public boolean isAskSendEmail()
+    {
+        return askSendEmail;
     }
 
     public boolean isAutoRefresh()
@@ -1240,6 +1389,11 @@ public class Preferences implements Serializable
         return preserveFileTimes;
     }
 
+    public boolean isRoundedEdges()
+    {
+        return roundedEdges;
+    }
+
     public boolean isShowArrows()
     {
         return showArrows;
@@ -1268,6 +1422,11 @@ public class Preferences implements Serializable
     public boolean isShowMnemonics()
     {
         return showMnemonics;
+    }
+
+    public boolean isShowNavigation()
+    {
+        return showNavigation;
     }
 
     public boolean isShowToolbar()
@@ -1330,6 +1489,11 @@ public class Preferences implements Serializable
         this.appYpos = appYpos;
     }
 
+    public void setAskSendEmail(boolean askSendEmail)
+    {
+        this.askSendEmail = askSendEmail;
+    }
+
     public void setAutoRefresh(boolean autoRefresh)
     {
         this.autoRefresh = autoRefresh;
@@ -1338,6 +1502,36 @@ public class Preferences implements Serializable
     public void setBinaryScale(boolean binaryScale)
     {
         this.binaryScale = binaryScale;
+    }
+
+    public void setBookmarksHeight(int bookmarksHeight)
+    {
+        this.bookmarksHeight = bookmarksHeight;
+    }
+
+    public void setBookmarksNameWidth(int bookmarksNameWidth)
+    {
+        this.bookmarksNameWidth = bookmarksNameWidth;
+    }
+
+    public void setBookmarksPathWidth(int bookmarksPathWidth)
+    {
+        this.bookmarksPathWidth = bookmarksPathWidth;
+    }
+
+    public void setBookmarksWidth(int bookmarksWidth)
+    {
+        this.bookmarksWidth = bookmarksWidth;
+    }
+
+    public void setBookmarksXpos(int bookmarksXpos)
+    {
+        this.bookmarksXpos = bookmarksXpos;
+    }
+
+    public void setBookmarksYpos(int bookmarksYpos)
+    {
+        this.bookmarksYpos = bookmarksYpos;
     }
 
     public void setBrowserBottomSize(int browserBottomSize)
@@ -1430,6 +1624,11 @@ public class Preferences implements Serializable
     public void setDefaultDryrun(boolean defaultDryrun)
     {
         this.defaultDryrun = defaultDryrun;
+    }
+
+    public void setDefaultEmailServer(String defaultEmailServer)
+    {
+        this.defaultEmailServer = defaultEmailServer;
     }
 
     public void setDirectoryPickerXpos(int directoryPickerXpos)
@@ -1747,6 +1946,11 @@ public class Preferences implements Serializable
         this.progressYpos = progressYpos;
     }
 
+    public void setRoundedEdges(boolean roundedEdges)
+    {
+        this.roundedEdges = roundedEdges;
+    }
+
     public void setRunOption(int runOption)
     {
         this.runOption = runOption;
@@ -1785,6 +1989,11 @@ public class Preferences implements Serializable
     public void setShowMnemonics(boolean showMnemonics)
     {
         this.showMnemonics = showMnemonics;
+    }
+
+    public void setShowNavigation(boolean showNavigation)
+    {
+        this.showNavigation = showNavigation;
     }
 
     public void setShowToolbar(boolean showToolbar)
@@ -1902,6 +2111,56 @@ public class Preferences implements Serializable
         this.toolOperationsDividerConfigLocation = toolOperationsDividerConfigLocation;
     }
 
+    public void setToolsArchiverDividerLocation(int toolsArchiverDividerLocation)
+    {
+        this.toolsArchiverDividerLocation = toolsArchiverDividerLocation;
+    }
+
+    public void setToolsArchiverHeight(int toolsArchiverHeight)
+    {
+        this.toolsArchiverHeight = toolsArchiverHeight;
+    }
+
+    public void setToolsArchiverWidth(int toolsArchiverWidth)
+    {
+        this.toolsArchiverWidth = toolsArchiverWidth;
+    }
+
+    public void setToolsArchiverXpos(int toolsArchiverXpos)
+    {
+        this.toolsArchiverXpos = toolsArchiverXpos;
+    }
+
+    public void setToolsArchiverYpos(int toolsArchiverYpos)
+    {
+        this.toolsArchiverYpos = toolsArchiverYpos;
+    }
+
+    public void setToolsCleanupDividerLocation(int toolsCleanupDividerLocation)
+    {
+        this.toolsCleanupDividerLocation = toolsCleanupDividerLocation;
+    }
+
+    public void setToolsCleanupHeight(int toolsCleanupHeight)
+    {
+        this.toolsCleanupHeight = toolsCleanupHeight;
+    }
+
+    public void setToolsCleanupWidth(int toolsCleanupWidth)
+    {
+        this.toolsCleanupWidth = toolsCleanupWidth;
+    }
+
+    public void setToolsCleanupXpos(int toolsCleanupXpos)
+    {
+        this.toolsCleanupXpos = toolsCleanupXpos;
+    }
+
+    public void setToolsCleanupYpos(int toolsCleanupYpos)
+    {
+        this.toolsCleanupYpos = toolsCleanupYpos;
+    }
+
     public void setToolsDuplicateFinderHeight(int toolsDuplicateFinderHeight)
     {
         this.toolsDuplicateFinderHeight = toolsDuplicateFinderHeight;
@@ -1920,6 +2179,31 @@ public class Preferences implements Serializable
     public void setToolsDuplicateFinderYpos(int toolsDuplicateFinderYpos)
     {
         this.toolsDuplicateFinderYpos = toolsDuplicateFinderYpos;
+    }
+
+    public void setToolsEmailDividerLocation(int toolsEmailDividerLocation)
+    {
+        this.toolsEmailDividerLocation = toolsEmailDividerLocation;
+    }
+
+    public void setToolsEmailHeight(int toolsEmailHeight)
+    {
+        this.toolsEmailHeight = toolsEmailHeight;
+    }
+
+    public void setToolsEmailWidth(int toolsEmailWidth)
+    {
+        this.toolsEmailWidth = toolsEmailWidth;
+    }
+
+    public void setToolsEmailXpos(int toolsEmailXpos)
+    {
+        this.toolsEmailXpos = toolsEmailXpos;
+    }
+
+    public void setToolsEmailYpos(int toolsEmailYpos)
+    {
+        this.toolsEmailYpos = toolsEmailYpos;
     }
 
     public void setToolsEmptyDirectoryFinderHeight(int toolsEmptyDirectoryFinderHeight)

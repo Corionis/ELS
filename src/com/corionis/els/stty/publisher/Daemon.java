@@ -504,7 +504,7 @@ public class Daemon extends AbstractDaemon
                                             context.cfg.setWorkingDirectorySubscriber(directory);
                                         }
 
-                                        response = transfer.copyGroup(group, totalSize, true, null, null);
+                                        response = transfer.copyGroup(group, totalSize, true, null, null, null, null);
                                         group.clear();
                                     }
                                     else

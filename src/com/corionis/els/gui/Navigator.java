@@ -3,11 +3,15 @@ package com.corionis.els.gui;
 import com.corionis.els.*;
 import com.corionis.els.gui.bookmarks.Bookmark;
 import com.corionis.els.gui.bookmarks.Bookmarks;
+import com.corionis.els.gui.bookmarks.BookmarksUI;
 import com.corionis.els.gui.browser.NavTransferHandler;
 import com.corionis.els.gui.browser.NavTreeNode;
 import com.corionis.els.gui.browser.NavTreeUserObject;
 import com.corionis.els.gui.hints.HintsUI;
+import com.corionis.els.gui.tools.archiver.ArchiverUI;
+import com.corionis.els.gui.tools.cleanup.CleanupUI;
 import com.corionis.els.gui.tools.duplicateFinder.DuplicateFinderUI;
+import com.corionis.els.gui.tools.email.EmailUI;
 import com.corionis.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.corionis.els.gui.tools.junkRemover.JunkRemoverUI;
 import com.corionis.els.gui.tools.operations.OperationsUI;
@@ -42,6 +46,7 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
@@ -63,9 +68,12 @@ import static com.corionis.els.gui.system.FileEditor.EditorTypes.*;
 
 public class Navigator
 {
+    public ArchiverUI dialogArchiver;
+    public CleanupUI dialogCleanup;
     public Bookmarks bookmarks;
     public Context context;
     public DuplicateFinderUI dialogDuplicateFinder;
+    public EmailUI dialogEmail;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
     public HintsUI dialogHints = null;
     public JobsUI dialogJobs = null;
@@ -386,6 +394,12 @@ public class Navigator
      */
     public void enableDisableToolMenus(AbstractToolDialog dialog, boolean enable)
     {
+        context.mainFrame.menuItemArchiver.setEnabled(enable);
+        context.mainFrame.menuItemArchiver.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
+        context.mainFrame.menuItemCleanup.setEnabled(enable);
+        context.mainFrame.menuItemCleanup.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
         context.mainFrame.menuItemJunk.setEnabled(enable);
         context.mainFrame.menuItemJunk.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
 
@@ -406,7 +420,17 @@ public class Navigator
 
         if (!enable)
         {
-            if (dialog instanceof JunkRemoverUI)
+            if (dialog instanceof ArchiverUI)
+            {
+                context.mainFrame.menuItemArchiver.setEnabled(true);
+                context.mainFrame.menuItemArchiver.setToolTipText("");
+            }
+            else if (dialog instanceof CleanupUI)
+            {
+                context.mainFrame.menuItemCleanup.setEnabled(true);
+                context.mainFrame.menuItemCleanup.setToolTipText("");
+            }
+            else if (dialog instanceof JunkRemoverUI)
             {
                 context.mainFrame.menuItemJunk.setEnabled(true);
                 context.mainFrame.menuItemJunk.setToolTipText("");
@@ -710,7 +734,7 @@ public class Navigator
 
                 jp.setLayout(layout);
                 jp.setBackground(UIManager.getColor("TextField.background"));
-                jp.setBorder(context.mainFrame.textFieldLocation.getBorder());
+                jp.setBorder(context.mainFrame.scrollPaneTableCollectionOne.getBorder());
 
                 JLabel lab = new JLabel(context.cfg.gs("Navigator.menu.Open.publisher.system.type"));
                 Font font = lab.getFont();
@@ -885,7 +909,7 @@ public class Navigator
                 jp.setLayout(gb);
 
                 jp.setBackground(UIManager.getColor("TextField.background"));
-                jp.setBorder(context.mainFrame.textFieldLocation.getBorder());
+                jp.setBorder(context.mainFrame.scrollPaneTableCollectionOne.getBorder());
 
                 JLabel cbLabel = new JLabel(context.cfg.gs("Navigator.labelRemote.text"));
                 Font font = cbLabel.getFont();
@@ -1374,7 +1398,7 @@ public class Navigator
                             context.preferences.setLastHintKeysOpenPath(last.getPath());
                             context.preferences.setLastHintKeysIsOpen(true);
                             context.cfg.setHintKeysFile(file.getPath());
-                            context.main.setupHints(context.publisherRepo);
+                            context.main.connectHints(context.publisherRepo);
                             //context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                         }
                         catch (Exception e)
@@ -1454,7 +1478,7 @@ public class Navigator
                 jp.setLayout(gb);
 
                 jp.setBackground(UIManager.getColor("TextField.background"));
-                jp.setBorder(context.mainFrame.textFieldLocation.getBorder());
+                jp.setBorder(context.mainFrame.scrollPaneTableCollectionOne.getBorder());
 
                 JLabel cbLabel = new JLabel(context.cfg.gs("Navigator.labelRemote.text"));
                 Font font = cbLabel.getFont();
@@ -1646,7 +1670,7 @@ public class Navigator
                             }
 
                             // connect to the hint tracker or status server
-                            context.main.setupHints(context.publisherRepo);
+                            context.main.connectHints(context.publisherRepo);
                             //context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.browser.setupHintTrackingButton();
                             setQuitTerminateVisibility();
@@ -1857,6 +1881,28 @@ public class Navigator
             }
         };
         context.mainFrame.menuItemGenerate.addActionListener(generateAction);
+
+        // --- Save Layout
+        AbstractAction saveLayoutAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    context.preferences.write(context);
+                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.preferences.saved"));
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
         // --- Quit & Stop Remote(s)
         context.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()
@@ -2502,6 +2548,31 @@ public class Navigator
         else
             context.mainFrame.menuItemShowHidden.setSelected(true);
 
+        // --- Show Navigation bar
+        context.mainFrame.menuItemShowNavigation.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                context.preferences.setShowNavigation(context.mainFrame.menuItemShowNavigation.isSelected());
+                if (context.mainFrame.menuItemShowNavigation.isSelected())
+                {
+                    context.preferences.setShowNavigation(true);
+                    context.mainFrame.panelLocationAndButtons.setVisible(true);
+                }
+                else
+                {
+                    context.preferences.setShowNavigation(false);
+                    context.mainFrame.panelLocationAndButtons.setVisible(false);
+                }
+            }
+        });
+        // set initial state of Show Navigation checkbox
+        if (context.preferences.isShowNavigation())
+            context.mainFrame.menuItemShowNavigation.setSelected(true);
+        else
+            context.mainFrame.menuItemShowNavigation.setSelected(false);
+
         // --- Show Toolbar
         context.mainFrame.menuItemShowToolbar.addActionListener(new AbstractAction()
         {
@@ -2577,54 +2648,13 @@ public class Navigator
             }
         });
 
-        // --- Bookmarks Delete
+        // --- Bookmarks Edit
         context.mainFrame.menuItemBookmarksDelete.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                String message = context.cfg.gs("Browser.select.one.or.more.bookmarks.to.delete");
-                JList<String> names = new JList<String>();
-                DefaultListModel<String> listModel = new DefaultListModel<String>();
-                names.setModel(listModel);
-                names.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-                bookmarks.sort();
-                for (int i = 0; i < bookmarks.size(); ++i)
-                {
-                    Bookmark bm = bookmarks.get(i);
-                    listModel.addElement(bm.name);
-                }
-
-                JScrollPane pane = new JScrollPane();
-                pane.setViewportView(names);
-                names.requestFocus();
-                Object[] params = {message, pane};
-
-                int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.gs("Navigator.delete.bookmarks"), JOptionPane.OK_CANCEL_OPTION);
-                if (opt == JOptionPane.OK_OPTION)
-                {
-                    int[] selected = names.getSelectedIndices();
-                    if (selected != null && selected.length > 0)
-                    {
-                        for (int i = selected.length - 1; i > -1; --i)
-                        {
-                            bookmarks.delete(selected[i]);
-                        }
-
-                        try
-                        {
-                            bookmarks.write();
-                            loadBookmarksMenu();
-                        }
-                        catch (Exception e)
-                        {
-                            logger.error(Utils.getStackTrace(e));
-                            JOptionPane.showMessageDialog(context.mainFrame,
-                                    context.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
-                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                }
+                new BookmarksUI(context.mainFrame, context);
             }
         });
 
@@ -2665,6 +2695,44 @@ public class Navigator
                 {
                     dialogEmptyDirectoryFinder.toFront();
                     dialogEmptyDirectoryFinder.requestFocus();
+                }
+            }
+        });
+        
+        // Archiver Tool
+        context.mainFrame.menuItemArchiver.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogArchiver == null || !dialogArchiver.isShowing())
+                {
+                    dialogArchiver = new ArchiverUI(context.mainFrame, context);
+                    dialogArchiver.setVisible(true);
+                }
+                else
+                {
+                    dialogArchiver.toFront();
+                    dialogArchiver.requestFocus();
+                }
+            }
+        });
+
+        // Cleanup Tool
+        context.mainFrame.menuItemCleanup.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogCleanup == null || !dialogCleanup.isShowing())
+                {
+                    dialogCleanup = new CleanupUI(context.mainFrame, context);
+                    dialogCleanup.setVisible(true);
+                }
+                else
+                {
+                    dialogCleanup.toFront();
+                    dialogCleanup.requestFocus();
                 }
             }
         });
@@ -2839,29 +2907,26 @@ public class Navigator
             }
         });
 
-        // --- Settings
-        AbstractAction saveLayoutAction = new AbstractAction()
+        // --- Email Tool
+        context.mainFrame.menuItemEmail.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                try
+                if (dialogEmail == null || !dialogEmail.isShowing())
                 {
-                    context.preferences.write(context);
-                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.preferences.saved"));
+                    dialogEmail = new EmailUI(context.mainFrame, context);
+                    dialogEmail.setVisible(true);
                 }
-                catch (Exception e)
+                else
                 {
-                    logger.error(Utils.getStackTrace(e));
-                    JOptionPane.showMessageDialog(context.mainFrame,
-                            context.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
-                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    dialogEmail.toFront();
+                    dialogEmail.requestFocus();
                 }
             }
-        };
-        context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
+        });
 
-        // --- Settings
+        // --- Preferences
         if (Utils.isOsMac())
         {
             FlatDesktop.setPreferencesHandler(() -> {
@@ -3003,7 +3068,7 @@ public class Navigator
             {
                 try
                 {
-                    URI uri = new URI("https://corionis.github.io/ELS/");
+                    URI uri = new URI("https://www.elsnavigator.com/");
                     Desktop.getDesktop().browse(uri);
                 }
                 catch (Exception e)
@@ -3401,16 +3466,14 @@ public class Navigator
     private void processJob(Job job)
     {
         // validate job tasks and origins
-        String status = job.validate(context.cfg);
+        String status = job.validate(context.cfg, true);
         if (status.length() == 0)
         {
             // make dialog pieces
             String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
 
             JPanel panel = new JPanel();
-            panel.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 0));
-
-            String spacer = "\n";
+            panel.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 8));
 
             JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun") + "        ");
             checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
@@ -3437,7 +3500,7 @@ public class Navigator
             panel.add(checkbox);
             panel.add(generateButton);
 
-            Object[] params = {message, spacer, panel};
+            Object[] params = {message, panel};
 
             // confirm run of job
             int reply = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.getNavigatorName(), JOptionPane.OK_CANCEL_OPTION);
@@ -3805,7 +3868,7 @@ public class Navigator
         }
 
         // connect to the hint status server if defined
-        context.main.setupHints(context.publisherRepo);
+        context.main.connectHints(context.publisherRepo);
 
         if (context.cfg.isRemoteOperation())
         {
@@ -3981,6 +4044,15 @@ public class Navigator
                         checkForHints();
                     }
 
+                    if (context.preferences.isShowNavigation() && !isLogger())
+                    {
+                        context.mainFrame.panelLocationAndButtons.setVisible(true);
+                    }
+                    else
+                    {
+                        context.mainFrame.panelLocationAndButtons.setVisible(false);
+                    }
+
                     if (context.preferences.isShowToolbar() && !isLogger())
                     {
                         context.mainFrame.panelAlertsMenu.setVisible(false);
@@ -4153,10 +4225,42 @@ public class Navigator
      */
     public void stop()
     {
-        //if (context.cfg.isRemoteActive())
-        //    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Main.disconnecting"));
+        // disconnecting can take a few seconds - show a status message
+        if (context.cfg.isRemoteActive())
+        {
+            // show disconnecting status message
+            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.disconnecting"));
+            Graphics gfx = context.mainFrame.labelStatusMiddle.getGraphics();
+            if (gfx != null)
+                context.mainFrame.labelStatusMiddle.update(gfx);
+            context.mainFrame.labelStatusMiddle.repaint();
 
+            // give it time to be updated
+            final Timer time = new Timer(1500, new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    stopNavigator();
+                }
+            });
+            time.start();
+        }
+        else
+            stopNavigator();
+    }
+
+    /**
+     * Perform the actual stop work
+     */
+    private void stopNavigator()
+    {
         quitByeRemotes(true, true);
+
+        // if the HTTP server is running stop it and it's thread
+        if (dialogEmail != null && dialogEmail.getEmailHandler() != null && dialogEmail.getEmailHandler().isWorkerRunning())
+        {
+            dialogEmail.getEmailHandler().interrupt();
+        }
 
         if (context.mainFrame != null)
         {

@@ -164,9 +164,19 @@ public class OperationsUI extends AbstractToolDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("OperationsUI.help"), "operations_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("OperationsUI.help"), "operations_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.setVisible(true);
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionNewClicked(ActionEvent e)
@@ -305,11 +315,8 @@ public class OperationsUI extends AbstractToolDialog
 
     public boolean checkForChanges()
     {
-        for (int i = 0; i < deletedTools.size(); ++i)
-        {
-            if (deletedTools.get(i).isDataChanged())
-                return true;
-        }
+        if (!deletedTools.isEmpty())
+            return true;
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -2355,7 +2362,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationTargetsFilePick ----
-                                    buttonOperationTargetsFilePick.setText("...");
+                                    buttonOperationTargetsFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationTargetsFilePick.setFont(buttonOperationTargetsFilePick.getFont().deriveFont(buttonOperationTargetsFilePick.getFont().getStyle() | Font.BOLD));
                                     buttonOperationTargetsFilePick.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationTargetsFilePick.setMinimumSize(new Dimension(32, 24));
@@ -2402,7 +2409,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationMismatchesFilePick ----
-                                    buttonOperationMismatchesFilePick.setText("...");
+                                    buttonOperationMismatchesFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationMismatchesFilePick.setFont(buttonOperationMismatchesFilePick.getFont().deriveFont(buttonOperationMismatchesFilePick.getFont().getStyle() | Font.BOLD));
                                     buttonOperationMismatchesFilePick.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationMismatchesFilePick.setMinimumSize(new Dimension(32, 24));
@@ -2455,7 +2462,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationWhatsNewFilePick ----
-                                    buttonOperationWhatsNewFilePick.setText(context.cfg.gs("OperationsUI.buttonOperationWhatsNewFilePick.text"));
+                                    buttonOperationWhatsNewFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationWhatsNewFilePick.setFont(buttonOperationWhatsNewFilePick.getFont().deriveFont(buttonOperationWhatsNewFilePick.getFont().getStyle() | Font.BOLD));
                                     buttonOperationWhatsNewFilePick.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationWhatsNewFilePick.setMinimumSize(new Dimension(32, 24));
@@ -2516,7 +2523,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationExportTextFilePick ----
-                                    buttonOperationExportTextFilePick.setText("...");
+                                    buttonOperationExportTextFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationExportTextFilePick.setFont(buttonOperationExportTextFilePick.getFont().deriveFont(buttonOperationExportTextFilePick.getFont().getStyle() | Font.BOLD));
                                     buttonOperationExportTextFilePick.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationExportTextFilePick.setMinimumSize(new Dimension(32, 24));
@@ -2577,7 +2584,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationExportItemsFilePick ----
-                                    buttonOperationExportItemsFilePick.setText("...");
+                                    buttonOperationExportItemsFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationExportItemsFilePick.setFont(buttonOperationExportItemsFilePick.getFont().deriveFont(buttonOperationExportItemsFilePick.getFont().getStyle() | Font.BOLD));
                                     buttonOperationExportItemsFilePick.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationExportItemsFilePick.setMinimumSize(new Dimension(32, 24));
@@ -2667,7 +2674,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationHintKeysFilePick ----
-                                    buttonOperationHintKeysFilePick.setText("...");
+                                    buttonOperationHintKeysFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationHintKeysFilePick.setFont(buttonOperationHintKeysFilePick.getFont().deriveFont(buttonOperationHintKeysFilePick.getFont().getStyle() | Font.BOLD));
                                     buttonOperationHintKeysFilePick.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationHintKeysFilePick.setMinimumSize(new Dimension(32, 24));
@@ -2888,7 +2895,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationTargetsFilePick2 ----
-                                    buttonOperationTargetsFilePick2.setText("...");
+                                    buttonOperationTargetsFilePick2.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationTargetsFilePick2.setFont(buttonOperationTargetsFilePick2.getFont().deriveFont(buttonOperationTargetsFilePick2.getFont().getStyle() | Font.BOLD));
                                     buttonOperationTargetsFilePick2.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationTargetsFilePick2.setMinimumSize(new Dimension(32, 24));
@@ -3046,7 +3053,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationAuthKeysFilePick ----
-                                    buttonOperationAuthKeysFilePick.setText("...");
+                                    buttonOperationAuthKeysFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationAuthKeysFilePick.setFont(buttonOperationAuthKeysFilePick.getFont().deriveFont(buttonOperationAuthKeysFilePick.getFont().getStyle() | Font.BOLD));
                                     buttonOperationAuthKeysFilePick.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationAuthKeysFilePick.setMinimumSize(new Dimension(32, 24));
@@ -3092,7 +3099,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationBlacklistFilePick ----
-                                    buttonOperationBlacklistFilePick.setText("...");
+                                    buttonOperationBlacklistFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationBlacklistFilePick.setFont(buttonOperationBlacklistFilePick.getFont().deriveFont(buttonOperationBlacklistFilePick.getFont().getStyle() | Font.BOLD));
                                     buttonOperationBlacklistFilePick.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationBlacklistFilePick.setMinimumSize(new Dimension(32, 24));
@@ -3152,7 +3159,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationIpWhitelistFilePick ----
-                                    buttonOperationIpWhitelistFilePick.setText("...");
+                                    buttonOperationIpWhitelistFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationIpWhitelistFilePick.setFont(buttonOperationIpWhitelistFilePick.getFont().deriveFont(buttonOperationIpWhitelistFilePick.getFont().getStyle() | Font.BOLD));
                                     buttonOperationIpWhitelistFilePick.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationIpWhitelistFilePick.setMinimumSize(new Dimension(32, 24));
@@ -3235,7 +3242,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationHintKeysFilePick2 ----
-                                    buttonOperationHintKeysFilePick2.setText("...");
+                                    buttonOperationHintKeysFilePick2.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationHintKeysFilePick2.setFont(buttonOperationHintKeysFilePick2.getFont().deriveFont(buttonOperationHintKeysFilePick2.getFont().getStyle() | Font.BOLD));
                                     buttonOperationHintKeysFilePick2.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationHintKeysFilePick2.setMinimumSize(new Dimension(32, 24));
@@ -3323,7 +3330,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationHintKeysFilePick3 ----
-                                    buttonOperationHintKeysFilePick3.setText("...");
+                                    buttonOperationHintKeysFilePick3.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationHintKeysFilePick3.setFont(buttonOperationHintKeysFilePick3.getFont().deriveFont(buttonOperationHintKeysFilePick3.getFont().getStyle() | Font.BOLD));
                                     buttonOperationHintKeysFilePick3.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationHintKeysFilePick3.setMinimumSize(new Dimension(32, 24));
@@ -3370,7 +3377,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationAuthKeysFilePick3 ----
-                                    buttonOperationAuthKeysFilePick3.setText("...");
+                                    buttonOperationAuthKeysFilePick3.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationAuthKeysFilePick3.setFont(buttonOperationAuthKeysFilePick3.getFont().deriveFont(buttonOperationAuthKeysFilePick3.getFont().getStyle() | Font.BOLD));
                                     buttonOperationAuthKeysFilePick3.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationAuthKeysFilePick3.setMinimumSize(new Dimension(32, 24));
@@ -3447,7 +3454,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- buttonOperationBlacklistFilePick3 ----
-                                    buttonOperationBlacklistFilePick3.setText("...");
+                                    buttonOperationBlacklistFilePick3.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationBlacklistFilePick3.setFont(buttonOperationBlacklistFilePick3.getFont().deriveFont(buttonOperationBlacklistFilePick3.getFont().getStyle() | Font.BOLD));
                                     buttonOperationBlacklistFilePick3.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationBlacklistFilePick3.setMinimumSize(new Dimension(32, 24));
@@ -3494,7 +3501,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 0, 4), 0, 0));
 
                                     //---- buttonOperationIpWhitelistFilePick3 ----
-                                    buttonOperationIpWhitelistFilePick3.setText("...");
+                                    buttonOperationIpWhitelistFilePick3.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationIpWhitelistFilePick3.setFont(buttonOperationIpWhitelistFilePick3.getFont().deriveFont(buttonOperationIpWhitelistFilePick3.getFont().getStyle() | Font.BOLD));
                                     buttonOperationIpWhitelistFilePick3.setMaximumSize(new Dimension(32, 24));
                                     buttonOperationIpWhitelistFilePick3.setMinimumSize(new Dimension(32, 24));
@@ -3582,6 +3589,7 @@ public class OperationsUI extends AbstractToolDialog
                 //---- buttonOperationSave ----
                 buttonOperationSave.setText(context.cfg.gs("Z.save"));
                 buttonOperationSave.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                buttonOperationSave.setMnemonic('S');
                 buttonOperationSave.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(buttonOperationSave, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -3590,6 +3598,7 @@ public class OperationsUI extends AbstractToolDialog
                 //---- buttonOperationCancel ----
                 buttonOperationCancel.setText(context.cfg.gs("Z.cancel"));
                 buttonOperationCancel.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                buttonOperationCancel.setMnemonic('L');
                 buttonOperationCancel.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(buttonOperationCancel, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

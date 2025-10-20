@@ -143,8 +143,13 @@ public class FileEditor extends JDialog
             }
             helpDialog = new NavHelp(this, this, context, title, helpName + context.preferences.getLocale() + ".html", false);
         }
-        if (!helpDialog.fault)
+        else
+        {
+            helpDialog.setVisible(true);
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionRemoveClicked(ActionEvent e)
@@ -747,6 +752,7 @@ public class FileEditor extends JDialog
                 //---- okButton ----
                 okButton.setText(bundle.getString("Z.save"));
                 okButton.setToolTipText(bundle.getString("Z.save.toolTip.text"));
+                okButton.setMnemonic('S');
                 okButton.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -755,6 +761,7 @@ public class FileEditor extends JDialog
                 //---- cancelButton ----
                 cancelButton.setText(bundle.getString("Z.cancel"));
                 cancelButton.setToolTipText(bundle.getString("Z.cancel.changes.toolTipText"));
+                cancelButton.setMnemonic('L');
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

@@ -1458,11 +1458,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="org/apache/sshd/sftp/client/fs/SftpFileSystemProvider.html#getFileSystemIdentifier(java.net.URI)" class="member-name-link">getFileSystemIdentifier(URI)</a> - Static method in class org.apache.sshd.sftp.client.fs.<a href="org/apache/sshd/sftp/client/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.sftp.client.fs">SftpFileSystemProvider</a></dt>
 <dd>
-<div class="block">Uses the host, port and username to create a unique identifier</div>
+<div class="block">Uses the server, port and username to create a unique identifier</div>
 </dd>
 <dt><a href="org/apache/sshd/sftp/client/fs/SftpFileSystemProvider.html#getFileSystemIdentifier(org.apache.sshd.client.session.ClientSession)" class="member-name-link">getFileSystemIdentifier(ClientSession)</a> - Static method in class org.apache.sshd.sftp.client.fs.<a href="org/apache/sshd/sftp/client/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.sftp.client.fs">SftpFileSystemProvider</a></dt>
 <dd>
-<div class="block">Uses the remote host address, port and current username to create a unique identifier</div>
+<div class="block">Uses the remote server address, port and current username to create a unique identifier</div>
 </dd>
 <dt><a href="org/apache/sshd/sftp/client/fs/SftpDirectoryStream.html#getFilter()" class="member-name-link">getFilter()</a> - Method in class org.apache.sshd.sftp.client.fs.<a href="org/apache/sshd/sftp/client/fs/SftpDirectoryStream.html" title="class in org.apache.sshd.sftp.client.fs">SftpDirectoryStream</a></dt>
 <dd>&nbsp;</dd>
@@ -3466,7 +3466,7 @@ loadScripts(document, 'script');</script>
 <dt><a href="org/apache/sshd/sftp/client/fs/SftpFileSystemProvider.html" class="type-name-link" title="class in org.apache.sshd.sftp.client.fs">SftpFileSystemProvider</a> - Class in <a href="org/apache/sshd/sftp/client/fs/package-summary.html">org.apache.sshd.sftp.client.fs</a></dt>
 <dd>
 <div class="block">A registered <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/spi/FileSystemProvider.html" title="class or interface in java.nio.file.spi" class="external-link"><code>FileSystemProvider</code></a> that registers the &quot;sftp://&quot; scheme so that URLs with this protocol
- are handled as remote SFTP <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link"><code>Path</code></a>-s - e.g., &quot;<code>sftp://user:password@host/remote/file/path</code>&quot;</div>
+ are handled as remote SFTP <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link"><code>Path</code></a>-s - e.g., &quot;<code>sftp://user:password@server/remote/file/path</code>&quot;</div>
 </dd>
 <dt><a href="org/apache/sshd/sftp/client/fs/SftpFileSystemProvider.html#%3Cinit%3E()" class="member-name-link">SftpFileSystemProvider()</a> - Constructor for class org.apache.sshd.sftp.client.fs.<a href="org/apache/sshd/sftp/client/fs/SftpFileSystemProvider.html" title="class in org.apache.sshd.sftp.client.fs">SftpFileSystemProvider</a></dt>
 <dd>&nbsp;</dd>

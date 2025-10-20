@@ -1,0 +1,138 @@
+<html>
+<head>
+    <style>
+        html, body {
+            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+        }
+
+        div {
+            margin-left: 10px;
+            margin-right: 4px;
+        }
+
+        table {
+            border-bottom: 1px solid;
+            margin: 0 4px 4px;
+            padding: 4px;
+            width: 100%;
+        }
+
+        th {
+            border-bottom: 1px solid ;
+            text-align: left;
+        }
+
+        td {
+            text-align: left;
+        }
+
+        ul {
+            margin-left: 22px;
+        }
+    </style>
+</head>
+<body>
+<h2>Email Tool</h2>
+This tool is used to define outgoing SMTP parameters for email server(s) to send fault and Mismatches and/or What's New emails.
+
+<p>The Libraries tab, General defines the email address and options for the Publisher and Subscriber.</p>
+
+<p>The Preferences, General, Default Email Server option is used for fault notifications if no other Email Server is defined in a Job.</p>
+
+<p>The Preferences, Behavior, Ask before sending emails option applies when using the Navigator or foreground ELS Logger.
+Otherwise when operating in the background emails will be sent depending on the conditions described below.</p>
+
+<p>Fault emails are not sent when the Navigator is being used.</p>
+
+<p>Mismatches and What's New emails are only sent if something is backed-up or Hints are performed.</p>
+
+<br/>
+
+<h3>OAuth2 Status</h3>
+
+Have the ELS application registered with Google, Microsoft and Zoho and have client_id's and "<i>Sign-In With</i>"
+working for those but have not found the combination to make sending emails with OAuth2 work. It is in
+"test mode" on those providers until it can be made to work.
+
+<p>Set the Debug Level to "Trace" to enabled email-related debug logging to file.</p>
+
+<br/>
+
+<h3>What Works</h3>
+<ul>
+    <li>Apple iCloud mail works with an App Password instead of user password.</li>
+    <ul>
+        <li><a href="https://support.apple.com/en-us/102525">SMTP settings.</a></li>
+        <li><a href="https://support.apple.com/en-us/102654">App password.</a></li>
+</ul></ul>
+<ul>
+    <li>GMail works with an App Password instead of user password.</li>
+    <ul>
+        <li><a href="https://support.google.com/a/answer/176600?hl=en">SMTP settings.</a></li>
+        <li><a href="https://support.google.com/accounts/answer/185833?hl=en">App password.</a></li>
+</ul></ul>
+<ul>
+    <li>Outlook does not work due to deprecation of App Passwords and have not found the combination for OAuth2.</li>
+</ul>
+<ul>
+    <li>Generic SMTP works.</li>
+</ul>
+<ul>
+    <li>Zoho works with user name (email address) and user password.</li>
+    <ul>
+        <li><a href="https://www.zoho.com/mail/help/zoho-smtp.html">SMTP settings.</a><br/></li>
+</ul></ul>
+
+<h3>Options</h3>
+
+Named configurations are used in Publish Jobs and as a Preference for fault notifications if none defined in a Publish Job.
+
+<br/><br/>
+
+<h4>Profile</h4>
+<ul>
+    <li>The value is used to deal with the nuances of OAuth2.</li>
+</ul>
+
+<h4>Server name</h4>
+<ul>
+    <li>The value is the target SMTP server.</li>
+</ul>
+
+<h4>User name</h4>
+<ul>
+    <li>The value is email address on the SMTP server.</li>
+</ul>
+
+<h4>Password</h4>
+<ul>
+    <li>The value is the user password or App Password on the SMTP server.</li>
+</ul>
+
+<h4>Port</h4>
+<ul>
+    <li>The value is the port number on the SMTP server.</li>
+</ul>
+
+<h4>Connection security</h4>
+<ul>
+    <li>The value is the required security of the SMTP server.</li>
+</ul>
+
+<h4>Authentication method</h4>
+<ul>
+    <li>The value is the required authentication method on the SMTP server.</li>
+</ul>
+
+<h4>Authenticate ... button</h4>
+<ul>
+    <li>If the Authentication method is OAuth2 this button is enabled whenever authentication is expired.</li>
+</ul>
+
+<h4>Test ... button</h4>
+<ul>
+    <li>When authenticated, or if OAuth2 is not used, this button sends a test email to the email address of the current Publisher.</li>
+</ul>
+
+</body>
+</html>

@@ -22,6 +22,8 @@ import org.apache.sshd.sftp.server.SftpErrorStatusDataHandler;
 import org.apache.sshd.sftp.server.SftpSubsystemEnvironment;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.security.PublicKey;
@@ -119,6 +121,43 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         return e.toString();
     }
 
+    private boolean isListed(SocketAddress socketAddress, boolean whiteList) throws IOException
+    {
+        boolean sense = whiteList;
+        String file = (whiteList ? context.cfg.getIpWhitelist() : context.cfg.getBlacklist());
+        if (file != null && file.length() > 0)
+        {
+            String filename = Utils.getFullPathLocal(file);
+            if (filename.length() > 0)
+            {
+                String inet = socketAddress.toString();
+                if (inet != null)
+                {
+                    sense = false;
+                    inet = inet.replaceAll("/", "");
+                    inet = inet.replaceAll("\\\\", "");
+                    inet = inet.substring(0, inet.lastIndexOf(":"));
+                    BufferedReader br = new BufferedReader(new FileReader(filename));
+                    String line;
+                    while ((line = br.readLine()) != null)
+                    {
+                        line = line.trim();
+                        if (line.length() > 0 && !line.startsWith("#"))
+                        {
+                            if (inet.equals(line))
+                            {
+                                sense = true;
+                                break;
+                            }
+                        }
+                    }
+                    br.close();
+                }
+            }
+        }
+        return sense;
+    }
+
     @Override
     public int resolveSubStatus(SftpSubsystemEnvironment sftpSubsystem, int id, Throwable e, int cmd, Object... args)
     {
@@ -166,52 +205,85 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 public boolean authenticate(String s, String s1, ServerSession serverSession) throws PasswordChangeRequiredException, AsyncAuthException
                 {
                     boolean authenticated = false;
-                    HintKeys keys = (context.authKeys != null) ? context.authKeys : context.hintKeys;
-                    if (keys != null)
+
+                    // check blacklist then whitelist
+                    boolean ipVerified = false;
+                    try
                     {
-                        HintKey connectedKey = keys.findKey(password);  // look for matching key in hints keys file
-                        if (connectedKey != null)
+                        SocketAddress sa = serverSession.getClientAddress();
+                        if (isListed(sa, false)) // blacklisted, disconnect
+                        {
+                            logger.warn(context.cfg.gs("Comm.blacklisted.ip") +
+                                    sa.toString().replaceAll("/", "").replaceAll("\\\\", "") +
+                                    context.cfg.gs("Comm.attempted.login"));
+                        }
+                        else if (isListed(sa, true)) // if it is whitelisted or there is no whitelist
+                        {
+                            ipVerified = true;
+                        }
+                        else // not whitelisted, disconnect
+                        {
+                            logger.warn(context.cfg.gs("Comm.not.whitelisted.ip") +
+                                    sa.toString().replaceAll("/", "").replaceAll("\\\\", "") +
+                                    context.cfg.gs("Comm.attempted.login"));
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        logger.error(Utils.getStackTrace(e));
+                    }
+
+                    // check credentials
+                    if (ipVerified)
+                    {
+                        HintKeys keys = (context.authKeys != null) ? context.authKeys : context.hintKeys;
+                        if (keys != null)
+                        {
+                            HintKey connectedKey = keys.findKey(password);  // look for matching key in hints keys file
+                            if (connectedKey != null)
+                            {
+                                authenticated = true;
+                                loginAttempts = 1;
+                                loginAttemptAddress = "";
+                                String them = "";
+                                HintKey theirKey = keys.findKey(s);
+                                if (theirKey != null)
+                                    them = MessageFormat.format(context.cfg.gs("Z.at"), theirKey.system);
+                                logger.info(context.cfg.gs("Sftp.server.authenticated") + them + serverSession.getClientAddress().toString());
+                            }
+                        }
+                        else if (s.equals(user) && s1.equals(password))
                         {
                             authenticated = true;
                             loginAttempts = 1;
                             loginAttemptAddress = "";
-                            String them = "";
-                            HintKey theirKey = keys.findKey(s);
-                            if (theirKey != null)
-                                them = MessageFormat.format(context.cfg.gs("Z.at"), theirKey.system);
-                            logger.info(context.cfg.gs("Sftp.server.authenticated") + them + serverSession.getClientAddress().toString());
-                        }
-                    } else if (s.equals(user) && s1.equals(password))
-                    {
-                        authenticated = true;
-                        loginAttempts = 1;
-                        loginAttemptAddress = "";
-                        logger.info(context.cfg.gs("Sftp.server.authenticated") + serverSession.getClientAddress().toString());
-                    }
-                    else
-                    {
-                        if (serverSession.getClientAddress().toString().equals(loginAttemptAddress))
-                        {
-                            ++loginAttempts;
+                            logger.info(context.cfg.gs("Sftp.server.authenticated") + serverSession.getClientAddress().toString());
                         }
                         else
                         {
-                            loginAttempts = 1;
-                        }
-                        loginAttemptAddress = serverSession.getClientAddress().toString();
-                        logger.warn(MessageFormat.format(context.cfg.gs("Sftp.login.attempt.failed.user"), loginAttempts) +
-                                user + "\n/\"" + password + context.cfg.gs("Sftp.from") + serverSession.getClientAddress());
-                        if (loginAttempts > 3)
-                        {
-                            try
+                            if (serverSession.getClientAddress().toString().equals(loginAttemptAddress))
                             {
-                                // random sleep for 1-3 minutes to discourage automated attacks
-                                Random rand = new Random();
-                                Thread.sleep(rand.nextInt(3) * 2000L);
+                                ++loginAttempts;
                             }
-                            catch (InterruptedException e)
+                            else
                             {
-                                //
+                                loginAttempts = 1;
+                            }
+                            loginAttemptAddress = serverSession.getClientAddress().toString();
+                            logger.warn(MessageFormat.format(context.cfg.gs("Sftp.login.attempt.failed.user"), loginAttempts) +
+                                    user + "\n/\"" + password + context.cfg.gs("Sftp.from") + serverSession.getClientAddress());
+                            if (loginAttempts > 3)
+                            {
+                                try
+                                {
+                                    // random sleep for 1-3 minutes to discourage automated attacks
+                                    Random rand = new Random();
+                                    Thread.sleep(rand.nextInt(3) * 2000L);
+                                }
+                                catch (InterruptedException e)
+                                {
+                                    //
+                                }
                             }
                         }
                     }

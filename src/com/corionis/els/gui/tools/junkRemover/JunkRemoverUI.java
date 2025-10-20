@@ -35,6 +35,7 @@ public class JunkRemoverUI extends AbstractToolDialog
     private NavHelp helpDialog;
     private boolean isDryRun;
     private boolean isSubscriber;
+    private JunkRemoverUI me;
     private SwingWorker<Void, Void> worker;
     private JunkRemoverTool workerJrt = null;
     private boolean workerRunning = false;
@@ -44,6 +45,7 @@ public class JunkRemoverUI extends AbstractToolDialog
     {
         super(owner);
         this.context = context;
+        this.me = this;
 
         initComponents();
 
@@ -251,9 +253,19 @@ public class JunkRemoverUI extends AbstractToolDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("JunkRemover.help"), "junkremover_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("JunkRemover.help"), "junkremover_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.setVisible(true);
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionNewClicked(ActionEvent e)
@@ -405,7 +417,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                                         if (context != null)
                                         {
                                             logger.error(msg);
-                                            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                                            JOptionPane.showMessageDialog(me, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                                         }
                                         else
                                             logger.error(msg);
@@ -516,11 +528,8 @@ public class JunkRemoverUI extends AbstractToolDialog
             tableJunk.getCellEditor().stopCellEditing();
         }
 
-        for (int i = 0; i < deletedTools.size(); ++i)
-        {
-            if (deletedTools.get(i).isDataChanged())
-                return true;
-        }
+        if (!deletedTools.isEmpty())
+            return true;
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -633,6 +642,7 @@ public class JunkRemoverUI extends AbstractToolDialog
             if (origins != null && origins.size() > 0)
             {
                 workerTask = new Task(jrt.getInternalName(), jrt.getConfigName());
+                workerTask.setContext(jrt.getContext());
                 workerTask.setDryRun(isDryRun);
                 workerTask.setOrigins(origins);
 
@@ -1009,6 +1019,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                 //---- saveButton ----
                 saveButton.setText(context.cfg.gs("Z.save"));
                 saveButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                saveButton.setMnemonic(context.cfg.gs("JunkRemover.saveButton.mnemonic").charAt(0));
                 saveButton.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1017,6 +1028,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                 //---- cancelButton ----
                 cancelButton.setText(context.cfg.gs("Z.cancel"));
                 cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setMnemonic(context.cfg.gs("JunkRemover.cancelButton.mnemonic_2").charAt(0));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

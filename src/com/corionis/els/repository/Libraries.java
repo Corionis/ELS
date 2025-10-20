@@ -72,9 +72,29 @@ public class Libraries
     public String[] ignore_patterns = new String[0];
 
     /**
-     * Compiled patterns of ignore_patterns, transient
+     * Email address for notifications
      */
-    public transient List<Pattern> compiledPatterns = new ArrayList<>();
+    public String email = "";
+
+    /**
+     * Format for emails
+     */
+    public String format = "HTML";
+
+    /**
+     * Mismatches notifications
+     */
+    public Boolean mismatches = false;
+
+    /**
+     * What's New notifications
+     */
+    public Boolean whatsNew = false;
+
+    /**
+     * Skip error notifications if offline, error "Remote subscriber failed to connect"
+     */
+    public Boolean skipOffline = true;
 
     /**
      * Storage
@@ -85,5 +105,10 @@ public class Libraries
      * The list of libraries
      */
     public Library[] bibliography = new Library[0];
+
+    /**
+     * Compiled patterns of ignore_patterns, transient
+     */
+    public transient List<Pattern> compiledPatterns = new ArrayList<>();
 
 }

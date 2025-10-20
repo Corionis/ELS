@@ -108,9 +108,19 @@ public class DuplicateFinderUI extends JDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("DuplicateFinder.help"), "duplicatefinder_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("DuplicateFinder.help"), "duplicatefinder_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.setVisible(true);
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionRunClicked(ActionEvent e)
@@ -553,6 +563,7 @@ public class DuplicateFinderUI extends JDialog
                         //---- closeButton ----
                         closeButton.setText(context.cfg.gs("Z.done"));
                         closeButton.setToolTipText(context.cfg.gs("Z.done.toolTipText"));
+                        closeButton.setMnemonic(context.cfg.gs("DuplicateFinder.closeButton.mnemonic").charAt(0));
                         closeButton.addActionListener(e -> actionCloseClicked(e));
                         buttonBar.add(closeButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,

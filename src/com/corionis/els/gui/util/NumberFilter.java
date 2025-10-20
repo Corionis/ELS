@@ -42,6 +42,8 @@ public class NumberFilter extends DocumentFilter
 
         if (test(sb.toString()))
             super.replace(fb, offset, length, text, attrs);
+        else if (text != null && text.isEmpty()) // to clear a filtered field
+            super.replace(fb, offset, length, text, attrs);
     }
 
     private boolean test(String text)

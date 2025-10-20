@@ -22,6 +22,7 @@ import javax.swing.border.*;
 
 public class HintsUI extends JDialog
 {
+    private boolean allSelected = false;
     private Context context;
     private boolean changesMade = false;
     private NavHelp helpDialog;
@@ -138,6 +139,7 @@ public class HintsUI extends JDialog
 
             context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
 
+            setWidths();
             setVisible(true);
             requestFocus();
         }
@@ -147,9 +149,10 @@ public class HintsUI extends JDialog
     {
         if (model != null && hints != null)
         {
+            allSelected = !allSelected;
             for (Hint hint : hints)
             {
-                hint.selected = true;
+                hint.selected = allSelected;
             }
             model.fireTableDataChanged();
         }
@@ -232,23 +235,19 @@ public class HintsUI extends JDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
-            helpDialog.buttonFocus();
-    }
-
-    private void actionNoneClicked(ActionEvent e)
-    {
-        if (model != null && hints != null)
+        if (helpDialog == null)
         {
-            for (Hint hint : hints)
-            {
-                hint.selected = false;
-            }
-            model.fireTableDataChanged();
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
         }
-        setButtons();
-        labelStatus.setText("");
+        else
+        {
+            helpDialog.setVisible(true);
+            helpDialog.toFront();
+            helpDialog.requestFocus();
+            helpDialog.buttonFocus();
+        }
     }
 
     private void actionRunClicked(ActionEvent e)
@@ -353,7 +352,7 @@ public class HintsUI extends JDialog
         {
             try
             {
-                String result = context.hintsHandler.hintsMunge(pendingFor, isPublisher, model, null);
+                String result = context.hintsHandler.hintsMunge(pendingFor, isPublisher, model, null, null);
                 if (!result.toLowerCase().equals("false"))
                 {
                     if (context.preferences.isAutoRefresh())
@@ -533,8 +532,6 @@ public class HintsUI extends JDialog
                     subscriberDisplayName = context.cfg.gs("HintsUI.not.loaded");
                 }
 
-                tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
-                setWidths();
                 model.fireTableDataChanged();
                 refreshStatus();
             }
@@ -543,6 +540,7 @@ public class HintsUI extends JDialog
                 labelStatus.setText(context.cfg.gs("HintsUI.hint.tracker.server.not.enabled"));
             }
 
+            setWidths();
             context.navigator.checkForHints();
             setButtons();
         }
@@ -608,6 +606,8 @@ public class HintsUI extends JDialog
     {
         tableHints.getColumnModel().getColumn(0).setPreferredWidth(22);
         tableHints.getColumnModel().getColumn(0).setWidth(22);
+        tableHints.getColumnModel().getColumn(0).setMaxWidth(22);
+        tableHints.getColumnModel().getColumn(0).setMinWidth(22);
         tableHints.getColumnModel().getColumn(0).setResizable(false);
         tableHints.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getHintsSystemWidth());
         tableHints.getColumnModel().getColumn(1).setWidth(context.preferences.getHintsSystemWidth());
@@ -626,10 +626,13 @@ public class HintsUI extends JDialog
         tableHints.getColumnModel().getColumn(8).setPreferredWidth(context.preferences.getHintsToItemWidth());
         tableHints.getColumnModel().getColumn(8).setWidth(context.preferences.getHintsToItemWidth());
 
-        for (int i = 0; i < context.hintKeys.size(); ++i)
+        if (context.cfg.isHintTrackingEnabled())
         {
-            tableHints.getColumnModel().getColumn(i + 9).setPreferredWidth(context.preferences.getHintsStatusWidth());
-            tableHints.getColumnModel().getColumn(i + 9).setWidth(context.preferences.getHintsStatusWidth());
+            for (int i = 0; i < context.hintKeys.size(); ++i)
+            {
+                tableHints.getColumnModel().getColumn(i + 9).setPreferredWidth(context.preferences.getHintsStatusWidth());
+                tableHints.getColumnModel().getColumn(i + 9).setWidth(context.preferences.getHintsStatusWidth());
+            }
         }
     }
 
@@ -661,7 +664,6 @@ public class HintsUI extends JDialog
         tableHints = new JTable();
         panelOptionsButtons = new JPanel();
         buttonAll = new JButton();
-        buttonNone = new JButton();
         panelBottom = new JPanel();
         labelStatus = new JLabel();
         buttonBar = new JPanel();
@@ -781,18 +783,6 @@ public class HintsUI extends JDialog
                     buttonAll.setMargin(new Insets(0, -10, 0, -10));
                     buttonAll.addActionListener(e -> actionAllClicked(e));
                     panelOptionsButtons.add(buttonAll);
-
-                    //---- buttonNone ----
-                    buttonNone.setText(context.cfg.gs("HintsUI.buttonNone.text"));
-                    buttonNone.setFont(buttonNone.getFont().deriveFont(buttonNone.getFont().getSize() - 2f));
-                    buttonNone.setPreferredSize(new Dimension(78, 24));
-                    buttonNone.setMinimumSize(new Dimension(78, 24));
-                    buttonNone.setMaximumSize(new Dimension(78, 24));
-                    buttonNone.setMnemonic(context.cfg.gs("HintsUI.buttonNone.mnemonic").charAt(0));
-                    buttonNone.setToolTipText(context.cfg.gs("HintsUI.buttonNone.toolTipText"));
-                    buttonNone.setMargin(new Insets(0, -10, 0, -10));
-                    buttonNone.addActionListener(e -> actionNoneClicked(e));
-                    panelOptionsButtons.add(buttonNone);
                 }
                 contentPanel.add(panelOptionsButtons, BorderLayout.SOUTH);
             }
@@ -816,6 +806,7 @@ public class HintsUI extends JDialog
                     //---- okButton ----
                     okButton.setText(context.cfg.gs("Z.ok"));
                     okButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                    okButton.setMnemonic('O');
                     okButton.addActionListener(e -> actionOkClicked(e));
                     buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -824,6 +815,7 @@ public class HintsUI extends JDialog
                     //---- cancelButton ----
                     cancelButton.setText(context.cfg.gs("Z.cancel"));
                     cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                    cancelButton.setMnemonic('L');
                     cancelButton.addActionListener(e -> actionCancelClicked(e));
                     buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -853,7 +845,6 @@ public class HintsUI extends JDialog
     public JTable tableHints;
     public JPanel panelOptionsButtons;
     public JButton buttonAll;
-    public JButton buttonNone;
     public JPanel panelBottom;
     public JLabel labelStatus;
     public JPanel buttonBar;

@@ -32,7 +32,7 @@ public class DirectoryPicker
      * <p><br/>
      * Allows using either a Browser selection or the
      * standard file picker to select a "real" physical path.
-     * Local and remote subscriber paths are supported.
+     * Local and remote paths are supported.
      * <p><br/>
      * <b>Note:</b> Remote Browser paths are relative to
      * that computer.
@@ -97,6 +97,8 @@ public class DirectoryPicker
         directorySelectionButton = new JButton(context.cfg.gs("Z.ellipsis"));
         directorySelectionButton.setIconTextGap(0);
         directorySelectionButton.setHorizontalTextPosition(SwingConstants.LEADING);
+        directorySelectionButton.setPreferredSize(new Dimension(32, 24));
+        directorySelectionButton.setMinimumSize(new Dimension(32, 24));
         directorySelectionButton.setToolTipText(context.cfg.gs("Libraries.use.directory.picker.tooltip"));
 
         panel.add(directorySelectionButton, new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0,

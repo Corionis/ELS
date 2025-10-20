@@ -52,7 +52,7 @@ public class Generator
     public Generator(Context context, boolean isFileGenerate)
     {
         this.context = context;
-        this.fileGenerate = isFileGenerate;
+        this.fileGenerate = isFileGenerate; // from File, Generate
     }
 
     private void createDesktopShortcut(JDialog owner, String name, String commandLine)
@@ -240,11 +240,11 @@ public class Generator
         {
             if (tool == null) // File, Generate ...
             {
-                generated = context.cfg.generateCurrentCommandline(consoleLevel, debugLevel, overwrite, log);
+                generated = context.cfg.generateCommandLine(consoleLevel, debugLevel, overwrite, log);
             }
             else if (tool instanceof Job)
             {
-                generated = generateJobCommandline(tool, consoleLevel, debugLevel, overwrite, log, foreground);
+                generated = generateCommandLineJob(tool, consoleLevel, debugLevel, overwrite, log, foreground);
             }
 /*
     // this has been removed from OperationsUI; But OperationsTool.generateCommandLine() is used when running a Job
@@ -262,13 +262,13 @@ public class Generator
         return generated;
     }
 
-    private String generateJobCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log, boolean foreground) throws Exception
+    private String generateCommandLineJob(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log, boolean foreground) throws Exception
     {
         // generate-commandline
         boolean glo = context.preferences.isGenerateLongOptions();
         String exec = context.cfg.getExecutablePath();
         String jar = ""; //(Utils.isOsLinux() ? context.cfg.getElsJar() : "");
-        String opts = ((Job) tool).generateCommandline(dryRun);
+        String opts = ((Job) tool).generateCommandLineJob(dryRun);
         if (foreground)
             opts += " --logger";
         String overOpt = overwriteLog ? (glo ? "--log-overwrite" : "-F") : (glo ? "--log-file" : "-f");
@@ -465,7 +465,7 @@ public class Generator
                         File file = fc.getSelectedFile();
                         if (file.isDirectory())
                         {
-                            JOptionPane.showMessageDialog(context.mainFrame,
+                            JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner,
                                     context.cfg.gs("Navigator.open.error.select.a.file.only"),
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
@@ -627,15 +627,28 @@ public class Generator
                 {
                     if (tool.isDataChanged())
                     {
-                        JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner, context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner,
+                                context.cfg.gs("Z.please.save.then.run"), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                         return;
+                    }
+
+                    if (tool.getInternalName().equalsIgnoreCase(Job.INTERNAL_NAME))
+                    {
+                        String status = ((Job)tool).validate(context.cfg, false);
+                        if (status.length() > 0)
+                        {
+                            JOptionPane.showMessageDialog((owner == null) ? context.mainFrame.panelMain : owner, status,
+                                    context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
                     }
 
                     String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), tool.getConfigName());
                     Object[] params = {message};
 
                     // confirm run of job
-                    int reply = JOptionPane.showConfirmDialog((owner == null) ? context.mainFrame.panelMain : owner, params, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+                    int reply = JOptionPane.showConfirmDialog((owner == null) ? context.mainFrame.panelMain : owner, params,
+                            context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)
                     {
                         try
@@ -654,7 +667,7 @@ public class Generator
                             logger.error(Utils.getStackTrace(e));
                             message = context.cfg.gs("Generator.error.launching") + tool.getConfigName() + ", " + e.getMessage();
                             Object[] opts = {context.cfg.gs("Z.ok")};
-                            JOptionPane.showOptionDialog(context.mainFrame, message, getTitle(tool),
+                            JOptionPane.showOptionDialog((owner == null) ? context.mainFrame.panelMain : owner, message, getTitle(tool),
                                     JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
                         }
                     }

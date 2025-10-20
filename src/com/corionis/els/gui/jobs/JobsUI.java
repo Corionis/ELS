@@ -10,6 +10,8 @@ import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.tools.AbstractTool;
+import com.corionis.els.tools.Tools;
+import com.corionis.els.tools.email.EmailTool;
 import com.corionis.els.tools.operations.OperationsTool;
 import com.corionis.els.tools.sleep.SleepTool;
 import com.corionis.els.jobs.*;
@@ -18,7 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -151,8 +152,7 @@ public class JobsUI extends AbstractToolDialog
         });
 
         // setup the publisher/subscriber Task Origins table
-        Border border = buttonPub.getBorder();
-        panelPubSub.setBorder(border);
+        panelPubSub.setBorder(context.mainFrame.scrollPaneTableCollectionOne.getBorder());
 
         repositories = getRepositories();
         loadConfigurations();
@@ -260,6 +260,49 @@ public class JobsUI extends AbstractToolDialog
         }
     }
 
+    private void actionEmailServerClicked(ActionEvent e)
+    {
+        if (currentTask != null)
+        {
+            ArrayList<AbstractTool> emailToolList = new ArrayList<>();
+            String title = context.cfg.gs("JobsUI.combo.select.email");
+
+            JComboBox comboBoxEmailServer = new JComboBox();
+            Tools tools = new Tools();
+            try
+            {
+                emailToolList = tools.loadAllTools(context, EmailTool.INTERNAL_NAME);
+                comboBoxEmailServer.addItem("None");
+                for (AbstractTool tool : emailToolList)
+                {
+                    comboBoxEmailServer.addItem(tool.getConfigName());
+                }
+            }
+            catch (Exception ex)
+            {
+                // ignored
+            }
+
+            if (currentTask.getEmailTool().length() == 0)
+                comboBoxEmailServer.setSelectedIndex(0);
+            else
+                comboBoxEmailServer.setSelectedItem(currentTask.getEmailTool());
+
+            Object[] params = {title, comboBoxEmailServer};
+            // prompt user
+            int opt = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("JobsUI.title"), JOptionPane.OK_CANCEL_OPTION);
+            if (opt == JOptionPane.YES_OPTION)
+            {
+                String sel = comboBoxEmailServer.getSelectedItem().toString();
+                labelEmail.setText(sel);
+                if (sel.equalsIgnoreCase("None"))
+                    sel = "";
+                currentTask.setEmailTool(sel);
+                currentJob.setDataHasChanged();
+            }
+        }
+    }
+
     private void actionGenerateClicked(ActionEvent evt)
     {
         Generator generator = new Generator(context, false);
@@ -268,9 +311,19 @@ public class JobsUI extends AbstractToolDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
-        helpDialog = new NavHelp(this, this, context, context.cfg.gs("JobsUI.help"), "jobs_" + context.preferences.getLocale() + ".html", false);
-        if (!helpDialog.fault)
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("JobsUI.help"), "jobs_" + context.preferences.getLocale() + ".html", false);
+            if (!helpDialog.fault)
+                helpDialog.buttonFocus();
+        }
+        else
+        {
+            helpDialog.setVisible(true);
+            helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
+        }
     }
 
     private void actionNewClicked(ActionEvent evt)
@@ -484,7 +537,7 @@ public class JobsUI extends AbstractToolDialog
             else if (command.equals("buttonHints"))
             {
                 title = context.cfg.gs("JobsUI.combo.select.hints");
-                tip = context.cfg.gs("JobsUI.select.hint.address.tooltip");
+                tip = context.cfg.gs("JobsUI.select.hint.tooltip");
             }
 
             combo.setToolTipText(tip);
@@ -537,7 +590,7 @@ public class JobsUI extends AbstractToolDialog
                 if (!currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) ||
                         !((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.Listener))
                 {
-                    text = context.cfg.gs("JobsUI.subscriber.remote.host");
+                    text = context.cfg.gs("JobsUI.subscriber.remote.server");
                     combo.addItem(new ComboItem(id++, text, REMOTE_HOST));
                 }
 
@@ -584,7 +637,7 @@ public class JobsUI extends AbstractToolDialog
                 if (!currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) ||
                         !((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.HintServer))
                 {
-                    text = context.cfg.gs("JobsUI.hints.remote.host");
+                    text = context.cfg.gs("JobsUI.hints.remote.server");
                     combo.addItem(new ComboItem(id++, text, REMOTE_HOST));
                     if (currentTask.isHintsRemote() && !currentTask.isHintsOverrideHost())
                         selectedCombo = id - 1;
@@ -764,7 +817,7 @@ public class JobsUI extends AbstractToolDialog
                             String msg = (currentTool.isToolPublisher() ? context.cfg.gs("JobsUI.select.publisher.tooltip") :
                                     (currentTool.isToolSubscriber() ? context.cfg.gs("JobsUI.select.subscriber.tooltip") :
                                             (currentTool.isToolPubOrSub() ? context.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip") :
-                                                    context.cfg.gs("JobsUI.select.hint.address.tooltip"))));
+                                                    context.cfg.gs("JobsUI.select.hint.tooltip"))));
                             JOptionPane.showMessageDialog(this, msg,
                                     context.cfg.gs("JobsUI.title"), JOptionPane.INFORMATION_MESSAGE);
                             continue;
@@ -1202,11 +1255,8 @@ public class JobsUI extends AbstractToolDialog
 
     public boolean checkForChanges()
     {
-        for (int i = 0; i < deletedTools.size(); ++i)
-        {
-            if (deletedTools.get(i).isDataChanged())
-                return true;
-        }
+        if (!deletedTools.isEmpty())
+            return true;
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -1551,6 +1601,8 @@ public class JobsUI extends AbstractToolDialog
         buttonSub.setVisible(false);
         labelHints.setVisible(false);
         buttonHints.setVisible(false);
+        labelEmail.setVisible(false);
+        buttonEmail.setVisible(false);
 
         if (currentTool == null)
         {
@@ -1571,6 +1623,10 @@ public class JobsUI extends AbstractToolDialog
         boolean needHints = currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
                 ((((OperationsTool) currentTool).isToolHintServer() || ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.StatusQuit)) ||
                 (!((OperationsTool) currentTool).getOptKeys().isEmpty()));
+        boolean optionalEmail = currentTask.getInternalName().equals(OperationsTool.INTERNAL_NAME) &&
+                (((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.Publisher) ||
+                ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.Listener) ||
+                ((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.HintServer));
 
         if (needPublisher || currentTool.isToolPublisher()) // -------------------------------------------------------- Publisher
         {
@@ -1726,7 +1782,7 @@ public class JobsUI extends AbstractToolDialog
 
             key = currentTask.getHintsKey();
             if (key.trim().length() == 0)
-                value = context.cfg.gs("JobsUI.select.hint.address");
+                value = context.cfg.gs("JobsUI.select.hint");
             else
             {
                 RepoMeta repoMeta = repositories.findMetaAdd(context, key, currentTask.getSubscriberPath(), Repository.HINT_SERVER);
@@ -1758,8 +1814,20 @@ public class JobsUI extends AbstractToolDialog
             labelHints.setToolTipText(value);
 
             buttonHints.setVisible(true);
-            value = context.cfg.gs("JobsUI.select.hint.address.tooltip");
+            value = context.cfg.gs("JobsUI.select.hint.tooltip");
             buttonHints.setToolTipText(value);
+        }
+
+        if (optionalEmail) // ------------------------------------------------------------------------ Email Server
+        {
+            String email = currentTask.getEmailTool();
+            if (email.isEmpty())
+                labelEmail.setText("None");
+            else
+                labelEmail.setText(email);
+            labelEmail.setVisible(true);
+            buttonEmail.setVisible(true);
+            buttonEmail.setToolTipText(email);
         }
 
         enableDisableOrigins(currentTool.isToolOriginsUsed());
@@ -1791,7 +1859,7 @@ public class JobsUI extends AbstractToolDialog
     public void processJob(Job job)
     {
         // validate job tasks and origins
-        String status = job.validate(context.cfg);
+        String status = job.validate(context.cfg, true);
         if (status.length() == 0)
         {
             // make dialog pieces
@@ -2087,6 +2155,8 @@ public class JobsUI extends AbstractToolDialog
         buttonSub = new JButton();
         labelHints = new JLabel();
         buttonHints = new JButton();
+        labelEmail = new JLabel();
+        buttonEmail = new JButton();
         scrollPaneOrigins = new JScrollPane();
         listOrigins = new JList();
         panelOriginsButtons = new JPanel();
@@ -2321,21 +2391,20 @@ public class JobsUI extends AbstractToolDialog
 
                                 //======== panelOriginInstance ========
                                 {
-                                    panelOriginInstance.setBorder(null);
                                     panelOriginInstance.setLayout(new BorderLayout());
 
                                     //======== panelPubSub ========
                                     {
                                         panelPubSub.setLayout(new GridBagLayout());
                                         ((GridBagLayout)panelPubSub.getLayout()).columnWidths = new int[] {0, 0, 0};
-                                        ((GridBagLayout)panelPubSub.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                                        ((GridBagLayout)panelPubSub.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0};
                                         ((GridBagLayout)panelPubSub.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                                        ((GridBagLayout)panelPubSub.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                                        ((GridBagLayout)panelPubSub.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                                         //---- labelPub ----
                                         labelPub.setMaximumSize(new Dimension(24, 18));
                                         labelPub.setMinimumSize(new Dimension(24, 18));
-                                        labelPub.setPreferredSize(new Dimension(24, 18));
+                                        labelPub.setPreferredSize(new Dimension(24, 30));
                                         labelPub.setFont(labelPub.getFont().deriveFont(labelPub.getFont().getSize() + 1f));
                                         panelPubSub.add(labelPub, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2359,7 +2428,7 @@ public class JobsUI extends AbstractToolDialog
                                         //---- labelSub ----
                                         labelSub.setMaximumSize(new Dimension(24, 18));
                                         labelSub.setMinimumSize(new Dimension(24, 18));
-                                        labelSub.setPreferredSize(new Dimension(24, 18));
+                                        labelSub.setPreferredSize(new Dimension(24, 30));
                                         labelSub.setFont(labelSub.getFont().deriveFont(labelSub.getFont().getSize() + 1f));
                                         panelPubSub.add(labelSub, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2383,7 +2452,7 @@ public class JobsUI extends AbstractToolDialog
                                         //---- labelHints ----
                                         labelHints.setMaximumSize(new Dimension(24, 18));
                                         labelHints.setMinimumSize(new Dimension(24, 18));
-                                        labelHints.setPreferredSize(new Dimension(24, 18));
+                                        labelHints.setPreferredSize(new Dimension(24, 30));
                                         labelHints.setFont(labelHints.getFont().deriveFont(labelHints.getFont().getSize() + 1f));
                                         panelPubSub.add(labelHints, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2401,6 +2470,30 @@ public class JobsUI extends AbstractToolDialog
                                         buttonHints.setActionCommand("buttonHints");
                                         buttonHints.addActionListener(e -> actionPubSubClicked(e));
                                         panelPubSub.add(buttonHints, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 0, 0), 0, 0));
+
+                                        //---- labelEmail ----
+                                        labelEmail.setMaximumSize(new Dimension(24, 18));
+                                        labelEmail.setMinimumSize(new Dimension(24, 18));
+                                        labelEmail.setPreferredSize(new Dimension(24, 30));
+                                        labelEmail.setFont(labelEmail.getFont().deriveFont(labelEmail.getFont().getSize() + 1f));
+                                        panelPubSub.add(labelEmail, new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 4, 0, 8), 0, 0));
+
+                                        //---- buttonEmail ----
+                                        buttonEmail.setText("...");
+                                        buttonEmail.setMaximumSize(new Dimension(32, 24));
+                                        buttonEmail.setMinimumSize(new Dimension(32, 24));
+                                        buttonEmail.setPreferredSize(new Dimension(32, 24));
+                                        buttonEmail.setVerticalTextPosition(SwingConstants.TOP);
+                                        buttonEmail.setFont(buttonEmail.getFont().deriveFont(buttonEmail.getFont().getStyle() | Font.BOLD));
+                                        buttonEmail.setHorizontalTextPosition(SwingConstants.LEADING);
+                                        buttonEmail.setIconTextGap(0);
+                                        buttonEmail.setActionCommand("buttonEmail'");
+                                        buttonEmail.addActionListener(e -> actionEmailServerClicked(e));
+                                        panelPubSub.add(buttonEmail, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 0, 0), 0, 0));
                                     }
@@ -2538,6 +2631,7 @@ public class JobsUI extends AbstractToolDialog
                 saveButton.setText(context.cfg.gs("Z.save"));
                 saveButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
                 saveButton.setActionCommand(context.cfg.gs("Z.save"));
+                saveButton.setMnemonic(context.cfg.gs("JobsUI.saveButton.mnemonic").charAt(0));
                 saveButton.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2546,6 +2640,7 @@ public class JobsUI extends AbstractToolDialog
                 //---- cancelButton ----
                 cancelButton.setText(context.cfg.gs("Z.cancel"));
                 cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setMnemonic(context.cfg.gs("JobsUI.cancelButton.mnemonic_2").charAt(0));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2593,6 +2688,8 @@ public class JobsUI extends AbstractToolDialog
     public JButton buttonSub;
     public JLabel labelHints;
     public JButton buttonHints;
+    public JLabel labelEmail;
+    public JButton buttonEmail;
     public JScrollPane scrollPaneOrigins;
     public JList listOrigins;
     public JPanel panelOriginsButtons;

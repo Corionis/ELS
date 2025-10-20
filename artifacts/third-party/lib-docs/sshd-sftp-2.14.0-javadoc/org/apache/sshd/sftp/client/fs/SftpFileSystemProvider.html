@@ -96,7 +96,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">SftpFileSystemProvider</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/spi/FileSystemProvider.html" title="class or interface in java.nio.file.spi" class="external-link">FileSystemProvider</a></span></div>
 <div class="block">A registered <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/spi/FileSystemProvider.html" title="class or interface in java.nio.file.spi" class="external-link"><code>FileSystemProvider</code></a> that registers the &quot;sftp://&quot; scheme so that URLs with this protocol
- are handled as remote SFTP <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link"><code>Path</code></a>-s - e.g., &quot;<code>sftp://user:password@host/remote/file/path</code>&quot;</div>
+ are handled as remote SFTP <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link"><code>Path</code></a>-s - e.g., &quot;<code>sftp://user:password@server/remote/file/path</code>&quot;</div>
 <dl class="notes">
 <dt>Author:</dt>
 <dd><a href="mailto:dev@mina.apache.org">Apache MINA SSHD Project</a></dd>
@@ -190,13 +190,13 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/attribute/FileAttribute.html" title="class or interface in java.nio.file.attribute" class="external-link">FileAttribute</a>&lt;?&gt;...&nbsp;attrs)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link">URI</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createFileSystemURI(java.lang.String,int,java.lang.String,java.lang.String)" class="member-name-link">createFileSystemURI</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createFileSystemURI(java.lang.String,int,java.lang.String,java.lang.String)" class="member-name-link">createFileSystemURI</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
  int&nbsp;port,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link">URI</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createFileSystemURI(java.lang.String,int,java.lang.String,java.lang.String,java.util.Map)" class="member-name-link">createFileSystemURI</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createFileSystemURI(java.lang.String,int,java.lang.String,java.lang.String,java.util.Map)" class="member-name-link">createFileSystemURI</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
  int&nbsp;port,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password,
@@ -232,19 +232,19 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFileSystem(java.net.URI)" class="member-name-link">getFileSystem</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link">URI</a>&nbsp;uri)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getFileSystemIdentifier(java.lang.String,int,java.lang.String)" class="member-name-link">getFileSystemIdentifier</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getFileSystemIdentifier(java.lang.String,int,java.lang.String)" class="member-name-link">getFileSystemIdentifier</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
  int&nbsp;port,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getFileSystemIdentifier(java.net.URI)" class="member-name-link">getFileSystemIdentifier</a><wbr>(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link">URI</a>&nbsp;uri)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Uses the host, port and username to create a unique identifier</div>
+<div class="block">Uses the server, port and username to create a unique identifier</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getFileSystemIdentifier(org.apache.sshd.client.session.ClientSession)" class="member-name-link">getFileSystemIdentifier</a><wbr>(<a href="https://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html" title="class or interface in org.apache.sshd.client.session" class="external-link">ClientSession</a>&nbsp;session)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Uses the remote host address, port and current username to create a unique identifier</div>
+<div class="block">Uses the remote server address, port and current username to create a unique identifier</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getOctalPermissions(int)" class="member-name-link">getOctalPermissions</a><wbr>(int&nbsp;perms)</code></div>
@@ -1146,7 +1146,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getFileSystemIdentifier(java.net.URI)">
 <h3>getFileSystemIdentifier</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getFileSystemIdentifier</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link">URI</a>&nbsp;uri)</span></div>
-<div class="block">Uses the host, port and username to create a unique identifier</div>
+<div class="block">Uses the server, port and username to create a unique identifier</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>uri</code> - The <a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link"><code>URI</code></a> - <B>Note:</B> not checked to make sure that the scheme is <code>sftp://</code></dd>
@@ -1165,7 +1165,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getFileSystemIdentifier(org.apache.sshd.client.session.ClientSession)">
 <h3>getFileSystemIdentifier</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getFileSystemIdentifier</span><wbr><span class="parameters">(<a href="https://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html" title="class or interface in org.apache.sshd.client.session" class="external-link">ClientSession</a>&nbsp;session)</span></div>
-<div class="block">Uses the remote host address, port and current username to create a unique identifier</div>
+<div class="block">Uses the remote server address, port and current username to create a unique identifier</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>session</code> - The <a href="https://www.apache.org/sshd/sshd-core/apidocs/org/apache/sshd/client/session/ClientSession.html" title="class or interface in org.apache.sshd.client.session" class="external-link"><code>ClientSession</code></a></dd>
@@ -1183,7 +1183,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getFileSystemIdentifier(java.lang.String,int,java.lang.String)">
 <h3>getFileSystemIdentifier</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getFileSystemIdentifier</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getFileSystemIdentifier</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
  int&nbsp;port,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username)</span></div>
 </section>
@@ -1191,7 +1191,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createFileSystemURI(java.lang.String,int,java.lang.String,java.lang.String)">
 <h3>createFileSystemURI</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link">URI</a></span>&nbsp;<span class="element-name">createFileSystemURI</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link">URI</a></span>&nbsp;<span class="element-name">createFileSystemURI</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
  int&nbsp;port,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password)</span></div>
@@ -1200,7 +1200,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createFileSystemURI(java.lang.String,int,java.lang.String,java.lang.String,java.util.Map)">
 <h3>createFileSystemURI</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link">URI</a></span>&nbsp;<span class="element-name">createFileSystemURI</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/javase/8/docs/api/java/net/URI.html" title="class or interface in java.net" class="external-link">URI</a></span>&nbsp;<span class="element-name">createFileSystemURI</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;server,
  int&nbsp;port,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;username,
  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;password,

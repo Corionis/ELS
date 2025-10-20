@@ -315,7 +315,7 @@ public class ConfigModel extends DefaultTableModel
                 job = (Job) configJobsModel.getValueAt(i, 0);
                 if (job.isDataChanged())
                 {
-                    String status = job.validate(context.cfg);
+                    String status = job.validate(context.cfg, false);
                     if (status.length() > 0)
                     {
                         JOptionPane.showMessageDialog(theDialog, status, theDialog.getTitle(), JOptionPane.WARNING_MESSAGE);
@@ -376,6 +376,17 @@ public class ConfigModel extends DefaultTableModel
     {
         if (index >= 0)
         {
+            String scrubbed = Utils.scrubFilename(newName);
+            if (!newName.equals(scrubbed))
+            {
+                JOptionPane.showMessageDialog(theDialog,
+                        context.cfg.gs((context.cfg.gs("JobsUI.job.name.may.not.contain.these.characters"))),
+                        theDialog.getTitle(), JOptionPane.WARNING_MESSAGE);
+                theDialog.getConfigItems().requestFocus();
+                theDialog.getConfigItems().changeSelection(index, 0, false, false);
+                return;
+            }
+
             AbstractTool tool = (AbstractTool) getValueAt(index, 0);
             if (tool != null)
             {

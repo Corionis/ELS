@@ -64,6 +64,7 @@ public class Configuration
     private boolean debugSet = false;
     private int dryRun = -1;
     private int duplicateCheck = -1;
+    private String  emailServer = "";
     private int emptyDirectoryCheck = -1;
     private String exportCollectionFilename = "";
     private String exportTextFilename = "";
@@ -409,7 +410,7 @@ public class Configuration
         {
             logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.j.job"), getJobName()));
         }
-        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.j.override.hint.host"), overrideHintHost);
+        indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.j.override.hint.server"), overrideHintHost);
         if (getHintKeysFile().length() > 0)
         {
             logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.choice.k.hint.keys.filename"), isHintSkipMainProcess() ? 0 : 1,getHintKeysFile()));
@@ -430,6 +431,10 @@ public class Configuration
                 logger.info(SHORT, "          " + ln);
             }
         }
+        if (!getEmailServer().isEmpty())
+        {
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.m.email.server"), getEmailServer()));
+        }
         if (getMismatchFilename().length() > 0)
         {
             logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.m.mismatches.output.filename"), getMismatchFilename()));
@@ -443,7 +448,7 @@ public class Configuration
         indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.o.overwrite"), overwrite);
         if (!overrideSubscriberHost.isEmpty())
         {
-            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.o.override.subscriber.host"), overrideSubscriberHost));
+            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.o.override.subscriber.server"), overrideSubscriberHost));
         }
         if (getPublisherLibrariesFileName().length() > 0)
         {
@@ -497,7 +502,7 @@ public class Configuration
      *
      * @return String command line
      */
-    public String generateCurrentCommandline(String consoleLevel, String debugLevel, boolean overwriteLog, String log)
+    public String generateCommandLine(String consoleLevel, String debugLevel, boolean overwriteLog, String log)
     {
         // generate-commandline
         String opts;
@@ -564,6 +569,13 @@ public class Configuration
                 sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
                         Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");
             }
+        }
+
+        // --- email server
+        if (!cc.getEmailServer().isEmpty())
+        {
+            String emailPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), cc.getEmailServer());
+            sb.append(" " + (glo ? "--email" : "-M") + " \"" + emailPath + "\"");
         }
 
         // --- options
@@ -872,6 +884,11 @@ public class Configuration
             // should never get an exception
         }
         return jarPath;
+    }
+
+    public String getEmailServer()
+    {
+        return emailServer;
     }
 
     /**
@@ -2032,7 +2049,6 @@ public class Configuration
     public void parseCommandLine(String[] args) throws MungeException
     {
         // Reserved:
-        //   M match dates
         //   R restrict Hint processing, i.e. do not execute
         //   U user authentication & authorization
         //   X execute Hints only. -X -R checks for Hints but does not execute
@@ -2308,6 +2324,18 @@ public class Configuration
                     else
                     {
                         throw new MungeException(context.cfg.gs("Cfg.error.m.requires.a.mismatches.output.filename"));
+                    }
+                    break;
+                case "-M":                                              // Email server
+                case "--email":
+                    if (index <= args.length - 2)
+                    {
+                        setEmailServer(args[index + 1].trim());
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException(context.cfg.gs("Cfg.error.m.requires.an.email.server"));
                     }
                     break;
                 case "--marker":                                        // marker
@@ -2632,6 +2660,11 @@ public class Configuration
     public void setDuplicateCheck(boolean duplicateCheck)
     {
         this.duplicateCheck = duplicateCheck ? 1 : 0;
+    }
+
+    public void setEmailServer(String emailServer)
+    {
+        this.emailServer = emailServer;
     }
 
     /**

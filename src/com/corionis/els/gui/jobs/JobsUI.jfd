@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.3.0.386" Java: "17.0.11" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.8" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -205,10 +205,9 @@ new FormModel {
 									} )
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 										name: "panelOriginInstance"
-										"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 											"$columnSpecs": "0, 0"
-											"$rowSpecs": "0, 0, 0"
+											"$rowSpecs": "0, 0, 0, 0"
 											"$hGap": 4
 											"$alignLeft": true
 											"$alignTop": true
@@ -218,7 +217,7 @@ new FormModel {
 												name: "labelPub"
 												"maximumSize": new java.awt.Dimension( 24, 18 )
 												"minimumSize": new java.awt.Dimension( 24, 18 )
-												"preferredSize": new java.awt.Dimension( 24, 18 )
+												"preferredSize": new java.awt.Dimension( 24, 30 )
 												"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, 1, false )
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"weightx": 1.0
@@ -243,7 +242,7 @@ new FormModel {
 												name: "labelSub"
 												"maximumSize": &Dimension5 new java.awt.Dimension( 24, 18 )
 												"minimumSize": &Dimension6 new java.awt.Dimension( 24, 18 )
-												"preferredSize": &Dimension7 new java.awt.Dimension( 24, 18 )
+												"preferredSize": new java.awt.Dimension( 24, 30 )
 												"font": &SwingDerivedFont0 new com.jformdesigner.model.SwingDerivedFont( null, 0, 1, false )
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"gridy": 1
@@ -253,9 +252,9 @@ new FormModel {
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonSub"
 												"text": "..."
-												"maximumSize": &Dimension8 new java.awt.Dimension( 32, 24 )
-												"minimumSize": &Dimension9 new java.awt.Dimension( 32, 24 )
-												"preferredSize": &Dimension10 new java.awt.Dimension( 32, 24 )
+												"maximumSize": &Dimension7 new java.awt.Dimension( 32, 24 )
+												"minimumSize": &Dimension8 new java.awt.Dimension( 32, 24 )
+												"preferredSize": &Dimension9 new java.awt.Dimension( 32, 24 )
 												"verticalTextPosition": 1
 												"font": &SwingDerivedFont1 new com.jformdesigner.model.SwingDerivedFont( null, 1, 0, false )
 												"horizontalTextPosition": 10
@@ -270,7 +269,7 @@ new FormModel {
 												name: "labelHints"
 												"maximumSize": #Dimension5
 												"minimumSize": #Dimension6
-												"preferredSize": #Dimension7
+												"preferredSize": new java.awt.Dimension( 24, 30 )
 												"font": #SwingDerivedFont0
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"gridy": 2
@@ -280,9 +279,9 @@ new FormModel {
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonHints"
 												"text": "..."
-												"maximumSize": #Dimension8
-												"minimumSize": #Dimension9
-												"preferredSize": #Dimension10
+												"maximumSize": #Dimension7
+												"minimumSize": #Dimension8
+												"preferredSize": #Dimension9
 												"verticalTextPosition": 1
 												"font": #SwingDerivedFont1
 												"horizontalTextPosition": 10
@@ -291,6 +290,33 @@ new FormModel {
 												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionPubSubClicked", true ) )
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"gridy": 2
+												"gridx": 1
+											} )
+											add( new FormComponent( "javax.swing.JLabel" ) {
+												name: "labelEmail"
+												"maximumSize": #Dimension5
+												"minimumSize": #Dimension6
+												"preferredSize": new java.awt.Dimension( 24, 30 )
+												"font": #SwingDerivedFont0
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridy": 3
+												"weightx": 1.0
+												"insets": #Insets1
+											} )
+											add( new FormComponent( "javax.swing.JButton" ) {
+												name: "buttonEmail"
+												"text": "..."
+												"maximumSize": #Dimension7
+												"minimumSize": #Dimension8
+												"preferredSize": #Dimension9
+												"verticalTextPosition": 1
+												"font": #SwingDerivedFont1
+												"horizontalTextPosition": 10
+												"iconTextGap": 0
+												"actionCommand": "buttonEmail'"
+												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionEmailServerClicked", true ) )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridy": 3
 												"gridx": 1
 											} )
 										}, new FormLayoutConstraints( class java.lang.String ) {
@@ -315,9 +341,9 @@ new FormModel {
 												name: "buttonAddOrigin"
 												"text": new FormMessage( null, "JobsUI.buttonAddOrigin.text" )
 												"font": &SwingDerivedFont2 new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
-												"preferredSize": &Dimension11 new java.awt.Dimension( 78, 24 )
-												"minimumSize": &Dimension12 new java.awt.Dimension( 78, 24 )
-												"maximumSize": &Dimension13 new java.awt.Dimension( 78, 24 )
+												"preferredSize": &Dimension10 new java.awt.Dimension( 78, 24 )
+												"minimumSize": &Dimension11 new java.awt.Dimension( 78, 24 )
+												"maximumSize": &Dimension12 new java.awt.Dimension( 78, 24 )
 												"mnemonic": new FormMessage( null, "JobsUI.buttonAddOrigin.mnemonic" )
 												"toolTipText": new FormMessage( null, "JobsUI.buttonAddOrigin.toolTipText" )
 												"margin": new java.awt.Insets( 0, -10, 0, -10 )
@@ -326,9 +352,9 @@ new FormModel {
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonOriginUp"
 												"text": "^"
-												"maximumSize": &Dimension14 new java.awt.Dimension( 24, 24 )
-												"minimumSize": &Dimension15 new java.awt.Dimension( 24, 24 )
-												"preferredSize": &Dimension16 new java.awt.Dimension( 24, 24 )
+												"maximumSize": &Dimension13 new java.awt.Dimension( 24, 24 )
+												"minimumSize": &Dimension14 new java.awt.Dimension( 24, 24 )
+												"preferredSize": &Dimension15 new java.awt.Dimension( 24, 24 )
 												"font": &SwingDerivedFont3 new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
 												"toolTipText": new FormMessage( null, "JobsUI.buttonOriginUp.toolTipText" )
 												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOriginUpClicked", true ) )
@@ -337,9 +363,9 @@ new FormModel {
 												name: "buttonOriginDown"
 												"text": "v"
 												"font": &SwingDerivedFont4 new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
-												"maximumSize": &Dimension17 new java.awt.Dimension( 24, 24 )
-												"minimumSize": &Dimension18 new java.awt.Dimension( 24, 24 )
-												"preferredSize": &Dimension19 new java.awt.Dimension( 24, 24 )
+												"maximumSize": &Dimension16 new java.awt.Dimension( 24, 24 )
+												"minimumSize": &Dimension17 new java.awt.Dimension( 24, 24 )
+												"preferredSize": &Dimension18 new java.awt.Dimension( 24, 24 )
 												"toolTipText": new FormMessage( null, "JobsUI.buttonOriginDown.toolTipText" )
 												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOriginDownClicked", true ) )
 											} )
@@ -347,9 +373,9 @@ new FormModel {
 												name: "buttonRemoveOrigin"
 												"text": new FormMessage( null, "JobsUI.buttonRemoveOrigin.text" )
 												"font": #SwingDerivedFont2
-												"preferredSize": &Dimension20 new java.awt.Dimension( 78, 24 )
-												"minimumSize": &Dimension21 new java.awt.Dimension( 78, 24 )
-												"maximumSize": &Dimension22 new java.awt.Dimension( 78, 24 )
+												"preferredSize": &Dimension19 new java.awt.Dimension( 78, 24 )
+												"minimumSize": &Dimension20 new java.awt.Dimension( 78, 24 )
+												"maximumSize": &Dimension21 new java.awt.Dimension( 78, 24 )
 												"mnemonic": new FormMessage( null, "JobsUI.buttonRemoveOrigin.mnemonic_2" )
 												"toolTipText": new FormMessage( null, "JobsUI.buttonRemoveOrigin.toolTipText" )
 												"margin": new java.awt.Insets( 0, -10, 0, -10 )
@@ -381,9 +407,9 @@ new FormModel {
 									name: "buttonAddTask"
 									"text": new FormMessage( null, "JobsUI.buttonAddTask.text" )
 									"font": #SwingDerivedFont2
-									"preferredSize": #Dimension11
-									"minimumSize": #Dimension12
-									"maximumSize": #Dimension13
+									"preferredSize": #Dimension10
+									"minimumSize": #Dimension11
+									"maximumSize": #Dimension12
 									"mnemonic": new FormMessage( null, "JobsUI.buttonAddTask.mnemonic" )
 									"toolTipText": new FormMessage( null, "JobsUI.buttonAddTask.toolTipText" )
 									"margin": new java.awt.Insets( 0, -10, 0, -10 )
@@ -392,9 +418,9 @@ new FormModel {
 								add( new FormComponent( "javax.swing.JButton" ) {
 									name: "buttonTaskUp"
 									"text": "^"
-									"maximumSize": #Dimension14
-									"minimumSize": #Dimension15
-									"preferredSize": #Dimension16
+									"maximumSize": #Dimension13
+									"minimumSize": #Dimension14
+									"preferredSize": #Dimension15
 									"font": #SwingDerivedFont3
 									"toolTipText": new FormMessage( null, "JobsUI.buttonTaskUp.toolTipText" )
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionTaskUpClicked", true ) )
@@ -403,9 +429,9 @@ new FormModel {
 									name: "buttonTaskDown"
 									"text": "v"
 									"font": #SwingDerivedFont4
-									"maximumSize": #Dimension17
-									"minimumSize": #Dimension18
-									"preferredSize": #Dimension19
+									"maximumSize": #Dimension16
+									"minimumSize": #Dimension17
+									"preferredSize": #Dimension18
 									"toolTipText": new FormMessage( null, "JobsUI.buttonTaskDown.toolTipText" )
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionTaskDownClicked", true ) )
 								} )
@@ -413,9 +439,9 @@ new FormModel {
 									name: "buttonRemoveTask"
 									"text": new FormMessage( null, "JobsUI.buttonRemoveTask.text" )
 									"font": #SwingDerivedFont2
-									"preferredSize": #Dimension20
-									"minimumSize": #Dimension21
-									"maximumSize": #Dimension22
+									"preferredSize": #Dimension19
+									"minimumSize": #Dimension20
+									"maximumSize": #Dimension21
 									"mnemonic": new FormMessage( null, "JobsUI.buttonRemoveTask.mnemonic" )
 									"toolTipText": new FormMessage( null, "JobsUI.buttonRemoveTask.toolTipText" )
 									"margin": new java.awt.Insets( 0, -10, 0, -10 )
@@ -446,6 +472,7 @@ new FormModel {
 						"text": new FormMessage( null, "Z.save" )
 						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
 						"actionCommand": new FormMessage( null, "Z.save" )
+						"mnemonic": new FormMessage( null, "JobsUI.saveButton.mnemonic" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
@@ -455,6 +482,7 @@ new FormModel {
 						name: "cancelButton"
 						"text": new FormMessage( null, "Z.cancel" )
 						"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
+						"mnemonic": new FormMessage( null, "JobsUI.cancelButton.mnemonic_2" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 2
@@ -468,7 +496,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 740, 470 )
+			"size": new java.awt.Dimension( 740, 495 )
 		} )
 	}
 }

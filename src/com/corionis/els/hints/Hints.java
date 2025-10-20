@@ -32,6 +32,7 @@ public class Hints
     private Gson gsonBuilder = new GsonBuilder().create();
     private Gson gsonParser = new Gson();
     private HintKeys keys;
+    private int trues = 0;
 
     /**
      * Constructor
@@ -202,6 +203,11 @@ public class Hints
         return results;
     }
 
+    public int getPerformed()
+    {
+        return trues;
+    }
+
     /**
      * Process Hints<br/>
      * <br/>
@@ -210,10 +216,10 @@ public class Hints
      * @return "true", "false" or "fault"
      * @throws Exception
      */
-    public String hintsMunge(boolean publisherOnly, PrintWriter mismatches) throws Exception
+    public String hintsMunge(boolean publisherOnly, PrintWriter mismatches, PrintWriter mismatchFileHtml) throws Exception
     {
         // process Hints for publisher first
-        String result = hintsMunge(null, true, null, null);
+        String result = hintsMunge(null, true, null, null, null);
 
         // rescan of Publisher is needed here for Subscriber Hints next, not repeated in back-up process
         if (!result.toLowerCase().equals("false"))
@@ -221,7 +227,7 @@ public class Hints
 
         if (!publisherOnly) // process Subscriber
         {
-            result = hintsMunge(null, false, null, mismatches);
+            result = hintsMunge(null, false, null, mismatches, mismatchFileHtml);
             // Note: Rescans happen for Subscriber during the back-up process if
             // the Subscriber library rescanNeeded is true
         }
@@ -287,7 +293,7 @@ public class Hints
      * @return
      * @throws Exception
      */
-    public String hintsMunge(ArrayList<Hint> pending, boolean forMe, HintsTableModel model, PrintWriter mismatchesFile) throws Exception
+    public String hintsMunge(ArrayList<Hint> pending, boolean forMe, HintsTableModel model, PrintWriter mismatchesFile, PrintWriter mismatchesFileHtml) throws Exception
     {
         int falses = 0;
         int faults = 0;
@@ -296,7 +302,6 @@ public class Hints
         int nots = 0;
         Repository repo;
         String response = "false";
-        int trues = 0;
 
         if (forMe)
             repo = context.publisherRepo;
@@ -325,8 +330,13 @@ public class Hints
                 {
                     if (mismatchesFile != null)
                     {
-                        mismatchesFile.println(context.cfg.gs("Hints.munging.hints.to") + repo.getLibraryData().libraries.description);
-                        mismatchesFile.println(" ");
+                        mismatchesFile.println(context.cfg.gs("Hints.hints") + "\n");
+                        mismatchesFile.println(context.cfg.gs("Hints.munging.hints.to") + repo.getLibraryData().libraries.description + "\n");
+
+                        mismatchesFileHtml.println("<h3>" + context.cfg.gs("Hints.hints") + "</h3>");
+                        mismatchesFileHtml.println(context.cfg.gs("Hints.munging.hints.to") + repo.getLibraryData().libraries.description);
+                        mismatchesFileHtml.println("<br/><br/>");
+                        mismatchesFileHtml.println("<span style=\"font-family: monospace; font-size: 110%;\">");
                     }
 
                     executedHints = 0;
@@ -391,7 +401,10 @@ public class Hints
                             }
 
                             if (mismatchesFile != null)
+                            {
                                 mismatchesFile.println(summary);
+                                mismatchesFileHtml.println(summary + "<br/>");
+                            }
 
                             if (model != null)
                                 model.fireTableDataChanged();
@@ -402,37 +415,63 @@ public class Hints
                             ++nots;
                     }
 
+                    if (mismatchesFileHtml != null)
+                        mismatchesFileHtml.println("</span>");
+
                     if (faults > 0)
                     {
                         response = "fault";
                         if (mismatchesFile != null)
+                        {
                             mismatchesFile.println("Faults: " + faults);
+                            mismatchesFileHtml.println("Faults: " + faults + "<br/>");
+                        }
                     }
                     else if (trues > 0)
                         response = "true";
                     else
                         response = "false";
 
-                    logger.info("+------------------------------------------");
+                    logger.info("------------------------------------------");
                     logger.info(context.cfg.gs("Hints.hint.execution.complete.result") + response);
-                    logger.info(context.cfg.gs("Hints.performed") + trues);
-                    logger.info(context.cfg.gs("Hints.not.performed") + falses);
-                    logger.info(context.cfg.gs("Hints.not.for") + nots);
-                    logger.info(context.cfg.gs("Hints.faults") + faults);
+                    if (falses > 0)
+                        logger.info(context.cfg.gs("Hints.not.performed") + falses);
+                    if (trues > 0)
+                        logger.info(context.cfg.gs("Hints.performed") + trues);
+                    if (nots > 0)
+                        logger.info(context.cfg.gs("Hints.not.for") + nots);
+                    if (faults > 0)
+                        logger.info(context.cfg.gs("Hints.faults") + faults);
                     logger.info(context.cfg.gs("Hints.total") + executedHints);
-                    logger.info("+------------------------------------------");
+                    logger.info("------------------------------------------");
 
                     if (mismatchesFile != null)
                     {
-                        mismatchesFile.println("+------------------------------------------");
+                        mismatchesFile.println("------------------------------------------");
                         mismatchesFile.println(context.cfg.gs("Hints.hint.execution.complete.result") + response);
-                        mismatchesFile.println(context.cfg.gs("Hints.performed") + trues);
-                        mismatchesFile.println(context.cfg.gs("Hints.not.performed") + falses);
-                        mismatchesFile.println(context.cfg.gs("Hints.not.for") + nots);
-                        mismatchesFile.println(context.cfg.gs("Hints.faults") + faults);
+                        if (falses > 0)
+                            mismatchesFile.println(context.cfg.gs("Hints.not.performed") + falses);
+                        if (trues > 0)
+                            mismatchesFile.println(context.cfg.gs("Hints.performed") + trues);
+                        if (nots > 0)
+                            mismatchesFile.println(context.cfg.gs("Hints.not.for") + nots);
+                        if (faults > 0)
+                            mismatchesFile.println(context.cfg.gs("Hints.faults") + faults);
                         mismatchesFile.println(context.cfg.gs("Hints.total") + executedHints);
-                        mismatchesFile.println("+------------------------------------------");
                         mismatchesFile.println("");
+
+                        mismatchesFileHtml.println("<hr style=\"margin-left: 0; margin-right: auto; width: 50%;\">");
+                        mismatchesFileHtml.println(context.cfg.gs("Hints.hint.execution.complete.result") + response + "<br/>");
+                        if (falses > 0)
+                            mismatchesFileHtml.println(context.cfg.gs("Hints.not.performed") + falses + "<br/>");
+                        if (trues > 0)
+                            mismatchesFileHtml.println(context.cfg.gs("Hints.performed") + trues + "<br/>");
+                        if (nots > 0)
+                            mismatchesFileHtml.println(context.cfg.gs("Hints.not.for") + nots + "<br/>");
+                        if (faults > 0)
+                            mismatchesFileHtml.println(context.cfg.gs("Hints.faults") + faults + "<br/>");
+                        mismatchesFileHtml.println(context.cfg.gs("Hints.total") + executedHints + "<br/>");
+                        mismatchesFileHtml.println("");
                     }
                 }
             }
@@ -637,7 +676,7 @@ public class Hints
         if (context.cfg.isNavigator())
         {
             context.navigator.checkForHints();
-            if (context.navigator.dialogHints != null && context.navigator.dialogHints.isVisible())
+            if (context.navigator.dialogHints != null && context.navigator.dialogHints.isShowing())
                 context.navigator.dialogHints.refresh();
         }
 

@@ -37,7 +37,6 @@ public class JunkRemoverTool extends AbstractTool
     private String internalName = INTERNAL_NAME;
     private ArrayList<JunkItem> junkList;
 
-    transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int deleteCount = 0;
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
@@ -215,7 +214,7 @@ public class JunkRemoverTool extends AbstractTool
         repo = (task.publisherRepo != null) ? task.publisherRepo : task.subscriberRepo;
         if (repo == null)
         {
-            logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer..has.no.repository.defined"), getConfigName()));
+            logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer.has.no.repository.defined"), getConfigName()));
             return;
         }
 
@@ -324,10 +323,13 @@ public class JunkRemoverTool extends AbstractTool
                 if (context != null)
                 {
                     logger.error(msg);
-                    int reply = JOptionPane.showConfirmDialog(context.navigator.dialogJunkRemover, context.cfg.gs("JunkRemover.title"),
-                            "Z.cancel.run", JOptionPane.YES_NO_OPTION);
-                    if (reply == JOptionPane.YES_OPTION)
-                        requestStop();
+                    if (context.navigator != null)
+                    {
+                        int reply = JOptionPane.showConfirmDialog(context.navigator.dialogJunkRemover, context.cfg.gs("JunkRemover.title"),
+                                context.cfg.gs("Z.cancel.run"), JOptionPane.YES_NO_OPTION);
+                        if (reply == JOptionPane.YES_OPTION)
+                            requestStop();
+                    }
                 }
                 else
                     logger.error(msg);
@@ -388,10 +390,13 @@ public class JunkRemoverTool extends AbstractTool
                 if (context != null)
                 {
                     logger.error(msg);
-                    int reply = JOptionPane.showConfirmDialog(context.navigator.dialogJunkRemover, context.cfg.gs("JunkRemover.title"),
-                            "Z.cancel.run", JOptionPane.YES_NO_OPTION);
-                    if (reply == JOptionPane.YES_OPTION)
-                        requestStop();
+                    if (context.navigator != null)
+                    {
+                        int reply = JOptionPane.showConfirmDialog(context.navigator.dialogJunkRemover, context.cfg.gs("JunkRemover.title"),
+                                "Z.cancel.run", JOptionPane.YES_NO_OPTION);
+                        if (reply == JOptionPane.YES_OPTION)
+                            requestStop();
+                    }
                 }
                 else
                     logger.error(msg);
