@@ -249,9 +249,9 @@
                 <include name="**/commons-compress-1.27.1.jar"/>
                 <include name="**/commons-io-2.18.0.jar"/>
                 <include name="**/commons-lang3-3.17.0.jar"/>
-                <include name="**/flatlaf-3.6.jar"/>
-                <include name="**/flatlaf-extras-3.6.jar"/>
-                <include name="**/flatlaf-intellij-themes-3.6.jar"/>
+                <include name="**/flatlaf-3.6.2.jar"/>
+                <include name="**/flatlaf-extras-3.6.2.jar"/>
+                <include name="**/flatlaf-intellij-themes-3.6.2.jar"/>
                 <include name="**/gson-2.11.0.jar"/>
                 <include name="**/guava-33.3.1-jre.jar"/>
                 <include name="**/javax.activation-1.2.0.jar"/>
