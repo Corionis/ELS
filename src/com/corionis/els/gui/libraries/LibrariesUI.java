@@ -169,10 +169,10 @@ public class LibrariesUI
         currentConfigIndex = configItems.getSelectedRow();
         if (currentConfigIndex >= 0)
         {
-            int reply = JOptionPane.NO_OPTION;
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
             if (libMeta.key != null && libMeta.key.length() > 0)
             {
+                int reply = JOptionPane.NO_OPTION;
                 String description = context.cfg.gs("Libraries.generate.new.uuid.for") + libMeta.description;
                 String blank = "<html><body><br/></body></html>";
                 String message = context.cfg.gs("Libraries.this.will.overwrite.any.existing.uuid");
@@ -184,13 +184,14 @@ public class LibrariesUI
                         params,
                         context.cfg.gs("Navigator.splitPane.Libraries.tab.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
                         null, opts, opts[1]);
+
+                if (reply != JOptionPane.YES_OPTION)
+                    return;
             }
-            if (reply == JOptionPane.YES_OPTION)
-            {
-                UUID uuid = java.util.UUID.randomUUID();
-                mf.textFieldKey.setText(uuid.toString());
-                mf.textFieldKey.postActionEvent();
-            }
+
+            UUID uuid = java.util.UUID.randomUUID();
+            mf.textFieldKey.setText(uuid.toString());
+            mf.textFieldKey.postActionEvent();
         }
     }
 
