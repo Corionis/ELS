@@ -19,7 +19,6 @@ import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -184,7 +183,9 @@ public class Settings extends JDialog
         }
         catch (Exception e)
         {
-            // ignored
+            logger.error(Utils.getStackTrace(e));
+            labelDefaultEmailServer.setEnabled(false);
+            comboBoxEmailServer.setEnabled(false);
         }
 
         laf = context.preferences.getLookAndFeel();
@@ -301,9 +302,7 @@ public class Settings extends JDialog
     {
         // general
         defaultDryrunCheckBox.setSelected(context.preferences.isDefaultDryrun());
-        if (context.preferences.getDefaultEmailServer().length() == 0)
-            comboBoxEmailServer.setSelectedIndex(0);
-        else
+        if (context.preferences.getDefaultEmailServer().length() > 0)
             comboBoxEmailServer.setSelectedItem(context.preferences.getDefaultEmailServer());
         generateLongOptionsCheckBox.setSelected(context.preferences.isGenerateLongOptions());
         preserveFileTimestampsCheckBox.setSelected(context.preferences.isPreserveFileTimes());

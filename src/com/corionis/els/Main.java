@@ -482,6 +482,14 @@ public class Main
                 Files.createDirectories(dir);
         }
 
+        String[] localDirs = {"Email"};
+        for (int i = 0; i < localDirs.length; ++i)
+        {
+            Path dir = Paths.get(working, "local", localDirs[i]);
+            if (!Files.exists(dir))
+                Files.createDirectories(dir);
+        }
+
         String[] toolDirs = {"Archiver", "JunkRemover", "Operations", "Renamer", "Sleep"};
         for (int i = 0; i < toolDirs.length; ++i)
         {
