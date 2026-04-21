@@ -10,6 +10,7 @@ import com.corionis.els.MungeException;
 import com.corionis.els.Transfer;
 import com.corionis.els.Utils;
 import com.corionis.els.repository.*;
+import com.corionis.els.repository.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +23,7 @@ import java.nio.file.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.UUID;
 
 /**
  * Subscriber Daemon service.
@@ -36,6 +38,8 @@ public class Daemon extends AbstractDaemon
 
     private boolean isTerminal = false;
     private ServeStty instance = null;
+    private User publisherUser = null;
+    private User subscriberUser = null;
 
     /**
      * Instantiate the Daemon service
@@ -68,7 +72,9 @@ public class Daemon extends AbstractDaemon
         File outFile = new File(Utils.getFullPathLocal(filename));
         outFile.getParentFile().mkdirs();
         logger.info(context.cfg.gs("Stty.writing.library.file") + filename);
-        Repository repo = myRepo.cloneNoItems(); // clone with no items
+
+        //Repository repo = myRepo.cloneNoItems(); // clone with no items
+        Repository repo = myRepo.cloneSecurity(publisherUser); // clone with no items and no inaccessible libraries
         String json = gson.toJson(repo.getLibraryData());
         try
         {
@@ -81,6 +87,24 @@ public class Daemon extends AbstractDaemon
             throw new MungeException(MessageFormat.format(context.cfg.gs("Stty.exception.while.writing.library.file.trace"),
                     outFile.getPath(),Utils.getStackTrace(fnf)));
         }
+    }
+
+    /**
+     * If not dating temp files and users are enabled generate a unique filename to avoid multi-user collisions
+     *
+     * @param filename
+     * @return filename
+     */
+    private String getUnique(String filename)
+    {
+        if ((myRepo.getLibraryData().libraries.temp_dated == null || !myRepo.getLibraryData().libraries.temp_dated) &&
+            myRepo.getContext().preferences.isUsersEnabled())
+        {
+            UUID uuid = UUID.randomUUID();
+            String unique = uuid.toString().replace("-", "");
+            filename = filename + "-" + unique;
+        }
+        return filename;
     }
 
     /**
@@ -112,6 +136,10 @@ public class Daemon extends AbstractDaemon
     public String handshake()
     {
         String system = "";
+
+        // does Subscriber require User-level security?
+        String flavorSecure = myRepo.getLibraryData().libraries.flavor + (context.preferences.isUsersEnabled() ? ":Secure" : "");
+
         try
         {
             logger.trace(context.cfg.gs("Stty.subscriber.listener.handshake"));
@@ -137,8 +165,8 @@ public class Daemon extends AbstractDaemon
                     HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
                     if (connectedKey != null)
                     {
-                        // send my flavor
-                        send(myRepo.getLibraryData().libraries.flavor, "");
+                        // send my flavor + security tag
+                        send(flavorSecure, "");
 
                         system = connectedKey.system;
                         logger.info(MessageFormat.format(context.cfg.gs("Stty.server.authenticated.choice.terminal.automated.session"), isTerminal ? 0 : 1) + system);
@@ -148,8 +176,8 @@ public class Daemon extends AbstractDaemon
                 }
                 else if (theirRepo != null && input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
                 {
-                    // send my flavor
-                    send(myRepo.getLibraryData().libraries.flavor, "");
+                    // send my flavor + security tag
+                    send(flavorSecure, "");
 
                     system = theirRepo.getLibraryData().libraries.description;
                     logger.info(MessageFormat.format(context.cfg.gs("Stty.server.authenticated.choice.terminal.automated.session"), isTerminal ? 0 : 1) + system);
@@ -165,6 +193,108 @@ public class Daemon extends AbstractDaemon
         }
         return system;
     } // handshake
+
+    /**
+     * Login the user and return this system's Grant definitions
+     *
+     * @return User object or null if not found
+     */
+    private boolean login()
+    {
+        boolean hangup = false;
+        String line;
+        boolean success = false;
+        response =  "failed";
+
+        try
+        {
+            if (context.preferences.isUsersEnabled())
+            {
+                line = receive("", -1);
+                if (line == null)
+                {
+                    if (!context.cfg.isKeepGoing())
+                    {
+                        fault = true; // exit on EOF
+                        status = 2;
+                        logger.warn(context.cfg.gs("Stty.eof.line.process.ended.prematurely"));
+                    }
+                    else
+                    {
+                        hangup = true;
+                        logger.info(context.cfg.gs("Stty.eof.line.listener.keep.going.enabled"));
+                    }
+                }
+                else
+                {
+                    StringTokenizer t = new StringTokenizer(line, "\"");
+                    if (t.hasMoreTokens())
+                    {
+                        String theCommand = t.nextToken().trim();
+                        if (theCommand.equalsIgnoreCase("login"))
+                        {
+                            if (t.hasMoreTokens())
+                            {
+                                String key = getNextToken(t);
+                                if ((publisherUser = context.subscriberRepo.login(key, false)) != null)
+                                {
+                                    publisherUser.setContext(context);
+                                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                                    response = gson.toJson(publisherUser);
+                                    success = true;
+                                }
+                                else
+                                {
+                                    // failed
+                                    logger.error(MessageFormat.format(context.cfg.gs("LibrariesUI.could.not.authenticate.key"), key));
+                                }
+                            }
+                            else
+                            {
+                                logger.error(context.cfg.gs("Z.login.command.missing.arguments"));
+                                if (!context.cfg.isKeepGoing())
+                                    status = 1;
+                                else
+                                    logger.info(context.cfg.gs("Stty.eof.line.listener.keep.going.enabled"));
+                            }
+                        }
+                        else
+                        {
+                            logger.error(context.cfg.gs("Z.login.command.expected") + " " + line);
+                            if (!context.cfg.isKeepGoing())
+                                status = 1;
+                            else
+                                logger.info(context.cfg.gs("Stty.eof.line.listener.keep.going.enabled"));
+                        }
+                    }
+                    else
+                    {
+                        logger.error(context.cfg.gs("Z.login.command.missing.arguments"));
+                        if (!context.cfg.isKeepGoing())
+                            status = 1;
+                        else
+                            logger.info(context.cfg.gs("Stty.eof.line.listener.keep.going.enabled"));
+                    }
+                }
+
+                if (!fault && !hangup)
+                    send(response, "");
+            }
+            else
+                success = true;
+        }
+        catch (Exception e)
+        {
+            logger.error(context.cfg.gs("Stty.subscriber.listener.exception"));
+            logger.error(Utils.getStackTrace(e));
+            if (!context.cfg.isKeepGoing())
+                status = 1;
+            else
+                logger.info(context.cfg.gs("Stty.eof.line.listener.keep.going.enabled"));
+        }
+
+        return success;
+    }
 
     /**
      * Process a connection request to the Daemon service.
@@ -209,11 +339,10 @@ public class Daemon extends AbstractDaemon
 
         connected = true;
 
-        String system = handshake();
+        String system = handshake(); // library level
         if (system.length() == 0)
         {
-            if (!context.cfg.isKeepGoing())
-                status = 1;
+            status = 1;
             logger.error(MessageFormat.format(context.cfg.gs("Stty.connection.to.failed.handshake"), Utils.formatAddresses(socket)));
         }
         else
@@ -224,540 +353,530 @@ public class Daemon extends AbstractDaemon
             }
             else // is automation
             {
-                createHeartBeat();
-
-                response = "CMD";
-
-                //  -S Subscriber collection file
-                if (context.cfg.isForceCollection())
+                if (!login()) // user level
                 {
-                    response = response + ":RequestCollection";
+                    status = 1;
                 }
-
-                //  -t Subscriber targets
-                if (context.cfg.isForceTargets())
+                else
                 {
-                    response = response + ":RequestTargets";
+                    createHeartBeat();
+                    response = "CMD";
+
+                    // -S Subscriber collection file
+                    if (context.cfg.isForceCollection())
+                    {
+                        response = response + ":RequestCollection";
+                    }
                 }
             }
 
             // setup JSON handlers
-            Gson gsonBuilder = new GsonBuilder().create();
             Gson gsonParser = new Gson();
 
             // prompt for & process interactive commands
-            try
+            boolean skipSend = false;
+            while (status == 0)
             {
-                while (status == 0)
+                try
                 {
-                    try
+                    // prompt the user for a command
+                    if (context.fault || (context.cfg.isKeepGoing() ? context.timeout : false))
                     {
-                        // prompt the user for a command
-                        if (context.fault || (context.cfg.isKeepGoing() ? context.timeout : false))
-                        {
-                            fault = true;
-                            status = 1;
-                            logger.warn(context.cfg.gs("Stty.process.fault.ending.stty"));
-                            break;
-                        }
+                        fault = true;
+                        status = 1;
+                        logger.warn(context.cfg.gs("Stty.process.fault.ending.stty"));
+                        break;
+                    }
 
-                        // send response or prompt the user for a command
+                    // send response or prompt the user for a command
+                    if (!skipSend)
                         send(response + (isTerminal ? prompt : ""), trace ? "writing response " + response.length() + " bytes to " + system : "");
-                        response = "";
+                    response = "";
+                    skipSend = false;
 
-                        // read command
-                        line = receive(trace ? "Reading command" : "", -1);
-                        if (line == null)
+                    // read command
+                    line = receive(trace ? "Reading command" : "", -1);
+                    if (line == null)
+                    {
+                        if (!context.cfg.isKeepGoing())
                         {
-                            if (!context.cfg.isKeepGoing())
-                            {
-                                fault = true; // exit on EOF
-                                status = 2;
-                                logger.warn(context.cfg.gs("Stty.eof.line.process.ended.prematurely"));
-                            }
-                            else
-                                logger.info(context.cfg.gs("Stty.eof.line.listener.keep.going.enabled"));
-                            break; // break read loop and let the connection be closed
-                        }
-
-                        line = line.trim();
-                        if (line.length() < 1)
-                        {
-                            response = "\r";
-                            continue;
-                        }
-
-                        ++commandCount;
-                        logger.info(MessageFormat.format(context.cfg.gs("Stty.processing.command.from"), line) + system); // + ", " + Utils.formatAddresses(getSocket()));
-
-                        // parse the command
-                        StringTokenizer t = new StringTokenizer(line, "\"");
-                        if (!t.hasMoreTokens())
-                            continue; // ignore if empty
-
-                        String theCommand = t.nextToken().trim();
-
-                        // -------------- authorized level password -----------------
-                        if (theCommand.equalsIgnoreCase("auth"))
-                        {
-                            ++attempts;
-                            String pw = "";
-                            if (t.hasMoreTokens())
-                                pw = t.nextToken(); // get the password
-                            if (context.cfg.getAuthorizedPassword().equals(pw.trim()))
-                            {
-                                response = "password accepted\r\n";
-                                authorized = true;
-                                prompt = "$ ";
-                                logger.info("Command auth accepted");
-                            }
-                            else
-                            {
-                                logger.warn("auth password attempt failed using: " + pw);
-                                if (attempts >= 3) // disconnect on too many attempts
-                                {
-                                    logger.error("Too many authentication failures, disconnecting");
-                                    break;
-                                }
-                            }
-                            continue;
-                        }
-
-                        // -------------- logout ------------------------------------
-                        if (theCommand.equalsIgnoreCase("logout"))
-                        {
-                            if (authorized)
-                            {
-                                authorized = false;
-                                prompt = basePrompt;
-                                continue;
-                            }
-                            else
-                            {
-                                if (context.cfg.isKeepGoing())
-                                    theCommand = "bye";
-                                else
-                                    theCommand = "quit";
-                            }
-                        }
-
-                        // -------------- bye ---------------------------------------
-                        if (theCommand.equalsIgnoreCase("bye"))
-                        {
-                            out.flush();
-                            Thread.sleep(1500);
-                            break;  // let the connection close
-                        }
-
-                        // -------------- return collection file --------------------
-                        if (theCommand.equalsIgnoreCase("collection"))
-                        {
-                            try
-                            {
-                                String location = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
-                                location = Utils.getStampedFilename(myRepo, location + "_collection-generated");
-                                location = Utils.getTemporaryFilePrefix(myRepo, location) + ".json";
-
-                                context.cfg.setExportCollectionFilename(location);
-
-                                for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
-                                {
-                                    if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(subLib.name)) &&
-                                            (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(subLib.name)))
-                                    {
-                                        if (subLib.items != null)
-                                        {
-                                            subLib.items = null; // clear any existing data
-                                        }
-                                        myRepo.scan(subLib.name);
-                                    }
-                                    else
-                                    {
-                                        logger.info(context.cfg.gs("Stty.skipping.subscriber.library") + subLib.name);
-                                        subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name;
-                                    }
-                                }
-
-                                // otherwise it must be -S so do not scan
-                                myRepo.exportItems(true);
-                                Thread.sleep(1500);
-                                Path jsonPath = Paths.get(Utils.getFullPathLocal(context.cfg.getExportCollectionFilename()));
-                                response = new String(Files.readAllBytes(jsonPath));
-                            }
-                            catch (MungeException e)
-                            {
-                                logger.error(e.getMessage());
-                            }
-                            continue;
-                        }
-
-                        // -------------- copy ------------------------------
-                        if (theCommand.equalsIgnoreCase("copy"))
-                        {
-                            boolean valid = false;
-                            if (t.hasMoreTokens())
-                            {
-                                String from = getNextToken(t);
-                                String to = getNextToken(t);
-                                if (from.length() > 0 && to.length() > 0)
-                                {
-                                    boolean success = true;
-                                    try
-                                    {
-                                        valid = true;
-                                        File f = new File(Utils.getFullPathLocal(from));
-                                        context.transfer.copyFile(context.clientSftp, Utils.getFullPathLocal(from),
-                                                Files.getLastModifiedTime(f.toPath()), Utils.getFullPathLocal(to), false, true);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        success = false;
-                                        logger.error(Utils.getStackTrace(e));
-                                    }
-                                    response = (isTerminal ? "ok" + (success ? ", copied" : "") + "\r\n" : Boolean.toString(success));
-                                }
-                            }
-                            if (!valid)
-                            {
-                                response = (isTerminal ? "copy command requires a 2 arguments, from and to\r\n" : "false");
-                            }
-                            continue;
-                        }
-
-                        // -------------- directory ------------------------
-                        if (theCommand.equalsIgnoreCase("directory"))
-                        {
-                            response = context.cfg.getWorkingDirectory();
-                            continue;
-                        }
-
-                        // -------------- drives of system ------------------------
-                        if (theCommand.equalsIgnoreCase("drives"))
-                        {
-                            response = Utils.getLocalHardDrives();
-                            continue;
-                        }
-
-                        // -------------- execute hint ------------------------------
-                        if (theCommand.equalsIgnoreCase("execute"))
-                        {
-                            if (context.hintKeys == null)
-                            {
-                                response = (isTerminal ? "execute command requires a --keys file\r\n" : "false");
-                                logger.warn(context.cfg.gs("Stty.execute.command.received.with.no.keys.file.specified"));
-                            }
-                            else
-                            {
-                                boolean valid = false;
-                                if (t.hasMoreTokens())
-                                {
-                                    Hint hint = null;
-                                    if (line.length() > 8)
-                                    {
-                                        valid = true;
-                                        String json = line.substring(9);
-                                        hint = gsonParser.fromJson(json, Hint.class);
-                                        ArrayList<Hint> pending = new ArrayList<>();
-                                        pending.add(hint);
-                                        response = context.hintsHandler.hintsMunge(pending); // process locally
-                                    }
-                                }
-                                if (!valid)
-                                {
-                                    response = (isTerminal ? "execute command requires a 3 arguments, libName, itemPath, fullPath\r\n" : "false");
-                                }
-                            }
-                            continue;
-                        }
-
-                        // -------------- fault ----------------------------------
-                        if (theCommand.equalsIgnoreCase("fault"))
-                        {
-                            if (!context.cfg.isKeepGoing())
-                            {
-                                fault = true;
-                                status = 1;
-                            }
-                            if (!context.timeout)
-                                send("End-Execution", trace ? "send End-Execution" : "");
-                            Thread.sleep(1500);
-                            throw new MungeException(context.cfg.gs("Stty.fault.received.from.publisher"));
-                        }
-
-                        // -------------- return library file --------------------
-                        if (theCommand.equalsIgnoreCase("library"))
-                        {
-                            try
-                            {
-                                String location = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
-                                location = Utils.getStampedFilename(myRepo, location + "_library-generated");
-                                location = Utils.getTemporaryFilePrefix(myRepo, location) + ".json";
-
-                                exportLibrary(location);
-                                Thread.sleep(2500);
-                                Path jsonPath = Paths.get(location).toAbsolutePath();
-                                response = new String(Files.readAllBytes(jsonPath));
-                            }
-                            catch (MungeException e)
-                            {
-                                logger.error(e.getMessage());
-                            }
-                            continue;
-                        }
-
-                        // -------------- quit, exit --------------------------------
-                        if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
-                        {
-                            out.flush();
-                            Thread.sleep(1500);
-
-                            // if keep going is not enabled then stop
-                            if (context.cfg.isKeepGoing())
-                                logger.info(context.cfg.gs("Stty.ignoring.quit.command.listener.keep.going.enabled"));
-                            else
-                                status = 1;
-                            break; // break the loop
-                        }
-
-                        // -------------- move ------------------------------
-                        if (theCommand.equalsIgnoreCase("move"))
-                        {
-                            boolean valid = false;
-                            if (t.hasMoreTokens())
-                            {
-                                String from = getNextToken(t);
-                                String to = getNextToken(t);
-                                if (from.length() > 0 && to.length() > 0)
-                                {
-                                    boolean success = true;
-                                    try
-                                    {
-                                        valid = true;
-                                        File f = new File(Utils.getFullPathLocal(from));
-                                        context.transfer.moveFile(Utils.getFullPathLocal(from), Files.getLastModifiedTime(f.toPath()),
-                                                Utils.getFullPathLocal(to), true);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        success = false;
-                                        logger.error(Utils.getStackTrace(e));
-                                    }
-                                    response = (isTerminal ? "ok" + (success ? ", moved" : "") + "\r\n" : Boolean.toString(success));
-                                }
-                            }
-                            if (!valid)
-                            {
-                                response = (isTerminal ? "move command requires a 2 arguments, from and to\r\n" : "false");
-                            }
-                            continue;
-                        }
-
-                        // -------------- read -----------------------------------
-                        if (theCommand.equalsIgnoreCase("read"))
-                        {
-                            boolean valid = false;
-                            if (t.hasMoreTokens())
-                            {
-                                String filename = getNextToken(t);
-                                if (filename.length() > 0)
-                                {
-                                    valid = true;
-                                    response = Utils.readString(Utils.getFullPathLocal(filename));
-                                }
-                            }
-                            if (!valid)
-                            {
-                                response = (isTerminal ? "read command requires a 1 argument, filename\r\n" : "false");
-                            }
-                            continue;
-                        }
-
-                        // -------------- remove ----------------------
-                        if (theCommand.equalsIgnoreCase("remove"))
-                        {
-                            String location = "";
-                            if (t.hasMoreTokens())
-                            {
-                                location = t.nextToken();
-                                context.transfer.remove(location, false);
-                                logger.info("  deleted: " + Utils.getFullPathLocal(location));
-                                response = "true";
-                            }
-                            else
-                            {
-                                response = "false";
-                            }
-                            continue;
-                        }
-
-                        // -------------- space check ----------------------
-                        if (theCommand.equalsIgnoreCase("space"))
-                        {
-                            String location = "";
-                            if (t.hasMoreTokens())
-                            {
-                                location = t.nextToken();
-                                long space = Utils.availableSpace(Utils.getFullPathLocal(location));
-                                logger.info("  space: " + Utils.formatLong(space, true, context.cfg.getLongScale()) + " at " + location);
-                                if (isTerminal)
-                                {
-                                    response = Utils.formatLong(space, true, context.cfg.getLongScale());
-                                }
-                                else
-                                {
-                                    response = String.valueOf(space);
-                                }
-                            }
-                            else
-                            {
-                                response = (isTerminal ? "space command requires a location\r\n" : "0");
-                            }
-                            continue;
-                        }
-
-                        // -------------- status information ------------------------
-                        if (theCommand.equalsIgnoreCase("status"))
-                        {
-                            if (!authorized)
-                            {
-                                response = "not authorized\r\n";
-                            }
-                            else
-                            {
-                                response = instance.dumpStatistics();
-                                response += dumpStatistics();
-                            }
-                            continue;
-                        }
-
-                        // -------------- stop --------------------------------
-                        if (theCommand.equalsIgnoreCase("stop"))
-                        {
-                            send("End-Execution", trace ? "send End-Execution" : "");
-                            Thread.sleep(1500);
+                            fault = true; // exit on EOF
                             status = 2;
-                            break; // break the loop
-                        }
-
-                        // -------------- return targets file -----------------------
-                        if (theCommand.equalsIgnoreCase("targets"))
-                        {
-                            try
-                            {
-                                if (context.cfg.getTargetsFilename().length() > 0)
-                                {
-                                    response = new String(Files.readAllBytes(Paths.get(Utils.getFullPathLocal(context.cfg.getTargetsFilename()))));
-                                }
-                                else
-                                {
-                                    response = ""; // let it default to sources as target locations
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                logger.error(e.getMessage());
-                            }
-                            continue;
-                        }
-
-                        // -------------- help! -------------------------------------
-                        if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
-                        {
-                            // @formatter:off
-                            response = "\r\nAvailable commands, not case sensitive:\r\n";
-
-                            if (authorized)
-                            {
-                                response += "  status = server and console status information\r\n" +
-                                        "\r\n" + "" +
-                                        " And:\r\n";
-                            }
-
-                            response += "  auth \"password\" = access Authorized commands, enclose password with quotes\r\n" +
-                                    "  collection = get collection data from remote, can take a few moments to scan\r\n" +
-                                    "  library = get library data from remote\r\n" +
-                                    "  space \"[location]\" = free space at location on remote\r\n" +
-                                    "  targets = get targets file from remote\r\n" +
-                                    "\r\n  help or ? = this list\r\n" +
-                                    "  bye = disconnect and leave remote end running\r\n" +
-                                    "  copy \"[from]\" \"[to]\" = copy file from to\r\n" +
-                                    "  directory = get working directory\r\n" +
-                                    "  drives = get available drives\r\n" +
-                                    "  logout = exit current level\r\n" +
-                                    "  move \"[from]\" \"[to]\" = move file from to\r\n" +
-                                    "  quit, exit = disconnect and quit remote end\r\n" +
-                                    "  remove \"[from]\" = remove file from\r\n" +
-                                    "  stop = force stop of remote and end\r\n" +
-                                    "\r\n";
-                            // @formatter:on
-                            continue;
-                        }
-
-                        response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
-                    }
-                    catch (SocketTimeoutException toe)
-                    {
-                        context.timeout = true;
-                        connected = false;
-                        logger.error(context.cfg.gs("Stty.sockettimeoutexception") + Utils.getStackTrace(toe));
-                        if (!context.cfg.isKeepGoing())
-                        {
-                            fault = true;
-                            status = 1;
+                            logger.warn(context.cfg.gs("Stty.eof.line.process.ended.prematurely"));
                         }
                         else
-                            logger.info(context.cfg.gs("Stty.ignoring.exception.listener.keep.going.enabled"));
-                        break;
+                            logger.info(context.cfg.gs("Stty.eof.line.listener.keep.going.enabled"));
+                        break; // break read loop and let the connection be closed
                     }
-                    catch (SocketException se)
+
+                    line = line.trim();
+                    if (line.length() < 1)
                     {
-                        if (se.toString().contains("timed out"))
-                            context.timeout = true;
-                        connected = false;
-                        logger.debug(context.cfg.gs("Stty.socketexception.timeout.is") + context.timeout);
-                        if (!context.cfg.isKeepGoing())
+                        response = "\r";
+                        continue;
+                    }
+
+                    ++commandCount;
+                    logger.info(MessageFormat.format(context.cfg.gs("Stty.processing.command.from"), line) + system); // + ", " + Utils.formatAddresses(getSocket()));
+
+                    // parse the command
+                    StringTokenizer t = new StringTokenizer(line, "\"");
+                    if (!t.hasMoreTokens())
+                        continue; // ignore if empty
+
+                    String theCommand = t.nextToken().trim();
+
+                    // -------------- authorized level password -----------------
+                    if (theCommand.equalsIgnoreCase("auth"))
+                    {
+                        ++attempts;
+                        String pw = "";
+                        if (t.hasMoreTokens())
+                            pw = t.nextToken(); // get the password
+                        if (context.cfg.getAuthorizedPassword().equals(pw.trim()))
                         {
-                            fault = true;
-                            status = 1;
+                            response = "password accepted\r\n";
+                            authorized = true;
+                            prompt = "$ ";
+                            logger.info("Command auth accepted");
                         }
                         else
-                            logger.info(context.cfg.gs("Stty.ignoring.exception.listener.keep.going.enabled"));
-                        break;
+                        {
+                            logger.warn("auth password attempt failed using: " + pw);
+                            if (attempts >= 3) // disconnect on too many attempts
+                            {
+                                logger.error("Too many authentication failures, disconnecting");
+                                break;
+                            }
+                        }
+                        continue;
                     }
-                    catch (Exception e)
+
+                    // -------------- login ------------------------------------
+                    if (theCommand.equalsIgnoreCase("login"))
                     {
-                        //connected = false;
-                        logger.error(context.cfg.gs("Stty.subscriber.listener.exception"));
-                        logger.error(Utils.getStackTrace(e));
+                        skipSend = true;
+                        continue;
+                    }
+
+                    // -------------- logout ------------------------------------
+                    if (theCommand.equalsIgnoreCase("logout"))
+                    {
+                        if (authorized)
+                        {
+                            authorized = false;
+                            prompt = basePrompt;
+                            continue;
+                        }
+                        else
+                        {
+                            if (context.cfg.isKeepGoing())
+                                theCommand = "bye";
+                            else
+                                theCommand = "quit";
+                        }
+                    }
+
+                    // -------------- bye ---------------------------------------
+                    if (theCommand.equalsIgnoreCase("bye"))
+                    {
+                        out.flush();
+                        Thread.sleep(1500);
+                        break;  // let the connection close
+                    }
+
+                    // -------------- return collection file --------------------
+                    if (theCommand.equalsIgnoreCase("collection"))
+                    {
                         try
                         {
-                            if (!context.timeout)
+                            String location = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
+                            location = Utils.getStampedFilename(myRepo, location + "_collection-generated");
+                            location = getUnique(location);
+                            location = Utils.getTemporaryFilePrefix(myRepo, location) + ".json";
+
+                            context.cfg.setExportCollectionFilename(location);
+                            
+                            // make a secured copy of repo for this user
+                            Repository collection = myRepo.cloneSecurity(publisherUser);
+                            for (Library subLib : collection.getLibraryData().libraries.bibliography)
                             {
-                                send(e.getMessage(), null);
-                                Thread.sleep(1500);
+                                // do NOT return content the publisher user does not have access to - it would be in the data file
+                                if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(subLib.name)) &&
+                                        (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(subLib.name)))
+                                {
+                                    if (subLib.items != null)
+                                    {
+                                        subLib.items = null; // clear any existing data
+                                    }
+                                    collection.scan(subLib.name);
+                                }
+                                else
+                                {
+                                    logger.info(context.cfg.gs("Stty.skipping.subscriber.library") + subLib.name);
+                                    subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name;
+                                }
+                            }
+
+                            collection.exportItems(true);
+                            Thread.sleep(1500);
+                            Path jsonPath = Paths.get(Utils.getFullPathLocal(context.cfg.getExportCollectionFilename()));
+                            response = new String(Files.readAllBytes(jsonPath));
+                        }
+                        catch (MungeException e)
+                        {
+                            logger.error(e.getMessage());
+                        }
+                        continue;
+                    }
+
+                    // -------------- copy ------------------------------
+                    if (theCommand.equalsIgnoreCase("copy"))
+                    {
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
+                        {
+                            String from = getNextToken(t);
+                            String to = getNextToken(t);
+                            if (from.length() > 0 && to.length() > 0)
+                            {
+                                boolean success = true;
+                                try
+                                {
+                                    valid = true;
+                                    File f = new File(Utils.getFullPathLocal(from));
+                                    context.transfer.copyFile(context.clientSftp, Utils.getFullPathLocal(from),
+                                            Files.getLastModifiedTime(f.toPath()), Utils.getFullPathLocal(to), false, true);
+                                }
+                                catch (Exception e)
+                                {
+                                    success = false;
+                                    logger.error(Utils.getStackTrace(e));
+                                }
+                                response = (isTerminal ? "ok" + (success ? ", copied" : "") + "\r\n" : Boolean.toString(success));
                             }
                         }
-                        catch (Exception ex)
+                        if (!valid)
                         {
+                            response = (isTerminal ? "copy command requires a 2 arguments, from and to\r\n" : "false");
                         }
+                        continue;
+                    }
+
+                    // -------------- directory ------------------------
+                    if (theCommand.equalsIgnoreCase("directory"))
+                    {
+                        response = context.cfg.getWorkingDirectory();
+                        continue;
+                    }
+
+                    // -------------- drives of system ------------------------
+                    if (theCommand.equalsIgnoreCase("drives"))
+                    {
+                        response = Utils.getLocalHardDrives();
+                        continue;
+                    }
+
+                    // -------------- execute hint ------------------------------
+                    if (theCommand.equalsIgnoreCase("execute"))
+                    {
+                        if (context.hintKeys == null)
+                        {
+                            response = (isTerminal ? "execute command requires a --keys file\r\n" : "false");
+                            logger.warn(context.cfg.gs("Stty.execute.command.received.with.no.keys.file.specified"));
+                        }
+                        else
+                        {
+                            boolean valid = false;
+                            if (t.hasMoreTokens())
+                            {
+                                Hint hint = null;
+                                if (line.length() > 8)
+                                {
+                                    valid = true;
+                                    String json = line.substring(9);
+                                    hint = gsonParser.fromJson(json, Hint.class);
+                                    ArrayList<Hint> pending = new ArrayList<>();
+                                    pending.add(hint);
+                                    response = context.hintsHandler.hintsMunge(pending); // process locally
+                                }
+                            }
+                            if (!valid)
+                            {
+                                response = (isTerminal ? "execute command requires a 3 arguments, libName, itemPath, fullPath\r\n" : "false");
+                            }
+                        }
+                        continue;
+                    }
+
+                    // -------------- fault ----------------------------------
+                    if (theCommand.equalsIgnoreCase("fault"))
+                    {
                         if (!context.cfg.isKeepGoing())
                         {
                             fault = true;
                             status = 1;
                         }
-                        break;
+                        if (!context.timeout)
+                            send("End-Execution", trace ? "send End-Execution" : "");
+                        Thread.sleep(1500);
+                        throw new MungeException(context.cfg.gs("Stty.fault.received.from.publisher"));
                     }
+
+                    // -------------- return library file --------------------
+                    if (theCommand.equalsIgnoreCase("library"))
+                    {
+                        try
+                        {
+                            String location = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
+                            location = Utils.getStampedFilename(myRepo, location + "_library-generated");
+                            location = getUnique(location);
+                            location = Utils.getTemporaryFilePrefix(myRepo, location) + ".json";
+
+                            exportLibrary(location);
+                            Thread.sleep(2500);
+                            Path jsonPath = Paths.get(location).toAbsolutePath();
+                            response = new String(Files.readAllBytes(jsonPath));
+                        }
+                        catch (MungeException e)
+                        {
+                            logger.error(e.getMessage());
+                        }
+                        continue;
+                    }
+
+                    // -------------- move ------------------------------
+                    if (theCommand.equalsIgnoreCase("move"))
+                    {
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
+                        {
+                            String from = getNextToken(t);
+                            String to = getNextToken(t);
+                            if (from.length() > 0 && to.length() > 0)
+                            {
+                                boolean success = true;
+                                try
+                                {
+                                    valid = true;
+                                    File f = new File(Utils.getFullPathLocal(from));
+                                    context.transfer.moveFile(Utils.getFullPathLocal(from), Files.getLastModifiedTime(f.toPath()),
+                                            Utils.getFullPathLocal(to), true);
+                                }
+                                catch (Exception e)
+                                {
+                                    success = false;
+                                    logger.error(Utils.getStackTrace(e));
+                                }
+                                response = (isTerminal ? "ok" + (success ? ", moved" : "") + "\r\n" : Boolean.toString(success));
+                            }
+                        }
+                        if (!valid)
+                        {
+                            response = (isTerminal ? "move command requires a 2 arguments, from and to\r\n" : "false");
+                        }
+                        continue;
+                    }
+
+                    // -------------- quit, exit --------------------------------
+                    if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
+                    {
+                        out.flush();
+                        Thread.sleep(1500);
+
+                        // if keep going is not enabled then stop
+                        if (context.cfg.isKeepGoing())
+                            logger.info(context.cfg.gs("Stty.ignoring.quit.command.listener.keep.going.enabled"));
+                        else
+                            status = 1;
+                        break; // break the loop
+                    }
+
+                    // -------------- read -----------------------------------
+                    if (theCommand.equalsIgnoreCase("read"))
+                    {
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
+                        {
+                            String filename = getNextToken(t);
+                            if (filename.length() > 0)
+                            {
+                                valid = true;
+                                response = Utils.readString(Utils.getFullPathLocal(filename));
+                            }
+                        }
+                        if (!valid)
+                        {
+                            response = (isTerminal ? "read command requires a 1 argument, filename\r\n" : "false");
+                        }
+                        continue;
+                    }
+
+                    // -------------- remove ----------------------
+                    if (theCommand.equalsIgnoreCase("remove"))
+                    {
+                        String location = "";
+                        if (t.hasMoreTokens())
+                        {
+                            location = t.nextToken();
+                            context.transfer.remove(location, false);
+                            logger.info("  deleted: " + Utils.getFullPathLocal(location));
+                            response = "true";
+                        }
+                        else
+                        {
+                            response = "false";
+                        }
+                        continue;
+                    }
+
+                    // -------------- space check ----------------------
+                    if (theCommand.equalsIgnoreCase("space"))
+                    {
+                        String location = "";
+                        if (t.hasMoreTokens())
+                        {
+                            location = t.nextToken();
+                            long space = Utils.availableSpace(Utils.getFullPathLocal(location));
+                            logger.info("  space: " + Utils.formatLong(space, true, context.cfg.getLongScale()) + " at " + location);
+                            if (isTerminal)
+                            {
+                                response = Utils.formatLong(space, true, context.cfg.getLongScale());
+                            }
+                            else
+                            {
+                                response = String.valueOf(space);
+                            }
+                        }
+                        else
+                        {
+                            response = (isTerminal ? "space command requires a location\r\n" : "0");
+                        }
+                        continue;
+                    }
+
+                    // -------------- status information ------------------------
+                    if (theCommand.equalsIgnoreCase("status"))
+                    {
+                        if (!authorized)
+                        {
+                            response = "not authorized\r\n";
+                        }
+                        else
+                        {
+                            response = instance.dumpStatistics();
+                            response += dumpStatistics();
+                        }
+                        continue;
+                    }
+
+                    // -------------- stop --------------------------------
+                    if (theCommand.equalsIgnoreCase("stop"))
+                    {
+                        send("End-Execution", trace ? "send End-Execution" : "");
+                        Thread.sleep(1500);
+                        status = 2;
+                        break; // break the loop
+                    }
+
+                    // -------------- help! -------------------------------------
+                    if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
+                    {
+                        // @formatter:off
+                        response = "\r\nAvailable commands, not case sensitive:\r\n";
+
+                        if (authorized)
+                        {
+                            response += "  status = server and console status information\r\n" +
+                                    "\r\n" + "" +
+                                    " And:\r\n";
+                        }
+
+                        response += "  auth \"password\" = access Authorized commands, enclose password with quotes\r\n" +
+                                "  collection = get collection data from remote, can take a few moments to scan\r\n" +
+                                "  library = get library data from remote\r\n" +
+                                "  space \"[location]\" = free space at location on remote\r\n" +
+                                "\r\n  help or ? = this list\r\n" +
+                                "  bye = disconnect and leave remote end running\r\n" +
+                                "  copy \"[from]\" \"[to]\" = copy file from to\r\n" +
+                                "  directory = get working directory\r\n" +
+                                "  drives = get available drives\r\n" +
+                                "  logout = exit current level\r\n" +
+                                "  move \"[from]\" \"[to]\" = move file from to\r\n" +
+                                "  quit, exit = disconnect and quit remote end\r\n" +
+                                "  remove \"[from]\" = remove file from\r\n" +
+                                "  stop = force stop of remote and end\r\n" +
+                                "\r\n";
+                        // @formatter:on
+                        continue;
+                    }
+
+                    response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
                 }
-            }
-            finally
-            {
-                stopHeartBeat();
+                catch (SocketTimeoutException toe)
+                {
+                    context.timeout = true;
+                    connected = false;
+                    logger.error(context.cfg.gs("Stty.sockettimeoutexception") + Utils.getStackTrace(toe));
+                    if (!context.cfg.isKeepGoing())
+                    {
+                        fault = true;
+                        status = 1;
+                    }
+                    else
+                        logger.info(context.cfg.gs("Stty.ignoring.exception.listener.keep.going.enabled"));
+                    break;
+                }
+                catch (SocketException se)
+                {
+                    if (se.toString().contains("timed out"))
+                        context.timeout = true;
+                    connected = false;
+                    logger.error(context.cfg.gs("Stty.socketexception.timeout.is") + context.timeout);
+                    logger.error(Utils.getStackTrace(se));
+                    if (!context.cfg.isKeepGoing())
+                    {
+                        fault = true;
+                        status = 1;
+                    }
+                    else
+                        logger.info(context.cfg.gs("Stty.ignoring.exception.listener.keep.going.enabled"));
+                    break;
+                }
+                catch (Exception e)
+                {
+                    //connected = false;
+                    logger.error(context.cfg.gs("Stty.subscriber.listener.exception"));
+                    logger.error(Utils.getStackTrace(e));
+                    try
+                    {
+                        if (!context.timeout)
+                        {
+                            send(e.getMessage(), null);
+                            Thread.sleep(1500);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                    if (!context.cfg.isKeepGoing())
+                    {
+                        fault = true;
+                        status = 1;
+                    }
+                    break;
+                }
+                finally
+                {
+                    stopHeartBeat();
+                }
             }
         }
         if (fault)
             context.fault = true;
         String statMsg = status == 0 ? "Success" : (status == 1 ? "Quit" : "Stop");
-        logger.trace(MessageFormat.format(context.cfg.gs("Stty.server.session.done.status.fault"), statMsg) + context.fault);
+        logger.info(MessageFormat.format(context.cfg.gs("Stty.server.session.done.status.fault"),
+                isTerminal ? "Terminal" : "Automation", statMsg, context.fault));
         return status;
     } // process
 

@@ -282,7 +282,7 @@ public class Job extends AbstractTool
     {
         stop = false;
 
-        if (job.getTasks() != null && job.getTasks().size() > 0)
+        if (job.getTasks() != null && !job.getTasks().isEmpty())
         {
             logger.info(context.cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
 
@@ -319,7 +319,7 @@ public class Job extends AbstractTool
                     if (!currentTask.process(context))
                         requestStop();
 
-                    if (currentTask.isToolCachedOrigins(context))
+//                    if (currentTask.isToolCachedOrigins(context))
                         previousTask = currentTask;
                 }
 
@@ -389,7 +389,7 @@ public class Job extends AbstractTool
             {
                 task.setContext(context);
 
-                // if not a Job or using cached task
+                // if not Sleep or using cached task
                 if (!task.getInternalName().equals(SleepTool.INTERNAL_NAME) &&
                         !task.getPublisherKey().equals(Task.CACHEDLASTTASK))
                 {

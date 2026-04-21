@@ -15,8 +15,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicLabelUI;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -42,6 +40,11 @@ import java.awt.event.*;
  *  Accent color:     #2675BF  see Preferences
  *
  *  Icon source:  https://www.iconsdb.com
+ *
+ *  SVG:  https://freesvgicons.com/
+ *
+ *  Themes:  https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes#themes
+ *
  */
 public class MainFrame extends JFrame
 {
@@ -65,11 +68,6 @@ public class MainFrame extends JFrame
             panelToolbar.setBackground(menuToolbar.getBackground());
             tabbedPaneMain.putClientProperty("JTabbedPane.tabType", "card");
             tabbedPaneNavigatorBottom.putClientProperty("JTabbedPane.tabType", "card");
-
-            adjustTableColumns(tableCollectionOne);
-            adjustTableColumns(tableSystemOne);
-            adjustTableColumns(tableCollectionTwo);
-            adjustTableColumns(tableSystemTwo);
 
             // set Back/Forward keys
             buttonBack.setMnemonic(KeyEvent.VK_LEFT);
@@ -114,50 +112,13 @@ public class MainFrame extends JFrame
                 menuItemTouch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.META_DOWN_MASK));
                 menuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.META_DOWN_MASK));
             }
+
+            ToolTipManager.sharedInstance().setDismissDelay(30000);
         }
         catch(Exception ex)
         {
             logger.error(Utils.getStackTrace(ex));
             context.fault = true;
-        }
-    }
-
-    /**
-     * Adjust/restore a browser table's columns
-     *
-     * @param table
-     */
-    private void adjustTableColumns(JTable table)
-    {
-        for (int i = 0; i < table.getColumnCount(); ++i)
-        {
-            DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
-            TableColumn column = table.getColumnModel().getColumn(i);
-            switch (i)
-            {
-                case 0:
-                    column.setResizable(false);
-                    column.setWidth(22);
-                    column.setPreferredWidth(22);
-                    column.setMaxWidth(22);
-                    column.setMinWidth(22);
-                    break;
-                case 1:
-                    cellRenderer.setHorizontalAlignment(JLabel.LEFT);
-                    column.setCellRenderer(cellRenderer);
-                    column.setResizable(true);
-                    break;
-                case 2:
-                    cellRenderer.setHorizontalAlignment(JLabel.RIGHT);
-                    column.setCellRenderer(cellRenderer);
-                    column.setResizable(true);
-                    break;
-                case 3:
-                    column.setResizable(true);
-                    cellRenderer.setHorizontalAlignment(JLabel.RIGHT);
-                    column.setCellRenderer(cellRenderer);
-                    break;
-            }
         }
     }
 
@@ -172,6 +133,15 @@ public class MainFrame extends JFrame
         // TODO EXTEND+ Add other Tool checkForChanges() here
         if (context.libraries != null && context.libraries.checkForChanges())
             changes = true;
+/* Logic changed where these dialogs handle Save/Cancel themselves
+        else if (context.navigator.dialogArchiver != null &&  context.navigator.dialogArchiver.checkForChanges())
+            changes = true;
+        else if (context.navigator.dialogCleanup != null &&  context.navigator.dialogCleanup.checkForChanges())
+            changes = true;
+        else if (context.navigator.dialogEmail != null &&  context.navigator.dialogEmail.checkForChanges())
+            changes = true;
+//        else if (context.navigator.dialogHints != null && context.navigator.dialogHints.checkForChanges())
+//            changes = true;
         else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
             changes = true;
         else if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
@@ -182,6 +152,7 @@ public class MainFrame extends JFrame
             changes = true;
         else if (context.navigator.dialogSleep != null && context.navigator.dialogSleep.checkForChanges())
             changes = true;
+*/
         return changes;
     }
 
@@ -196,6 +167,7 @@ public class MainFrame extends JFrame
             context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
             context.mainFrame.saveButton.requestFocus();
         }
+/* Logic changed where these dialogs handle Save/Cancel themselves
         else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
         {
             context.navigator.dialogJobs.setVisible(true);
@@ -239,6 +211,7 @@ public class MainFrame extends JFrame
             context.navigator.dialogSleep.requestFocus();
             context.navigator.dialogSleep.saveButton.requestFocus();
         }
+ */
     }
 
     /**
@@ -275,9 +248,12 @@ public class MainFrame extends JFrame
             label.setUI(new VerticalLabel(tabPlacementIndex == 3));
             tabbedPaneBrowserTwo.setTabComponentAt(0, label);
             //
-            label = new JLabel(context.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
-            label.setUI(new VerticalLabel(tabPlacementIndex == 3));
-            tabbedPaneBrowserTwo.setTabComponentAt(1, label);
+            if (tabbedPaneBrowserTwo.getTabCount() > 1)
+            {
+                label = new JLabel(context.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
+                label.setUI(new VerticalLabel(tabPlacementIndex == 3));
+                tabbedPaneBrowserTwo.setTabComponentAt(1, label);
+            }
         }
         else // top or bottom
         {
@@ -294,9 +270,12 @@ public class MainFrame extends JFrame
             label.setUI(new BasicLabelUI());
             tabbedPaneBrowserTwo.setTabComponentAt(0, label);
             //
-            label = new JLabel(context.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
-            label.setUI(new BasicLabelUI());
-            tabbedPaneBrowserTwo.setTabComponentAt(1, label);
+            if (tabbedPaneBrowserTwo.getTabCount() > 1)
+            {
+                label = new JLabel(context.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
+                label.setUI(new BasicLabelUI());
+                tabbedPaneBrowserTwo.setTabComponentAt(1, label);
+            }
         }
     }
 
@@ -365,6 +344,7 @@ public class MainFrame extends JFrame
 
     /**
      * Enable/disable menu options depending on which tab is selected
+     *
      * @param e
      */
     private void tabbedPaneMainStateChanged(ChangeEvent e)
@@ -464,10 +444,6 @@ public class MainFrame extends JFrame
         }
     }
 
-    private void generalOptionsMouseClicked(MouseEvent e) {
-        // TODO add your code here
-    }
-
   // ================================================================================================================
 
     // <editor-fold desc="Generated code (Fold)">
@@ -554,6 +530,7 @@ public class MainFrame extends JFrame
         panelAlertsMenu = new JPanel();
         labelAlertHintsMenu = new JLabel();
         labelAlertUpdateMenu = new JLabel();
+        labelUserMenu = new JLabel();
         panelMain = new JPanel();
         panelToolbar = new JPanel();
         menuToolbar = new JMenuBar();
@@ -566,6 +543,7 @@ public class MainFrame extends JFrame
         panelAlertsToolbar = new JPanel();
         labelAlertHintsToolbar = new JLabel();
         labelAlertUpdateToolbar = new JLabel();
+        labelUserToolbar = new JLabel();
         vSpacer5 = new JPanel(null);
         tabbedPaneMain = new JTabbedPane();
         splitPaneBrowser = new JSplitPane();
@@ -733,15 +711,39 @@ public class MainFrame extends JFrame
         panelBiblioButtons = new JPanel();
         buttonAddLibrary = new JButton();
         buttonRemoveLibrary = new JButton();
+        userTab = new JPanel();
+        panelUserOptions = new JPanel();
+        hSpacer11 = new JPanel(null);
+        hSpacer13 = new JPanel(null);
+        labelUserName = new JLabel();
+        textFieldUserName = new JTextField();
+        buttonInviteUser = new JButton();
+        labelUserType = new JLabel();
+        comboBoxUserType = new JComboBox();
+        labelUserLibraries = new JLabel();
+        comboBoxLibraries = new JComboBox();
+        buttonAddUserLibrary = new JButton();
+        buttonDeleteUserLibrary = new JButton();
+        buttonUpdateUserLibrary = new JButton();
+        labelGrants = new JLabel();
+        scrollPaneGrants = new JScrollPane();
+        tableGrants = new JTable();
+        panelUserBottom = new JPanel();
+        labelUserCounts = new JLabel();
+        panelUsertButtons = new JPanel();
+        buttonReadAll = new JButton();
+        buttonWriteAll = new JButton();
+        hSpacer12 = new JPanel(null);
         buttonBarLibs = new JPanel();
         saveButton = new JButton();
         cancelButton = new JButton();
+        vSpacer7 = new JPanel(null);
         hSpacer8 = new JPanel(null);
+        hSpacer9 = new JPanel(null);
         panelStatus = new JPanel();
         labelStatusLeft = new JLabel();
         labelStatusMiddle = new JLabel();
         labelStatusRight = new JLabel();
-        hSpacer9 = new JPanel(null);
         popupMenuBrowser = new JPopupMenu();
         popupMenuItemRefresh = new JMenuItem();
         popupMenuItemCopy = new JMenuItem();
@@ -1002,8 +1004,9 @@ public class MainFrame extends JFrame
 
                 //---- menuItemAddBookmark ----
                 menuItemAddBookmark.setText(context.cfg.gs("Navigator.menu.AddBookmark.text"));
-                menuItemAddBookmark.setMnemonic(context.cfg.gs("Navigator.menu.AddBookmark.mnemonic").charAt(0));
+                menuItemAddBookmark.setMnemonic(context.cfg.gs("Navigator.menuItemAddBookmark.mnemonic").charAt(0));
                 menuItemAddBookmark.setIcon(new ImageIcon(getClass().getResource("/bookmark.png")));
+                menuItemAddBookmark.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK));
                 menuBookmarks.add(menuItemAddBookmark);
 
                 //---- menuItemBookmarksDelete ----
@@ -1304,6 +1307,10 @@ public class MainFrame extends JFrame
                 labelAlertUpdateMenu.setMaximumSize(new Dimension(14, 21));
                 labelAlertUpdateMenu.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 panelAlertsMenu.add(labelAlertUpdateMenu);
+
+                //---- labelUserMenu ----
+                labelUserMenu.setToolTipText(context.cfg.gs("Navigator.labelUserToolbar.toolTipText"));
+                panelAlertsMenu.add(labelUserMenu);
             }
             menuBarMain.add(panelAlertsMenu);
         }
@@ -1414,15 +1421,19 @@ public class MainFrame extends JFrame
                     labelAlertUpdateToolbar.setMaximumSize(new Dimension(14, 26));
                     labelAlertUpdateToolbar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     panelAlertsToolbar.add(labelAlertUpdateToolbar);
+
+                    //---- labelUserToolbar ----
+                    labelUserToolbar.setToolTipText(context.cfg.gs("Navigator.labelUserToolbar.toolTipText"));
+                    panelAlertsToolbar.add(labelUserToolbar);
                 }
                 panelToolbar.add(panelAlertsToolbar, BorderLayout.EAST);
             }
             panelMain.add(panelToolbar);
 
             //---- vSpacer5 ----
-            vSpacer5.setPreferredSize(new Dimension(2, 2));
-            vSpacer5.setMinimumSize(new Dimension(2, 2));
-            vSpacer5.setMaximumSize(new Dimension(2, 2));
+            vSpacer5.setPreferredSize(new Dimension(2, 3));
+            vSpacer5.setMinimumSize(new Dimension(2, 3));
+            vSpacer5.setMaximumSize(new Dimension(2, 3));
             panelMain.add(vSpacer5);
 
             //======== tabbedPaneMain ========
@@ -1850,12 +1861,6 @@ public class MainFrame extends JFrame
                             textAreaLog.setVerifyInputWhenFocusTarget(false);
                             textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
                             textAreaLog.setWrapStyleWord(true);
-                            textAreaLog.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mouseClicked(MouseEvent e) {
-                                    generalOptionsMouseClicked(e);
-                                }
-                            });
                             scrollPaneLog.setViewportView(textAreaLog);
                         }
                         tabbedPaneNavigatorBottom.addTab(context.cfg.gs("Navigator.scrollPane.Log.tab.title"), scrollPaneLog);
@@ -1870,16 +1875,10 @@ public class MainFrame extends JFrame
                             textAreaProperties.setEditable(false);
                             textAreaProperties.setMinimumSize(new Dimension(0, 0));
                             textAreaProperties.setContentType("text/html");
-                            textAreaProperties.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mouseClicked(MouseEvent e) {
-                                    generalOptionsMouseClicked(e);
-                                }
-                            });
                             scrollPaneProperties.setViewportView(textAreaProperties);
                         }
                         tabbedPaneNavigatorBottom.addTab(context.cfg.gs("Navigator.scrollPane.Properties.tab.title"), scrollPaneProperties);
-                        tabbedPaneNavigatorBottom.setMnemonicAt(1, context.cfg.gs("Navigator.scrollPaneProperties.tab.mnemonic_2").charAt(0));
+                        tabbedPaneNavigatorBottom.setMnemonicAt(1, context.cfg.gs("Navigator.scrollPaneProperties.tab.mnemonic").charAt(0));
                     }
                     splitPaneBrowser.setBottomComponent(tabbedPaneNavigatorBottom);
                 }
@@ -2055,12 +2054,6 @@ public class MainFrame extends JFrame
 
                                     //======== generalOptions ========
                                     {
-                                        generalOptions.addMouseListener(new MouseAdapter() {
-                                            @Override
-                                            public void mouseClicked(MouseEvent e) {
-                                                generalOptionsMouseClicked(e);
-                                            }
-                                        });
                                         generalOptions.setLayout(new CardLayout());
 
                                         //======== panelGettingStartedCard ========
@@ -2079,8 +2072,8 @@ public class MainFrame extends JFrame
                                         {
                                             panelLibraryCard.setLayout(new GridBagLayout());
                                             ((GridBagLayout)panelLibraryCard.getLayout()).columnWidths = new int[] {0, 190, 16, 0, 24};
-                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                            ((GridBagLayout)panelLibraryCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                                             //---- hSpacer4 ----
                                             hSpacer4.setMinimumSize(new Dimension(0, 0));
@@ -2130,7 +2123,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- textFieldKey ----
-                                            textFieldKey.setPreferredSize(new Dimension(240, 30));
+                                            textFieldKey.setPreferredSize(new Dimension(240, 34));
                                             textFieldKey.setName("key");
                                             textFieldKey.setToolTipText(context.cfg.gs("Navigator.textFieldKey.toolTipText"));
                                             panelLibraryCard.add(textFieldKey, new GridBagConstraints(1, 2, 3, 1, 0.0, 0.0,
@@ -2211,7 +2204,7 @@ public class MainFrame extends JFrame
 
                                             //---- textFieldTimeout ----
                                             textFieldTimeout.setName("timeout");
-                                            textFieldTimeout.setPreferredSize(new Dimension(104, 30));
+                                            textFieldTimeout.setPreferredSize(new Dimension(104, 34));
                                             textFieldTimeout.setMinimumSize(new Dimension(101104, 30));
                                             textFieldTimeout.setToolTipText(context.cfg.gs("Navigator.textFieldTimeout.toolTipText"));
                                             panelLibraryCard.add(textFieldTimeout, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
@@ -2797,6 +2790,162 @@ public class MainFrame extends JFrame
                                 }
                                 tabbedPaneLibrarySpaces.addTab(context.cfg.gs("Navigator.bibliographyTab.tab.title"), bibliographyTab);
                                 tabbedPaneLibrarySpaces.setMnemonicAt(2, context.cfg.gs("Navigator.bibliographyTab.tab.mnemonic_2").charAt(0));
+
+                                //======== userTab ========
+                                {
+                                    userTab.setLayout(new BorderLayout());
+
+                                    //======== panelUserOptions ========
+                                    {
+                                        panelUserOptions.setLayout(new GridBagLayout());
+                                        ((GridBagLayout)panelUserOptions.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                        ((GridBagLayout)panelUserOptions.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                        ((GridBagLayout)panelUserOptions.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                        ((GridBagLayout)panelUserOptions.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+
+                                        //---- hSpacer11 ----
+                                        hSpacer11.setPreferredSize(new Dimension(4, 10));
+                                        hSpacer11.setMinimumSize(new Dimension(4, 12));
+                                        hSpacer11.setMaximumSize(new Dimension(4, 32767));
+                                        panelUserOptions.add(hSpacer11, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- hSpacer13 ----
+                                        hSpacer13.setPreferredSize(new Dimension(180, 10));
+                                        hSpacer13.setMinimumSize(new Dimension(180, 12));
+                                        panelUserOptions.add(hSpacer13, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- labelUserName ----
+                                        labelUserName.setText(context.cfg.gs("Navigator.labelUserName.text"));
+                                        panelUserOptions.add(labelUserName, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- textFieldUserName ----
+                                        textFieldUserName.setName("userName");
+                                        textFieldUserName.setMargin(new Insets(0, 6, 0, 6));
+                                        textFieldUserName.setToolTipText(context.cfg.gs("Navigator.textFieldUserName.toolTipText"));
+                                        panelUserOptions.add(textFieldUserName, new GridBagConstraints(2, 1, 2, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- buttonInviteUser ----
+                                        buttonInviteUser.setText(context.cfg.gs("Navigator.buttonInviteUser.text"));
+                                        buttonInviteUser.setToolTipText(context.cfg.gs("Navigator.buttonInviteUser.toolTipText"));
+                                        panelUserOptions.add(buttonInviteUser, new GridBagConstraints(4, 1, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- labelUserType ----
+                                        labelUserType.setText(context.cfg.gs("Navigator.labelUserType.text"));
+                                        panelUserOptions.add(labelUserType, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- comboBoxUserType ----
+                                        comboBoxUserType.setName("userType");
+                                        comboBoxUserType.setToolTipText(context.cfg.gs("Navigator.comboBoxUserType.toolTipText"));
+                                        panelUserOptions.add(comboBoxUserType, new GridBagConstraints(2, 2, 2, 1, 0.0, 0.0,
+                                            GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- labelUserLibraries ----
+                                        labelUserLibraries.setText(context.cfg.gs("Navigator.labelUserLibraries.text"));
+                                        panelUserOptions.add(labelUserLibraries, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- comboBoxLibraries ----
+                                        comboBoxLibraries.setName("userLibraries");
+                                        comboBoxLibraries.setToolTipText(context.cfg.gs("Navigator.comboBoxLibraries.toolTipText"));
+                                        panelUserOptions.add(comboBoxLibraries, new GridBagConstraints(2, 3, 2, 1, 0.0, 0.0,
+                                            GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- buttonAddUserLibrary ----
+                                        buttonAddUserLibrary.setText(context.cfg.gs("Navigator.buttonAddUserLibrary.text"));
+                                        buttonAddUserLibrary.setToolTipText(context.cfg.gs("Navigator.buttonAddUserLibrary.toolTipText"));
+                                        buttonAddUserLibrary.setPreferredSize(new Dimension(84, 34));
+                                        buttonAddUserLibrary.setMinimumSize(new Dimension(84, 34));
+                                        buttonAddUserLibrary.setMaximumSize(new Dimension(84, 34));
+                                        panelUserOptions.add(buttonAddUserLibrary, new GridBagConstraints(4, 3, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- buttonDeleteUserLibrary ----
+                                        buttonDeleteUserLibrary.setText(context.cfg.gs("Navigator.buttonDeleteUserLibrary.text"));
+                                        buttonDeleteUserLibrary.setToolTipText(context.cfg.gs("Navigator.buttonDeleteUserLibrary.toolTipText"));
+                                        panelUserOptions.add(buttonDeleteUserLibrary, new GridBagConstraints(6, 3, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                                            new Insets(0, 0, 4, 4), 0, 0));
+
+                                        //---- buttonUpdateUserLibrary ----
+                                        buttonUpdateUserLibrary.setText(context.cfg.gs("Navigator.buttonUpdateUserLibrary.text"));
+                                        buttonUpdateUserLibrary.setToolTipText(context.cfg.gs("Navigator.buttonUpdateUserLibrary.toolTipText"));
+                                        panelUserOptions.add(buttonUpdateUserLibrary, new GridBagConstraints(8, 3, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                                            new Insets(0, 0, 4, 0), 0, 0));
+
+                                        //---- labelGrants ----
+                                        labelGrants.setText(context.cfg.gs("Navigator.labelGrants.text"));
+                                        panelUserOptions.add(labelGrants, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(7, 0, 4, 4), 0, 0));
+
+                                        //======== scrollPaneGrants ========
+                                        {
+
+                                            //---- tableGrants ----
+                                            tableGrants.setAutoCreateRowSorter(true);
+                                            tableGrants.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+                                            tableGrants.setFillsViewportHeight(true);
+                                            tableGrants.setRowSelectionAllowed(false);
+                                            tableGrants.setShowVerticalLines(false);
+                                            scrollPaneGrants.setViewportView(tableGrants);
+                                        }
+                                        panelUserOptions.add(scrollPaneGrants, new GridBagConstraints(2, 4, 7, 8, 0.5, 0.5,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 0, 0), 0, 0));
+                                    }
+                                    userTab.add(panelUserOptions, BorderLayout.CENTER);
+
+                                    //======== panelUserBottom ========
+                                    {
+                                        panelUserBottom.setLayout(new BorderLayout());
+
+                                        //---- labelUserCounts ----
+                                        labelUserCounts.setText(context.cfg.gs("Navigator.labelUserCounts.text"));
+                                        labelUserCounts.setHorizontalAlignment(SwingConstants.CENTER);
+                                        panelUserBottom.add(labelUserCounts, BorderLayout.CENTER);
+
+                                        //======== panelUsertButtons ========
+                                        {
+                                            panelUsertButtons.setLayout(new FlowLayout(FlowLayout.RIGHT, 4, 4));
+
+                                            //---- buttonReadAll ----
+                                            buttonReadAll.setText(context.cfg.gs("Navigator.buttonReadAll.text"));
+                                            buttonReadAll.setMnemonic(context.cfg.gs("Navigator.buttonReadAll.mnemonic").charAt(0));
+                                            panelUsertButtons.add(buttonReadAll);
+
+                                            //---- buttonWriteAll ----
+                                            buttonWriteAll.setText(context.cfg.gs("Navigator.buttonWriteAll.text"));
+                                            buttonWriteAll.setMnemonic(context.cfg.gs("Navigator.buttonWriteAll.mnemonic").charAt(0));
+                                            panelUsertButtons.add(buttonWriteAll);
+
+                                            //---- hSpacer12 ----
+                                            hSpacer12.setPreferredSize(new Dimension(8, 10));
+                                            hSpacer12.setMinimumSize(new Dimension(8, 12));
+                                            panelUsertButtons.add(hSpacer12);
+                                        }
+                                        panelUserBottom.add(panelUsertButtons, BorderLayout.EAST);
+                                    }
+                                    userTab.add(panelUserBottom, BorderLayout.PAGE_END);
+                                }
+                                tabbedPaneLibrarySpaces.addTab(context.cfg.gs("LibrariesUI.user"), userTab);
+                                tabbedPaneLibrarySpaces.setMnemonicAt(3, context.cfg.gs("Navigator.userTab.tab.mnemonic").charAt(0));
                             }
                             panelOptions.add(tabbedPaneLibrarySpaces, BorderLayout.CENTER);
                         }
@@ -2824,7 +2973,7 @@ public class MainFrame extends JFrame
                         //---- cancelButton ----
                         cancelButton.setText(context.cfg.gs("Libraries.undo"));
                         cancelButton.setToolTipText(context.cfg.gs("Libraries.cancel.toolTip.text"));
-                        cancelButton.setMnemonic(context.cfg.gs("Navigator.cancelButton.mnemonic_2").charAt(0));
+                        cancelButton.setMnemonic(context.cfg.gs("Navigator.cancelButton.mnemonic").charAt(0));
                         buttonBarLibs.add(cancelButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 0, 0), 0, 0));
@@ -2835,6 +2984,12 @@ public class MainFrame extends JFrame
                 tabbedPaneMain.setMnemonicAt(1, context.cfg.gs("Navigator.splitPane.Libraries.tab.mnemonic").charAt(0));
             }
             panelMain.add(tabbedPaneMain);
+
+            //---- vSpacer7 ----
+            vSpacer7.setPreferredSize(new Dimension(2, 1));
+            vSpacer7.setMinimumSize(new Dimension(2, 1));
+            vSpacer7.setMaximumSize(new Dimension(2, 1));
+            panelMain.add(vSpacer7);
         }
         contentPane.add(panelMain, BorderLayout.CENTER);
 
@@ -2844,8 +2999,17 @@ public class MainFrame extends JFrame
         hSpacer8.setMaximumSize(new Dimension(2, 32767));
         contentPane.add(hSpacer8, BorderLayout.WEST);
 
+        //---- hSpacer9 ----
+        hSpacer9.setPreferredSize(new Dimension(2, 10));
+        hSpacer9.setMinimumSize(new Dimension(2, 12));
+        hSpacer9.setMaximumSize(new Dimension(2, 32767));
+        contentPane.add(hSpacer9, BorderLayout.EAST);
+
         //======== panelStatus ========
         {
+            panelStatus.setPreferredSize(new Dimension(72, 22));
+            panelStatus.setMinimumSize(new Dimension(72, 22));
+            panelStatus.setMaximumSize(new Dimension(72, 22));
             panelStatus.setLayout(new GridBagLayout());
 
             //---- labelStatusLeft ----
@@ -2871,12 +3035,6 @@ public class MainFrame extends JFrame
                 new Insets(0, 0, 0, 14), 0, 0));
         }
         contentPane.add(panelStatus, BorderLayout.SOUTH);
-
-        //---- hSpacer9 ----
-        hSpacer9.setPreferredSize(new Dimension(2, 10));
-        hSpacer9.setMinimumSize(new Dimension(2, 12));
-        hSpacer9.setMaximumSize(new Dimension(2, 32767));
-        contentPane.add(hSpacer9, BorderLayout.EAST);
         pack();
         setLocationRelativeTo(getOwner());
 
@@ -3073,6 +3231,7 @@ public class MainFrame extends JFrame
     public JPanel panelAlertsMenu;
     public JLabel labelAlertHintsMenu;
     public JLabel labelAlertUpdateMenu;
+    public JLabel labelUserMenu;
     public JPanel panelMain;
     public JPanel panelToolbar;
     public JMenuBar menuToolbar;
@@ -3085,6 +3244,7 @@ public class MainFrame extends JFrame
     public JPanel panelAlertsToolbar;
     public JLabel labelAlertHintsToolbar;
     public JLabel labelAlertUpdateToolbar;
+    public JLabel labelUserToolbar;
     public JPanel vSpacer5;
     public JTabbedPane tabbedPaneMain;
     public JSplitPane splitPaneBrowser;
@@ -3252,15 +3412,39 @@ public class MainFrame extends JFrame
     public JPanel panelBiblioButtons;
     public JButton buttonAddLibrary;
     public JButton buttonRemoveLibrary;
+    public JPanel userTab;
+    public JPanel panelUserOptions;
+    public JPanel hSpacer11;
+    public JPanel hSpacer13;
+    public JLabel labelUserName;
+    public JTextField textFieldUserName;
+    public JButton buttonInviteUser;
+    public JLabel labelUserType;
+    public JComboBox comboBoxUserType;
+    public JLabel labelUserLibraries;
+    public JComboBox comboBoxLibraries;
+    public JButton buttonAddUserLibrary;
+    public JButton buttonDeleteUserLibrary;
+    public JButton buttonUpdateUserLibrary;
+    public JLabel labelGrants;
+    public JScrollPane scrollPaneGrants;
+    public JTable tableGrants;
+    public JPanel panelUserBottom;
+    public JLabel labelUserCounts;
+    public JPanel panelUsertButtons;
+    public JButton buttonReadAll;
+    public JButton buttonWriteAll;
+    public JPanel hSpacer12;
     public JPanel buttonBarLibs;
     public JButton saveButton;
     public JButton cancelButton;
+    public JPanel vSpacer7;
     public JPanel hSpacer8;
+    public JPanel hSpacer9;
     public JPanel panelStatus;
     public JLabel labelStatusLeft;
     public JLabel labelStatusMiddle;
     public JLabel labelStatusRight;
-    public JPanel hSpacer9;
     public JPopupMenu popupMenuBrowser;
     public JMenuItem popupMenuItemRefresh;
     public JMenuItem popupMenuItemCopy;

@@ -22,8 +22,10 @@ public class BrowserTableCellRenderer extends DefaultTableCellRenderer
     {
         String tip = null;
         String value = null;
-        if (row >= 0 && row < table.getModel().getRowCount() &&
-                column >= 0 && column < table.getModel().getColumnCount())
+        int rows = table.getModel().getRowCount();
+        int columns = table.getModel().getColumnCount();
+        if (row >= 0 && row < rows &&
+                column >= 0 && column < columns)
         {
             // get the object
             row = table.getRowSorter().convertRowIndexToModel(row);

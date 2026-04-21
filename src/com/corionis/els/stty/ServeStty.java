@@ -120,11 +120,7 @@ public class ServeStty extends Thread
         {
             // create a connection thread for this request
             Connection theConnection;
-            if (cfg.isPublisherListener())
-            {
-                theConnection = new Connection(context, this, aSocket, "publisher", new com.corionis.els.stty.publisher.Daemon(this, context, context.publisherRepo, context.subscriberRepo));
-            }
-            else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
+            if (cfg.isSubscriberListener())
             {
                 theConnection = new Connection(context, this, aSocket, "subscriber", new Daemon(this, context, context.subscriberRepo, context.publisherRepo));
             }
@@ -139,7 +135,7 @@ public class ServeStty extends Thread
             allConnections.add(theConnection);
 
             // log it
-            logger.info((cfg.isStatusServer() ? "Status Server" : (cfg.isPublisherListener() ? "Publisher" : "Subscriber")) + " daemon opened stty: " + Utils.formatAddresses(aSocket));
+            logger.info(cfg.isStatusServer() ? "Status Server" : "Subscriber" + " daemon opened stty: " + Utils.formatAddresses(aSocket));
 
             // start the connection thread
             theConnection.start();

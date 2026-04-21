@@ -2,7 +2,6 @@ package com.corionis.els.gui.bookmarks;
 
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
-import com.corionis.els.gui.hints.HintsUI;
 
 import javax.swing.table.DefaultTableModel;
 

@@ -11,8 +11,6 @@ import com.corionis.els.gui.util.*;
 import com.corionis.els.jobs.*;
 import com.corionis.els.repository.*;
 import com.corionis.els.tools.AbstractTool;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -27,6 +25,9 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 @SuppressWarnings(value = "unchecked")
 
 /**
@@ -38,20 +39,24 @@ public class LibrariesUI
     protected ArrayList<LibMeta> deletedLibraries;
     private BiblioLibrariesTableModel biblioLibrariesTableModel;
     private JComboBox comboBoxMode;
-    private ConfigModel configModel;
+    public ConfigModel configModel;
     private Context context;
     private int currentConfigIndex = -1;
+    private Grants currentGrants = null;
+    private LibraryMapping currentLibrary = null;
     private int currentLibraryIndex = 0;
     private int currentLocationIndex = 0;
     private int currentSourceIndex = -1;
     private DirectoryPicker directoryPicker = null;
     public String displayName;
     private boolean dontAsk = false;
+    public GrantsTableModel grantsTableModel;
     private NavHelp helpDialog;
     private Jobs jobsHandler = null;
     private ArrayList<AbstractTool> jobsList;
     private File lastDirectory;
     private int lastTab = 0;
+    private ArrayList<LibraryMapping> libraryMappings = null;
     private LibrarySelectorTableModel librarySelectorTableModel = null;
     private LibrarySelector[] librarySelectors = null;
     private DefaultListModel listSourcesModel = null;
@@ -62,8 +67,11 @@ public class LibrariesUI
     private Mode[] modes;
     private NumberFilter numberFilter;
     private boolean promptingKeyChange = false;
+    private boolean readAll = false;
+    private Repositories repositories = null;
+    private boolean writeAll = false;
 
-    public static enum Cards {Library, HintServer, Targets}
+    public static enum Cards {Library, HintServer}
 
     private LibrariesUI()
     {
@@ -99,7 +107,11 @@ public class LibrariesUI
                 configModel.addRow(new Object[]{copy});
 
                 currentConfigIndex = configModel.getRowCount() - 1;
+                int saveCci = currentConfigIndex;
+                boolean saveDhc = original.isDataChanged();
                 loadGeneralTab();
+                original.setDataHasChanged(saveDhc);
+                currentConfigIndex = saveCci;
                 configItems.editCellAt(currentConfigIndex, 0);
                 configItems.changeSelection(currentConfigIndex, 0, false, false);
                 configItems.getEditorComponent().requestFocus();
@@ -199,7 +211,7 @@ public class LibrariesUI
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(mf, mf, context, context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(mf, context, context.cfg.gs("Libraries.help"), "libraries_" + context.preferences.getLocale() + ".html", false);
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }
@@ -234,6 +246,7 @@ public class LibrariesUI
                 expanded[newSize - 1] = pattern;
                 libMeta.repo.getLibraryData().libraries.ignore_patterns = expanded;
                 libMeta.setDataHasChanged();
+                configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                 loadGeneralTab();
                 mf.listLibrariesIgnorePatterns.setSelectionInterval(newSize - 1, newSize - 1);
             }
@@ -273,9 +286,29 @@ public class LibrariesUI
                         }
                         libMeta.repo.getLibraryData().libraries.ignore_patterns = ignores;
                         libMeta.setDataHasChanged();
+                        configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                         loadGeneralTab();
                     }
                 }
+            }
+        }
+    }
+
+    private void actionInviteUserClicked(ActionEvent e)
+    {
+        if (currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
+        {
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+            try
+            {
+                InviteUI inviteUI = new InviteUI(context.mainFrame, context, libMeta);
+                inviteUI.setVisible(true);
+                inviteUI.toFront();
+                inviteUI.requestFocus();
+            }
+            catch (MungeException ex)
+            {
+                // only happens if there are no Email Servers defined
             }
         }
     }
@@ -302,6 +335,7 @@ public class LibrariesUI
                     expanded[arraySize - 1] = lib;
                     libMeta.repo.getLibraryData().libraries.bibliography = expanded;
                     libMeta.setDataHasChanged();
+                    configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
 
                     biblioLibrariesTableModel.addRow(new Object[]{lib});
                     currentLibraryIndex = arraySize - 1;
@@ -359,6 +393,7 @@ public class LibrariesUI
 
                     int index = -1;
                     libMeta.setDataHasChanged();
+                    configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                     if (index > libraryList.size())
                         index = libraryList.size() - 1;
                     if (index < 0)
@@ -568,6 +603,7 @@ public class LibrariesUI
 
                             libMeta.repo.getLibraryData().libraries.locations = expanded;
                             libMeta.setDataHasChanged();
+                            configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
 
                             currentLocationIndex = arraySize - 1;
                             loadLocationsTab();
@@ -646,6 +682,7 @@ public class LibrariesUI
                     libMeta.repo.getLibraryData().libraries.locations = locations;
 
                     libMeta.setDataHasChanged();
+                    configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                     mf.tableLocations.changeSelection(currentLocationIndex, 0, false, false);
                     loadLocationsTab();
                 }
@@ -675,6 +712,14 @@ public class LibrariesUI
             //    int opt = JOptionPane.showConfirmDialog(mf, params, displayName, JOptionPane.OK_CANCEL_OPTION);
             //    if (opt == JOptionPane.YES_OPTION)
             {
+                boolean populate = false;
+                message = context.cfg.gs("LibrariesUI.populate.new.library.with.default.values");
+                int resp = JOptionPane.showConfirmDialog(context.mainFrame, message, displayName, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (resp == JOptionPane.CANCEL_OPTION)
+                    return;
+                if (resp == JOptionPane.YES_OPTION)
+                    populate = true;
+
                 LibMeta libMeta = new LibMeta();
                 Mode mode = modes[comboBoxMode.getSelectedIndex()];
                 libMeta.description = context.cfg.gs("Z.untitled");
@@ -683,6 +728,20 @@ public class LibrariesUI
                 libMeta.card = mode.card;
                 libMeta.repo = new Repository(context, -1);
                 libMeta.repo.createStructure();
+                if (populate)
+                {
+                    UUID uuid = java.util.UUID.randomUUID();
+                    libMeta.repo.getLibraries().key = uuid.toString();
+                    libMeta.repo.getLibraries().timeout = 15;
+                    libMeta.repo.getLibraries().temp_location = "output";
+                    libMeta.repo.getLibraries().ignore_patterns = new String[5];
+                    libMeta.repo.getLibraries().ignore_patterns[0] = "(?i)desktop\\.ini";
+                    libMeta.repo.getLibraries().ignore_patterns[1] = ".*\\.fuse.*";
+                    libMeta.repo.getLibraries().ignore_patterns[2] = ".*\\.srt";
+                    libMeta.repo.getLibraries().ignore_patterns[3] = "Thumbs\\.db";
+                    libMeta.repo.getLibraries().ignore_patterns[4] = "\\.DS_Store";
+                    libMeta.repo.getLibraries().skipOffline = true;
+                }
                 libMeta.setDataHasChanged();
                 initNewCard();
 
@@ -692,7 +751,9 @@ public class LibrariesUI
 
                 configModel.addRow(new Object[]{libMeta});
                 currentConfigIndex = configModel.getRowCount() - 1;
+                int saveCci = currentConfigIndex;
                 loadGeneralTab();
+                currentConfigIndex = saveCci;
 
                 mf.tabbedPaneLibrarySpaces.setSelectedIndex(0);
                 configItems.editCellAt(currentConfigIndex, 0);
@@ -733,6 +794,24 @@ public class LibrariesUI
             mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.saved"));
         else
             mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.none"));
+    }
+
+    private void actionReadAllClicked(ActionEvent e)
+    {
+        if (currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
+        {
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+            if (libMeta != null)
+            {
+                readAll = !readAll;
+                for (int i = 0; i < mf.tableGrants.getRowCount(); ++i)
+                {
+                    grantsTableModel.setValueAt(readAll, i, 1);
+                }
+                if (!readAll)
+                    writeAll = readAll;
+            }
+        }
     }
 
     private void actionSourcesAddClicked(ActionEvent e)
@@ -927,6 +1006,7 @@ public class LibrariesUI
                                 lib.sources = expanded;
                                 listSourcesModel.addElement(path);
                                 libMeta.setDataHasChanged();
+                                configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                             }
                             currentSourceIndex = lib.sources.length - 1;
                             loadSources();
@@ -944,7 +1024,6 @@ public class LibrariesUI
                     mf.buttonAddLibrary.setEnabled(true);
                     mf.buttonRemoveLibrary.setEnabled(true);
                     mf.buttonAddSource.setEnabled(true);
-                    // not here:    mf.buttonAddMultiSource.setEnabled(true);
                     mf.saveButton.setEnabled(true);
                     mf.cancelButton.setEnabled(true);
                     directoryPicker.dialog.dispose();
@@ -961,7 +1040,6 @@ public class LibrariesUI
                 mf.buttonAddLibrary.setEnabled(false);
                 mf.buttonRemoveLibrary.setEnabled(false);
                 mf.buttonAddSource.setEnabled(false);
-                mf.buttonAddMultiSource.setEnabled(false);
                 mf.saveButton.setEnabled(false);
                 mf.cancelButton.setEnabled(false);
                 directoryPicker.dialog.setVisible(true);
@@ -993,6 +1071,7 @@ public class LibrariesUI
                     sources[row] = s2;
                     libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources = sources;
                     libMeta.setDataHasChanged();
+                    configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                     currentSourceIndex = row + 1;
                     loadSources();
                     mf.listSources.setSelectedIndex(currentSourceIndex);
@@ -1221,6 +1300,7 @@ public class LibrariesUI
                                                     expSources[srcSize - 1] = source;
                                                     lib.sources = expSources;
                                                     libMeta.setDataHasChanged();
+                                                    configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                                                 }
                                                 else
                                                 {
@@ -1259,7 +1339,6 @@ public class LibrariesUI
                     mf.buttonAddLibrary.setEnabled(true);
                     mf.buttonRemoveLibrary.setEnabled(true);
                     mf.buttonAddSource.setEnabled(true);
-                    mf.buttonAddMultiSource.setEnabled(true);
                     mf.saveButton.setEnabled(true);
                     mf.cancelButton.setEnabled(true);
                     directoryPicker.dialog.dispose();
@@ -1287,6 +1366,7 @@ public class LibrariesUI
                     librarySelectorTableModel = new LibrarySelectorTableModel(context, null);
                 }
                 directoryPicker.table.setModel(librarySelectorTableModel);
+
                 // setup columns
                 TableColumn column = directoryPicker.table.getColumnModel().getColumn(0);
                 column.setResizable(false);
@@ -1306,7 +1386,6 @@ public class LibrariesUI
                 mf.buttonAddLibrary.setEnabled(false);
                 mf.buttonRemoveLibrary.setEnabled(false);
                 mf.buttonAddSource.setEnabled(false);
-                mf.buttonAddMultiSource.setEnabled(false);
                 mf.saveButton.setEnabled(false);
                 mf.cancelButton.setEnabled(false);
                 directoryPicker.dialog.setVisible(true);
@@ -1345,6 +1424,7 @@ public class LibrariesUI
                     libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources = sources;
 
                     libMeta.setDataHasChanged();
+                    configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                     loadSources();
                     mf.tableLocations.changeSelection(currentLocationIndex, 0, false, false);
                 }
@@ -1376,6 +1456,7 @@ public class LibrariesUI
                     sources[row] = s2;
                     libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources = sources;
                     libMeta.setDataHasChanged();
+                    configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                     currentSourceIndex = row - 1;
                     loadSources();
                     mf.listSources.setSelectedIndex(currentSourceIndex);
@@ -1517,6 +1598,7 @@ public class LibrariesUI
                             mf.textFieldTempLocation.setText(path);
                             mf.textFieldTempLocation.postActionEvent(); // like pressing Enter in case the user doesn't
                             libMeta.setDataHasChanged();
+                            configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                         }
                     }
                 }
@@ -1545,6 +1627,139 @@ public class LibrariesUI
         }
     }
 
+    private void actionUserLibAddClicked(ActionEvent e)
+    {
+        int configIndex = configItems.getSelectedRow();
+        if (configIndex < 0)
+            return;
+
+        LibMeta libMeta = (LibMeta) configModel.getValueAt(configIndex, 0);
+        if (libMeta != null)
+        {
+            getRepositories();
+            if (repositories != null)
+            {
+                // remove any Library the user already has Grants for
+                ArrayList<Repository> addList = new ArrayList<>();
+                for (Repository repository : repositories.getRepoList())
+                {
+                    if (libMeta.repo.getUser().findGrants(repository.getLibraryData().libraries.key) == null)
+                    {
+                        addList.add(repository);
+                    }
+                }
+                if (addList.isEmpty())
+                {
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("LibrariesUI.no.more.libraries.to.add"));
+                    return;
+                }
+
+                Object[] objList = addList.toArray();
+                String msg = context.cfg.gs("LibrariesUI.select.library.to.configure.grants");
+                String note = context.cfg.gs("LibrariesUI.select.library.to.configure.note");
+                JList list = new JList(objList);
+                list.setVisibleRowCount(10);
+                list.setSelectedIndex(0);
+                JScrollPane scrollPane = new JScrollPane();
+                scrollPane.setViewportView(list);
+                Object[] params = {msg, note, scrollPane};
+                int act = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.gs("LibrariesUI.resources"),
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (act == JOptionPane.OK_OPTION)
+                {
+                    if (list.getSelectedIndex() > -1)
+                    {
+                        libMeta.setDataHasChanged();
+                        Repository repo = (Repository) list.getSelectedValue();
+                        libMeta.repo.getUser().getResources().add(new Grants(repo.getLibraryData().libraries.key));
+                        mergeLibraries(repo.getLibraryData().libraries.key);
+
+                        configIndex = configItems.getSelectedRow();
+                        configModel.fireTableRowsUpdated(configIndex, configIndex);
+                        loadUserTab(); // loads Grants[0]
+
+                        int grantsIndex = libMeta.repo.getUser().findGrantsIndex(repo.getLibraryData().libraries.key);
+                        loadGrants(grantsIndex); // load the Grants for the added Library
+                        mf.tableGrants.setModel(grantsTableModel);
+                        setUserGrantsColumns();
+                    }
+                }
+            }
+        }
+    }
+
+    private void actionUserLibDeleteClicked(ActionEvent e)
+    {
+        int index = mf.comboBoxLibraries.getSelectedIndex();
+        if (index >= 0)
+        {
+            int configIndex = configItems.getSelectedRow();
+            if (configIndex < 0)
+                return;
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(configIndex, 0);
+
+            String msg = MessageFormat.format(context.cfg.gs("LibrariesUI.are.you.sure.you.want.to.remove.access.to.from"),
+                    mf.comboBoxLibraries.getSelectedItem().toString(), libMeta.repo.getUser().getName()) + "?  ";
+            int reply = JOptionPane.showConfirmDialog(mf, msg, context.cfg.gs("LibrariesUI.resources"), JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                int grantsIndex = libMeta.repo.getUser().findGrantsIndex(((LibraryMapping)mf.comboBoxLibraries.getSelectedItem()).key);
+                if (grantsIndex > -1)
+                {
+                    libMeta.repo.getUser().getResources().remove(grantsIndex);
+                    libMeta.setDataHasChanged();
+                    mf.comboBoxLibraries.setSelectedIndex(0);
+                    loadComboBoxLibraries();
+                    loadGrants(0);
+                    configModel.fireTableRowsUpdated(configIndex, configIndex);
+                }
+            }
+        }
+    }
+
+    private void actionUserLibUpdateClicked(ActionEvent e)
+    {
+        int index = mf.comboBoxLibraries.getSelectedIndex();
+        if (index >= 0)
+        {
+            int configIndex = configItems.getSelectedRow();
+            if (configIndex < 0)
+                return;
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(configIndex, 0);
+            if (libMeta != null)
+            {
+                String grantsKey = ((LibraryMapping)mf.comboBoxLibraries.getSelectedItem()).key;
+                int grantsIndex = libMeta.repo.getUser().findGrantsIndex(grantsKey);
+                if (grantsIndex > -1)
+                {
+                    boolean changed = mergeLibraries(((LibraryMapping)mf.comboBoxLibraries.getSelectedItem()).key);
+
+                    configModel.fireTableRowsUpdated(configIndex, configIndex);
+                    loadUserTab();
+
+                    grantsIndex = -1;
+                    ArrayList<Grants> grants = libMeta.repo.getUser().getResources();
+                    for (int i = 0; i < grants.size(); i++)
+                    {
+                        if (grants.get(i).getKey().equals(grantsKey))
+                        {
+                            grantsIndex = i;
+                            break;
+                        }
+                    }
+                    if (grantsIndex < 0)
+                        grantsIndex = 0;
+
+                    loadGrants(grantsIndex);
+                    mf.tableGrants.setModel(grantsTableModel);
+                    setUserGrantsColumns();
+                    if (changed)
+                        libMeta.setDataHasChanged();
+                }
+            }
+        }
+    }
+
     private void actionUndoClicked(ActionEvent e)
     {
         if (checkForChanges())
@@ -1561,6 +1776,21 @@ public class LibrariesUI
         }
         else
             mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.nothing.to.undo"));
+    }
+
+    private void actionWriteAllClicked(ActionEvent e)
+    {
+        LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+        if (libMeta != null)
+        {
+            writeAll = !writeAll;
+            for (int i = 0; i < mf.tableGrants.getRowCount(); ++i)
+            {
+                grantsTableModel.setValueAt(writeAll, i, 2);
+            }
+            if (writeAll)
+                readAll = writeAll;
+        }
     }
 
     private void cancelChanges()
@@ -1739,9 +1969,9 @@ public class LibrariesUI
         return jobsList;
     }
 
-    private Repositories getRepositories()
+    public Repositories getRepositories()
     {
-        Repositories repositories = null;
+        repositories = null;
         try
         {
             repositories = new Repositories();
@@ -1759,7 +1989,6 @@ public class LibrariesUI
     private void initNewCard()
     {
         loading = true;
-        updateState();
         loading = false;
     }
 
@@ -1781,12 +2010,20 @@ public class LibrariesUI
 
         // setup the left-side list of configurations
         configModel = new ConfigModel(context, displayName, this);
-        configModel.setColumnCount(1);
+        configModel.setColumnCount(2);
         configItems.setModel(configModel);
 
         configItems.getTableHeader().setUI(null);
         configItems.setTableHeader(null);
         mf.scrollPaneConfig.setColumnHeaderView(null);
+
+        configItems.getColumnModel().getColumn(1).setPreferredWidth(6);
+        configItems.getColumnModel().getColumn(1).setWidth(6);
+        configItems.getColumnModel().getColumn(1).setMaxWidth(6);
+        configItems.getColumnModel().getColumn(1).setMinWidth(6);
+        configItems.getColumnModel().getColumn(1).setResizable(false);
+
+        mf.tabbedPaneLibrarySpaces.putClientProperty("JTabbedPane.tabType", "card");
 
         ListSelectionModel lsm = configItems.getSelectionModel();
         lsm.addListSelectionListener(new ListSelectionListener()
@@ -1813,6 +2050,12 @@ public class LibrariesUI
 
         // setup the right-side tab handler
         mf.tabbedPaneLibrarySpaces.addChangeListener(e -> tabbedPaneLibrarySpacesStateChanged(e));
+
+        mf.scrollPaneGeneral.getVerticalScrollBar().setUnitIncrement(16);
+        mf.scrollPaneLocations.getVerticalScrollBar().setUnitIncrement(16);
+        mf.scrollPaneLocations.getVerticalScrollBar().setUnitIncrement(16);
+        mf.scrollPaneBiblioLibraries.getVerticalScrollBar().setUnitIncrement(16);
+        mf.scrollPaneSources.getVerticalScrollBar().setUnitIncrement(16);
 
         // locations tab
         locationsTableModel = new LocationsTableModel(context, null);
@@ -1841,7 +2084,7 @@ public class LibrariesUI
         mf.tableLocations.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getLibrariesMinimumSizeColumnWidth());
 
         // bibliography tab
-        biblioLibrariesTableModel = new BiblioLibrariesTableModel(context);
+        biblioLibrariesTableModel = new BiblioLibrariesTableModel(context, this);
         biblioLibrariesTableModel.setColumnCount(2);
         biblioLibrariesTableModel.setDisplayName(displayName);
         mf.tableBiblioLibraries.setModel(biblioLibrariesTableModel);
@@ -1905,10 +2148,9 @@ public class LibrariesUI
         //  * hint server
         //  * targets
         // See Cards
-        modes = new Mode[3];
+        modes = new Mode[2];
         modes[0] = new Mode(context.cfg.gs("Libraries.library"), Cards.Library);
         modes[1] = new Mode(context.cfg.gs("Libraries.hint.server"), Cards.HintServer);
-        modes[2] = new Mode(context.cfg.gs("Libraries.targets"), Cards.Targets);
 
         // make New combobox
         comboBoxMode = new JComboBox<>();
@@ -1921,6 +2163,27 @@ public class LibrariesUI
 
         numberFilter = new NumberFilter();
         setNumberFilter(mf.textFieldTimeout);
+
+        mf.comboBoxUserType.addItem(context.cfg.gs("Navigator.user.type.basic")); // MUST be in this order; The index is used
+        mf.comboBoxUserType.addItem(context.cfg.gs("Navigator.user.type.advanced"));
+        mf.comboBoxUserType.addItem(context.cfg.gs("Navigator.user.type.admin"));
+
+        if (!context.preferences.isUsersEnabled())
+        {
+            context.mainFrame.tabbedPaneLibrarySpaces.getComponentAt(3).setEnabled(false);
+            context.mainFrame.tabbedPaneLibrarySpaces.setToolTipTextAt(3, context.cfg.gs("LibrariesUI.users.may.be.enabled.in.preferences.general"));
+        }
+
+        mf.tableGrants.getTableHeader().addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseReleased(MouseEvent e)
+            {
+                super.mouseReleased(e);
+                context.preferences.setUserGrantsReadWidth(mf.tableGrants.getColumnModel().getColumn(1).getWidth());
+                context.preferences.setUserGrantsWriteWidth(mf.tableGrants.getColumnModel().getColumn(2).getWidth());
+            }
+        });
 
         currentConfigIndex = 0;
         currentLocationIndex = 0;
@@ -2056,6 +2319,27 @@ public class LibrariesUI
 
         mf.buttonRemoveSource.addActionListener(e -> actionSourcesRemove(e));
         mf.buttonAddMultiSource.addActionListener(e -> actionSourcesMultiClicked(e));
+
+        // user tab ==========================================
+
+        mf.textFieldUserName.addActionListener(e -> genericAction(e));
+        mf.buttonInviteUser.addActionListener(e -> actionInviteUserClicked(e));
+        mf.textFieldUserName.addFocusListener(new FocusAdapter()
+        {
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+                genericTextFieldFocusLost(e);
+            }
+        });
+        mf.comboBoxUserType.addActionListener(e -> genericAction(e));
+        mf.comboBoxLibraries.addActionListener(e -> genericAction(e));
+        mf.buttonAddUserLibrary.addActionListener(e -> actionUserLibAddClicked(e));
+        mf.buttonDeleteUserLibrary.addActionListener(e -> actionUserLibDeleteClicked(e));
+        mf.buttonUpdateUserLibrary.addActionListener(e -> actionUserLibUpdateClicked(e));
+        mf.buttonReadAll.addActionListener(e -> actionReadAllClicked(e));
+        mf.buttonWriteAll.addActionListener(e -> actionWriteAllClicked(e));
+
     }
 
     private void loadBibliographyTab()
@@ -2100,9 +2384,12 @@ public class LibrariesUI
                 int len = libMeta.repo.getLibraryData().libraries.bibliography.length;
                 if (len == 0 || currentLibraryIndex >= len)
                     currentLibraryIndex = 0;
+                if (libMeta.repo.getLibraryData().libraries.bibliography.length > 1)
+                    mf.buttonAddMultiSource.setEnabled(true);
+                else
+                    mf.buttonAddMultiSource.setEnabled(false);
                 if (libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources.length > 1)
                 {
-                    mf.buttonAddMultiSource.setEnabled(true);
                     mf.buttonUpSource.setEnabled(true);
                     mf.buttonDownSource.setEnabled(true);
                 }
@@ -2138,14 +2425,51 @@ public class LibrariesUI
         }
     }
 
+    private void loadComboBoxLibraries()
+    {
+        libraryMappings = new ArrayList<>();
+        context.mainFrame.comboBoxLibraries.removeAllItems();
+        LibrariesUI.LibMeta libMeta = (LibrariesUI.LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+
+        for (Grants grants : libMeta.repo.getUser().getResources())
+        {
+            Repository repo = repositories.findRepo(context, grants.getKey());
+            LibraryMapping mapping = new LibraryMapping();
+            mapping.key = grants.getKey();
+            if (repo != null)
+                mapping.name = repo.getLibraryData().libraries.description;
+            else
+                mapping.name = grants.getKey();
+            libraryMappings.add(mapping);
+        }
+
+        if (!libraryMappings.isEmpty())
+        {
+/* Sorting messes-up the mapping index
+            Collections.sort(libraryMappings, new Comparator<LibraryMapping>()
+            {
+                @Override
+                public int compare(LibraryMapping m1, LibraryMapping m2)
+                {
+                    return m1.name.compareToIgnoreCase(m2.name);
+                }
+            });
+*/
+
+            for (LibraryMapping mapping : libraryMappings)
+            {
+                context.mainFrame.comboBoxLibraries.addItem(mapping);
+            }
+        }
+    }
+
     public void loadConfigurations()
     {
         loading = true;
         configModel.setRowCount(0);
         biblioLibrariesTableModel.setRowCount(0);
 
-        Repositories repositories = getRepositories();
-
+        repositories = getRepositories();
         if (repositories.getMetaList() != null)
         {
             for (RepoMeta repoMeta : repositories.getMetaList())
@@ -2334,8 +2658,43 @@ public class LibrariesUI
 
             if (mf.librariesConfigItems.isEditing())
                 mf.librariesConfigItems.getCellEditor().stopCellEditing();
+        }
+    }
 
-            updateState();
+    private void loadGrants(int index)
+    {
+        int configIndex = configItems.getSelectedRow();
+        if (configIndex >= 0 && libraryMappings != null && libraryMappings.size() > 0)
+        {
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(configIndex, 0);
+            if (index < 0)
+                index = 0;
+            if (libMeta.repo.getUser().getResources().size() > index)
+            {
+                libMeta.repo.getUser().lastGrantIndex = index;
+                Grants grants = libMeta.repo.getUser().getResources().get(index);
+                currentLibrary = null;
+                for (LibraryMapping mapping : libraryMappings)
+                {
+                    if (mapping.key.equals(grants.getKey()))
+                    {
+                        currentLibrary = mapping;
+                        break;
+                    }
+                }
+                grantsTableModel = new GrantsTableModel(this, context, grants);
+                mf.comboBoxLibraries.setSelectedItem(currentLibrary);
+            }
+            else
+            {
+                currentLibrary = null;
+                grantsTableModel = new GrantsTableModel(this, context, null);
+            }
+        }
+        else
+        {
+            currentLibrary = null;
+            grantsTableModel = new GrantsTableModel(this, context, null);
         }
     }
 
@@ -2392,7 +2751,6 @@ public class LibrariesUI
             }
 
             loading = false;
-
             loadBibliographyTab();
         }
     }
@@ -2431,11 +2789,6 @@ public class LibrariesUI
                             mf.buttonDownSource.setEnabled(false);
                         }
 
-                        if (libMeta.repo.getLibraryData().libraries.bibliography.length > 1)
-                            mf.buttonAddMultiSource.setEnabled(true);
-                        else
-                            mf.buttonAddMultiSource.setEnabled(false);
-
                         mf.buttonRemoveSource.setEnabled(true);
                     }
                     if (currentSourceIndex >= 0)
@@ -2443,7 +2796,116 @@ public class LibrariesUI
                 }
             }
             loading = false;
+            loadUserTab();
         }
+    }
+
+    private void loadUserTab()
+    {
+        User user = null;
+        if (!loading && currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
+        {
+            loading = true;
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+            user = libMeta.repo.getUser();
+            if (user != null)
+            {
+                mf.textFieldUserName.setText(user.getName());
+                mf.comboBoxUserType.setSelectedIndex(user.getType());
+                loadComboBoxLibraries();
+                loadGrants(libMeta.repo.getUser().lastGrantIndex);
+                mf.tableGrants.setModel(grantsTableModel);
+                setUserGrantsColumns();
+                if (!libMeta.repo.getLibraries().email.isEmpty())
+                    mf.buttonInviteUser.setEnabled(true);
+                else
+                    mf.buttonInviteUser.setEnabled(false);
+            }
+            else
+            {
+                user = new User(context);
+                libMeta.repo.setUser(user);
+                mf.textFieldUserName.setText("");
+                mf.comboBoxUserType.setSelectedIndex(0);
+                loadComboBoxLibraries();
+                loadGrants(0);
+                mf.tableGrants.setModel(grantsTableModel);
+                setUserGrantsColumns();
+            }
+            loading = false;
+        }
+
+        if (!context.preferences.isUsersEnabled())
+        {
+            mf.textFieldUserName.setEnabled(false);
+            mf.buttonInviteUser.setEnabled(false);
+            mf.comboBoxUserType.setEnabled(false);
+            mf.comboBoxLibraries.setEnabled(false);
+            mf.buttonAddUserLibrary.setEnabled(false);
+            mf.buttonDeleteUserLibrary.setEnabled(false);
+            mf.buttonUpdateUserLibrary.setEnabled(false);
+            mf.tableGrants.setEnabled(false);
+            mf.buttonReadAll.setEnabled(false);
+            mf.buttonWriteAll.setEnabled(false);
+        }
+    }
+
+    public boolean mergeLibraries(String systemKey)
+    {
+        boolean changed = false;
+        int configIndex = configItems.getSelectedRow();
+        if (configIndex >= 0)
+        {
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(configIndex, 0);
+
+            Grants grants = libMeta.repo.getUser().findGrants(systemKey);
+            if (grants == null)
+                grants = new Grants(systemKey);
+
+            Repository repo = repositories.findRepo(context, systemKey);
+            if (repo == null)
+            {
+                // TODO  Remove missing
+                return false;
+            }
+
+            // add new libraries
+            Library[] bibliography = repo.getLibraryData().libraries.bibliography;
+            for (Library library : bibliography)
+            {
+                Grant grant = grants.findGrant(library.name);
+                if (grant == null)
+                {
+                    grant = new Grant(library.name);
+                    grants.add(grant);
+                    logger.debug(context.cfg.gs("LibrariesUI.added.grant.library") + repo.getLibraryData().libraries.description + ", " + library.name);
+                    changed = true;
+                }
+            }
+
+            // remove missing libraries
+            Iterator<Grant> iter = grants.iterator();
+            while (iter.hasNext())
+            {
+                Grant grant = iter.next();
+                Library library = repo.getLibraryData().getLibrary(grant.library);
+                if (library == null)
+                {
+                    iter.remove();
+                    logger.debug(context.cfg.gs("LibrariesUI.removed.grant.library") + grant.library);
+                    changed = true;
+                }
+            }
+
+            grants.sort();
+
+            if (changed)
+            {
+                libMeta.setDataHasChanged();
+                libMeta.repo.getUser().setLibraryGrants(systemKey, grants.getGrants());
+            }
+        }
+        return changed;
     }
 
     private boolean processJobKeyChanges(String oldKey, ArrayList<Conflict> conflicts)
@@ -2506,6 +2968,19 @@ public class LibrariesUI
         return false;
     }
 
+    /**
+     * Reload Libraries and keep current selection
+     */
+    public void reload()
+    {
+        int row = configItems.getSelectedRow();
+        if (row == -1)
+            row = 0;
+        LibrariesUI.LibMeta sel = (LibrariesUI.LibMeta) configModel.getValueAt(row, 0);
+        loadConfigurations();
+        setSelectedRow(sel.repo);
+    }
+
     private int saveConfigurations()
     {
         LibMeta libMeta = null;
@@ -2515,6 +2990,8 @@ public class LibrariesUI
             for (int i = 0; i < configModel.getRowCount(); ++i)
             {
                 libMeta = (LibMeta) configModel.getValueAt(i, 0);
+
+                // make sure there is a key
                 if (libMeta.key == null || libMeta.key.isEmpty())
                 {
                     currentConfigIndex = i;
@@ -2523,6 +3000,20 @@ public class LibrariesUI
                     JOptionPane.showMessageDialog(context.mainFrame, java.text.MessageFormat.format(context.cfg.gs("LibrariesUI.please.assign.a.key"), libMeta.description));
                     context.mainFrame.textFieldKey.requestFocus();
                     return -1;
+                }
+
+                // if resources are granted make sure there is a User name
+                if (context.preferences.isUsersEnabled() && libMeta.repo.getUser() != null)
+                {
+                    if (libMeta.repo.getUser().getResources() != null && !libMeta.repo.getUser().getResources().isEmpty() && libMeta.repo.getUser().getName().isEmpty())
+                    {
+                        currentConfigIndex = i;
+                        configItems.setRowSelectionInterval(i, i);
+                        loadUserTab();
+                        JOptionPane.showMessageDialog(context.mainFrame, java.text.MessageFormat.format(context.cfg.gs("LibrariesUI.please.assign.a.name"), libMeta.description));
+                        mf.textFieldUserName.requestFocus();
+                        return -1;
+                    }
                 }
             }
 
@@ -2540,6 +3031,7 @@ public class LibrariesUI
             }
 
             // write/update changed tool JSON configuration files
+            boolean publisherChanged = false;
             for (int i = 0; i < configModel.getRowCount(); ++i)
             {
                 libMeta = (LibMeta) configModel.getValueAt(i, 0);
@@ -2552,14 +3044,77 @@ public class LibrariesUI
                     Arrays.sort(libMeta.repo.getLibraryData().libraries.bibliography);
                     libMeta.repo.write();
                     state = 1;
+
+                    if (context.publisherRepo != null && libMeta.repo.getLibraries().key.equals(context.publisherRepo.getLibraries().key))
+                        publisherChanged = true;
                 }
                 libMeta.setDataHasChanged(false);
             }
 
             jobsHandler.saveAllJobs(jobsList);
+
+            // reload publisher & subscriber if publisher changed
+            if (publisherChanged)
+            {
+                int answer = JOptionPane.showConfirmDialog(context.mainFrame,
+                        MessageFormat.format(context.cfg.gs("Libraries.repo.was.changed.reload"), context.cfg.gs("Z.publisher")), displayName, JOptionPane.YES_NO_OPTION);
+                if (answer == JOptionPane.YES_OPTION)
+                {
+                    // load & connect
+                    context.publisherRepo = context.main.readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+
+                    if ((context.publisherUser = context.publisherRepo.login()) == null)
+                        throw new MungeException(context.cfg.gs("Z.publisher.login.failed"));
+
+                    if (context.subscriberRepo != null)
+                    {
+                        context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    }
+
+                    if (context.subscriberRepo != null && !context.cfg.isRemoteSubscriber()) // local
+                    {
+                        if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, false)) == null)
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                    context.publisherRepo.getLibraries().description, context.subscriberRepo.getLibraries().description);
+                            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            return -1;
+                        }
+                    }
+                    else if (context.subscriberRepo != null) // remote
+                    {
+                        if (!context.navigator.reconnectRemote(context, context.publisherRepo, context.subscriberRepo, true))
+                            return -1;
+
+                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        String directory = context.clientStty.getWorkingDirectoryRemote();
+                        context.cfg.setWorkingDirectorySubscriber(directory);
+
+                        context.transfer.requestLibrary();
+                    }
+
+                    // update data
+                    context.navigator.displayConnection();
+                    loadConfigurations();
+                    if (context.publisherRepo != null)
+                    {
+                        context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
+                        context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
+                    }
+                    if (context.subscriberRepo != null)
+                    {
+                        context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
+                        context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
+                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    }
+                    context.navigator.setQuitTerminateVisibility();
+                    context.navigator.setControls();
+                }
+            }
         }
         catch (Exception e)
         {
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
             if (context != null)
             {
@@ -2619,6 +3174,66 @@ public class LibrariesUI
         pd.setDocumentFilter(numberFilter);
     }
 
+    public void setSelectedRow(Repository repo)
+    {
+        for (int i = 0; i < configModel.getRowCount(); ++i)
+        {
+            LibMeta compare = (LibMeta) configModel.getValueAt(i, 0);
+            if (compare.repo.getLibraryData().libraries.key.equals(repo.getLibraryData().libraries.key))
+            {
+                configItems.setRowSelectionInterval(i, i);
+            }
+        }
+    }
+
+    private void setUserGrantsColumns()
+    {
+        mf.tableGrants.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getUserGrantsReadWidth());
+        mf.tableGrants.getColumnModel().getColumn(1).setWidth(context.preferences.getUserGrantsReadWidth());
+        mf.tableGrants.getColumnModel().getColumn(1).setMaxWidth(128);
+        mf.tableGrants.getColumnModel().getColumn(1).setMinWidth(24);
+        //tableGrants.getColumnModel().getColumn(1).setResizable(false);
+
+        mf.tableGrants.getColumnModel().getColumn(2).setPreferredWidth(context.preferences.getUserGrantsWriteWidth());
+        mf.tableGrants.getColumnModel().getColumn(2).setWidth(context.preferences.getUserGrantsWriteWidth());
+        mf.tableGrants.getColumnModel().getColumn(2).setMaxWidth(128);
+        mf.tableGrants.getColumnModel().getColumn(2).setMinWidth(24);
+        //tableGrants.getColumnModel().getColumn(2).setResizable(false);
+
+        showUserCounts();
+    }
+
+    public void showUserCounts()
+    {
+        if (currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
+        {
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+            if (libMeta != null)
+            {
+                int resources = 0;
+                int reads = 0;
+                int writes = 0;
+                int size = 0;
+                resources = libMeta.repo.getUser().getResources().size();
+                Grants grants = null;
+                if (currentLibrary != null)
+                    grants = libMeta.repo.getUser().findGrants(currentLibrary.key);
+                if (grants != null)
+                {
+                    size = grants.size();
+                    for (Grant grant : grants.getGrants())
+                    {
+                        if (grant.read)
+                            ++reads;
+                        if (grant.write)
+                            ++writes;
+                    }
+                }
+                mf.labelUserCounts.setText(MessageFormat.format(context.cfg.gs("LibrariesUI.libraries.read.write"), resources, size, reads, writes));
+            }
+        }
+    }
+
     public void tabbedPaneLibrarySpacesStateChanged(ChangeEvent changeEvent)
     {
         mf.labelStatusMiddle.setText(context.cfg.gs(""));
@@ -2637,6 +3252,10 @@ public class LibrariesUI
         else if (lastTab == 2)
         {
             mf.bibliographyTab.requestFocus();
+        }
+        else if (lastTab == 3)
+        {
+            mf.userTab.requestFocus();;
         }
         mf.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
     }
@@ -2668,6 +3287,7 @@ public class LibrariesUI
                                     {
                                         tf.setText(libMeta.key); // restore old value
                                         libMeta.setDataHasChanged(false);
+                                        configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                                         return;
                                     }
                                 }
@@ -2696,11 +3316,15 @@ public class LibrariesUI
                             current = libMeta.repo.getLibraryData().libraries.email;
                             libMeta.repo.getLibraryData().libraries.email = tf.getText();
                             break;
+                        case "username":
+                            current = libMeta.repo.getUser().getName();
+                            libMeta.repo.getUser().setName(tf.getText());
+                            break;
                     }
                     if (tf != null && current != null && !current.equals(tf.getText()))
                     {
                         libMeta.setDataHasChanged();
-                        updateState();
+                        configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                     }
                 }
                 else if (source instanceof JCheckBox)
@@ -2738,7 +3362,7 @@ public class LibrariesUI
                     if (state != cb.isSelected())
                     {
                         libMeta.setDataHasChanged();
-                        updateState();
+                        configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                     }
                 }
                 else if (source instanceof JComboBox)
@@ -2759,40 +3383,30 @@ public class LibrariesUI
                             current = libMeta.repo.getLibraryData().libraries.format.toLowerCase().equals("html") ? 0 : 1;
                             libMeta.repo.getLibraryData().libraries.format = (String) combo.getSelectedItem();
                             break;
+                        case "usertype":
+                            current = libMeta.repo.getUser().getType();
+                            libMeta.repo.getUser().setType(index);
+                            break;
+                        case "userlibraries":
+                            loadGrants(index);
+                            mf.tableGrants.setModel(grantsTableModel);
+                            setUserGrantsColumns();
+                            current = index; // not a change event
+                            break;
                     }
                     if (index != current)
                     {
                         libMeta.setDataHasChanged();
-                        updateState();
+                        configModel.fireTableRowsUpdated(currentConfigIndex, currentConfigIndex);
                     }
                 }
             }
         }
     }
 
-    private void updateState()
-    {
-        if (configModel.getRowCount() > 0)
-        {
-            if (currentConfigIndex >= configModel.getRowCount())
-                currentConfigIndex = configModel.getRowCount() - 1;
-
-            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
-            if (libMeta.card == Cards.Library)
-            {
-            }
-            else if (libMeta.card == Cards.HintServer)
-            {
-            }
-            else if (libMeta.card == Cards.Targets)
-            {
-            }
-        }
-    }
-
 // ================================================================================================================
 
-    protected class LibMeta extends RepoMeta
+    public class LibMeta extends RepoMeta
     {
         public boolean dataHasChanged = false;
         public Repository repo;
@@ -2825,6 +3439,19 @@ public class LibrariesUI
         public void setDataHasChanged()
         {
             dataHasChanged = true;
+        }
+    }
+
+    // ================================================================================================================
+
+    private class LibraryMapping
+    {
+        String key;
+        String name;
+
+        public String toString()
+        {
+            return name;
         }
     }
 

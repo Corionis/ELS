@@ -40,8 +40,7 @@ public class OperationsTool extends AbstractTool
 
     public enum Operations
     {
-        PublisherOperation, SubscriberListener, PublisherManual, PublisherListener,
-        SubscriberTerminal, StatusServer, StatusServerQuit, SubscriberListenerQuit
+        PublisherOperation, SubscriberListener, PublisherManual, StatusServer, StatusServerQuit, SubscriberListenerQuit
     }
 
     public static final String INTERNAL_NAME = "Operations";
@@ -75,7 +74,7 @@ public class OperationsTool extends AbstractTool
     private boolean optOverwrite = false; // -o | --overwrite
     private boolean optPreserveDates = true; // -y | --preserve-dates
     private boolean optQuitStatus = false; // -q | --quit-status
-    private String optTargets = ""; // -t | --targets
+    private boolean optTargetsBackup = false; // -t | --targets
     private boolean optValidate = false; // -v | --validate
     private String optWhatsNew = ""; // -w | --whatsnew
     private String optWhatsNewAll = ""; // -W | --whatsnew-all
@@ -122,7 +121,7 @@ public class OperationsTool extends AbstractTool
         tool.setOptOverwrite(isOptOverwrite());
         tool.setOptQuitStatus(isOptQuitStatus());
         tool.setOptForceQuit(isOptForceQuit());
-        tool.setOptTargets(getOptTargets());
+        tool.setOptTargetsBackup(isOptTargetsBackup());
         tool.setOptDuplicates(isOptDuplicates());
         tool.setOptValidate(isOptValidate());
         tool.setOptWhatsNew(getOptWhatsNew());
@@ -183,14 +182,8 @@ public class OperationsTool extends AbstractTool
             case SubscriberListener:
                 sb.append(" " + (glo ? "--remote" : "-r") + " S");
                 break;
-            case PublisherListener:
-                sb.append(" " + (glo ? "--remote" : "-r") + " L");
-                break;
             case PublisherManual:
                 sb.append(" " + (glo ? "--remote" : "-r") + " M");
-                break;
-            case SubscriberTerminal:
-                sb.append(" " + (glo ? "--remote" : "-r") + " T");
                 break;
             case StatusServer:
             case StatusServerQuit:
@@ -224,17 +217,14 @@ public class OperationsTool extends AbstractTool
         switch (operation)
         {
             case PublisherOperation:
-            case PublisherListener:
             case SubscriberListener:
-                sb.append(" " + (glo ? "--targets" : "-t"));
-                if (!getOptTargets().isEmpty())
-                    sb.append(" \"" + getOptTargets() + "\"");
+                if (isOptTargetsBackup())
+                    sb.append(" " + (glo ? "--targets" : "-t"));
                 break;
             case PublisherManual:
             case StatusServer:
             case StatusServerQuit:
             case SubscriberListenerQuit:
-            case SubscriberTerminal:
                 break;
         }
 
@@ -401,11 +391,6 @@ public class OperationsTool extends AbstractTool
         return optMismatches;
     }
 
-    public String getOptTargets()
-    {
-        return optTargets;
-    }
-
     public String getOptWhatsNew()
     {
         return optWhatsNew;
@@ -485,6 +470,11 @@ public class OperationsTool extends AbstractTool
     public boolean isOptPreserveDates()
     {
         return optPreserveDates;
+    }
+
+    public boolean isOptTargetsBackup()
+    {
+        return optTargetsBackup;
     }
 
     public boolean isOptQuitStatus()
@@ -711,9 +701,9 @@ public class OperationsTool extends AbstractTool
         this.optQuitStatus = optQuitStatus;
     }
 
-    public void setOptTargets(String optTargets)
+    public void setOptTargetsBackup(boolean optBackup)
     {
-        this.optTargets = optTargets;
+        this.optTargetsBackup = optBackup;
     }
 
     public void setOptValidate(boolean optValidate)
@@ -746,7 +736,6 @@ public class OperationsTool extends AbstractTool
         setOptKeys(context.cfg.makeRelativePath(getOptKeys()));
         setOptKeysOnly(context.cfg.makeRelativePath(getOptKeysOnly()));
         setOptMismatches(context.cfg.makeRelativePath(getOptMismatches()));
-        setOptTargets(context.cfg.makeRelativePath(getOptTargets()));
         setOptWhatsNew(context.cfg.makeRelativePath(getOptWhatsNew()));
         setOptWhatsNewAll(context.cfg.makeRelativePath(getOptWhatsNewAll()));
 

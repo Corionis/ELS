@@ -47,7 +47,7 @@ public class ClientSftp
      * @param context The Context
      * @param mine   Repository of local system
      * @param theirs Repository of remote system
-     * @param primaryServers Is this the primary or secondary servers (for -r L) setup
+     * @param primaryServers Is this the primary setup
      */
     public ClientSftp(Context context, Repository mine, Repository theirs, boolean primaryServers)
     {

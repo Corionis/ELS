@@ -5,8 +5,8 @@ import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
 import com.corionis.els.gui.browser.NavTreeNode;
 import com.corionis.els.gui.browser.NavTreeUserObject;
-import com.corionis.els.gui.jobs.AbstractToolDialog;
-import com.corionis.els.gui.jobs.ConfigModel;
+import com.corionis.els.gui.util.AbstractToolDialog;
+import com.corionis.els.gui.util.ConfigModel;
 import com.corionis.els.gui.util.NumberFilter;
 import com.corionis.els.gui.util.PathFilter;
 import com.corionis.els.jobs.Origin;
@@ -41,7 +41,7 @@ public class RenamerUI extends AbstractToolDialog
     private String caseChangeActions = "firstupper lower titlecase upper";
     private ChangesTableModel changeModel;
     private String[][] changeStrings;
-    private ConfigModel configModel;
+    public ConfigModel configModel;
     private Context context;
     private JPanel currentCard = null;
     private int currentConfigIndex = -1;
@@ -101,12 +101,18 @@ public class RenamerUI extends AbstractToolDialog
 
         // setup the left-side list of configurations
         configModel = new ConfigModel(context, this);
-        configModel.setColumnCount(1);
+        configModel.setColumnCount(2);
         configItems.setModel(configModel);
 
         configItems.getTableHeader().setUI(null);
         configItems.setTableHeader(null);
         scrollPaneConfig.setColumnHeaderView(null);
+
+        configItems.getColumnModel().getColumn(1).setPreferredWidth(6);
+        configItems.getColumnModel().getColumn(1).setWidth(6);
+        configItems.getColumnModel().getColumn(1).setMaxWidth(6);
+        configItems.getColumnModel().getColumn(1).setMinWidth(6);
+        configItems.getColumnModel().getColumn(1).setResizable(false);
 
         //
         ListSelectionModel lsm = configItems.getSelectionModel();
@@ -130,7 +136,6 @@ public class RenamerUI extends AbstractToolDialog
             }
         });
 
-        configItems.setTableHeader(null);
         panelControls.setBorder(scrollPaneExamples.getBorder());
 
         // get display names once
@@ -206,11 +211,12 @@ public class RenamerUI extends AbstractToolDialog
             {
                 RenamerTool renamer = origRenamer.clone();
                 renamer.setConfigName(rename);
-                renamer.setDataHasChanged();
                 configModel.addRow(new Object[]{renamer});
+                renamer.setDataHasChanged();
 
                 currentConfigIndex = configModel.getRowCount() - 1;
                 loadOptions(currentConfigIndex);
+
                 configItems.editCellAt(currentConfigIndex, 0);
                 configItems.changeSelection(currentConfigIndex, currentConfigIndex, false, false);
                 configItems.getEditorComponent().requestFocus();
@@ -305,7 +311,7 @@ public class RenamerUI extends AbstractToolDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("Renamer.help"), "renamer_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("Renamer.help"), "renamer_" + context.preferences.getLocale() + ".html", false);
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }
@@ -1094,6 +1100,8 @@ public class RenamerUI extends AbstractToolDialog
                     renamer.setOption3(false);
                     break;
             }
+            int configIndex = configItems.getSelectedRow();
+            configModel.fireTableRowsUpdated(configIndex, configIndex);
         }
     }
 

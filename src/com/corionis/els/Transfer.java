@@ -6,8 +6,7 @@ import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Location;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.sftp.ClientSftp;
-import com.corionis.els.storage.Storage;
-import com.corionis.els.storage.Target;
+import com.corionis.els.repository.Target;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,8 +37,6 @@ public class Transfer
     private long grandTotalSize = 0L;
     private boolean isInitialized = false;
     private String lastGroupName = "";
-    private Storage storageTargets = null;
-    private boolean toIsNew = false;
 
     /**
      * Constructor for Navigator with selectable locale
@@ -115,8 +112,7 @@ public class Transfer
     /**
      * Copy group of files
      * <p>
-     * The overwrite parameter is false for normal Process munge operationsUI, and
-     * true for Subscriber terminal (-r T) to Publisher listener (-r L) operationsUI.
+     * The overwrite parameter is false for normal Process munge operationsUI
      * <p>
      * Only used in Process() and publisher Daemon.
      *
@@ -317,36 +313,9 @@ public class Transfer
         }
         if (minimum < 1L)
         {
-            minimum = Storage.MINIMUM_BYTES;
+            minimum = context.cfg.MINIMUM_BYTES;
         }
         return minimum;
-    }
-
-    /**
-     * Get the storage targets either local or remote
-     *
-     * @throws Exception
-     */
-    private void getStorageTargets() throws Exception
-    {
-        String location = null;
-
-        if (context.cfg.isRemoteOperation() && context.cfg.isRequestTargets())
-        {
-            // request target data from remote subscriber
-            location = context.clientStty.retrieveRemoteData("targets", context.cfg.gs("Transfer.requesting.subscriber.targets"), 20000);
-            context.cfg.setTargetsFilename(location);
-        }
-
-        if (location != null && location.length() > 0) 
-        {
-            if (storageTargets == null)
-                storageTargets = new Storage();
-
-            storageTargets.read(location, context.subscriberRepo.getLibraryData().libraries.flavor);
-            if (!context.cfg.isRemoteOperation())
-                storageTargets.validate();
-        }
     }
 
     /**
@@ -393,15 +362,6 @@ public class Transfer
         boolean notFound = true;
         long minimum = 0L;
         Target target = null;
-
-        if (storageTargets != null)
-        {
-            target = storageTargets.getLibraryTarget(library); // storage targets override locations
-        }
-        if (target != null)
-        {
-            minimum = Utils.getScaledValue(target.minimum);
-        }
 
         // see if there is an original directory the new content will fit in
         if (!context.cfg.isNoBackFill())
@@ -474,7 +434,7 @@ public class Transfer
             isInitialized = true;
 
             // For -r P connect to remote subscriber -r S
-            if (context.cfg.isRemotePublishOperation() || context.cfg.isPublisherListener())
+            if (context.cfg.isRemotePublishOperation())
             {
                 // sanity checks
                 if (context.publisherRepo.getLibraryData().libraries.flavor == null ||
@@ -490,12 +450,12 @@ public class Transfer
                 }
 
                 // check for opening commands from Subscriber
-                // *** might change localContext.cfg options for subscriber and targets that are handled below ***
+                // *** might change localContext.cfg options for subscriber that are handled below ***
                 if (context.clientStty != null)
                 {
                     if (context.clientStty.checkBannerCommands())
                     {
-                        logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
+                        logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : ""));
                     }
 
                     String directory = context.clientStty.getWorkingDirectoryRemote();
@@ -519,13 +479,6 @@ public class Transfer
                     {
                         requestCollection();
                     }
-                }
-
-                // get -t|T Targets
-                if (context.cfg.isTargetsEnabled())
-                {
-                    logger.info(context.cfg.gs("Transfer.requesting.subscriber.targets"));
-                    getStorageTargets();
                 }
             }
         }
@@ -588,7 +541,7 @@ public class Transfer
                 minimum = getLocationMinimum(targetRepo, path);
             }
             else
-                minimum = Storage.MINIMUM_BYTES;
+                minimum = context.cfg.MINIMUM_BYTES;
         }
 
         logger.info(MessageFormat.format(context.cfg.gs("Transfer.checking"), hasTarget ? 0 : 1, Utils.formatLong(totalSize, false, context.cfg.getLongScale()),
@@ -959,7 +912,7 @@ public class Transfer
     }
 
     /**
-     * Request the remote end re-scan and send it's collection JSON based on parameters
+     * Request the remote end re-scan and send its collection JSON based on parameters
      * <p>
      * Any -l | -L parameter is handled.
      *
@@ -990,10 +943,10 @@ public class Transfer
     {
         if (context.cfg.isRemoteOperation())
         {
-            // request collection data from remote subscriber
+            // request library data from remote subscriber
             String log = MessageFormat.format(context.cfg.gs("Transfer.requesting.subscriber.library"),
                     context.subscriberRepo.getLibraryData().libraries.description);
-            String location = context.clientStty.retrieveRemoteData("library", log, 20000);
+            String location = context.clientStty.retrieveRemoteData("library", log, 300000); //20000);
             if (location == null || location.length() < 1)
                 throw new MungeException(context.cfg.gs("Transfer.could.not.retrieve.remote.library.file"));
             context.cfg.setSubscriberCollectionFilename(""); // clear so the library file will be used
@@ -1012,7 +965,6 @@ public class Transfer
     {
         String path;
         Item toItem;
-        toIsNew = false;
 
         // move to a different library
         if (!toLib.name.equalsIgnoreCase(fromLib.name))
@@ -1020,7 +972,6 @@ public class Transfer
             toItem = repo.hasItem(fromItem, toLib.name, Utils.pipe(repo, toName));
             if (toItem == null) // does not exist
             {
-                toIsNew = true;
                 toItem = SerializationUtils.clone(fromItem);
                 toItem.setLibrary(toLib.name);
                 toItem.setItemPath(toName);

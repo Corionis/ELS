@@ -3,7 +3,7 @@
 # Format: name uuid
 #
 #   Name is any shortname, no spaces.
-#   UUID is the key from the collection JSON file.
+#   UUID is the libraryKey from the collection JSON file.
 #
 # Use space/tab separators, no quotes.
 #

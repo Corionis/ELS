@@ -3,8 +3,8 @@ package com.corionis.els.gui.tools.sleep;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
-import com.corionis.els.gui.jobs.AbstractToolDialog;
-import com.corionis.els.gui.jobs.ConfigModel;
+import com.corionis.els.gui.util.AbstractToolDialog;
+import com.corionis.els.gui.util.ConfigModel;
 import com.corionis.els.gui.util.NumberFilter;
 import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.sleep.SleepTool;
@@ -23,7 +23,7 @@ import javax.swing.text.PlainDocument;
 
 public class SleepUI extends AbstractToolDialog
 {
-    private ConfigModel configModel;
+    public ConfigModel configModel;
     private Context context;
     private SleepTool currentSleepTool = null;
     private Logger logger = LogManager.getLogger("applog");
@@ -74,12 +74,18 @@ public class SleepUI extends AbstractToolDialog
 
         // setup the left-side list of configurations
         configModel = new ConfigModel(context, this);
-        configModel.setColumnCount(1);
+        configModel.setColumnCount(2);
         configItems.setModel(configModel);
 
         configItems.getTableHeader().setUI(null);
         configItems.setTableHeader(null);
         scrollPaneConfig.setColumnHeaderView(null);
+
+        configItems.getColumnModel().getColumn(1).setPreferredWidth(6);
+        configItems.getColumnModel().getColumn(1).setWidth(6);
+        configItems.getColumnModel().getColumn(1).setMaxWidth(6);
+        configItems.getColumnModel().getColumn(1).setMinWidth(6);
+        configItems.getColumnModel().getColumn(1).setResizable(false);
 
         //
         ListSelectionModel lsm = configItems.getSelectionModel();
@@ -147,8 +153,10 @@ public class SleepUI extends AbstractToolDialog
             {
                 SleepTool tool = currentSleepTool.clone();
                 tool.setConfigName(rename);
-                tool.setDataHasChanged();
                 configModel.addRow(new Object[]{ tool });
+                tool.setDataHasChanged();
+
+                loadTime(configModel.getRowCount() - 1);
 
                 configItems.editCellAt(configModel.getRowCount() - 1, 0);
                 configItems.changeSelection(configModel.getRowCount() - 1, configModel.getRowCount() - 1, false, false);
@@ -208,7 +216,7 @@ public class SleepUI extends AbstractToolDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("Sleep.help"), "sleep_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("Sleep.help"), "sleep_" + context.preferences.getLocale() + ".html", false);
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }
@@ -468,6 +476,7 @@ public class SleepUI extends AbstractToolDialog
         String name = null;
         if (source instanceof JTextField)
         {
+            int configIndex = configItems.getSelectedRow();
             String current = null;
             JTextField tf = (JTextField) source;
             name = tf.getName();
@@ -476,6 +485,7 @@ public class SleepUI extends AbstractToolDialog
             {
                 currentSleepTool.setSleepTime(Integer.parseInt(textFieldTime.getText()));
                 currentSleepTool.setDataHasChanged();
+                configModel.fireTableRowsUpdated(configIndex, configIndex);
             }
         }
     }

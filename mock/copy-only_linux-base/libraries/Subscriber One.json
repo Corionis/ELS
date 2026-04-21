@@ -4,7 +4,7 @@
         "key": "bb12a499-97a6-44e1-8a91-4cc898e45849",
         "host": "localhost:40300",
         "listen": "localhost:40400",
-        "timeout": 0,
+        "timeout": 10,
         "flavor": "Linux",
         "case_sensitive": false,
         "temp_dated": false,
@@ -17,6 +17,11 @@
             "Thumbs\\.db",
             "\\.DS_Store"
         ],
+        "email": "rockney8588@gmail.com",
+        "format": "Text",
+        "mismatches": true,
+        "whatsNew": true,
+        "skipOffline": true,
         "locations": [
             {
                 "location": "test/subscriber-one",
@@ -26,6 +31,7 @@
         "bibliography": [
             {
                 "name": "Movies",
+                "matchDates": false,
                 "sources": [
                     "test/subscriber-one/media/Movies",
                     "test/subscriber-one/more-media/Movies"
@@ -34,6 +40,7 @@
             },
             {
                 "name": "TV Shows",
+                "matchDates": false,
                 "sources": [
                     "test/subscriber-one/media/TV Shows"
                 ],

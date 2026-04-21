@@ -4,6 +4,7 @@
     {
       "configName": "Local publish",
       "internalName": "Operations",
+      "emailTool": "noreply@elsnavigator.com",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",

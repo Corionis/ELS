@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -75,7 +76,11 @@ public class JunkRemoverTool extends AbstractTool
         jrt.setDataHasChanged();
         jrt.isDryRun = this.isDryRun;
         jrt.setRemote(this.isRemote());
-        jrt.setJunkList(getJunkList());
+        jrt.junkList = new ArrayList<>();
+        for (JunkItem ji : this.junkList)
+        {
+            jrt.junkList.add(ji.clone());
+        }
         return jrt;
     }
 
@@ -86,6 +91,8 @@ public class JunkRemoverTool extends AbstractTool
         // this tool only uses one repository
         if (repo == null)
             return -1;
+
+        boolean isPublisher = repo.isPublisher();
 
         for (Origin origin : origins)
         {
@@ -99,6 +106,20 @@ public class JunkRemoverTool extends AbstractTool
                 // process in the order defined in the JSON
                 for (Library lib : repo.getLibraryData().libraries.bibliography)
                 {
+                    // privileges : access
+                    if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
+                        logger.error(msg);
+                        continue;
+                    }
+                    if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
+                        logger.error(msg);
+                        continue;
+                    }
+
                     for (String source : lib.sources)
                     {
                         toolPaths.add(source);
@@ -112,6 +133,20 @@ public class JunkRemoverTool extends AbstractTool
                 {
                     if (lib.name.equalsIgnoreCase(origin.getLocation()))
                     {
+                        // privileges : access
+                        if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
+                            logger.error(msg);
+                            continue;
+                        }
+                        if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
+                            logger.error(msg);
+                            continue;
+                        }
+
                         for (String source : lib.sources)
                         {
                             toolPaths.add(source);
@@ -122,6 +157,24 @@ public class JunkRemoverTool extends AbstractTool
             }
             else if (origin.getType() == NavTreeUserObject.REAL)
             {
+                // privileges : access
+                Library lib = Utils.findLibraryFromPath(repo, origin.getLocation());
+                if (lib != null)
+                {
+                    if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
+                        logger.error(msg);
+                        continue;
+                    }
+                    if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
+                        logger.error(msg);
+                        continue;
+                    }
+                }
+
                 toolPaths.add(origin.getLocation());
                 ++count;
             }
@@ -207,11 +260,11 @@ public class JunkRemoverTool extends AbstractTool
         reset();
         isDryRun = task.dryRun;
 
-        if (task.publisherRepo != null && task.subscriberRepo != null)
+        if (task.localContext.publisherRepo != null && task.localContext.subscriberRepo != null)
             throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("JunkRemover.uses.only.one.repository"), getInternalName()));
 
         // this tool only uses one repository
-        repo = (task.publisherRepo != null) ? task.publisherRepo : task.subscriberRepo;
+        repo = (task.localContext.publisherRepo != null) ? task.localContext.publisherRepo : task.localContext.subscriberRepo;
         if (repo == null)
         {
             logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer.has.no.repository.defined"), getConfigName()));
@@ -224,7 +277,7 @@ public class JunkRemoverTool extends AbstractTool
             return;
 
         // only subscribers can be remote
-        if (task.subscriberRepo != null && getCfg().isRemoteOperation())
+        if (task.localContext.subscriberRepo != null && getCfg().isRemoteOperation())
             setRemote(true);
 
         for (String path : toolPaths)
@@ -454,6 +507,14 @@ public class JunkRemoverTool extends AbstractTool
     {
         public boolean caseSensitive = false;
         public String wildcard;
+
+        public JunkItem clone()
+        {
+            JunkItem ji = new JunkItem();
+            ji.caseSensitive = caseSensitive;
+            ji.wildcard = wildcard;
+            return ji;
+        }
     }
 
 }

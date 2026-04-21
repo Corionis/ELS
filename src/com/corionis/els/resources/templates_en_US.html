@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <style>
+            html, body {
+                font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+            }
+
+            div {
+                margin-left: 10px;
+                margin-right: 4px;
+            }
+
+            p {
+                margin-left: 10px;
+                margin-top: -8px;
+                margin-right: 4px;
+            }
+
+            table {
+                border-bottom: 1px solid;
+                margin: 0 4px 4px;
+                padding: 4px;
+                width: 100%;
+            }
+
+            th {
+                border-bottom: 1px solid ;
+                text-align: left;
+            }
+
+            td {
+                text-align: left;
+            }
+
+            ul {
+                margin-left: 22px;
+            }
+
+            a {
+                font-weight: bold;
+            }
+        </style>
+</head>
+<body>
+<h2>Email Templates</h2>
+
+<p>Built-in templates provide a way to invite a user to connect to ELS with information and
+instructions on getting started depending on the type of user, Basic, Advanced or Administrator.</p>
+<br/>
+<p>To invite a user go to the Libraries tab, select the user's library, then go to the User tab and
+click the Invite button. It has it's own Help documentation.</p>
+<br/>
+<p>There are templates for each user type for both HTML and text email formats.</p>
+<br/>
+<p>The default templates are built-in. If modified the template is then stored on disk in
+the .els/local/Templates/ directory. Custom templates are also supported. Use the Default
+button to restore a default template.</p>
+<br/>
+
+<h3>Formatting HTML</h3>
+<p>Basic HTML is supported. The buttons at the top of the template editor provide some formatting options.
+Not all HTML tags are provided but may be entered.</p>
+<br/>
+<p>Use the Preview and Browser buttons to view the template formatted with substitutions for variables.</p>
+<br/>
+<p>When used from System, Email Templates the variables use the currently-loaded Publisher and Subscriber.
+When used from Libaries, User, Invite the currently-loaded Publisher and current-selected Library populate
+the variables.</p>
+<br/>
+
+<h3>Variable Substitutions</h3>
+<p>The following variables are substituted for Preview, Browser and the Invite Send button.</p>
+
+<table>
+    <tr>
+        <th>Variable</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>${PublisherRepo}</td>
+        <td>Publisher repository Description.</td>
+    </tr>
+    <tr>
+        <td>${PublisherHost}</td>
+        <td>Publisher Host.</td>
+    </tr>
+    <tr>
+        <td>${PublisherName}</td>
+        <td>Publisher User name.</td>
+    </tr>
+    <tr>
+        <td>${UserRepo}</td>
+        <td>Selected User repository Description.</td>
+    </tr>
+    <tr>
+        <td>${UserName}</td>
+        <td>Selected User repository User name.</td>
+    </tr>
+    <tr>
+        <td>${UserType}</td>
+        <td>Selected User repository User type, Basic, Advanced or Administrator.</td>
+    </tr>
+</table>
+
+<br/>
+<br/>
+
+</body>
+</html>

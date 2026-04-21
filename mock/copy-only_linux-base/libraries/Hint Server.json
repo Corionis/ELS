@@ -11,6 +11,11 @@
         "temp_location": "output",
         "terminal_allowed": false,
         "ignore_patterns": [],
+        "email": "todd.hill@monkeyboy.com",
+        "format": "HTML",
+        "mismatches": false,
+        "whatsNew": false,
+        "skipOffline": true,
         "locations": [
             {
                 "location": "datastore",
@@ -20,6 +25,7 @@
         "bibliography": [
             {
                 "name": "Hint Status Datastore",
+                "matchDates": false,
                 "sources": [
                     "datastore"
                 ],

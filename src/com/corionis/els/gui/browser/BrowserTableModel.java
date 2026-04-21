@@ -117,8 +117,6 @@ public class BrowserTableModel extends DefaultTableModel
             {
                 switch (tuo.type)
                 {
-                    case NavTreeUserObject.BOOKMARKS:
-                        return UIManager.getIcon("FileView.floppyDriveIcon");
                     case NavTreeUserObject.COLLECTION:
                         return UIManager.getIcon("FileChooser.homeFolderIcon");
                     case NavTreeUserObject.COMPUTER:
@@ -152,7 +150,6 @@ public class BrowserTableModel extends DefaultTableModel
             {
                 switch (tuo.type)
                 {
-                    case NavTreeUserObject.BOOKMARKS:
                     case NavTreeUserObject.COLLECTION:
                     case NavTreeUserObject.COMPUTER:
                     case NavTreeUserObject.HOME:
@@ -173,8 +170,6 @@ public class BrowserTableModel extends DefaultTableModel
             {
                 switch (tuo.type)
                 {
-                    case NavTreeUserObject.BOOKMARKS:
-                        break;
                     case NavTreeUserObject.COLLECTION:
                         break;
                     case NavTreeUserObject.COMPUTER:

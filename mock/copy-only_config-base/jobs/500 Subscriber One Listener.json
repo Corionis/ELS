@@ -3,18 +3,19 @@
   "tasks": [
     {
       "configName": "Subscriber listener",
+      "internalName": "Operations",
+      "emailTool": "noreply@elsnavigator.com",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Operations",
-      "origins": [],
       "publisherKey": "",
       "publisherPath": "",
       "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
       "subscriberOverride": "true",
       "subscriberPath": "libraries/Subscriber One.json",
-      "subscriberRemote": true
+      "subscriberRemote": true,
+      "origins": []
     }
   ]
 }

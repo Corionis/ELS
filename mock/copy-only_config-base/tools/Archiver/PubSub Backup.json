@@ -1,0 +1,9 @@
+{
+  "configName": "PubSub Backup",
+  "internalName": "Archiver",
+  "appendPubSub": true,
+  "appendDate": true,
+  "deleteFiles": false,
+  "format": "zip",
+  "target": "cron/archive/k-to-rock/"
+}

@@ -1163,7 +1163,7 @@ implements <a href="SftpSubsystemProxy.html" title="interface in org.apache.sshd
 <dd><code>proposed</code> - The proposed version value</dd>
 <dd><code>failureOpcode</code> - The failure opcode to send if validation fails</dd>
 <dt>Returns:</dt>
-<dd>A &quot;pair&quot; whose key is the negotiated version and value a <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> of comma
+<dd>A &quot;pair&quot; whose libraryKey is the negotiated version and value a <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> of comma
                        separated values representing all the supported versions. <code>null</code> if validation failed
                        and an appropriate status message was sent</dd>
 <dt>Throws:</dt>
@@ -2088,7 +2088,7 @@ implements <a href="SftpSubsystemProxy.html" title="interface in org.apache.sshd
 <dd><code>f</code> - The resolve <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link"><code>Path</code></a></dd>
 <dd><code>options</code> - The <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/LinkOption.html" title="class or interface in java.nio.file" class="external-link"><code>LinkOption</code></a>s to use to verify file existence and access</dd>
 <dt>Returns:</dt>
-<dd>A <a href="https://docs.oracle.com/javase/8/docs/api/java/util/AbstractMap.SimpleImmutableEntry.html" title="class or interface in java.util" class="external-link"><code>AbstractMap.SimpleImmutableEntry</code></a> whose key is the <U>absolute <B>normalized</B></U>
+<dd>A <a href="https://docs.oracle.com/javase/8/docs/api/java/util/AbstractMap.SimpleImmutableEntry.html" title="class or interface in java.util" class="external-link"><code>AbstractMap.SimpleImmutableEntry</code></a> whose libraryKey is the <U>absolute <B>normalized</B></U>
                      <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link"><code>Path</code></a> and value is a <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link"><code>Boolean</code></a> indicating its status</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/javase/8/docs/api/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - If failed to validate the file</dd>
@@ -2520,7 +2520,7 @@ implements <a href="SftpSubsystemProxy.html" title="interface in org.apache.sshd
 <dt>Parameters:</dt>
 <dd><code>id</code> - Request id</dd>
 <dd><code>dir</code> - The <a href="DirectoryHandle.html" title="class in org.apache.sshd.sftp.server"><code>DirectoryHandle</code></a></dd>
-<dd><code>entries</code> - An in / out <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Map.html" title="class or interface in java.util" class="external-link"><code>Map</code></a> for updating the written entry - key = short name, value = entry
+<dd><code>entries</code> - An in / out <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Map.html" title="class or interface in java.util" class="external-link"><code>Map</code></a> for updating the written entry - libraryKey = short name, value = entry
                      <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link"><code>Path</code></a></dd>
 <dd><code>buffer</code> - The <code>Buffer</code> to write the results</dd>
 <dd><code>index</code> - Zero-based index of the entry to be written</dd>

@@ -160,7 +160,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getClientProperty(java.lang.Object)">getClientProperty</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;key)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getClientProperty(java.lang.Object)">getClientProperty</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;libraryKey)</code></th>
 <td class="colLast">
 <div class="block">Overrides <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/javax/swing/JComponent.html?is-external=true#getClientProperty(java.lang.Object)" title="class or interface in javax.swing" class="externalLink"><code>JComponent.getClientProperty(Object)</code></a>.</div>
 </td>
@@ -191,7 +191,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#putClientProperty(java.lang.Object,java.lang.Object)">putClientProperty</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;key,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#putClientProperty(java.lang.Object,java.lang.Object)">putClientProperty</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;libraryKey,
                  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;value)</code></th>
 <td class="colLast">
 <div class="block">Overrides <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/javax/swing/JComponent.html?is-external=true#putClientProperty(java.lang.Object,java.lang.Object)" title="class or interface in javax.swing" class="externalLink"><code>JComponent.putClientProperty(Object, Object)</code></a>.</div>
@@ -260,7 +260,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Specifies the style of a component as String in CSS syntax ("key1: value1; key2: value2; ...").
  <p>
  The keys are the same as used in UI defaults, but without component type prefix.
- E.g. for UI default <code>Slider.thumbSize</code> use key <code>thumbSize</code>.
+ E.g. for UI default <code>Slider.thumbSize</code> use libraryKey <code>thumbSize</code>.
  <p>
  The syntax of the CSS values is the same as used in FlatLaf properties files
  (<a href="https://www.formdev.com/flatlaf/properties-files/">https://www.formdev.com/flatlaf/properties-files/</a>),
@@ -296,7 +296,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Specifies the style of a component as <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink"><code>Map</code></a>&lt;String, Object&gt; with binary values.
  <p>
  The keys are the same as used in UI defaults, but without component type prefix.
- E.g. for UI default <code>Slider.thumbSize</code> use key <code>thumbSize</code>.
+ E.g. for UI default <code>Slider.thumbSize</code> use libraryKey <code>thumbSize</code>.
  <p>
  The values are not parsed from a string. They must be binary.</div>
 <dl>
@@ -340,7 +340,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <h4>getClientProperty</h4>
-<pre class="methodSignature"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;getClientProperty&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;key)</pre>
+<pre class="methodSignature"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;getClientProperty&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;libraryKey)</pre>
 <div class="block">Overrides <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/javax/swing/JComponent.html?is-external=true#getClientProperty(java.lang.Object)" title="class or interface in javax.swing" class="externalLink"><code>JComponent.getClientProperty(Object)</code></a>.</div>
 </li>
 </ul>
@@ -350,7 +350,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockListLast">
 <li class="blockList">
 <h4>putClientProperty</h4>
-<pre class="methodSignature">void&nbsp;putClientProperty&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;key,
+<pre class="methodSignature">void&nbsp;putClientProperty&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;libraryKey,
                        <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;value)</pre>
 <div class="block">Overrides <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/javax/swing/JComponent.html?is-external=true#putClientProperty(java.lang.Object,java.lang.Object)" title="class or interface in javax.swing" class="externalLink"><code>JComponent.putClientProperty(Object, Object)</code></a>.</div>
 </li>

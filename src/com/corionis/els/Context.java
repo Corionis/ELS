@@ -9,6 +9,7 @@ import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.hints.HintKeys;
 import com.corionis.els.hints.Hints;
 import com.corionis.els.repository.Repository;
+import com.corionis.els.repository.User;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.sftp.ServeSftp;
 import com.corionis.els.stty.ClientStty;
@@ -16,6 +17,7 @@ import com.corionis.els.stty.ServeStty;
 import com.corionis.els.stty.hintServer.Datastore;
 import com.corionis.els.gui.libraries.LibrariesUI;
 import com.corionis.els.tools.Tools;
+
 import org.apache.logging.log4j.core.appender.RollingFileAppender;
 
 /**
@@ -29,6 +31,7 @@ public class Context
 
     // Core
     public HintKeys authKeys = null;
+    public String bannerCommands = "";
     public ClientSftp clientSftp = null; // file transfers
     public ClientSftp clientSftpMetadata = null; // Navigator queries
     public ClientStty clientStty = null; // commands and JSON files
@@ -45,9 +48,11 @@ public class Context
     public Context previousContext = null; // the previous Context during a secondary invocation
     public Process process = null;
     public Repository publisherRepo = null;
+    public User publisherUser = null;
     public ServeSftp serveSftp = null;
     public ServeStty serveStty = null;
     public Repository subscriberRepo = null;
+    public User subscriberUser = null;
     public boolean timeout = false; // time-out indicator
     public Tools tools = null;
     public boolean trace = false; // trace logging

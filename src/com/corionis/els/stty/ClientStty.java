@@ -36,7 +36,6 @@ public class ClientStty
     private String myKey;
     private Repository myRepo;
     protected DataOutputStream out = null;
-    private boolean primaryServers;
     private Socket socket;
     private Repository theirRepo;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -46,15 +45,13 @@ public class ClientStty
      *
      * @param context          The Context
      * @param isManualTerminal True if an interactive client, false if an automated client
-     * @param primaryServers   True if base servers, false if secondary servers for Publisher
      * @param isHintServer     True if this client is connecting to a Hint Server, false for a Subscriber Listener
      */
-    public ClientStty(Context context, boolean isManualTerminal, boolean primaryServers, boolean isHintServer)
+    public ClientStty(Context context, boolean isManualTerminal, boolean isHintServer)
     {
         this.context = context;
         this.instance = this;
         this.isTerminal = isManualTerminal;
-        this.primaryServers = primaryServers;
         this.isHintServer = isHintServer;
     }
 
@@ -80,8 +77,7 @@ public class ClientStty
      * Read opening terminal banner for possible commands
      * <p>
      * Handles subscriber-side commands sent to publisher at login time
-     * for RequestCollection to retrieve the current subscriber collection,
-     * and RequestTargets to retrieve the current subscriber targets.
+     * for RequestCollection to retrieve the current subscriber collection
      *
      * @return true if commands were present and processed
      * @throws Exception
@@ -89,7 +85,11 @@ public class ClientStty
     public boolean checkBannerCommands() throws Exception
     {
         boolean hasCommands = false;
-        String response = receive("", 5000); // read opening terminal banner
+        String response;
+        if (!context.bannerCommands.isEmpty())
+            response = context.bannerCommands;
+        else
+            response = receive("", 5000); // read opening terminal banner
         if (!context.cfg.isNavigator()) // ignore subscriber commands with Navigator
         {
             if (!response.startsWith("Enter "))
@@ -105,11 +105,6 @@ public class ClientStty
                             {
                                 hasCommands = true;
                                 setupCollectionRequest();
-                            }
-                            else if (cmdSplit[i].equals("RequestTargets"))
-                            {
-                                hasCommands = true;
-                                context.cfg.setRequestTargets(true);
                             }
                         }
                     }
@@ -176,7 +171,7 @@ public class ClientStty
             }
 
             String hostname = Utils.parseHost(address);
-            int hostport = Utils.getPort(address) + ((primaryServers) ? 0 : 2);
+            int hostport = Utils.getPort(address);
 
             logger.info(context.cfg.gs("Stty.opening.stty.connection.to") + (hostname == null ? "localhost" : hostname) + ":" + hostport + hostListen);
 
@@ -206,7 +201,6 @@ public class ClientStty
             {
                 if (handshake())
                 {
-                    isConnected = true;
                     createHeartBeat();
                 }
                 else
@@ -385,11 +379,13 @@ public class ClientStty
      */
     private boolean handshake() throws Exception
     {
+        boolean securityFailure = false;
         boolean valid = false;
         logger.trace(context.cfg.gs("Stty.handshake"));
         String input = receive("", 5000);
         if (input != null && input.equals("HELO"))
         {
+            isConnected = true;
             send((isTerminal ? "DribNit" : "DribNlt"), "");
 
             input = receive("", 5000);
@@ -401,6 +397,17 @@ public class ClientStty
                 input = receive("", 5000);
                 try
                 {
+                    if (input.toLowerCase().endsWith(":secure")) // Subscriber requires User-level security
+                    {
+                        if (!context.preferences.isUsersEnabled()) // if Publisher does not it cannot be allowed to connect
+                        {
+                            securityFailure = true;
+                            throw new MungeException("");
+                        }
+
+                        input = input.substring(0, input.indexOf(":Secure")); // remove :Secure tag
+                    }
+
                     // if Utils.getFileSeparator() does not throw an exception
                     // the subscriber's flavor is valid
                     Utils.getFileSeparator(input);
@@ -415,6 +422,15 @@ public class ClientStty
                 catch (Exception e)
                 {
                     // ignore
+                }
+
+                // disconnect and throw an exception if Publisher not allowed to connect
+                if (securityFailure)
+                {
+                    disconnect();
+                    MungeException me = new MungeException(MessageFormat.format(context.cfg.gs("ClientStty.security.mismatch"), theirRepo.getLibraryData().libraries.description));
+                    me.initCause(new Throwable("SecurityFailure"));
+                    throw me;
                 }
             }
             else if (input.equalsIgnoreCase("Terminal session not allowed"))

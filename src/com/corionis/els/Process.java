@@ -235,6 +235,7 @@ public class Process
         {
             logger.info(java.text.MessageFormat.format(context.cfg.gs("Process.hints.executed.on.subscriber.updated.data.required"),
                     context.subscriberRepo.getLibraryData().libraries.description));
+
             if (context.cfg.isRemoteSubscriber())
                 context.transfer.requestCollection();
             //else is local, handled below
@@ -246,7 +247,7 @@ public class Process
         boolean firstLibraryWhats = true;
         try
         {
-            for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
+            for (Library subLib : context.subscriberRepo.getLibraries().bibliography)
             {
                 if (fault)
                     break;
@@ -267,6 +268,7 @@ public class Process
                     }
 
                     // if the publisher has a matching library
+// LEFTOFF Could auto-create right here, Version 5
                     if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
                     {
                         // do the libraries have items or do they need to be scanned?
@@ -333,7 +335,7 @@ public class Process
                                             logger.info(java.text.MessageFormat.format(context.cfg.gs("Process.subscriber.missing"),
                                                     subLib.name,item.getItemPath()));
 
-                                        /* If the group is switching, process the current one. */
+                                        // If the group is switching, process the current one
                                         if (context.transfer.isNewGrouping(item))
                                         {
                                             // There is a new group - process the previous group
@@ -361,14 +363,12 @@ public class Process
 
                                             if (whatsNewFile != null)
                                             {
-                                                /*
-                                                 * Unless the -W or --whatsnew-all option is used:
-                                                 * Only show the left side of mismatches file. And Only show it once.
-                                                 * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
-                                                 * Big Bang Theory
-                                                 * Lucifer
-                                                 * Legion
-                                                 */
+                                                // Unless the -W or --whatsnew-all option is used:
+                                                // Only show the left side of mismatches file. And Only show it once.
+                                                // So if you have 10 new episodes of Lucifer only the following will show in the what's new file
+                                                //   Big Bang Theory
+                                                //   Lucifer
+                                                //   Legion
                                                 if (!item.getLibrary().equals(currLibWhat))
                                                 {
                                                     // If not first time display and reset the whatsNewTotal
@@ -740,7 +740,7 @@ public class Process
         context.fault = fault;
 
         if (!fault &&
-                (context.transfer.getGrandTotalItems() > 0 || context.hintsHandler.getPerformed() > 0) &&
+                (context.transfer.getGrandTotalItems() > 0 || (context.hintsHandler != null ? context.hintsHandler.getPerformed() > 0 : false)) &&
                 (mismatchesFile != null || whatsNewFile != null))
         {
             sendCompletionEmail();
@@ -802,6 +802,25 @@ public class Process
         return empties;
     }
 
+    /**
+     * Dump the list of ignored files
+     */
+    private void reportIgnored()
+    {
+        if (context.cfg.isIgnoredReported())
+        {
+            if (ignoredList.size() > 0)
+            {
+                logger.debug(SHORT, "+------------------------------------------");
+                logger.debug(SIMPLE, MessageFormat.format(context.cfg.gs("Process.ignored.files.fin"), ignoredList.size()));
+                for (String s : ignoredList)
+                {
+                    logger.debug(SIMPLE, "    " + s);
+                }
+            }
+        }
+    }
+
     public void sendCompletionEmail()
     {
         String toolName = "";
@@ -840,6 +859,7 @@ public class Process
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (opt != JOptionPane.YES_OPTION)
                 {
+                    logger.info(context.cfg.gs("Process.user.chose.to.no.send.emails"));
                     return;
                 }
             }
@@ -864,26 +884,6 @@ public class Process
             logger.error(msg);
             if ((context.navigator != null || context.cfg.isLoggerView()) && context.preferences.isAskSendEmail())
                 JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-
-    /**
-     * Dump the list of ignored files
-     */
-    private void reportIgnored()
-    {
-        if (context.cfg.isIgnoredReported())
-        {
-            if (ignoredList.size() > 0)
-            {
-                logger.debug(SHORT, "+------------------------------------------");
-                logger.debug(SIMPLE, MessageFormat.format(context.cfg.gs("Process.ignored.files.fin"), ignoredList.size()));
-                for (String s : ignoredList)
-                {
-                    logger.debug(SIMPLE, "    " + s);
-                }
-            }
         }
     }
 

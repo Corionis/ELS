@@ -132,8 +132,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public interface <span class="typeNameLabel">InstanceCreator&lt;T&gt;</span></pre>
 <div class="block">This interface is implemented to create instances of a class that does not define a no-args
  constructor. If you can modify the class, you should instead add a private, or public no-args
- constructor. However, that is not possible for library classes, such as JDK classes, or a
- third-party library that you do not have source-code of. In such cases, you should define an
+ constructor. However, that is not possible for libraryKey classes, such as JDK classes, or a
+ third-party libraryKey that you do not have source-code of. In such cases, you should define an
  instance creator for the class. Implementations of this interface should be registered with
  <a href="GsonBuilder.html#registerTypeAdapter(java.lang.reflect.Type,java.lang.Object)"><code>GsonBuilder.registerTypeAdapter(Type, Object)</code></a> method before Gson will be able to use
  them.

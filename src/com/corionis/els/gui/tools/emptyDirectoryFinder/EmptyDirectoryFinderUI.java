@@ -166,7 +166,7 @@ public class EmptyDirectoryFinderUI extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + context.preferences.getLocale() + ".html", false);
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }
@@ -337,6 +337,11 @@ public class EmptyDirectoryFinderUI extends JDialog
                         {
                             if (requestStop)
                                 break;
+                            // privileges : access
+                            if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                                continue;
+                            if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                                continue;
                             String msg = context.cfg.gs("DuplicateFinder.analyzing.library") + "'" + lib.name + "'";
                             labelStatus.setText(msg);
                             for (Item item : lib.items)

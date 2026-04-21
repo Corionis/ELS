@@ -268,6 +268,18 @@ public class Browser
         table.addKeyListener(new KeyAdapter()
         {
             @Override
+            public void keyPressed(KeyEvent keyEvent)
+            {
+                if (keyEvent.getKeyChar() == KeyEvent.VK_FINAL && keyEvent.getModifiers() == KeyEvent.CTRL_MASK)
+                {
+                    // set the move action for NavTransferHandler.createTransferable()
+                    // this allows early checking of privileges when Ctrl-X is typed
+                    navTransferHandler.setAction(TransferHandler.MOVE);
+                }
+                super.keyPressed(keyEvent);
+            }
+
+            @Override
             public void keyReleased(KeyEvent keyEvent)
             {
                 super.keyReleased(keyEvent);
@@ -780,11 +792,32 @@ public class Browser
             for (int i = 0; i < rows.length; ++i)
             {
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(context.mainFrame,
-                            context.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name,
-                            context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name,
+                                context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                // privileges : access
+                String name = "";
+                if (tuo.getParentLibrary() == null)
+                    name = tuo.name;
+                else
+                    name = tuo.getParentLibrary().getUserObject().name;
+                if (tuo.getRepo().isPublisher() && sourceTable.getName().contains("Collection") && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, name))
+                {
+                    String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), tuo.getParentLibrary().getUserObject().name);
+                    logger.error(msg);
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+                    return;
+                }
+                if (tuo.getRepo().isSubscriber() && sourceTable.getName().contains("Collection") && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, name))
+                {
+                    String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), tuo.getParentLibrary().getUserObject().name);
+                    logger.error(msg);
+                    context.mainFrame.labelStatusMiddle.setText(msg);
                     return;
                 }
 
@@ -896,7 +929,7 @@ public class Browser
                         refreshTree(parent.getMyTree());
                         if (btm.getRowCount() > 0)
                         {
-                            if (btm.getRowCount() -1 < firstRow)
+                            if (btm.getRowCount() - 1 < firstRow)
                                 firstRow = btm.getRowCount() - 1;
                             if (firstRow < btm.getRowCount())
                                 theTable.setRowSelectionInterval(firstRow, firstRow);
@@ -926,11 +959,35 @@ public class Browser
             {
                 NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
                 NavTreeUserObject tuo = ntn.getUserObject();
+
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name,
+                            context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
+
+                // privileges : access
+                String name = "";
+                if (tuo.getParentLibrary() == null)
+                    name = tuo.name;
+                else
+                    name = tuo.getParentLibrary().getUserObject().name;
+                if (tuo.getRepo().isPublisher() && sourceTree.getName().contains("Collection") && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, name))
+                {
+                    String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), tuo.getParentLibrary().getUserObject().name);
+                    logger.error(msg);
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+                    return;
+                }
+                if (tuo.getRepo().isSubscriber() && sourceTree.getName().contains("Collection") && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, name))
+                {
+                    String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), tuo.getParentLibrary().getUserObject().name);
+                    logger.error(msg);
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+                    return;
+                }
+
                 isRemote = tuo.isRemote;
                 if (tuo.isDir)
                 {
@@ -1937,8 +1994,6 @@ public class Browser
             {
                 switch (tuo.type)
                 {
-                    case NavTreeUserObject.BOOKMARKS:
-                        break;
                     case NavTreeUserObject.COLLECTION:
                         msg += context.cfg.gs("Properties.libraries") + tuo.node.getChildCount(false, false) +
                                 "<br/>" + System.getProperty("line.separator") +
@@ -1974,7 +2029,7 @@ public class Browser
                         if (!tuo.isDir)
                         {
                             msg += context.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true, context.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
-                            msg += "<hr>" + System.getProperty("line.separator");
+                            msg += System.getProperty("line.separator");
                             msg += "<br/>";
                         }
                         break;
@@ -2579,17 +2634,23 @@ public class Browser
         NavTreeNode root = (NavTreeNode) model.getRoot();
         for (Library lib : repo.getLibraryData().libraries.bibliography)
         {
-            if (!context.fault)
+            // privileges : access
+            boolean may = (repo.isPublisher() ? context.publisherUser.mayRead(context.publisherRepo.getLibraries().key, lib.name) :
+                    context.subscriberUser.mayRead(context.subscriberRepo.getLibraries().key, lib.name));
+            if (may)
             {
-                NavTreeNode node = new NavTreeNode(context, repo, tree);
-                NavTreeUserObject tuo = new NavTreeUserObject(node, lib.name, lib.sources, remote);
-                node.setNavTreeUserObject(tuo);
-                node.setRefresh(true);
-                root.add(node);
-                if (deep)
-                    node.deepScanChildren(recursive);
-                else
-                    node.loadChildren(false);
+                if (!context.fault)
+                {
+                    NavTreeNode node = new NavTreeNode(context, repo, tree);
+                    NavTreeUserObject tuo = new NavTreeUserObject(node, lib.name, lib.sources, remote);
+                    node.setNavTreeUserObject(tuo);
+                    node.setRefresh(true);
+                    root.add(node);
+                    if (deep)
+                        node.deepScanChildren(recursive);
+                    else
+                        node.loadChildren(false);
+                }
             }
         }
         root.setLoaded(true);
@@ -2799,11 +2860,36 @@ public class Browser
             for (int i = 0; i < rows.length; ++i)
             {
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Touch.cannot") + tuo.name, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
+
+                // privileges : access
+                String name = "";
+                if (tuo.getParentLibrary() == null)
+                    name = tuo.name;
+                else
+                    name = tuo.getParentLibrary().getUserObject().name;
+                if (tuo.getRepo().isPublisher() && sourceTable.getName().contains("Collection") && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, name))
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), name);
+                    logger.error(msg);
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+                    return;
+                }
+                if (tuo.getRepo().isSubscriber() && sourceTable.getName().contains("Collection") && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, name))
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), name);
+                    logger.error(msg);
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+                    return;
+                }
+
                 isRemote = tuo.isRemote;
                 if (tuo.isDir)
                 {
@@ -2852,17 +2938,20 @@ public class Browser
                             logger.error(Utils.getStackTrace(e));
                             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Touch.error") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
+
                         NavTreeNode parent = (NavTreeNode) tuo.node.getParent();
                         if (parent != null)
                         {
-                            DefaultRowSorter sorter = ((DefaultRowSorter) sourceTable.getRowSorter());
-                            sorter.sort();
+                            refreshTree(parent.getMyTree());
                         }
                     }
                     else
                     {
                         logger.info(context.cfg.gs("Browser.skipping") + tuo.name);
                     }
+
+                    DefaultRowSorter sorter = ((DefaultRowSorter) sourceTable.getRowSorter());
+                    sorter.sort();
                 }
             }
         }
@@ -2882,11 +2971,36 @@ public class Browser
             {
                 NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
                 NavTreeUserObject tuo = ntn.getUserObject();
+
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Touch.cannot") + tuo.name, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
+
+                // privileges : access
+                String name = "";
+                if (tuo.getParentLibrary() == null)
+                    name = tuo.name;
+                else
+                    name = tuo.getParentLibrary().getUserObject().name;
+                if (tuo.getRepo().isPublisher() && sourceTree.getName().contains("Collection") && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, name))
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), name);
+                    logger.error(msg);
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+                    return;
+                }
+                if (tuo.getRepo().isSubscriber() && sourceTree.getName().contains("Collection") && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, name))
+                {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), name);
+                    logger.error(msg);
+                    context.mainFrame.labelStatusMiddle.setText(msg);
+                    return;
+                }
+
                 isRemote = tuo.isRemote;
                 if (tuo.isDir)
                 {
@@ -2940,7 +3054,6 @@ public class Browser
                         if (parent != null)
                         {
                             refreshTree(parent.getMyTree());
-//                            parent.selectMe();
                         }
                     }
                     else

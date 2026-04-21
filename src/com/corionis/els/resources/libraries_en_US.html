@@ -1,3 +1,4 @@
+<!--suppress XmlDuplicatedId -->
 <html>
 <head>
   <style>
@@ -42,7 +43,17 @@
 </head>
 <body>
 <h2>Libraries</h2>
-<p>Libraries define parameters and options for an ELS library JSON file.</p>
+<p>Libraries define parameters and options for an ELS library JSON file. There is one for each Publisher, Subscriber
+and a single Hint Tracker/Server if Hints are used (optional). Publisher and Subscriber are roles and may be
+reversed. The Navigator and command line are a Publisher that uses either a local or remote Subscriber.</p>
+
+<p>&nbsp;</p>
+
+<p>Using Tools, Operations to create Tools that are put into Job tasks Subscriber and Hint Server Listeners may
+be defined so remote Publishers may connect.</p>
+<br/>
+
+<hr/>
 
 <h3>General Tab</h3>
 <p>The General tab defines the key, communications parameters and other basic options. Different combinations of options are
@@ -89,6 +100,21 @@
     <br/><br/>
     Examples: (?i)desktop\.ini, Thumbs\.db, \.DS_Store</li>
 
+  <li id="opts">Email address<br/>
+  Address to send fault emails when an error occurs and optional Mismatches and White's New reports.</li>
+
+  <li id="opts">Format<br/>
+  Desired email format, HTML or text.</li>
+
+  <li id="opts">Skip if offline<br/>
+  Skip sending emails and logging errors if the Subscriber failed to connect.</li>
+
+  <li id="opts">Mismatches<br/>
+  Receive technical details of back-up operations.</li>
+
+  <li id="opts">What's New<br/>
+  Receive user-oriented details of back-up operations.</li>
+
 </ul>
 
 <hr/>
@@ -102,7 +128,9 @@
 <p>Fully-qualified partial paths to their length should match the beginning of the full paths used in
 Library sources. Relative partial paths to their length should be contained within the full paths used in Library sources.</p>
 
-  <h4><i>Examples:</i></h4>
+<p>&nbsp;</p>
+
+<p><b><i>Examples:</i></b></p>
   <table>
     <tr>
       <th>Locations:</th> <th>Bibliography Sources:</th>
@@ -123,9 +151,8 @@ default minimum free space is 10 GB.</p>
 
 <p>&nbsp;</p>
 
-<p>A Target -t|-T file is still supported but is being phased-out in favor of Locations. There is no
-Navigator dialog for editing Targets JSON files however they may still be defined on the command-line. Defined minimum free
-space from Targets override Locations.</p>
+<p>A Target -t|-T [file] options was removed in Version 5. However the -t option is used to
+trigger a back-up operation from a Publisher.</p>
 
 <p>&nbsp;</p>
 
@@ -137,10 +164,61 @@ space from Targets override Locations.</p>
 <h3>Bibliography Tab</h3>
 <p>Bibliography tab defines libraries with one or more Source storage devices or paths.</p>
 
-<<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<p>The Match checkbox enables matching the dates of each Publisher and Subscriber file in
+the Library that have the same directory and filename. Example: Backing-up ELS configuration files.</p>
+
+<p>&nbsp;</p>
 
 <p>The order of the sources defines the order searched for available free space, depending on the
 runtime setting of the "Back-fill" option.</p>
+
+<p>&nbsp;</p>
+
+<hr/>
+
+<h3>User Tab</h3>
+<p>The User tab defines the type of user who owns this Library for either a Collection or Workstation.
+This tab is optional and may be enabled on the System, Preferences, General tab. This is an added
+level of security and provides a way to simplify the options shown in Navigator for non-administrators.</p>
+
+<p>&nbsp;</p>
+
+<p>When the User-level security option is enabled Publishers login to Subscribers. The Subscriber's
+definition for the user overrides the user's definition of themselves. For remote Subscribers the
+user definition is retrieved from the Subscriber's copy of the Publisher's Library when the
+connection is made.</p>
+
+<p>&nbsp;</p>
+
+<p>A Publisher login to a Subscriber can fail. A dialog is shown in Navigator and an error is
+  written to the log file.</p>
+
+<p>&nbsp;</p>
+
+<p>If a Subscriber does not have User-level security enabled the Publisher is considered to be an
+Administrator. However, if a Subscriber has User-level security enabled but the Publisher does not
+then login to the Subscriber will fail.</p>
+
+<p>&nbsp;</p>
+
+<p>The User Type controls which options and functions are available.</p>
+<ul>
+  <li>Basic is intended for casual users showing simplified options.</li>
+  <li>Advanced is intended for personal-content Publishers.</li>
+  <li>Administrator has full control.</li>
+</ul>
+
+<p>Resources define Grants when users access this or other Libraries.</p>
+
+<p>&nbsp;</p>
+
+<p>Grants define read and write access to each individual library for the selected Library resource.</p>
+
+<p>&nbsp;</p>
+
+<p>The Update button will update the list of available Libraries of the selected Resource when changes have been made.</p>
 
 <br/>
 <br/>

@@ -3,6 +3,7 @@ package com.corionis.els;
 import com.corionis.els.gui.Preferences;
 import com.corionis.els.gui.browser.NavTreeNode;
 import com.corionis.els.repository.Libraries;
+import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
 import com.google.gson.Gson;
 
@@ -189,6 +190,35 @@ public class Utils
     }
 
     /**
+     * Find the Library containing the path
+     * @param repo Repository to search
+     * @param path Path to match
+     * @return Matching library or null
+     */
+    public static Library findLibraryFromPath(Repository repo, String path)
+    {
+        Library library = null;
+        if (path != null && !path.isEmpty())
+        {
+            for (Library lib : repo.getLibraries().bibliography)
+            {
+                if (lib.sources != null)
+                {
+                    for (String source : lib.sources)
+                    {
+                        if (path.contains(source))
+                        {
+                            library = lib;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return library;
+    }
+
+    /**
      * Format remote & local IP addresses and ports
      *
      * @param socket
@@ -341,17 +371,6 @@ public class Utils
 
         location = pipe(location);
         location = unpipe(location, System.getProperty("file.separator"));
-/*
-        File file = new File(location);
-        try
-        {
-            location = file.getCanonicalPath();
-        }
-        catch (IOException e)
-        {
-            location = file.getPath();
-        }
-*/
         return location;
     }
 

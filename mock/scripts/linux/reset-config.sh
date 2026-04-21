@@ -21,7 +21,7 @@ rm -rf ./bin
 rm -rf ./datastore
 rm -rf ./jobs
 rm -rf ./libraries
-rm -rf ./local
+rm -f ./local/*
 rm -rf ./output
 rm -rf ./system
 rm -rf ./tools

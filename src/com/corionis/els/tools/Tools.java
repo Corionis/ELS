@@ -28,7 +28,6 @@ public class Tools
 
     public Tools()
     {
-
     }
 
     /**
@@ -55,6 +54,132 @@ public class Tools
         Tools clone = new Tools();
         clone.toolList = (ArrayList<AbstractTool>) toolList.clone();
         return clone;
+    }
+
+    /**
+     * Load all tools of a particular internalName from disk
+     * <br/>
+     * Creates an ArrayList of AbstractTool that is populated and returned
+     *
+     * @param context The Context, null is allowed
+     * @param internalName Internal name of desired tool, or null/empty for all tools
+     * @return ArrayList of tools
+     * @throws Exception File system and parse exceptions
+     */
+    public ArrayList<AbstractTool> loadAllTools(Context context, String internalName) throws Exception
+    {
+        toolList = new ArrayList<AbstractTool>();
+        return loadAllTools(context, internalName, toolList);
+    }
+
+    /**
+     * Load all tools of a particular internalName from disk
+     * <p><br>
+     * Note the Duplicate Finder and Empty Directory Finder tools are run manually and
+     * are not appropriate for Jobs. Therefore they are not loaded here.
+     *
+     * @param context The Context, null is allowed
+     * @param internalName Internal name of desired tool, or null/empty for all tools
+     * @param  toolObjects ArrayList of AbstractTool to ADD new items to
+     * @return ArrayList of tools
+     * @throws Exception File system and parse exceptions
+     */
+    public ArrayList<AbstractTool> loadAllTools(Context context, String internalName, ArrayList<AbstractTool> toolObjects) throws Exception
+    {
+        if (internalName != null && internalName.length() == 0)
+            internalName = null;
+
+        File toolDir = null;
+        ToolParserI toolParser = null;
+
+        if (toolList != toolObjects)
+            toolList = new ArrayList<AbstractTool>();
+
+        // begin ArchiverUI
+        if (internalName == null || internalName.equals(ArchiverTool.INTERNAL_NAME))
+        {
+            toolParser = new ArchiverParser();
+            ArchiverTool tmpArchiver = new ArchiverTool(context);
+            toolDir = new File(tmpArchiver.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end ArchiverUI
+
+        // begin CleanupUI
+        if (internalName == null || internalName.equals(CleanupTool.INTERNAL_NAME))
+        {
+            toolParser = new CleanupParser();
+            CleanupTool tmpCleanup = new CleanupTool(context);
+            toolDir = new File(tmpCleanup.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end CleanupUI
+
+        // begin EmailUI
+        if (internalName != null && internalName.equals(EmailTool.INTERNAL_NAME)) // must be specified
+        {
+            toolParser = new EmailParser();
+            EmailTool tmpEmail = new EmailTool(context);
+            toolDir = new File(tmpEmail.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end EmailUI
+
+        // begin OperationsUI
+        if (internalName == null || internalName.equals(OperationsTool.INTERNAL_NAME))
+        {
+            toolParser = new OperationParser();
+            OperationsTool tmpOperation = new OperationsTool(context);
+            toolDir = new File(tmpOperation.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end OperationsUI
+
+        // begin JunkRemover
+        if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
+        {
+            toolParser = new JunkRemoverParser();
+            JunkRemoverTool tmpJrt = new JunkRemoverTool(context);
+            toolDir = new File(tmpJrt.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end JunkRemover
+
+        // begin Renamer
+        if (internalName == null || internalName.equals(RenamerTool.INTERNAL_NAME))
+        {
+            toolParser = new RenamerParser();
+            RenamerTool tmpRenamer = new RenamerTool(context);
+            toolDir = new File(tmpRenamer.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end Renamer
+
+        // begin SleepUI Tool
+        if (internalName == null || internalName.equals(SleepTool.INTERNAL_NAME))
+        {
+            toolParser = new SleepParser();
+            SleepTool tmpSleep = new SleepTool(context);
+            toolDir = new File(tmpSleep.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end SleepUI Tool
+
+        // TODO EXTEND+ Add other tool parsers here
+
+        // sort the list
+        Collections.sort(toolList);
+
+        // append new toolList to separate toolObjects
+        if (toolObjects != null && toolList != toolObjects)
+        {
+            for (AbstractTool tool : toolList)
+            {
+                toolObjects.add(tool);
+            }
+            return toolObjects;
+        }
+        return toolList;
     }
 
     /**
@@ -300,132 +425,6 @@ public class Tools
         }
 
         return tool;
-    }
-
-    /**
-     * Load all tools of a particular internalName from disk
-     * <br/>
-     * Creates an ArrayList of AbstractTool that is populated and returned
-     *
-     * @param context The Context, null is allowed
-     * @param internalName Internal name of desired tool, or null/empty for all tools
-     * @return ArrayList of tools
-     * @throws Exception File system and parse exceptions
-     */
-    public ArrayList<AbstractTool> loadAllTools(Context context, String internalName) throws Exception
-    {
-        toolList = new ArrayList<AbstractTool>();
-        return loadAllTools(context, internalName, toolList);
-    }
-
-    /**
-     * Load all tools of a particular internalName from disk
-     * <p><br>
-     * Note the Duplicate Finder and Empty Directory Finder tools are run manually and
-     * are not appropriate for Jobs. Therefore they are not loaded here.
-     *
-     * @param context The Context, null is allowed
-     * @param internalName Internal name of desired tool, or null/empty for all tools
-     * @param  toolObjects ArrayList of AbstractTool to ADD new items to
-     * @return ArrayList of tools
-     * @throws Exception File system and parse exceptions
-     */
-    public ArrayList<AbstractTool> loadAllTools(Context context, String internalName, ArrayList<AbstractTool> toolObjects) throws Exception
-    {
-        if (internalName != null && internalName.length() == 0)
-            internalName = null;
-
-        File toolDir = null;
-        ToolParserI toolParser = null;
-
-        if (toolList != toolObjects)
-            toolList = new ArrayList<AbstractTool>();
-
-        // begin ArchiverUI
-        if (internalName == null || internalName.equals(ArchiverTool.INTERNAL_NAME))
-        {
-            toolParser = new ArchiverParser();
-            ArchiverTool tmpArchiver = new ArchiverTool(context);
-            toolDir = new File(tmpArchiver.getDirectoryPath());
-            toolList = scanTools(context, toolList, toolParser, toolDir);
-        }
-        // end ArchiverUI
-
-        // begin CleanupUI
-        if (internalName == null || internalName.equals(CleanupTool.INTERNAL_NAME))
-        {
-            toolParser = new CleanupParser();
-            CleanupTool tmpCleanup = new CleanupTool(context);
-            toolDir = new File(tmpCleanup.getDirectoryPath());
-            toolList = scanTools(context, toolList, toolParser, toolDir);
-        }
-        // end CleanupUI
-
-        // begin EmailUI
-        if (internalName != null && internalName.equals(EmailTool.INTERNAL_NAME)) // must be specified
-        {
-            toolParser = new EmailParser();
-            EmailTool tmpEmail = new EmailTool(context);
-            toolDir = new File(tmpEmail.getDirectoryPath());
-            toolList = scanTools(context, toolList, toolParser, toolDir);
-        }
-        // end EmailUI
-
-        // begin OperationsUI
-        if (internalName == null || internalName.equals(OperationsTool.INTERNAL_NAME))
-        {
-            toolParser = new OperationParser();
-            OperationsTool tmpOperation = new OperationsTool(context);
-            toolDir = new File(tmpOperation.getDirectoryPath());
-            toolList = scanTools(context, toolList, toolParser, toolDir);
-        }
-        // end OperationsUI
-
-        // begin JunkRemover
-        if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
-        {
-            toolParser = new JunkRemoverParser();
-            JunkRemoverTool tmpJrt = new JunkRemoverTool(context);
-            toolDir = new File(tmpJrt.getDirectoryPath());
-            toolList = scanTools(context, toolList, toolParser, toolDir);
-        }
-        // end JunkRemover
-
-        // begin Renamer
-        if (internalName == null || internalName.equals(RenamerTool.INTERNAL_NAME))
-        {
-            toolParser = new RenamerParser();
-            RenamerTool tmpRenamer = new RenamerTool(context);
-            toolDir = new File(tmpRenamer.getDirectoryPath());
-            toolList = scanTools(context, toolList, toolParser, toolDir);
-        }
-        // end Renamer
-
-        // begin SleepUI Tool
-        if (internalName == null || internalName.equals(SleepTool.INTERNAL_NAME))
-        {
-            toolParser = new SleepParser();
-            SleepTool tmpSleep = new SleepTool(context);
-            toolDir = new File(tmpSleep.getDirectoryPath());
-            toolList = scanTools(context, toolList, toolParser, toolDir);
-        }
-        // end SleepUI Tool
-
-        // TODO EXTEND+ Add other tool parsers here
-
-        // sort the list
-        Collections.sort(toolList);
-
-        // append new toolList to separate toolObjects
-        if (toolObjects != null && toolList != toolObjects)
-        {
-            for (AbstractTool tool : toolList)
-            {
-                toolObjects.add(tool);
-            }
-            return toolObjects;
-        }
-        return toolList;
     }
 
     /**

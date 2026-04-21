@@ -175,7 +175,7 @@ public abstract class AbstractDaemon
      * Receive a response from the other end
      *
      * @param log Log line, if any
-     * @param timeout Timeout value in milliseconds
+     * @param timeout Timeout value in milliseconds, < 0 = default timeout
      * @return String of response text
      * @throws Exception
      */
@@ -263,7 +263,7 @@ public abstract class AbstractDaemon
         }
     }
 
-    private void stopDaemon(String errorMessage, String exceptionMessage)
+    public void stopDaemon(String errorMessage, String exceptionMessage)
     {
         if (context.fault)
         {

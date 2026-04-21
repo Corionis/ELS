@@ -44,6 +44,8 @@ hs_err_pid*
 /mock/test/
 /mock/test-backup/
 /mock/tools/
+/mock/reset-media.sh
+/mock-alt/
 /out
 /src/META-INF/services/javax.annotation.processing.Processor
 /mock/getLauncher.sh

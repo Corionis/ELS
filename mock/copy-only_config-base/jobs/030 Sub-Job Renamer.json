@@ -3,33 +3,35 @@
   "tasks": [
     {
       "configName": "020 Multi-Renamer Publisher L",
+      "internalName": "jobs",
+      "emailTool": "",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "jobs",
-      "origins": [],
       "publisherKey": "",
       "publisherPath": "",
       "subscriberKey": "",
-      "subscriberOverride": "true",
+      "subscriberOverride": "",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     },
     {
       "configName": "UPPER",
+      "internalName": "Renamer",
+      "emailTool": "",
       "hintsKey": "",
       "hintsOverrideHost": false,
       "hintsPath": "",
       "hintsRemote": false,
-      "internalName": "Renamer",
-      "origins": [],
       "publisherKey": "_CACHEDLASTTASK_",
       "publisherPath": "",
       "subscriberKey": "",
       "subscriberOverride": "true",
       "subscriberPath": "",
-      "subscriberRemote": false
+      "subscriberRemote": false,
+      "origins": []
     }
   ]
 }

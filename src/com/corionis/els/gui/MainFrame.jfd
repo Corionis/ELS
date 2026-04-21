@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.8" encoding: "UTF-8"
+JFDML JFormDesigner: "8.3" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -132,15 +132,19 @@ new FormModel {
 							"maximumSize": new java.awt.Dimension( 14, 26 )
 							"cursor": #Cursor0
 						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelUserToolbar"
+							"toolTipText": new FormMessage( null, "Navigator.labelUserToolbar.toolTipText" )
+						} )
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "East"
 					} )
 				} )
 				add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 					name: "vSpacer5"
-					"preferredSize": new java.awt.Dimension( 2, 2 )
-					"minimumSize": new java.awt.Dimension( 2, 2 )
-					"maximumSize": new java.awt.Dimension( 2, 2 )
+					"preferredSize": new java.awt.Dimension( 2, 3 )
+					"minimumSize": new java.awt.Dimension( 2, 3 )
+					"maximumSize": new java.awt.Dimension( 2, 3 )
 				} )
 				add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 					name: "tabbedPaneMain"
@@ -561,7 +565,6 @@ new FormModel {
 									"verifyInputWhenFocusTarget": false
 									"font": new java.awt.Font( "Courier 10 Pitch", 0, 12 )
 									"wrapStyleWord": true
-									addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "generalOptionsMouseClicked", true ) )
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPane.Log.tab.title" )
@@ -576,11 +579,10 @@ new FormModel {
 									"editable": false
 									"minimumSize": new java.awt.Dimension( 0, 0 )
 									"contentType": "text/html"
-									addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "generalOptionsMouseClicked", true ) )
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPane.Properties.tab.title" )
-								"mnemonic": new FormMessage( null, "Navigator.scrollPaneProperties.tab.mnemonic_2" )
+								"mnemonic": new FormMessage( null, "Navigator.scrollPaneProperties.tab.mnemonic" )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
 							"value": "right"
@@ -760,7 +762,6 @@ new FormModel {
 										name: "scrollPaneGeneral"
 										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
 											name: "generalOptions"
-											addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "generalOptionsMouseClicked", true ) )
 											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 												name: "panelGettingStartedCard"
 												add( new FormComponent( "javax.swing.JLabel" ) {
@@ -776,7 +777,7 @@ new FormModel {
 											} )
 											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 												"$columnSpecs": "0, 186, 12, 0, left:24"
-												"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
+												"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
 												"$hGap": 4
 												"$vGap": 4
 												"$alignTop": true
@@ -831,7 +832,7 @@ new FormModel {
 												} )
 												add( new FormComponent( "javax.swing.JTextField" ) {
 													name: "textFieldKey"
-													"preferredSize": new java.awt.Dimension( 240, 30 )
+													"preferredSize": new java.awt.Dimension( 240, 34 )
 													"name": "key"
 													"toolTipText": new FormMessage( null, "Navigator.textFieldKey.toolTipText" )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -923,7 +924,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JTextField" ) {
 													name: "textFieldTimeout"
 													"name": "timeout"
-													"preferredSize": new java.awt.Dimension( 104, 30 )
+													"preferredSize": new java.awt.Dimension( 104, 34 )
 													"minimumSize": new java.awt.Dimension( 101104, 30 )
 													"toolTipText": new FormMessage( null, "Navigator.textFieldTimeout.toolTipText" )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -1544,6 +1545,192 @@ new FormModel {
 										"title": new FormMessage( null, "Navigator.bibliographyTab.tab.title" )
 										"mnemonic": new FormMessage( null, "Navigator.bibliographyTab.tab.mnemonic_2" )
 									} )
+									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+										name: "userTab"
+										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+											"$columnSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0"
+											"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
+											"$hGap": 4
+											"$vGap": 4
+											"$alignLeft": true
+											"$alignTop": true
+										} ) {
+											name: "panelUserOptions"
+											add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+												name: "hSpacer11"
+												"preferredSize": new java.awt.Dimension( 4, 10 )
+												"minimumSize": new java.awt.Dimension( 4, 12 )
+												"maximumSize": new java.awt.Dimension( 4, 32767 )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+											add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+												name: "hSpacer13"
+												"preferredSize": new java.awt.Dimension( 180, 10 )
+												"minimumSize": new java.awt.Dimension( 180, 12 )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 2
+												"gridwidth": 2
+												"hAlign": 5
+											} )
+											add( new FormComponent( "javax.swing.JLabel" ) {
+												name: "labelUserName"
+												"text": new FormMessage( null, "Navigator.labelUserName.text" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 1
+												"gridy": 1
+											} )
+											add( new FormComponent( "javax.swing.JTextField" ) {
+												name: "textFieldUserName"
+												"name": "userName"
+												"margin": new java.awt.Insets( 0, 6, 0, 6 )
+												"toolTipText": new FormMessage( null, "Navigator.textFieldUserName.toolTipText" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 2
+												"gridy": 1
+												"hAlign": 5
+												"gridwidth": 2
+											} )
+											add( new FormComponent( "javax.swing.JButton" ) {
+												name: "buttonInviteUser"
+												"text": new FormMessage( null, "Navigator.buttonInviteUser.text" )
+												"toolTipText": new FormMessage( null, "Navigator.buttonInviteUser.toolTipText" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 4
+												"gridy": 1
+											} )
+											add( new FormComponent( "javax.swing.JLabel" ) {
+												name: "labelUserType"
+												"text": new FormMessage( null, "Navigator.labelUserType.text" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 1
+												"gridy": 2
+											} )
+											add( new FormComponent( "javax.swing.JComboBox" ) {
+												name: "comboBoxUserType"
+												"name": "userType"
+												"toolTipText": new FormMessage( null, "Navigator.comboBoxUserType.toolTipText" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 2
+												"gridy": 2
+												"gridwidth": 2
+												"hAlign": 2
+											} )
+											add( new FormComponent( "javax.swing.JLabel" ) {
+												name: "labelUserLibraries"
+												"text": new FormMessage( null, "Navigator.labelUserLibraries.text" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 1
+												"gridy": 3
+											} )
+											add( new FormComponent( "javax.swing.JComboBox" ) {
+												name: "comboBoxLibraries"
+												"name": "userLibraries"
+												"toolTipText": new FormMessage( null, "Navigator.comboBoxLibraries.toolTipText" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 2
+												"gridy": 3
+												"gridwidth": 2
+												"hAlign": 2
+											} )
+											add( new FormComponent( "javax.swing.JButton" ) {
+												name: "buttonAddUserLibrary"
+												"text": new FormMessage( null, "Navigator.buttonAddUserLibrary.text" )
+												"toolTipText": new FormMessage( null, "Navigator.buttonAddUserLibrary.toolTipText" )
+												"preferredSize": new java.awt.Dimension( 84, 34 )
+												"minimumSize": new java.awt.Dimension( 84, 34 )
+												"maximumSize": new java.awt.Dimension( 84, 34 )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 4
+												"gridy": 3
+											} )
+											add( new FormComponent( "javax.swing.JButton" ) {
+												name: "buttonDeleteUserLibrary"
+												"text": new FormMessage( null, "Navigator.buttonDeleteUserLibrary.text" )
+												"toolTipText": new FormMessage( null, "Navigator.buttonDeleteUserLibrary.toolTipText" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 6
+												"gridy": 3
+												"hAlign": 2
+											} )
+											add( new FormComponent( "javax.swing.JButton" ) {
+												name: "buttonUpdateUserLibrary"
+												"text": new FormMessage( null, "Navigator.buttonUpdateUserLibrary.text" )
+												"toolTipText": new FormMessage( null, "Navigator.buttonUpdateUserLibrary.toolTipText" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 8
+												"gridy": 3
+												"hAlign": 2
+											} )
+											add( new FormComponent( "javax.swing.JLabel" ) {
+												name: "labelGrants"
+												"text": new FormMessage( null, "Navigator.labelGrants.text" )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 1
+												"gridy": 4
+												"insets": new java.awt.Insets( 7, 0, 0, 0 )
+											} )
+											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+												name: "scrollPaneGrants"
+												add( new FormComponent( "javax.swing.JTable" ) {
+													name: "tableGrants"
+													"autoCreateRowSorter": true
+													"autoResizeMode": 1
+													"fillsViewportHeight": true
+													"rowSelectionAllowed": false
+													"showVerticalLines": false
+												} )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 2
+												"gridy": 4
+												"gridwidth": 7
+												"gridheight": 8
+												"weightx": 0.5
+												"weighty": 0.5
+												"hAlign": 5
+												"vAlign": 5
+											} )
+										}, new FormLayoutConstraints( class java.lang.String ) {
+											"value": "Center"
+										} )
+										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+											name: "panelUserBottom"
+											add( new FormComponent( "javax.swing.JLabel" ) {
+												name: "labelUserCounts"
+												"text": new FormMessage( null, "Navigator.labelUserCounts.text" )
+												"horizontalAlignment": 0
+											}, new FormLayoutConstraints( class java.lang.String ) {
+												"value": "Center"
+											} )
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+												"alignment": 2
+												"hgap": 4
+												"vgap": 4
+											} ) {
+												name: "panelUsertButtons"
+												add( new FormComponent( "javax.swing.JButton" ) {
+													name: "buttonReadAll"
+													"text": new FormMessage( null, "Navigator.buttonReadAll.text" )
+													"mnemonic": new FormMessage( null, "Navigator.buttonReadAll.mnemonic" )
+												} )
+												add( new FormComponent( "javax.swing.JButton" ) {
+													name: "buttonWriteAll"
+													"text": new FormMessage( null, "Navigator.buttonWriteAll.text" )
+													"mnemonic": new FormMessage( null, "Navigator.buttonWriteAll.mnemonic" )
+												} )
+												add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+													name: "hSpacer12"
+													"preferredSize": new java.awt.Dimension( 8, 10 )
+													"minimumSize": new java.awt.Dimension( 8, 12 )
+												} )
+											}, new FormLayoutConstraints( class java.lang.String ) {
+												"value": "East"
+											} )
+										}, new FormLayoutConstraints( class java.lang.String ) {
+											"value": "Last"
+										} )
+									}, new FormLayoutConstraints( null ) {
+										"title": new FormMessage( null, "LibrariesUI.user" )
+										"mnemonic": new FormMessage( null, "Navigator.userTab.tab.mnemonic" )
+									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "Center"
 								} )
@@ -1572,7 +1759,7 @@ new FormModel {
 								name: "cancelButton"
 								"text": new FormMessage( null, "Libraries.undo" )
 								"toolTipText": new FormMessage( null, "Libraries.cancel.toolTip.text" )
-								"mnemonic": new FormMessage( null, "Navigator.cancelButton.mnemonic_2" )
+								"mnemonic": new FormMessage( null, "Navigator.cancelButton.mnemonic" )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 1
 							} )
@@ -1583,6 +1770,12 @@ new FormModel {
 						"title": new FormMessage( null, "Navigator.splitPane.Libraries.tab.title" )
 						"mnemonic": new FormMessage( null, "Navigator.splitPane.Libraries.tab.mnemonic" )
 					} )
+				} )
+				add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+					name: "vSpacer7"
+					"preferredSize": new java.awt.Dimension( 2, 1 )
+					"minimumSize": new java.awt.Dimension( 2, 1 )
+					"maximumSize": new java.awt.Dimension( 2, 1 )
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "Center"
@@ -1595,6 +1788,14 @@ new FormModel {
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "West"
 			} )
+			add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+				name: "hSpacer9"
+				"preferredSize": new java.awt.Dimension( 2, 10 )
+				"minimumSize": new java.awt.Dimension( 2, 12 )
+				"maximumSize": new java.awt.Dimension( 2, 32767 )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "East"
+			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 				"$columnSpecs": "0, 0, 0, 0"
 				"$rowSpecs": "0"
@@ -1602,6 +1803,9 @@ new FormModel {
 				"$vGap": 4
 			} ) {
 				name: "panelStatus"
+				"preferredSize": new java.awt.Dimension( 72, 22 )
+				"minimumSize": new java.awt.Dimension( 72, 22 )
+				"maximumSize": new java.awt.Dimension( 72, 22 )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "labelStatusLeft"
 					"horizontalAlignment": 2
@@ -1633,14 +1837,6 @@ new FormModel {
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "South"
-			} )
-			add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
-				name: "hSpacer9"
-				"preferredSize": new java.awt.Dimension( 2, 10 )
-				"minimumSize": new java.awt.Dimension( 2, 12 )
-				"maximumSize": new java.awt.Dimension( 2, 32767 )
-			}, new FormLayoutConstraints( class java.lang.String ) {
-				"value": "East"
 			} )
 			menuBar: new FormContainer( "javax.swing.JMenuBar", new FormLayoutManager( class javax.swing.JMenuBar ) ) {
 				name: "menuBarMain"
@@ -1870,8 +2066,9 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemAddBookmark"
 						"text": new FormMessage( null, "Navigator.menu.AddBookmark.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.AddBookmark.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemAddBookmark.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/bookmark.png" )
+						"accelerator": static javax.swing.KeyStroke getKeyStroke( 66, 130, false )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemBookmarksDelete"
@@ -1984,7 +2181,7 @@ new FormModel {
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 115, 0, false )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separator21"
+						name: "separatorHints"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemAuthKeys"
@@ -1999,7 +2196,7 @@ new FormModel {
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/hint-keys.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separator8"
+						name: "separatorLists"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemBlacklist"
@@ -2023,7 +2220,7 @@ new FormModel {
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/email.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separator2"
+						name: "separatorPreferences"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSettings"
@@ -2185,11 +2382,15 @@ new FormModel {
 						"maximumSize": new java.awt.Dimension( 14, 21 )
 						"cursor": #Cursor0
 					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelUserMenu"
+						"toolTipText": new FormMessage( null, "Navigator.labelUserToolbar.toolTipText" )
+					} )
 				} )
 			}
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 5, 0 )
-			"size": new java.awt.Dimension( 1040, 980 )
+			"size": new java.awt.Dimension( 1040, 955 )
 		} )
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "popupMenuBrowser"

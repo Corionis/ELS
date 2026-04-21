@@ -1,0 +1,21 @@
+To: ${userName}
+
+Greetings from ${publisherName} at ${publisherRepo} :
+
+To start the process of connecting to ${publisherRepo} with ELS some basic information is needed.
+
+Please reply with answers to the questions below.
+
+When received another email will be sent with your initial ELS configuration files and instructions on how to setup ELS from there.
+
+ 1. What do you want to call your ELS system, e.g. ${publisherRepo}?
+
+ 2. What is your domain name or outside Internet IP address? You can use WhatIsMyIP.com® at https://www.whatismyip.com/ or similar to find the IPv4 address.
+
+ 3. What type of computer do you have Windows, Linux or Mac?
+
+
+ELS may be downloaded from the website: https://www.elsnavigator.com/
+
+
+ -- ${publisherName}

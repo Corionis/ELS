@@ -110,7 +110,7 @@ public class DuplicateFinderUI extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("DuplicateFinder.help"), "duplicatefinder_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("DuplicateFinder.help"), "duplicatefinder_" + context.preferences.getLocale() + ".html", false);
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }
@@ -183,9 +183,9 @@ public class DuplicateFinderUI extends JDialog
 
         // path
         TableColumn column = tableDupes.getColumnModel().getColumn(0);
-        DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
-        cellRenderer.setHorizontalAlignment(JLabel.LEFT);
-        column.setCellRenderer(cellRenderer);
+        DupesTableCellRenderer customCellRenderer = new DupesTableCellRenderer(context, tableDupes);
+        customCellRenderer.setHorizontalAlignment(JLabel.LEFT);
+        column.setCellRenderer(customCellRenderer);
         column.setMinWidth(32);
         column.setPreferredWidth(320);
         column.setWidth(320);
@@ -193,7 +193,7 @@ public class DuplicateFinderUI extends JDialog
 
         // size
         column = tableDupes.getColumnModel().getColumn(1);
-        cellRenderer = new DefaultTableCellRenderer();
+        DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
         cellRenderer.setHorizontalAlignment(JLabel.RIGHT);
         column.setCellRenderer(cellRenderer);
         column.setMinWidth(18);

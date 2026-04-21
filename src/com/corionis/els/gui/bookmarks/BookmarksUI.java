@@ -9,6 +9,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
 public class BookmarksUI extends JDialog 
 {
@@ -30,6 +32,9 @@ public class BookmarksUI extends JDialog
 
         model = new BookmarksTableModel(context, bookmarks);
         bookmarksTable.setModel(model);
+
+        TableColumn tColumn = bookmarksTable.getColumnModel().getColumn(1);
+        tColumn.setCellRenderer(new ColumnColorRenderer());
 
         if (context.preferences.getBookmarksXpos() != -1 && Utils.isOnScreen(context.preferences.getBookmarksXpos(),
                 context.preferences.getBookmarksYpos()))
@@ -149,6 +154,25 @@ public class BookmarksUI extends JDialog
     private void windowClosing(WindowEvent e)
     {
         cancelButton.doClick();
+    }
+
+    // ================================================================================================================
+
+    class ColumnColorRenderer extends DefaultTableCellRenderer
+    {
+        Color backgroundColor, foregroundColor;
+        public ColumnColorRenderer()
+        {
+            super();
+            this.backgroundColor = context.mainFrame.scrollPaneLibrariesIgnorePatterns.getBackground();
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,   boolean hasFocus, int row, int column)
+        {
+            Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            cell.setBackground(context.mainFrame.scrollPaneLibrariesIgnorePatterns.getBackground());
+            return cell;
+        }
     }
 
     // ================================================================================================================

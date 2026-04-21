@@ -1218,7 +1218,7 @@ implements <a href="FlatComponentExtension.html" title="interface in com.formdev
      // close tab here
  } );
  </code></pre>
- If you need to check whether a modifier key (e.g. Alt or Shift) was pressed
+ If you need to check whether a modifier libraryKey (e.g. Alt or Shift) was pressed
  while the user clicked the tab close button, use <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/java/awt/EventQueue.html?is-external=true#getCurrentEvent()" title="class or interface in java.awt" class="externalLink"><code>EventQueue.getCurrentEvent()</code></a>
  to get current event, check whether it is a <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/java/awt/event/MouseEvent.html?is-external=true" title="class or interface in java.awt.event" class="externalLink"><code>MouseEvent</code></a>
  and invoke its methods. E.g.

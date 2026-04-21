@@ -1,0 +1,101 @@
+<html>
+<head>
+    <style>
+        html, body {
+            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+        }
+
+        div {
+            margin-left: 10px;
+            margin-right: 4px;
+        }
+
+        p {
+            margin-left: 10px;
+            margin-top: -8px;
+            margin-right: 4px;
+        }
+
+        table {
+            border-bottom: 1px solid;
+            margin: 0 4px 4px;
+            padding: 4px;
+            width: 100%;
+        }
+
+        th {
+            border-bottom: 1px solid ;
+            text-align: left;
+        }
+
+        td {
+            text-align: left;
+        }
+
+        ul {
+            margin-left: 22px;
+        }
+
+        a {
+            font-weight: bold;
+        }
+
+        #opts {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+<h2>Send Invitation / Update Email</h2>
+
+<p>To make the process of getting a new user configured and connected to this ELS instance easier this tool
+uses Email Templates and builds an archive tar or zip to send the user the needed configuration files.</p>
+<br/>
+
+<h3>Options</h3>
+<ul>
+    <li id="opts">Template<br/>
+        Select the desired email template in either HTML or text format.</li>
+
+    <li id="opts">Add to Authentication Keys<br/>
+        To allow the user to connect their Library Key must be in the Authentication Keys.</li>
+
+    <li id="opts">Add to Hint Keys<br/>
+        Add only if the user will be using Hints and a Hint Tracker/Server.</li>
+
+    <li id="opts">Template<br/>
+        Add the user's Host IP address to the Whitelist connection filtering.</li>
+
+    <li id="opts">Server<br/>
+        Select the desired Email Server to send the email. For beginning emails be sure
+        it is a server you have access to so you receive their reply with answers to
+        the beginning questions.</li>
+
+    <li id="opts">To<br/>
+        The user's email address. The default value is taken from the currently-selected
+        Library General tab, Email address.</li>
+</ul>
+
+<h3>Buttons</h3>
+<ul>
+    <li id="opts">Preview<br/>
+        View a formatted version of the currently-selected template.</li>
+
+    <li id="opts">Browser<br/>
+        View a formatted version in your default browser. Sometimes a better
+        representation than Preview.</li>
+
+    <li id="opts">Archive<br/>
+        Create an archive tar or zip only. If the user's General, Flavor is
+        Windows a zip is created, otherwise a tar file.</li>
+
+    <li id="opts">Send<br/>
+        Create archive tar or zip for attachment, perform any Adds, then send
+        the selected email to the user</li>
+</ul>
+
+<br/>
+<br/>
+
+</body>
+</html>

@@ -25,7 +25,7 @@ import javax.swing.event.HyperlinkListener;
 /**
  * ELS Help dialog
  */
-public class NavHelp extends JDialog
+public class NavHelp extends JFrame
 {
     private transient Logger logger = LogManager.getLogger("applog");
     private Context context;
@@ -40,15 +40,13 @@ public class NavHelp extends JDialog
     /**
      * Display help or information
      *
-     * @param owner Owner of this dialog
      * @param prev Previous focused component
      * @param context The Context
      * @param title Title for dialog
      * @param resourceFilename Internal resource filename or Internet URL
      */
-    public NavHelp(Window owner, Component prev, Context context, String title, String resourceFilename, boolean modal)
+    public NavHelp(Component prev, Context context, String title, String resourceFilename, boolean modal)
     {
-        super(owner);
         previous = prev;
         this.context = context;
 
@@ -119,7 +117,7 @@ public class NavHelp extends JDialog
         else
         {
             setSize(600, 550);
-            Point position = owner.getLocation();
+            Point position = getLocation();
             position.x += 32;
             position.y += 32;
             setLocation(position);
@@ -129,7 +127,6 @@ public class NavHelp extends JDialog
 
         if (!fault)
         {
-            setModal(modal);
             setVisible(true);
             buttonFocus();
         }
@@ -230,7 +227,7 @@ public class NavHelp extends JDialog
                 {
                     URL url = hyperlinkEvent.getURL();
                     URI uri = url.toURI();
-                    Desktop.getDesktop().browse(uri);
+                    Desktop.getDesktop().browse(uri); // TODO Track all uses of browse() and show dialog to close browser when exiting
                 }
                 catch (Exception e)
                 {
@@ -268,6 +265,7 @@ public class NavHelp extends JDialog
         //======== this ========
         setName(context.cfg.gs("NavHelp.name"));
         setMinimumSize(new Dimension(100, 50));
+        setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
@@ -295,7 +293,6 @@ public class NavHelp extends JDialog
                 {
 
                     //---- helpText ----
-                    helpText.setEditable(false);
                     helpText.setContentType("text/html");
                     scrollPane.setViewportView(helpText);
                 }

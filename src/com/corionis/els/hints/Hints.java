@@ -397,7 +397,7 @@ public class Hints
                             {
                                 ++falses;
                                 summary = "False, " + summary;
-                                hint.setStatus(key.system, "Done");
+                                hint.setStatus(key.system, "False");
                             }
 
                             if (mismatchesFile != null)
@@ -513,7 +513,6 @@ public class Hints
         {
             if (lib.rescanNeeded)
             {
-                //logger.info("Rescan required for library: " + lib.name);
                 repo.scan(lib.name);
             }
         }
@@ -564,7 +563,9 @@ public class Hints
                 return;
 
             Hint hint = new Hint();
-            hint.author = "User";
+            hint.author = context.publisherUser.getName();
+            if (hint.author == null || hint.author.isEmpty())
+                hint.author = "User";
             hint.system = hk.system;
 
             String act = action.trim().toLowerCase();

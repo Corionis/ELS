@@ -154,7 +154,7 @@ public class ArchiverTool extends AbstractTool
         return configName;
     }
 
-     @Override
+    @Override
     public String getDisplayName()
     {
         return displayName;

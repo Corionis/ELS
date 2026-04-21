@@ -1,0 +1,26 @@
+{
+  "configName": "702 Cleanup",
+  "tasks": [
+    {
+      "configName": "Archive Files 2 days",
+      "internalName": "Cleanup",
+      "emailTool": "",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "publisherKey": "",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverride": "",
+      "subscriberPath": "",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "location": "output-cleanup",
+          "type": 6
+        }
+      ]
+    }
+  ]
+}

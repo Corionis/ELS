@@ -343,6 +343,23 @@ public class NavTreeNode extends DefaultMutableTreeNode
         return (NavTreeUserObject) this.userObject;
     }
 
+    public boolean hasDirectories()
+    {
+        if (children != null)
+        {
+            int count = 0;
+            Enumeration e = children.elements();
+            while (e.hasMoreElements())
+            {
+                NavTreeNode node = (NavTreeNode) e.nextElement();
+                NavTreeUserObject tuo = node.getUserObject();
+                if (tuo.isDir)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public int indexInTable()
     {
         int index = -1;
@@ -518,9 +535,6 @@ public class NavTreeNode extends DefaultMutableTreeNode
         {
             switch (myTuo.type)
             {
-                case NavTreeUserObject.BOOKMARKS:
-                    //logger.debug("bookmarks");
-                    break;
                 case NavTreeUserObject.SYSTEM: // for completeness, hidden
                     //logger.debug("system");
                     break;

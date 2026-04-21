@@ -1,0 +1,26 @@
+To: ${userName}
+
+Greetings from ${publisherName} at ${publisherRepo} :
+
+The attachment contains updates for connecting to ${publisherRepo} with ELS:
+
+ 1. If ELS is running please close it.
+
+ 2. Unpack the attached file into your [Home]/.els/ directory. You may need to "show hidden files" to see it.
+
+    a. Be sure the directory you select contains at least these subdirectories:
+        • bin/
+        • libraries/
+        • local/
+        • rt/
+        • system/
+
+ 3. Continue normally.
+
+
+More information is available in the ELS Wiki Documentation at https://github.com/Corionis/ELS/wiki and ELS Discussions at https://github.com/Corionis/ELS/discussions.
+
+
+Hope you are enjoying ${publisherRepo}!
+
+-- ${publisherName}

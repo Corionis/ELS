@@ -60,6 +60,13 @@ public class Preferences implements Serializable
     private String defaultEmailServer = "";
     private int directoryPickerXpos = -1;
     private int directoryPickerYpos = 0;
+    private int emailEditorHeight = 320;
+    private int emailEditorWidth = 460;
+    private int emailEditorXpos = -1;
+    private int emailEditorYpos = 0;
+    private String emailInviteLastServer = "";
+    private int emailInviteXpos = -1;
+    private int emailInviteYpos = 0;
     private int fileEditorHeight = 365;
     private int fileEditorWidth = 425;
     private int fileEditorXpos = -1;
@@ -127,6 +134,7 @@ public class Preferences implements Serializable
     private boolean showArrows = true;
     private boolean showCcpConfirmation = true;
     private boolean showDeleteConfirmation = true;
+    private boolean showDevOptions = false;
     private boolean showDnDConfirmation = true;
     private boolean showGettingStarted = true;
     private boolean showMnemonics = true;
@@ -196,6 +204,11 @@ public class Preferences implements Serializable
     private int toolsSleepYpos = 0;
     private boolean tooltipsLargeTables = true;
     private boolean useLastPublisherSubscriber = true;
+    private int userGrantsReadWidth = 64;
+    private int userGrantsWriteWidth = 64;
+    private boolean usersEnabled = false;
+    private boolean wordWrap = false;
+    //
     private transient Context context;
     private transient boolean lookAndFeelInitialized = false;
     /**
@@ -344,38 +357,13 @@ public class Preferences implements Serializable
                 context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setWidth(getCollectionOneDateWidth());
                 setTableSort(context.mainFrame.tableCollectionOne, getCollectionOneSortColumn(), getCollectionOneSortDirection());
 
-                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context, context.mainFrame.tableCollectionOne);
-                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setCellRenderer(btcr);
-                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setCellRenderer(btcr);
-                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setCellRenderer(btcr);
-            }
-        }
-
-        if (table == null || table.getName().equalsIgnoreCase("tableCollectionTwo"))
-        {
-            context.mainFrame.splitPaneCollectionTwo.setDividerLocation(getCollectionTwoDividerLocation());
-            if (getCollectionTwoTreeWidth() > -1) // added 11 April 2025 so will be missing in previous version's data
-            {
-                context.mainFrame.scrollPaneTreeCollectionTwo.setSize(getCollectionTwoTreeWidth(), context.mainFrame.scrollPaneTreeCollectionTwo.getHeight());
-                context.mainFrame.scrollPaneTableCollectionTwo.setSize(getCollectionTwoTableWidth(), context.mainFrame.scrollPaneTableCollectionTwo.getHeight());
-            }
-
-            if (context.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
-            {
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(0).setPreferredWidth(22);
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(0).setWidth(22);
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setPreferredWidth(getCollectionTwoNameWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setWidth(getCollectionTwoNameWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setPreferredWidth(getCollectionTwoSizeWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setWidth(getCollectionTwoSizeWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setPreferredWidth(getCollectionTwoDateWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setWidth(getCollectionTwoDateWidth());
-                setTableSort(context.mainFrame.tableCollectionTwo, getCollectionTwoSortColumn(), getCollectionTwoSortDirection());
-
-                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context, context.mainFrame.tableCollectionTwo);
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setCellRenderer(btcr);
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setCellRenderer(btcr);
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setCellRenderer(btcr);
+                BrowserTableCellRenderer btcrl = new BrowserTableCellRenderer(context, context.mainFrame.tableCollectionOne);
+                btcrl.setHorizontalAlignment(JLabel.LEFT);
+                BrowserTableCellRenderer btcrr = new BrowserTableCellRenderer(context, context.mainFrame.tableCollectionOne);
+                btcrr.setHorizontalAlignment(JLabel.RIGHT);
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setCellRenderer(btcrl);
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setCellRenderer(btcrr);
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setCellRenderer(btcrl);
             }
         }
 
@@ -400,10 +388,44 @@ public class Preferences implements Serializable
                 context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setWidth(getSystemOneDateWidth());
                 setTableSort(context.mainFrame.tableSystemOne, getSystemOneSortColumn(), getSystemOneSortDirection());
 
-                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context, context.mainFrame.tableSystemOne);
-                context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setCellRenderer(btcr);
-                context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setCellRenderer(btcr);
-                context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setCellRenderer(btcr);
+                BrowserTableCellRenderer btcrl = new BrowserTableCellRenderer(context, context.mainFrame.tableSystemOne);
+                btcrl.setHorizontalAlignment(JLabel.LEFT);
+                BrowserTableCellRenderer btcrr = new BrowserTableCellRenderer(context, context.mainFrame.tableSystemOne);
+                btcrr.setHorizontalAlignment(JLabel.RIGHT);
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setCellRenderer(btcrl);
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setCellRenderer(btcrr);
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setCellRenderer(btcrl);
+            }
+        }
+
+        if (table == null || table.getName().equalsIgnoreCase("tableCollectionTwo"))
+        {
+            context.mainFrame.splitPaneCollectionTwo.setDividerLocation(getCollectionTwoDividerLocation());
+            if (getCollectionTwoTreeWidth() > -1) // added 11 April 2025 so will be missing in previous version's data
+            {
+                context.mainFrame.scrollPaneTreeCollectionTwo.setSize(getCollectionTwoTreeWidth(), context.mainFrame.scrollPaneTreeCollectionTwo.getHeight());
+                context.mainFrame.scrollPaneTableCollectionTwo.setSize(getCollectionTwoTableWidth(), context.mainFrame.scrollPaneTableCollectionTwo.getHeight());
+            }
+
+            if (context.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
+            {
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(0).setPreferredWidth(22);
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(0).setWidth(22);
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setPreferredWidth(getCollectionTwoNameWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setWidth(getCollectionTwoNameWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setPreferredWidth(getCollectionTwoSizeWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setWidth(getCollectionTwoSizeWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setPreferredWidth(getCollectionTwoDateWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setWidth(getCollectionTwoDateWidth());
+                setTableSort(context.mainFrame.tableCollectionTwo, getCollectionTwoSortColumn(), getCollectionTwoSortDirection());
+
+                BrowserTableCellRenderer btcrl = new BrowserTableCellRenderer(context, context.mainFrame.tableCollectionTwo);
+                btcrl.setHorizontalAlignment(JLabel.LEFT);
+                BrowserTableCellRenderer btcrr = new BrowserTableCellRenderer(context, context.mainFrame.tableCollectionTwo);
+                btcrr.setHorizontalAlignment(JLabel.RIGHT);
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setCellRenderer(btcrl);
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setCellRenderer(btcrr);
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setCellRenderer(btcrl);
             }
         }
 
@@ -422,10 +444,13 @@ public class Preferences implements Serializable
                 context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setWidth(getSystemTwoDateWidth());
                 setTableSort(context.mainFrame.tableSystemTwo, getSystemTwoSortColumn(), getSystemTwoSortDirection());
 
-                BrowserTableCellRenderer btcr = new BrowserTableCellRenderer(context, context.mainFrame.tableSystemTwo);
-                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setCellRenderer(btcr);
-                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setCellRenderer(btcr);
-                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setCellRenderer(btcr);
+                BrowserTableCellRenderer btcrl = new BrowserTableCellRenderer(context, context.mainFrame.tableSystemTwo);
+                btcrl.setHorizontalAlignment(JLabel.LEFT);
+                BrowserTableCellRenderer btcrr = new BrowserTableCellRenderer(context, context.mainFrame.tableSystemTwo);
+                btcrr.setHorizontalAlignment(JLabel.RIGHT);
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setCellRenderer(btcrl);
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setCellRenderer(btcrr);
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setCellRenderer(btcrl);
             }
         }
     }
@@ -607,6 +632,41 @@ public class Preferences implements Serializable
     public int getDirectoryPickerYpos()
     {
         return directoryPickerYpos;
+    }
+
+    public int getEmailEditorHeight()
+    {
+        return emailEditorHeight;
+    }
+
+    public int getEmailEditorWidth()
+    {
+        return emailEditorWidth;
+    }
+
+    public int getEmailEditorXpos()
+    {
+        return emailEditorXpos;
+    }
+
+    public int getEmailEditorYpos()
+    {
+        return emailEditorYpos;
+    }
+
+    public String getEmailInviteLastServer()
+    {
+        return emailInviteLastServer;
+    }
+
+    public int getEmailInviteXpos()
+    {
+        return emailInviteXpos;
+    }
+
+    public int getEmailInviteYpos()
+    {
+        return emailInviteYpos;
     }
 
     public int getFileEditorHeight()
@@ -1217,6 +1277,16 @@ public class Preferences implements Serializable
         return toolsSleepYpos;
     }
 
+    public int getUserGrantsReadWidth()
+    {
+        return userGrantsReadWidth;
+    }
+
+    public int getUserGrantsWriteWidth()
+    {
+        return userGrantsWriteWidth;
+    }
+
     public void initLookAndFeel(String name, boolean isInitial) throws Exception
     {
         try
@@ -1409,6 +1479,11 @@ public class Preferences implements Serializable
         return showDeleteConfirmation;
     }
 
+    public boolean isShowDevOptions()
+    {
+        return showDevOptions;
+    }
+
     public boolean isShowDnDConfirmation()
     {
         return showDnDConfirmation;
@@ -1462,6 +1537,16 @@ public class Preferences implements Serializable
     public boolean isUseLastPublisherSubscriber()
     {
         return useLastPublisherSubscriber;
+    }
+
+    public boolean isUsersEnabled()
+    {
+        return usersEnabled;
+    }
+
+    public boolean isWordWrap()
+    {
+        return wordWrap;
     }
 
     public void setAccentColor(String accentColor)
@@ -1639,6 +1724,41 @@ public class Preferences implements Serializable
     public void setDirectoryPickerYpos(int directoryPickerYpos)
     {
         this.directoryPickerYpos = directoryPickerYpos;
+    }
+
+    public void setEmailEditorHeight(int emailEditorHeight)
+    {
+        this.emailEditorHeight = emailEditorHeight;
+    }
+
+    public void setEmailEditorWidth(int emailEditorWidth)
+    {
+        this.emailEditorWidth = emailEditorWidth;
+    }
+
+    public void setEmailEditorXpos(int emailEditorXpos)
+    {
+        this.emailEditorXpos = emailEditorXpos;
+    }
+
+    public void setEmailEditorYpos(int emailEditorYpos)
+    {
+        this.emailEditorYpos = emailEditorYpos;
+    }
+
+    public void setEmailInviteLastServer(String emailInviteLastServer)
+    {
+        this.emailInviteLastServer = emailInviteLastServer;
+    }
+
+    public void setEmailInviteXpos(int emailInviteXpos)
+    {
+        this.emailInviteXpos = emailInviteXpos;
+    }
+
+    public void setEmailInviteYpos(int emailInviteYpos)
+    {
+        this.emailInviteYpos = emailInviteYpos;
     }
 
     public void setFileEditorHeight(int fileEditorHeight)
@@ -1974,6 +2094,11 @@ public class Preferences implements Serializable
     public void setShowDeleteConfirmation(boolean showDeleteConfirmation)
     {
         this.showDeleteConfirmation = showDeleteConfirmation;
+    }
+
+    public void setShowDevOptions(boolean showDevOptions)
+    {
+        this.showDevOptions = showDevOptions;
     }
 
     public void setShowDnDConfirmation(boolean showDnDConfirmation)
@@ -2329,6 +2454,26 @@ public class Preferences implements Serializable
     public void setUseLastPublisherSubscriber(boolean useLastPublisherSubscriber)
     {
         this.useLastPublisherSubscriber = useLastPublisherSubscriber;
+    }
+
+    public void setUserGrantsReadWidth(int userGrantsReadWidth)
+    {
+        this.userGrantsReadWidth = userGrantsReadWidth;
+    }
+
+    public void setUserGrantsWriteWidth(int userGrantsWriteWidth)
+    {
+        this.userGrantsWriteWidth = userGrantsWriteWidth;
+    }
+
+    public void setUsersEnabled(boolean usersEnabled)
+    {
+        this.usersEnabled = usersEnabled;
+    }
+
+    public void setWordWrap(boolean wordWrap)
+    {
+        this.wordWrap = wordWrap;
     }
 
     public void write(Context context) throws Exception

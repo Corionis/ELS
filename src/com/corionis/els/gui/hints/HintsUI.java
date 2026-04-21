@@ -237,7 +237,7 @@ public class HintsUI extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html", false);
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }
@@ -359,6 +359,8 @@ public class HintsUI extends JDialog
                         context.browser.rescanByTreeOrTable(currentTree);
                     logger.info(context.cfg.gs(("HintsUI.hints.run.complete")) + result);
                 }
+                else
+                    JOptionPane.showMessageDialog(this, context.cfg.gs("HintsUI.hints.run.incomplete"));
                 refresh();
             }
             catch (Exception e1)
@@ -368,6 +370,11 @@ public class HintsUI extends JDialog
                 JOptionPane.showMessageDialog(this, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    public boolean checkForChanges()
+    {
+        return changesMade;
     }
 
     private void checkNotificationDisplay()

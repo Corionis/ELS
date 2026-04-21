@@ -35,19 +35,18 @@ public class Configuration
     public static final String ELS_JAR = "ELS.jar";
     public static final int JOB_PROCESS = 8;
     public static final String LOGGER_NAME = "ELS Logger";
+    public static final long MINIMUM_BYTES = 10737418240L; // minimum minimum bytes, 10 GB binary
     public static final String NAVIGATOR_NAME = "ELS Navigator";
     public static final int NOT_REMOTE = 0;
     public static final int NOT_SET = -1;
     public static final String PROGRAM_NAME = "Corionis ELS : Entertainment Library Synchronizer";
-    public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
     public static final int PUBLISH_REMOTE = 1;
     public static final int STATUS_SERVER = 6;
     public static final int STATUS_SERVER_FORCE_QUIT = 7;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_LISTENER_FORCE_QUIT = 9;
-    public static final int SUBSCRIBER_TERMINAL = 5;
-    public static final String URL_PREFIX = "https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy"; // TODO MAINTENANCE+ Adjust as needed
+    public static final String URL_PREFIX = "https://raw.githubusercontent.com/Corionis/ELS/Version-5.0.0/deploy"; // TODO MAINTENANCE+ Adjust as needed
     public static final int VERSION_SIZE = 6; // number of lines required in version.info
     public static final String[] availableLocales = {"en_US"}; // TODO EXTEND+ Add new locales here; Potentially refactor to include files from a locales directory
     private boolean defaultNavigator = false;
@@ -101,7 +100,6 @@ public class Configuration
     private int quitSubscriberListener = -1;
     private String remoteArg = "";
     private int requestCollection = -1;
-    private int requestTargets = -1;
     private ArrayList<String> selectedLibraryExcludes = new ArrayList<>();
     private ArrayList<String> selectedLibraryNames = new ArrayList<>();
     private int specificExclude = -1;
@@ -109,7 +107,6 @@ public class Configuration
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
     private int targetsEnabled = -1;
-    private String targetsFilename = "";
     private boolean updateFailed = false;
     private boolean updateSuccessful = false;
     private int validation = -1;
@@ -231,7 +228,6 @@ public class Configuration
         clone.quitStatusServer = quitStatusServer;
         clone.quitSubscriberListener = quitSubscriberListener;
         clone.requestCollection = requestCollection;
-        clone.requestTargets = requestTargets;
         clone.selectedLibraryExcludes = (ArrayList<String>) selectedLibraryExcludes.clone();
         clone.selectedLibraryNames = (ArrayList<String>) selectedLibraryNames.clone();
         clone.specificExclude = specificExclude;
@@ -239,7 +235,6 @@ public class Configuration
         clone.subscriberCollectionFilename = subscriberCollectionFilename;
         clone.subscriberLibrariesFileName = subscriberLibrariesFileName;
         clone.targetsEnabled = targetsEnabled;
-        clone.targetsFilename = targetsFilename;
         clone.updateFailed = updateFailed;
         clone.updateSuccessful = updateSuccessful;
         clone.validation = validation;
@@ -477,9 +472,9 @@ public class Configuration
         {
             logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.s.subscriber.collection.filename"), getSubscriberCollectionFilename()));
         }
-        if (isForceCollection() || getTargetsFilename().length() > 0)
+        if (isTargetsEnabled())
         {
-            logger.info(SHORT, MessageFormat.format(context.cfg.gs("Cfg.cfg.choice.t.targets.filename"), (isForceTargets()) ? 0 : 1,getTargetsFilename()));
+            logger.info(SHORT, context.cfg.gs("Cfg.cfg.target"));
         }
         indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.u.duplicates"), duplicateCheck);
         indicator(logger, SHORT, context.cfg.gs("Cfg.cfg.v.validate"), validation);
@@ -1254,9 +1249,6 @@ public class Configuration
             case NOT_REMOTE: // 0
                 op = "-";
                 break;
-            case PUBLISHER_LISTENER: // 4
-                op = "L";
-                break;
             case PUBLISHER_MANUAL: // 3
                 op = "M";
                 break;
@@ -1265,9 +1257,6 @@ public class Configuration
                 break;
             case SUBSCRIBER_LISTENER: // 2
                 op = "S";
-                break;
-            case SUBSCRIBER_TERMINAL: // 5
-                op = "T";
                 break;
         }
         return op;
@@ -1286,9 +1275,6 @@ public class Configuration
             case NOT_REMOTE: // 0
                 name = "Not remote";
                 break;
-            case PUBLISHER_LISTENER: // 4
-                name = "Publisher listener";
-                break;
             case PUBLISHER_MANUAL: // 3
                 name = "Publisher manual";
                 break;
@@ -1297,9 +1283,6 @@ public class Configuration
                 break;
             case SUBSCRIBER_LISTENER: // 2
                 name = "Subscriber listener";
-                break;
-            case SUBSCRIBER_TERMINAL: // 5
-                name = "Subscriber terminal";
                 break;
             case STATUS_SERVER: // 6
                 name = "Status server";
@@ -1360,16 +1343,6 @@ public class Configuration
     public String getSubscriberLibrariesFileName()
     {
         return subscriberLibrariesFileName;
-    }
-
-    /**
-     * Gets targets filename
-     *
-     * @return the targets filename
-     */
-    public String getTargetsFilename()
-    {
-        return targetsFilename;
     }
 
     /**
@@ -1712,16 +1685,6 @@ public class Configuration
     }
 
     /**
-     * Returns true if this publisher is in listener mode
-     *
-     * @return true/false
-     */
-    public boolean isPublisherListener()
-    {
-        return (getOperation() == PUBLISHER_LISTENER);
-    }
-
-    /**
      * Returns true if this publisher is in terminal mode
      *
      * @return true/false
@@ -1836,16 +1799,6 @@ public class Configuration
     }
 
     /**
-     * Is this a request targets operation?
-     *
-     * @return true/false
-     */
-    public boolean isRequestTargets()
-    {
-        return requestTargets == 1 ? true : false;
-    }
-
-    /**
      * Is the current library one that has been specified on the command line?
      *
      * @return isSelected true/false
@@ -1896,14 +1849,6 @@ public class Configuration
     public boolean isSubscriberListener()
     {
         return (getOperation() == SUBSCRIBER_LISTENER);
-    }
-
-    /**
-     * Returns true if this subscriber is in terminal mode
-     */
-    public boolean isSubscriberTerminal()
-    {
-        return (getOperation() == SUBSCRIBER_TERMINAL);
     }
 
     /**
@@ -2048,6 +1993,8 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
+        // Unused:
+        //   T
         // Reserved:
         //   R restrict Hint processing, i.e. do not execute
         //   U user authentication & authorization
@@ -2412,7 +2359,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException(context.cfg.gs("Cfg.error.r.must.be.followed.by.p.l.m.s.t.case.insensitive"));
+                        throw new MungeException(context.cfg.gs("Cfg.error.r.must.be.followed.by.p.m.s.case.insensitive"));
                     }
                     break;
                 case "-s":                                             // subscriber JSON libraries file
@@ -2445,29 +2392,10 @@ public class Configuration
                         throw new MungeException(context.cfg.gs("Cfg.error.s.requires.an.subscriber.collection.filename"));
                     }
                     break;
-                case "-t":                                             // targets filename
+                case "-t":                                             // targets back-up operation
                 case "--targets":
                     setTargetsEnabled(true);
                     setForceTargets(false);
-                    setRequestTargets(true);
-                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
-                    {
-                        setTargetsFilename(args[index + 1].trim());
-                        verifyFileExistence(getTargetsFilename());
-                        ++index;
-                    }
-                    break;
-                case "-T":                                             // targets filename - force to publisher
-                case "--force-targets":
-                    setTargetsEnabled(true);
-                    setForceTargets(true);
-                    setRequestTargets(false);
-                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
-                    {
-                        setTargetsFilename(args[index + 1].trim());
-                        verifyFileExistence(getTargetsFilename());
-                        ++index;
-                    }
                     break;
                 case "-u":                                             // publisher duplicate check
                 case "--duplicates":
@@ -2919,10 +2847,6 @@ public class Configuration
                 operation = SUBSCRIBER_LISTENER;
             else if (remoteType.equalsIgnoreCase("M")) // 3
                 operation = PUBLISHER_MANUAL;
-            else if (remoteType.equalsIgnoreCase("L")) // 4
-                operation = PUBLISHER_LISTENER;
-            else if (remoteType.equalsIgnoreCase("T")) // 5
-                operation = SUBSCRIBER_TERMINAL;
             else if (!remoteType.equals("-"))
                 remoteType = "-";
         }
@@ -3037,16 +2961,6 @@ public class Configuration
     }
 
     /**
-     * Set if this is a request targets operation
-     *
-     * @param requestTargets true/false
-     */
-    public void setRequestTargets(boolean requestTargets)
-    {
-        this.requestTargets = requestTargets ? 1 : 0;
-    }
-
-    /**
      * Sets the list of included library names
      *
      * @param includedLibraries
@@ -3102,16 +3016,6 @@ public class Configuration
     public void setTargetsEnabled(boolean sense)
     {
         targetsEnabled = sense ? 1 : 0;
-    }
-
-    /**
-     * Sets targets filename
-     *
-     * @param targetsFilename the targets filename
-     */
-    public void setTargetsFilename(String targetsFilename)
-    {
-        this.targetsFilename = targetsFilename;
     }
 
     /**

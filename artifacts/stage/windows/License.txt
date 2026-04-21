@@ -338,7 +338,7 @@ protocols for communication across the network.
   Corresponding Source conveyed, and Installation Information provided,
 in accord with this section must be in a format that is publicly
 documented (and with an implementation available to the public in
-source code form), and must require no special password or key for
+source code form), and must require no special password or libraryKey for
 unpacking, reading or copying.
 
   7. Additional Terms.
@@ -668,8 +668,8 @@ For more information on this, and how to apply and follow the GNU GPL, see
 <https://www.gnu.org/licenses/>.
 
   The GNU General Public License does not permit incorporating your program
-into proprietary programs.  If your program is a subroutine library, you
+into proprietary programs.  If your program is a subroutine libraryKey, you
 may consider it more useful to permit linking proprietary applications with
-the library.  If this is what you want to do, use the GNU Lesser General
+the libraryKey.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.

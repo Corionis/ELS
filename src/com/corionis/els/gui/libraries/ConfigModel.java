@@ -173,6 +173,20 @@ public class ConfigModel extends DefaultTableModel
         return count;
     }
 
+    @Override
+    public Object getValueAt(int row, int column)
+    {
+        if (column == 0)
+            return super.getValueAt(row, column);
+        else
+        {
+            LibrariesUI.LibMeta tool = (LibrariesUI.LibMeta) getValueAt(row, 0);
+            if (tool != null && tool.isDataChanged())
+                return "*";
+        }
+        return null;
+    }
+
     /**
      * Process the conflicts by renaming or deleting Job tasks
      */
@@ -231,7 +245,8 @@ public class ConfigModel extends DefaultTableModel
     @Override
     public void setValueAt(Object object, int row, int column)
     {
-        updateListName((String) object, row);
+        if (column == 0)
+            updateListName((String) object, row);
     }
 
     private String swapNames(String path, String oldCompare, String newName)

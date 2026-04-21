@@ -126,8 +126,8 @@ appear depends on the selected mode.</p>
     -i | --export-items [output file] : Export publisher collection as JSON to file.</li>
 
   <li id="opts">Hint keys & Hint keys only<br/>
-    -k | --keys [key file] : Process Hints between publisher and subscriber.<br/>
-    -K | --keys-only [keys file] : Process Hints on the publisher only then end.</li>
+    -k | --keys [Hint keys file] : Process Hints between publisher and subscriber.<br/>
+    -K | --keys-only [Hint keys file] : Process Hints on the publisher only then end.</li>
 
   <li id="opts">Ignored<br/>
     -N | --ignored [output file] : Report ignored files as specified in the JSON file.</li>
@@ -160,17 +160,7 @@ appear depends on the selected mode.</p>
     -G | --listener-quit that only sends the quit command to a remote subscriber, then exits.</li>
 
   <li id="opts">Targets<br/>
-    -t | --targets [file] : Specifying a targets file that describes libraries, their sources,
-    and the minimum free space for the library - is optional. It was the original
-    way to define where new content would go and will continue to be supported.
-    <br/><br/>
-    If targets are not specified ELS looks for "locations" defined in the library JSON
-    file. Locations describe minimum free space per storage location.
-    <br/><br/>
-    If those are not found the list of sources for the library in the library file
-    is used with a default minimum free space of 10GB. In all cases the order of
-    the definitions controls the order for searching where to place new content
-    for that library.</li>
+    -t | --targets triggers a back-up operation from command-line.</li>
 
   <li id="opts">Validate<br/>
     -v | --validate : Validate a publisher library or collection file.</li>

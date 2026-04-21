@@ -467,7 +467,7 @@ jQuery.extend( {
 				}
 			}
 
-		// Go through every key on the object,
+		// Go through every libraryKey on the object,
 		} else {
 			for ( i in elems ) {
 				value = callback( elems[ i ], i, arg );
@@ -895,7 +895,7 @@ function Sizzle( selector, context, results, seed ) {
 }
 
 /**
- * Create key-value caches of limited size
+ * Create libraryKey-value caches of limited size
  * @returns {function(string, object)} Returns the Object data after storing it on itself with
  *	property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
  *	deleting the oldest entry
@@ -903,15 +903,15 @@ function Sizzle( selector, context, results, seed ) {
 function createCache() {
 	var keys = [];
 
-	function cache( key, value ) {
+	function cache( libraryKey, value ) {
 
-		// Use (key + " ") to avoid collision with native prototype properties (see Issue #157)
-		if ( keys.push( key + " " ) > Expr.cacheLength ) {
+		// Use (libraryKey + " ") to avoid collision with native prototype properties (see Issue #157)
+		if ( keys.push( libraryKey + " " ) > Expr.cacheLength ) {
 
 			// Only keep the most recent entries
 			delete cache[ keys.shift() ];
 		}
-		return ( cache[ key + " " ] = value );
+		return ( cache[ libraryKey + " " ] = value );
 	}
 	return cache;
 }
@@ -2393,8 +2393,8 @@ function toSelector( tokens ) {
 function addCombinator( matcher, combinator, base ) {
 	var dir = combinator.dir,
 		skip = combinator.next,
-		key = skip || dir,
-		checkNonElements = base && key === "parentNode",
+		libraryKey = skip || dir,
+		checkNonElements = base && libraryKey === "parentNode",
 		doneName = done++;
 
 	return combinator.first ?
@@ -2435,7 +2435,7 @@ function addCombinator( matcher, combinator, base ) {
 
 						if ( skip && skip === elem.nodeName.toLowerCase() ) {
 							elem = elem[ dir ] || elem;
-						} else if ( ( oldCache = uniqueCache[ key ] ) &&
+						} else if ( ( oldCache = uniqueCache[ libraryKey ] ) &&
 							oldCache[ 0 ] === dirruns && oldCache[ 1 ] === doneName ) {
 
 							// Assign to newCache so results back-propagate to previous elements
@@ -2443,7 +2443,7 @@ function addCombinator( matcher, combinator, base ) {
 						} else {
 
 							// Reuse newcache so results back-propagate to previous elements
-							uniqueCache[ key ] = newCache;
+							uniqueCache[ libraryKey ] = newCache;
 
 							// A match means we're done; a fail means we have to keep checking
 							if ( ( newCache[ 2 ] = matcher( elem, context, xml ) ) ) {
@@ -4140,16 +4140,16 @@ if ( document.readyState === "complete" ||
 
 // Multifunctional method to get and set values of a collection
 // The value/s can optionally be executed if it's a function
-var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
+var access = function( elems, fn, libraryKey, value, chainable, emptyGet, raw ) {
 	var i = 0,
 		len = elems.length,
-		bulk = key == null;
+		bulk = libraryKey == null;
 
 	// Sets many values
-	if ( toType( key ) === "object" ) {
+	if ( toType( libraryKey ) === "object" ) {
 		chainable = true;
-		for ( i in key ) {
-			access( elems, fn, i, key[ i ], true, emptyGet, raw );
+		for ( i in libraryKey ) {
+			access( elems, fn, i, libraryKey[ i ], true, emptyGet, raw );
 		}
 
 	// Sets one value
@@ -4179,9 +4179,9 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		if ( fn ) {
 			for ( ; i < len; i++ ) {
 				fn(
-					elems[ i ], key, raw ?
+					elems[ i ], libraryKey, raw ?
 					value :
-					value.call( elems[ i ], i, fn( elems[ i ], key ) )
+					value.call( elems[ i ], i, fn( elems[ i ], libraryKey ) )
 				);
 			}
 		}
@@ -4196,7 +4196,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		return fn.call( elems );
 	}
 
-	return len ? fn( elems[ 0 ], key ) : emptyGet;
+	return len ? fn( elems[ 0 ], libraryKey ) : emptyGet;
 };
 
 
@@ -4274,8 +4274,8 @@ Data.prototype = {
 		var prop,
 			cache = this.cache( owner );
 
-		// Handle: [ owner, key, value ] args
-		// Always use camelCase key (gh-2257)
+		// Handle: [ owner, libraryKey, value ] args
+		// Always use camelCase libraryKey (gh-2257)
 		if ( typeof data === "string" ) {
 			cache[ camelCase( data ) ] = value;
 
@@ -4289,45 +4289,45 @@ Data.prototype = {
 		}
 		return cache;
 	},
-	get: function( owner, key ) {
-		return key === undefined ?
+	get: function( owner, libraryKey ) {
+		return libraryKey === undefined ?
 			this.cache( owner ) :
 
-			// Always use camelCase key (gh-2257)
-			owner[ this.expando ] && owner[ this.expando ][ camelCase( key ) ];
+			// Always use camelCase libraryKey (gh-2257)
+			owner[ this.expando ] && owner[ this.expando ][ camelCase( libraryKey ) ];
 	},
-	access: function( owner, key, value ) {
+	access: function( owner, libraryKey, value ) {
 
 		// In cases where either:
 		//
-		//   1. No key was specified
-		//   2. A string key was specified, but no value provided
+		//   1. No libraryKey was specified
+		//   2. A string libraryKey was specified, but no value provided
 		//
 		// Take the "read" path and allow the get method to determine
 		// which value to return, respectively either:
 		//
 		//   1. The entire cache object
-		//   2. The data stored at the key
+		//   2. The data stored at the libraryKey
 		//
-		if ( key === undefined ||
-				( ( key && typeof key === "string" ) && value === undefined ) ) {
+		if ( libraryKey === undefined ||
+				( ( libraryKey && typeof libraryKey === "string" ) && value === undefined ) ) {
 
-			return this.get( owner, key );
+			return this.get( owner, libraryKey );
 		}
 
-		// When the key is not a string, or both a key and value
+		// When the libraryKey is not a string, or both a libraryKey and value
 		// are specified, set or extend (existing objects) with either:
 		//
 		//   1. An object of properties
-		//   2. A key and value
+		//   2. A libraryKey and value
 		//
-		this.set( owner, key, value );
+		this.set( owner, libraryKey, value );
 
 		// Since the "set" path can have two possible entry points
 		// return the expected data based on which path was taken[*]
-		return value !== undefined ? value : key;
+		return value !== undefined ? value : libraryKey;
 	},
-	remove: function( owner, key ) {
+	remove: function( owner, libraryKey ) {
 		var i,
 			cache = owner[ this.expando ];
 
@@ -4335,33 +4335,33 @@ Data.prototype = {
 			return;
 		}
 
-		if ( key !== undefined ) {
+		if ( libraryKey !== undefined ) {
 
 			// Support array or space separated string of keys
-			if ( Array.isArray( key ) ) {
+			if ( Array.isArray( libraryKey ) ) {
 
-				// If key is an array of keys...
+				// If libraryKey is an array of keys...
 				// We always set camelCase keys, so remove that.
-				key = key.map( camelCase );
+				libraryKey = libraryKey.map( camelCase );
 			} else {
-				key = camelCase( key );
+				libraryKey = camelCase( libraryKey );
 
-				// If a key with the spaces exists, use it.
+				// If a libraryKey with the spaces exists, use it.
 				// Otherwise, create an array by matching non-whitespace
-				key = key in cache ?
-					[ key ] :
-					( key.match( rnothtmlwhite ) || [] );
+				libraryKey = libraryKey in cache ?
+					[ libraryKey ] :
+					( libraryKey.match( rnothtmlwhite ) || [] );
 			}
 
-			i = key.length;
+			i = libraryKey.length;
 
 			while ( i-- ) {
-				delete cache[ key[ i ] ];
+				delete cache[ libraryKey[ i ] ];
 			}
 		}
 
 		// Remove the expando if there's no more data
-		if ( key === undefined || jQuery.isEmptyObject( cache ) ) {
+		if ( libraryKey === undefined || jQuery.isEmptyObject( cache ) ) {
 
 			// Support: Chrome <=35 - 45
 			// Webkit & Blink performance suffers when deleting properties
@@ -4423,13 +4423,13 @@ function getData( data ) {
 	return data;
 }
 
-function dataAttr( elem, key, data ) {
+function dataAttr( elem, libraryKey, data ) {
 	var name;
 
 	// If nothing was found internally, try to fetch any
 	// data from the HTML5 data-* attribute
 	if ( data === undefined && elem.nodeType === 1 ) {
-		name = "data-" + key.replace( rmultiDash, "-$&" ).toLowerCase();
+		name = "data-" + libraryKey.replace( rmultiDash, "-$&" ).toLowerCase();
 		data = elem.getAttribute( name );
 
 		if ( typeof data === "string" ) {
@@ -4438,7 +4438,7 @@ function dataAttr( elem, key, data ) {
 			} catch ( e ) {}
 
 			// Make sure we set the data so it isn't changed later
-			dataUser.set( elem, key, data );
+			dataUser.set( elem, libraryKey, data );
 		} else {
 			data = undefined;
 		}
@@ -4471,13 +4471,13 @@ jQuery.extend( {
 } );
 
 jQuery.fn.extend( {
-	data: function( key, value ) {
+	data: function( libraryKey, value ) {
 		var i, name, data,
 			elem = this[ 0 ],
 			attrs = elem && elem.attributes;
 
 		// Gets all values
-		if ( key === undefined ) {
+		if ( libraryKey === undefined ) {
 			if ( this.length ) {
 				data = dataUser.get( elem );
 
@@ -4503,9 +4503,9 @@ jQuery.fn.extend( {
 		}
 
 		// Sets multiple values
-		if ( typeof key === "object" ) {
+		if ( typeof libraryKey === "object" ) {
 			return this.each( function() {
-				dataUser.set( this, key );
+				dataUser.set( this, libraryKey );
 			} );
 		}
 
@@ -4520,15 +4520,15 @@ jQuery.fn.extend( {
 			if ( elem && value === undefined ) {
 
 				// Attempt to get data from the cache
-				// The key will always be camelCased in Data
-				data = dataUser.get( elem, key );
+				// The libraryKey will always be camelCased in Data
+				data = dataUser.get( elem, libraryKey );
 				if ( data !== undefined ) {
 					return data;
 				}
 
 				// Attempt to "discover" the data in
 				// HTML5 custom data-* attrs
-				data = dataAttr( elem, key );
+				data = dataAttr( elem, libraryKey );
 				if ( data !== undefined ) {
 					return data;
 				}
@@ -4540,15 +4540,15 @@ jQuery.fn.extend( {
 			// Set the data...
 			this.each( function() {
 
-				// We always store the camelCased key
-				dataUser.set( this, key, value );
+				// We always store the camelCased libraryKey
+				dataUser.set( this, libraryKey, value );
 			} );
 		}, null, value, arguments.length > 1, null, true );
 	},
 
-	removeData: function( key ) {
+	removeData: function( libraryKey ) {
 		return this.each( function() {
-			dataUser.remove( this, key );
+			dataUser.remove( this, libraryKey );
 		} );
 	}
 } );
@@ -4611,10 +4611,10 @@ jQuery.extend( {
 
 	// Not public - generate a queueHooks object, or return the current one
 	_queueHooks: function( elem, type ) {
-		var key = type + "queueHooks";
-		return dataPriv.get( elem, key ) || dataPriv.access( elem, key, {
+		var libraryKey = type + "queueHooks";
+		return dataPriv.get( elem, libraryKey ) || dataPriv.access( elem, libraryKey, {
 			empty: jQuery.Callbacks( "once memory" ).add( function() {
-				dataPriv.remove( elem, [ type + "queue", key ] );
+				dataPriv.remove( elem, [ type + "queue", libraryKey ] );
 			} )
 		} );
 	}
@@ -5090,7 +5090,7 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 
 
 var
-	rkeyEvent = /^key/,
+	rkeyEvent = /^libraryKey/,
 	rmouseEvent = /^(?:mouse|pointer|contextmenu|drag|drop)|click/,
 	rtypenamespace = /^([^.]*)(?:\.(.+)|)/;
 
@@ -5463,7 +5463,7 @@ jQuery.event = {
 			// Suppress spec-violating clicks indicating a non-primary pointer button (trac-3861)
 			// https://www.w3.org/TR/DOM-Level-3-Events/#event-type-click
 			// Support: IE 11 only
-			// ...but not arrow key "clicks" of radio inputs, which can have `button` -1 (gh-2343)
+			// ...but not arrow libraryKey "clicks" of radio inputs, which can have `button` -1 (gh-2343)
 			!( event.type === "click" && event.button >= 1 ) ) {
 
 			for ( ; cur !== this; cur = cur.parentNode || this ) {
@@ -5806,7 +5806,7 @@ jQuery.each( {
 	"char": true,
 	code: true,
 	charCode: true,
-	key: true,
+	libraryKey: true,
 	keyCode: true,
 	button: true,
 	buttons: true,
@@ -5825,7 +5825,7 @@ jQuery.each( {
 	which: function( event ) {
 		var button = event.button;
 
-		// Add which for key events
+		// Add which for libraryKey events
 		if ( event.which == null && rkeyEvent.test( event.type ) ) {
 			return event.charCode != null ? event.charCode : event.keyCode;
 		}
@@ -8921,18 +8921,18 @@ function buildParams( prefix, obj, traditional, add ) {
 }
 
 // Serialize an array of form elements or a set of
-// key/values into a query string
+// libraryKey/values into a query string
 jQuery.param = function( a, traditional ) {
 	var prefix,
 		s = [],
-		add = function( key, valueOrFunction ) {
+		add = function( libraryKey, valueOrFunction ) {
 
 			// If value is a function, invoke it and use its return value
 			var value = isFunction( valueOrFunction ) ?
 				valueOrFunction() :
 				valueOrFunction;
 
-			s[ s.length ] = encodeURIComponent( key ) + "=" +
+			s[ s.length ] = encodeURIComponent( libraryKey ) + "=" +
 				encodeURIComponent( value == null ? "" : value );
 		};
 
@@ -9015,14 +9015,14 @@ var
 	 * 2) These are called:
 	 *    - BEFORE asking for a transport
 	 *    - AFTER param serialization (s.data is a string if s.processData is true)
-	 * 3) key is the dataType
+	 * 3) libraryKey is the dataType
 	 * 4) the catchall symbol "*" can be used
 	 * 5) execution will start with transport dataType and THEN continue down to "*" if needed
 	 */
 	prefilters = {},
 
 	/* Transports bindings
-	 * 1) key is the dataType
+	 * 1) libraryKey is the dataType
 	 * 2) the catchall symbol "*" can be used
 	 * 3) selection will start with transport dataType and THEN go to "*" if needed
 	 */
@@ -9100,12 +9100,12 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 // that takes "flat" options (not to be deep extended)
 // Fixes #9887
 function ajaxExtend( target, src ) {
-	var key, deep,
+	var libraryKey, deep,
 		flatOptions = jQuery.ajaxSettings.flatOptions || {};
 
-	for ( key in src ) {
-		if ( src[ key ] !== undefined ) {
-			( flatOptions[ key ] ? target : ( deep || ( deep = {} ) ) )[ key ] = src[ key ];
+	for ( libraryKey in src ) {
+		if ( src[ libraryKey ] !== undefined ) {
+			( flatOptions[ libraryKey ] ? target : ( deep || ( deep = {} ) ) )[ libraryKey ] = src[ libraryKey ];
 		}
 	}
 	if ( deep ) {
@@ -9436,7 +9436,7 @@ jQuery.extend( {
 				readyState: 0,
 
 				// Builds headers hashtable if needed
-				getResponseHeader: function( key ) {
+				getResponseHeader: function( libraryKey ) {
 					var match;
 					if ( completed ) {
 						if ( !responseHeaders ) {
@@ -9447,7 +9447,7 @@ jQuery.extend( {
 										.concat( match[ 2 ] );
 							}
 						}
-						match = responseHeaders[ key.toLowerCase() + " " ];
+						match = responseHeaders[ libraryKey.toLowerCase() + " " ];
 					}
 					return match == null ? null : match.join( ", " );
 				},

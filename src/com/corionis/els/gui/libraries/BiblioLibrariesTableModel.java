@@ -12,12 +12,14 @@ public class BiblioLibrariesTableModel extends DefaultTableModel
     private Context context;
     private String displayName;
     private boolean editable = true;
+    private LibrariesUI librariesUI;
     private LibrariesUI.LibMeta libMeta;
 
-    public BiblioLibrariesTableModel(Context context)
+    public BiblioLibrariesTableModel(Context context, LibrariesUI librariesUI)
     {
         super();
         this.context = context;
+        this.librariesUI = librariesUI;
     }
 
     @Override
@@ -81,6 +83,7 @@ public class BiblioLibrariesTableModel extends DefaultTableModel
             {
                 try
                 {
+                    int last = librariesUI.configModel.getRowCount() - 1;
                     if (col == 0)
                     {
                         Library lib = libMeta.repo.getLibrary((String) object);
@@ -95,12 +98,14 @@ public class BiblioLibrariesTableModel extends DefaultTableModel
                         {
                             libMeta.repo.getLibraryData().libraries.bibliography[row].name = (String) object;
                             libMeta.setDataHasChanged();
+                            librariesUI.configModel.fireTableRowsUpdated(0, last);
                         }
                     }
                     else
                     {
                         libMeta.repo.getLibraryData().libraries.bibliography[row].matchDates = ((Boolean) object).booleanValue();
                         libMeta.setDataHasChanged();
+                        librariesUI.configModel.fireTableRowsUpdated(0, last);
                     }
                 }
                 catch (MungeException e)

@@ -35,13 +35,12 @@ public class Repository implements Comparable
     public static final boolean VALIDATE = true;
     public final String SUB_EXCLUDE = "ELS-SUBSCRIBER-SKIP_";
 
+    private final Context context;
+    private boolean dynamic = false;
     private String jsonFilename = "";
     private LibraryData libraryData = null;
+    private final Logger logger = LogManager.getLogger("applog");
     private int purpose = -1;
-
-    private transient Context context;
-    private transient boolean dynamic = false;
-    private transient Logger logger = LogManager.getLogger("applog");
 
     /**
      * Instantiate a Repository with a purpose
@@ -98,7 +97,78 @@ public class Repository implements Comparable
         }
         return noItems;
     }
-    // @formatter:on
+
+    /**
+     * Close this repository but do not include individual items or inaccessible libraries
+     *
+     * @return Cloned Repository
+     */
+    public Repository cloneSecurity(User user)
+    {
+        Repository secureItems = new Repository(context, purpose);
+        secureItems.setJsonFilename(getJsonFilename());
+        secureItems.createStructure();
+        secureItems.libraryData.libraries.description = getLibraryData().libraries.description;
+        secureItems.libraryData.libraries.key = getLibraryData().libraries.key;
+        secureItems.libraryData.libraries.host = getLibraryData().libraries.host;
+        secureItems.libraryData.libraries.listen = getLibraryData().libraries.listen;
+        secureItems.libraryData.libraries.timeout = getLibraryData().libraries.timeout;
+        secureItems.libraryData.libraries.flavor = getLibraryData().libraries.flavor;
+        secureItems.libraryData.libraries.case_sensitive = getLibraryData().libraries.case_sensitive;
+        secureItems.libraryData.libraries.temp_dated = getLibraryData().libraries.temp_dated;
+        secureItems.libraryData.libraries.temp_location = getLibraryData().libraries.temp_location;
+        secureItems.libraryData.libraries.terminal_allowed = getLibraryData().libraries.terminal_allowed;
+        if (getLibraryData().libraries.ignore_patterns != null)
+            secureItems.libraryData.libraries.ignore_patterns = getLibraryData().libraries.ignore_patterns.clone();
+        else
+            secureItems.libraryData.libraries.ignore_patterns = null;
+        secureItems.libraryData.libraries.email = getLibraryData().libraries.email;
+        secureItems.libraryData.libraries.format = getLibraryData().libraries.format;
+        secureItems.libraryData.libraries.mismatches = getLibraryData().libraries.mismatches;
+        secureItems.libraryData.libraries.whatsNew = getLibraryData().libraries.whatsNew;
+        secureItems.libraryData.libraries.skipOffline = getLibraryData().libraries.skipOffline;
+        if (getLibraryData().libraries.locations != null)
+            secureItems.libraryData.libraries.locations = getLibraryData().libraries.locations.clone();
+        else
+            secureItems.libraryData.libraries.locations = null;
+        secureItems.libraryData.libraries.bibliography = new Library[getLibraryData().libraries.bibliography.length];
+        int libCount = 0;
+        for (int i = 0; i < getLibraryData().libraries.bibliography.length; ++i)
+        {
+            Library lib = new Library();
+            lib.name = getLibraryData().libraries.bibliography[i].name;
+            boolean may = false;
+            if (user != null && context.preferences.isUsersEnabled())
+            {
+                // privileges : access
+                if (user.mayRead(secureItems.libraryData.libraries.key, lib.name))
+                    may = true;
+            }
+            else
+                may = true;
+            if (may)
+            {
+                lib.sources = getLibraryData().libraries.bibliography[i].sources.clone();
+                secureItems.libraryData.libraries.bibliography[i] = lib;
+                ++libCount;
+            }
+            else
+                secureItems.libraryData.libraries.bibliography[i] = null;
+        }
+
+        // were any libraries left out?
+        if (libCount != getLibraryData().libraries.bibliography.length)
+        {
+            Library[] bibCopy = new Library[libCount];
+            for (int i = 0; i < secureItems.libraryData.libraries.bibliography.length; ++i)
+            {
+                if (secureItems.libraryData.libraries.bibliography[i] != null)
+                    bibCopy[i] = secureItems.libraryData.libraries.bibliography[i];
+            }
+            secureItems.libraryData.libraries.bibliography = bibCopy;
+        }
+        return secureItems;
+    }
 
     @Override
     public int compareTo(Object o)
@@ -112,6 +182,7 @@ public class Repository implements Comparable
         lib.name = name;
         expandBibliography(lib);
     }
+    // @formatter:on
 
     public void createStructure()
     {
@@ -191,6 +262,11 @@ public class Repository implements Comparable
         }
     }
 
+    public Context getContext()
+    {
+        return context;
+    }
+
     /**
      * Get the right-side item name.
      *
@@ -202,7 +278,7 @@ public class Repository implements Comparable
     {
         String path = item.getItemPath();
         String sep = getSeparator();
-        String name = path.substring(path.lastIndexOf(sep) + 1, path.length());
+        String name = path.substring(path.lastIndexOf(sep) + 1);
         return name;
     }
 
@@ -214,6 +290,16 @@ public class Repository implements Comparable
     public String getJsonFilename()
     {
         return jsonFilename;
+    }
+
+    /**
+     * Gets LibraryData.libaries
+     *
+     * @return libraries or null
+     */
+    public Libraries getLibraries()
+    {
+        return libraryData.libraries;
     }
 
     /**
@@ -298,9 +384,19 @@ public class Repository implements Comparable
     }
 
     /**
+     * Gets LibraryData.user
+     *
+     * @return user or null
+     */
+    public User getUser()
+    {
+        return libraryData.user;
+    }
+
+    /**
      * Get file separator for writing
      *
-     * @return file separator string, may be multiple characters, e.g. \\
+     * @return file separator string, might be multiple characters, e.g. \\
      * @throws MungeException
      */
     public String getWriteSeparator()
@@ -476,7 +572,7 @@ public class Repository implements Comparable
                             if (item != pubItem && !item.isDirectory())
                             {
                                 pubItem.addHas(item); // add match and any duplicate for cross-reference
-                                logger.warn(MessageFormat.format(context.cfg.gs("Repository.duplicate.of.found.at"), pubItem.getFullPath() , item.getFullPath()));
+                                logger.warn(MessageFormat.format(context.cfg.gs("Repository.duplicate.of.found.at"), pubItem.getFullPath(), item.getFullPath()));
                             }
                         }
                     }
@@ -556,10 +652,7 @@ public class Repository implements Comparable
      */
     public boolean isInitialized()
     {
-        if (getLibraryData() != null && (this.jsonFilename != null && this.jsonFilename.length() > 0))
-            return true;
-        else
-            return false;
+        return getLibraryData() != null && (this.jsonFilename != null && this.jsonFilename.length() > 0);
     }
 
     public boolean isPublisher()
@@ -573,21 +666,123 @@ public class Repository implements Comparable
     }
 
     /**
+     * Login to Publisher
+     *
+     * @return True if successful
+     */
+    public User login()
+    {
+        User user = null;
+        if (context.preferences.isUsersEnabled() && context.publisherRepo != null)
+        {
+            user = getUser();
+            if (user != null)
+            {
+                user.setContext(context);
+                user = user.clone();
+                logger.info(MessageFormat.format(context.cfg.gs("Repository.logged.in.to"), getUser().getName().trim(), getLibraryData().libraries.description));
+            }
+            // else failed
+        }
+        else
+            user = new User(context);
+        return user;
+    }
+
+    /**
+     * Login Publisher to Subscriber, local or remote
+     *
+     * @param key User key
+     * @param isRemote
+     * @return A clone of the User, empty if users not enabled, otherwise null on failure
+     */
+    public User login(String key, boolean isRemote)
+    {
+        User user = new User(context);
+        if (context.preferences.isUsersEnabled() && context.subscriberRepo != null)
+        {
+            if (isRemote)
+            {
+                try
+                {
+                    String login = "login \"" + key + "\"";
+                    String userJson = context.clientStty.roundTrip(login, "", 300000); // TODO 10000);
+                    if (userJson != null)
+                    {
+                        if (userJson.equalsIgnoreCase("failed"))
+                            user = null;
+                        else if (!userJson.equalsIgnoreCase("true") && !userJson.startsWith("CMD")) // not enabled on subscriber side
+                        {
+                            user = user.parseUser(userJson);
+                            if (user != null)
+                            {
+                                user.setContext(context);
+                                String from = "?";
+                                if (context.publisherRepo != null) // should never happen
+                                    from = context.publisherRepo.getLibraries().description;
+                                logger.info(MessageFormat.format(context.cfg.gs("Repository.logged.in.from.to"), user.getName().trim(),
+                                    from, context.subscriberRepo.getLibraryData().libraries.description.trim()));
+                            }
+                        }
+                        else
+                        {
+                            if (userJson.startsWith("CMD"))
+                            {
+                                context.bannerCommands = userJson;
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                }
+            }
+            else
+            {
+                // get subscriber repo in case Grants have been changed
+                Repositories repositories = new Repositories();
+                Repository subRepo = repositories.findRepo(context, context.subscriberRepo.getLibraries().key);
+                if (subRepo != null) // should never happen
+                {
+                    // get publisher repo
+                    Repository pubRepo = repositories.findRepo(context, key);
+                    if (pubRepo != null)
+                    {
+                        user = pubRepo.getUser().clone();
+                        if (user != null)
+                        {
+                            user.setContext(context);
+                            logger.info(MessageFormat.format(context.cfg.gs("Repository.logged.in.from.to"), user.getName().trim(),
+                                    pubRepo.getLibraryData().libraries.description.trim(), subRepo.getLibraryData().libraries.description.trim()));
+                        }
+                        else
+                        {
+                            user = null;
+                            String msg = MessageFormat.format(context.cfg.gs("Repository.user.does.not.have.access.to"), pubRepo.getUser().getName().trim(),
+                                    pubRepo.getLibraryData().libraries.description);
+                            logger.error(msg);
+                            if (context.cfg.isGui())
+                                JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                    else
+                        user = null;
+                }
+                else
+                    user = null;
+            }
+        }
+        return user;
+    }
+
+    /**
      * Normalize all JSON paths based on "flavor"
      */
     public void normalize() throws MungeException
     {
         if (getLibraryData() != null)
         {
-            // if listen is empty use host
-/*
-            if (getLibraryData().libraries.listen == null ||
-                    getLibraryData().libraries.listen.length() < 1)
-            {
-                getLibraryData().libraries.listen = getLibraryData().libraries.host;
-            }
-*/
-
             // set default timeout
             if (getLibraryData().libraries.timeout < 0)
                 getLibraryData().libraries.timeout = 15; // default connection time-out if not defined
@@ -616,6 +811,15 @@ public class Repository implements Comparable
                 {
                     path = System.getProperty("user.home") + path.substring(1);
                     getLibraryData().libraries.temp_location = path;
+                }
+            }
+
+            if (getLibraries().locations != null)
+            {
+                for (Location loc : getLibraries().locations)
+                {
+                    if (loc.location.startsWith("~"))
+                        loc.location = System.getProperty("user.home") + loc.location.substring(1);
                 }
             }
 
@@ -687,11 +891,10 @@ public class Repository implements Comparable
      */
     private String normalizeSubst(String path, String from, String to)
     {
-//        if (from.equals("\\"))
-//            from = "\\\\";
-//        if (to.equals("\\"))
-//            to = "\\\\";
-//        return path.replaceAll(from, to).replaceAll("\\|", to);
+        if (path.startsWith("~")) // is it relative to the user's home directory?
+        {
+            path = System.getProperty("user.home") + path.substring(1);
+        }
         path = Utils.unpipe(Utils.pipe(path), to);
         return path;
     }
@@ -700,6 +903,8 @@ public class Repository implements Comparable
      * Read library.
      *
      * @param filename The JSON Libraries filename
+     * @param type Type of repo for log messages
+     * @param printLog Whether to print a "raading" log message
      * @return boolean True if file is a valid ELS repository, false if not a repository
      * @throws MungeException the els exception
      */
@@ -728,8 +933,7 @@ public class Repository implements Comparable
         }
         catch (Exception ioe)
         {
-            String msg = MessageFormat.format(context.cfg.gs("Repository.exception.while.reading.library"), type) +
-                    filename + System.getProperty("line.separator");
+            String msg = MessageFormat.format(context.cfg.gs("Repository.exception.while.reading.library"), type) + " " + filename;
             if (context.main.isStartupActive())
             {
                 logger.error(msg);
@@ -759,8 +963,14 @@ public class Repository implements Comparable
             if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(lib.name)) &&
                     (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(lib.name)))
             {
-                scanSources(lib);
-                sort(lib);
+                // privileges : access
+                boolean may = (isPublisher() ? context.publisherUser.mayRead(context.publisherRepo.getLibraries().key, lib.name) :
+                        context.subscriberUser.mayRead(context.subscriberRepo.getLibraries().key, lib.name));
+                if (may)
+                {
+                    scanSources(lib);
+                    sort(lib);
+                }
             }
         }
         normalize();
@@ -908,6 +1118,11 @@ public class Repository implements Comparable
         this.jsonFilename = jsonFilename;
     }
 
+    public void setUser(User user)
+    {
+        this.libraryData.user = user;
+    }
+
     /**
      * Sort a specific library's items.
      */
@@ -1010,11 +1225,11 @@ public class Repository implements Comparable
                         {
                             if (lib.sources[j].length() == 0)
                             {
-                                throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.bibliography.source.path.must.be.defined"), i,j));
+                                throw new MungeException(MessageFormat.format(context.cfg.gs("Repository.bibliography.source.path.must.be.defined"), i, j));
                             }
                             if (Files.notExists(Paths.get(Utils.getFullPathLocal(lib.sources[j]))))
                             {
-                                String msg = MessageFormat.format(context.cfg.gs("Repository.bibliography.sources.does.not.exist"), i,j,lib.sources[j]);
+                                String msg = MessageFormat.format(context.cfg.gs("Repository.bibliography.sources.does.not.exist"), i, j, lib.sources[j]);
                                 if (context.cfg.isGui())
                                     logger.error(msg);
                                 else

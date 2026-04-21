@@ -135,9 +135,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public class <span class="typeNameLabel">NativeLibrary</span>
 extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a></pre>
-<div class="block">Helper class to load native library (.dll, .so or .dylib) stored in Jar.
+<div class="block">Helper class to load native libraryKey (.dll, .so or .dylib) stored in Jar.
  <p>
- Copies native library to users temporary folder before loading it.</div>
+ Copies native libraryKey to users temporary folder before loading it.</div>
 <dl>
 <dt><span class="simpleTagLabel">Since:</span></dt>
 <dd>1.1</dd>
@@ -165,14 +165,14 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.io.File,boolean)">NativeLibrary</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/File.html?is-external=true" title="class or interface in java.io" class="externalLink">File</a>&nbsp;libraryFile,
              boolean&nbsp;supported)</code></th>
 <td class="colLast">
-<div class="block">Load native library from given file.</div>
+<div class="block">Load native libraryKey from given file.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,boolean)">NativeLibrary</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;libraryName,
              boolean&nbsp;supported)</code></th>
 <td class="colLast">
-<div class="block">Load native library using <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/System.html?is-external=true#loadLibrary(java.lang.String)" title="class or interface in java.lang" class="externalLink"><code>System.loadLibrary(String)</code></a>.</div>
+<div class="block">Load native libraryKey using <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/System.html?is-external=true#loadLibrary(java.lang.String)" title="class or interface in java.lang" class="externalLink"><code>System.loadLibrary(String)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -180,7 +180,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
              <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/ClassLoader.html?is-external=true" title="class or interface in java.lang" class="externalLink">ClassLoader</a>&nbsp;classLoader,
              boolean&nbsp;supported)</code></th>
 <td class="colLast">
-<div class="block">Load native library from given classloader.</div>
+<div class="block">Load native libraryKey from given classloader.</div>
 </td>
 </tr>
 </table>
@@ -205,7 +205,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLoaded()">isLoaded</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns whether the native library is loaded.</div>
+<div class="block">Returns whether the native libraryKey is loaded.</div>
 </td>
 </tr>
 </table>
@@ -241,18 +241,18 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <pre>public&nbsp;NativeLibrary&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;libraryName,
                      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/ClassLoader.html?is-external=true" title="class or interface in java.lang" class="externalLink">ClassLoader</a>&nbsp;classLoader,
                      boolean&nbsp;supported)</pre>
-<div class="block">Load native library from given classloader.
+<div class="block">Load native libraryKey from given classloader.
  <p>
  Note regarding Java Platform Module System (JPMS):
- If classloader is <code>null</code>, the library can be only loaded from the module
+ If classloader is <code>null</code>, the libraryKey can be only loaded from the module
  that contains this class.
- If classloader is not <code>null</code>, then the package that contains the library
- must be specified as "open" in module-info.java of the module that contains the library.</div>
+ If classloader is not <code>null</code>, then the package that contains the libraryKey
+ must be specified as "open" in module-info.java of the module that contains the libraryKey.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>libraryName</code> - resource name of the native library (without "lib" prefix and without extension)</dd>
-<dd><code>classLoader</code> - the classloader used to locate the library, or <code>null</code></dd>
-<dd><code>supported</code> - whether the native library is supported on the current platform</dd>
+<dd><code>libraryName</code> - resource name of the native libraryKey (without "lib" prefix and without extension)</dd>
+<dd><code>classLoader</code> - the classloader used to locate the libraryKey, or <code>null</code></dd>
+<dd><code>supported</code> - whether the native libraryKey is supported on the current platform</dd>
 </dl>
 </li>
 </ul>
@@ -264,11 +264,11 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <h4>NativeLibrary</h4>
 <pre>public&nbsp;NativeLibrary&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/File.html?is-external=true" title="class or interface in java.io" class="externalLink">File</a>&nbsp;libraryFile,
                      boolean&nbsp;supported)</pre>
-<div class="block">Load native library from given file.</div>
+<div class="block">Load native libraryKey from given file.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>libraryFile</code> - the file of the native library</dd>
-<dd><code>supported</code> - whether the native library is supported on the current platform</dd>
+<dd><code>libraryFile</code> - the file of the native libraryKey</dd>
+<dd><code>supported</code> - whether the native libraryKey is supported on the current platform</dd>
 <dt><span class="simpleTagLabel">Since:</span></dt>
 <dd>2</dd>
 </dl>
@@ -282,14 +282,14 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <h4>NativeLibrary</h4>
 <pre>public&nbsp;NativeLibrary&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;libraryName,
                      boolean&nbsp;supported)</pre>
-<div class="block">Load native library using <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/System.html?is-external=true#loadLibrary(java.lang.String)" title="class or interface in java.lang" class="externalLink"><code>System.loadLibrary(String)</code></a>.
- Searches for the library in classloader of caller
+<div class="block">Load native libraryKey using <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/System.html?is-external=true#loadLibrary(java.lang.String)" title="class or interface in java.lang" class="externalLink"><code>System.loadLibrary(String)</code></a>.
+ Searches for the libraryKey in classloader of caller
  (using <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/ClassLoader.html?is-external=true#findLibrary(java.lang.String)" title="class or interface in java.lang" class="externalLink"><code>ClassLoader.findLibrary(String)</code></a>) and in paths specified
- in system properties <code>sun.boot.library.path</code> and <code>java.library.path</code>.</div>
+ in system properties <code>sun.boot.libraryKey.path</code> and <code>java.libraryKey.path</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>libraryName</code> - name of the native library (without "lib" prefix and without extension)</dd>
-<dd><code>supported</code> - whether the native library is supported on the current platform</dd>
+<dd><code>libraryName</code> - name of the native libraryKey (without "lib" prefix and without extension)</dd>
+<dd><code>supported</code> - whether the native libraryKey is supported on the current platform</dd>
 <dt><span class="simpleTagLabel">Since:</span></dt>
 <dd>2.6</dd>
 </dl>
@@ -312,7 +312,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <li class="blockList">
 <h4>isLoaded</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isLoaded()</pre>
-<div class="block">Returns whether the native library is loaded.
+<div class="block">Returns whether the native libraryKey is loaded.
  <p>
  Returns <code>false</code> if not supported on current platform as specified in constructor
  or if loading failed.</div>

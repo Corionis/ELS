@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class NavTreeUserObject implements Comparable
 {
-    public static final int BOOKMARKS = 0;
     public static final int COLLECTION = 1; // root of libraries
     public static final int COMPUTER = 2;
     public static final int DRIVE = 3;
@@ -235,8 +234,6 @@ public class NavTreeUserObject implements Comparable
     {
         switch (type)
         {
-            case BOOKMARKS:
-                return this.name;
             case COLLECTION:
                 return this.name;
             case COMPUTER:
@@ -296,8 +293,6 @@ public class NavTreeUserObject implements Comparable
         String label = (isRemote ? node.context.cfg.gs("Z.remote.uppercase") : node.context.cfg.gs("NavTreeNode.local"));
         switch (type)
         {
-            case BOOKMARKS:
-                return label + node.context.cfg.gs("NavTreeNode.bookmark");
             case COLLECTION:
                 return label + node.context.cfg.gs("NavTreeNode.collection");
             case COMPUTER:

@@ -146,17 +146,17 @@ public class Repositories
         return repoMeta;
     }
 
-/*
-    public Repository findRepo(String key)
+    public Repository findRepo(Context context, String key)
     {
         Repository repo = null;
         if (key != null && !key.isEmpty())
         {
+            repoList = loadAll(context, "user");
             if (repoList != null)
             {
                 for (Repository r : repoList)
                 {
-                    if (r.getLibraryData().libraries.key.equals(key))
+                    if (r.getLibraryData().libraries.key.equalsIgnoreCase(key))
                     {
                         repo = r;
                         break;
@@ -166,31 +166,6 @@ public class Repositories
         }
         return repo;
     }
-*/
-
-/*
-    public Repository findRepoDescription(String description)
-    {
-        Repository repo = null;
-        if (description != null && !description.isEmpty())
-        {
-            if (description.endsWith(" *"))
-                description = description.substring(0, description.length() - 2);
-            if (repoList != null)
-            {
-                for (Repository r : repoList)
-                {
-                    if (r.getLibraryData().libraries.description.equals(description))
-                    {
-                        repo = r;
-                        break;
-                    }
-                }
-            }
-        }
-        return repo;
-    }
-*/
 
     public Repository findRepoPath(String path)
     {
@@ -223,6 +198,49 @@ public class Repositories
     public ArrayList<Repository> getRepoList()
     {
         return repoList;
+    }
+
+    /**
+     * Return an ArrayList of repositories.
+     * <p>
+     * Does not alter the Repositories metaList or repoList.
+     * Only scans the libraries directory and returns the list.
+     *
+     * @param context
+     * @param type Text of what the purpose of this call is for error messages.
+     * @return List of available repositories.
+     */
+    public ArrayList<Repository> loadAll(Context context, String type)
+    {
+        ArrayList<Repository> list = new ArrayList<Repository>();
+        try
+        {
+            // load from Libraries directory
+            File libDir = new File(getDirectoryPath());
+            if (libDir.exists() && libDir.isDirectory())
+            {
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(libDir.toPath());
+                for (Path entry : directoryStream)
+                {
+                    boolean isDir = Files.isDirectory(entry);
+                    if (!isDir)
+                    {
+                        Repository repo = new Repository(context, -1);
+                        if (repo.read(entry.toAbsolutePath().toString(), type, false))
+                        {
+                            list.add(repo);
+                        }
+                    }
+                }
+            }
+            if (!list.isEmpty())
+                Collections.sort(repoList);
+        }
+        catch (Exception e)
+        {
+            // handled in repo.read()
+        }
+        return list;
     }
 
     public ArrayList<RepoMeta> loadList(Context context) throws Exception

@@ -17,19 +17,21 @@
             "Thumbs\\.db",
             "\\.DS_Store"
         ],
+        "email": "todd.hill@monkeyboy.com",
+        "format": "HTML",
+        "mismatches": true,
+        "whatsNew": true,
+        "skipOffline": true,
         "locations": [
             {
                 "location": "test/publisher",
-                "minimum": "40GB"
-            },
-            {
-                "location": "test/subscriber-one/media/TV Shows",
                 "minimum": "40GB"
             }
         ],
         "bibliography": [
             {
                 "name": "Movies",
+                "matchDates": false,
                 "sources": [
                     "test/publisher/media/Movies"
                 ],
@@ -37,6 +39,7 @@
             },
             {
                 "name": "TV Shows",
+                "matchDates": false,
                 "sources": [
                     "test/publisher/media/TV Shows",
                     "test/publisher/more-media/TV Shows"

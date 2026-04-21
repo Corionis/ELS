@@ -128,7 +128,7 @@ public class Settings extends JDialog
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                helpDialog = new NavHelp(owner, thisDialog, context, context.cfg.gs("Settings.date.format.help.title"), "formats_" + context.preferences.getLocale() + ".html", false);
+                helpDialog = new NavHelp(thisDialog, context, context.cfg.gs("Settings.date.format.help.title"), "formats_" + context.preferences.getLocale() + ".html", false);
                 if (!helpDialog.fault)
                     helpDialog.buttonFocus();
             }
@@ -214,7 +214,8 @@ public class Settings extends JDialog
     {
         try
         {
-            /* Dump all UIManager keys
+            // Dump all UIManager keys
+            /*
             UIDefaults defaults = UIManager.getDefaults();
             Enumeration<Object> keysEnumeration = defaults.keys();
             ArrayList<Object> keysList = Collections.list(keysEnumeration);
@@ -270,6 +271,7 @@ public class Settings extends JDialog
             context.mainFrame.panelToolbar.setBackground(context.mainFrame.menuToolbar.getBackground());
             context.mainFrame.setBrowserTabs(-1);
             context.browser.refreshAll();
+            context.navigator.setControls();
         }
         catch (Exception e)
         {
@@ -304,8 +306,19 @@ public class Settings extends JDialog
         defaultDryrunCheckBox.setSelected(context.preferences.isDefaultDryrun());
         if (context.preferences.getDefaultEmailServer().length() > 0)
             comboBoxEmailServer.setSelectedItem(context.preferences.getDefaultEmailServer());
+        usersCheckBox.setSelected(context.preferences.isUsersEnabled());
         generateLongOptionsCheckBox.setSelected(context.preferences.isGenerateLongOptions());
         preserveFileTimestampsCheckBox.setSelected(context.preferences.isPreserveFileTimes());
+
+        if (context.publisherUser.isAdmin())
+            showDevOptionscheckBox.setSelected(context.preferences.isShowDevOptions());
+        else
+        {
+            showDevOptionscheckBox.setSelected(false);
+            labelShowDev.setVisible(false);
+            showDevOptionscheckBox.setVisible(false);
+        }
+
         showGettingStartedCheckBox.setSelected(context.preferences.isShowGettingStarted());
         macosLauncherCheckBox.setSelected(context.preferences.isMacosLauncher());
 
@@ -394,8 +407,10 @@ public class Settings extends JDialog
             sel = "";
         context.preferences.setDefaultEmailServer(sel);
         context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
+        context.preferences.setUsersEnabled(usersCheckBox.isSelected());
         context.preferences.setGenerateLongOptions(generateLongOptionsCheckBox.isSelected());
         context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
+        context.preferences.setShowDevOptions(showDevOptionscheckBox.isSelected());
         context.preferences.setShowGettingStarted(showGettingStartedCheckBox.isSelected());
         context.preferences.setMacosLauncher(macosLauncherCheckBox.isSelected());
 
@@ -482,8 +497,12 @@ public class Settings extends JDialog
         generateLongOptionsCheckBox = new JCheckBox();
         preserveFileTimestampsLabel = new JLabel();
         preserveFileTimestampsCheckBox = new JCheckBox();
+        labelShowDev = new JLabel();
+        showDevOptionscheckBox = new JCheckBox();
         showGettingStarted = new JLabel();
         showGettingStartedCheckBox = new JCheckBox();
+        labelUsers = new JLabel();
+        usersCheckBox = new JCheckBox();
         useLastPubSubLabel = new JLabel();
         uselastPubSubCheckBox = new JCheckBox();
         macosLauncherLabel = new JLabel();
@@ -572,9 +591,9 @@ public class Settings extends JDialog
                     {
                         generalPanel.setLayout(new GridBagLayout());
                         ((GridBagLayout)generalPanel.getLayout()).columnWidths = new int[] {0, 0, 0};
-                        ((GridBagLayout)generalPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
+                        ((GridBagLayout)generalPanel.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                         ((GridBagLayout)generalPanel.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                        ((GridBagLayout)generalPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                        ((GridBagLayout)generalPanel.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                         //---- showDefaultDryrunLabel ----
                         showDefaultDryrunLabel.setText(context.cfg.gs("Settings.default.dry.runLabel.text"));
@@ -627,41 +646,65 @@ public class Settings extends JDialog
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
+                        //---- labelShowDev ----
+                        labelShowDev.setText(context.cfg.gs("Settings.labelShowDev.text"));
+                        generalPanel.add(labelShowDev, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+
+                        //---- showDevOptionscheckBox ----
+                        showDevOptionscheckBox.setToolTipText(context.cfg.gs("Settings.showDevOptions.toolTipText"));
+                        generalPanel.add(showDevOptionscheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
                         //---- showGettingStarted ----
                         showGettingStarted.setText(context.cfg.gs("Settings.showGettingStarted.text"));
-                        generalPanel.add(showGettingStarted, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showGettingStarted, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 5), 0, 0));
 
                         //---- showGettingStartedCheckBox ----
                         showGettingStartedCheckBox.setToolTipText("Uncheck to not show Getting Started at Navigator start");
-                        generalPanel.add(showGettingStartedCheckBox, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                        generalPanel.add(showGettingStartedCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 20, 0), 0, 0));
+
+                        //---- labelUsers ----
+                        labelUsers.setText(context.cfg.gs("Settings.labelUsers.text"));
+                        generalPanel.add(labelUsers, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 8, 20, 5), 0, 0));
+
+                        //---- usersCheckBox ----
+                        usersCheckBox.setToolTipText(context.cfg.gs("Settings.usersCheckBox.toolTipText"));
+                        generalPanel.add(usersCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- useLastPubSubLabel ----
                         useLastPubSubLabel.setText(context.cfg.gs("Settings.useLastPubSubLabel.text"));
-                        generalPanel.add(useLastPubSubLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                        generalPanel.add(useLastPubSubLabel, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 8, 20, 24), 0, 0));
 
                         //---- uselastPubSubCheckBox ----
                         uselastPubSubCheckBox.setToolTipText(context.cfg.gs("Settings.uselastPubSubCheckBox.toolTipText"));
-                        generalPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                        generalPanel.add(uselastPubSubCheckBox, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 0), 0, 0));
 
                         //---- macosLauncherLabel ----
                         macosLauncherLabel.setText(context.cfg.gs("Settings.macosLauncherLabel.text"));
-                        generalPanel.add(macosLauncherLabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                        generalPanel.add(macosLauncherLabel, new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 8, 20, 5), 0, 0));
+                            new Insets(0, 8, 0, 5), 0, 0));
 
                         //---- macosLauncherCheckBox ----
                         macosLauncherCheckBox.setToolTipText("Uncheck to use ELS-Navigator.sh script internally and for shortcuts");
-                        generalPanel.add(macosLauncherCheckBox, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                        generalPanel.add(macosLauncherCheckBox, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 20, 0), 0, 0));
+                            new Insets(0, 0, 0, 0), 0, 0));
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
                     settingsTabbedPane.setMnemonicAt(0, context.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
@@ -712,9 +755,9 @@ public class Settings extends JDialog
                             new Insets(-6, 0, 14, 0), 0, 0));
 
                         //---- vSpacer1 ----
-                        vSpacer1.setMaximumSize(new Dimension(32767, 26));
-                        vSpacer1.setMinimumSize(new Dimension(12, 26));
-                        vSpacer1.setPreferredSize(new Dimension(10, 26));
+                        vSpacer1.setMaximumSize(new Dimension(32767, 2));
+                        vSpacer1.setMinimumSize(new Dimension(12, 2));
+                        vSpacer1.setPreferredSize(new Dimension(10, 2));
                         apperancePanel.add(vSpacer1, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 20, 5), 0, 0));
@@ -1012,8 +1055,12 @@ public class Settings extends JDialog
     private JCheckBox generateLongOptionsCheckBox;
     private JLabel preserveFileTimestampsLabel;
     private JCheckBox preserveFileTimestampsCheckBox;
+    private JLabel labelShowDev;
+    private JCheckBox showDevOptionscheckBox;
     private JLabel showGettingStarted;
     private JCheckBox showGettingStartedCheckBox;
+    private JLabel labelUsers;
+    private JCheckBox usersCheckBox;
     private JLabel useLastPubSubLabel;
     private JCheckBox uselastPubSubCheckBox;
     private JLabel macosLauncherLabel;

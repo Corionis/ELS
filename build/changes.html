@@ -13,6 +13,26 @@
 
 <hr/>
 
+<h3>???????????? January 2026</h3>
+<ul>
+    <li>Added Libraries, User tab to define user access and options if User-level security is enabled in Preferences.</li>
+    <li>Added a * change indicator for configuration dialogs.</li>
+    <li>Added "User:Connection" information to the top-right toolbar.</li>
+    <li>Added the ability for the Whitelist and Blacklist to contain both IP addresses and host/domain names.</li>
+    <li>Made the Word Wrap Log option persistent.</li>
+    <li>Added tooltips to the Duplicate Finder for long paths.</li>
+    <li>Fixed the Copy function in some Tool dialogs.</li>
+    <li>Fixed renaming a configuration where the original file was not deleted.</li>
+    <li>Fixed going from a local connection to a remote connection.</li>
+    <li>Removed support for -r L Publisher Listener and -r T Subscriber Terminal operations.</li>
+    <li>Removed -T [file] targets option.</li>
+    <li>Redefined -t option to trigger a back-up operation from a Publisher.</li>
+    <li>Upgraded the embedded Java to 21.0.9.</li>
+    <li>Upgraded the FlatLaf libraries to 3.6.2.</li>
+</ul>
+
+<hr/>
+
 <h3>21 October 2025</h3>
 <ul>
     <li>Release 4.1.2.</li>
@@ -30,7 +50,7 @@
 <ul>
     <li>Release 4.1.</li>
     <li>Fixed minor display bug in Email Servers.</li>
-    <li>Fixed an Updater library bug.</li>
+    <li>Fixed an Updater libraryKey bug.</li>
 </ul>
 
 <h3>18 October 2025</h3>
@@ -38,7 +58,7 @@
     <li>Added Tools, Cleanup to remove files older than n days.</li>
     <li>Added Cleanup Tool as a Task selection to Jobs.</li>
     <li>Fixed Help dialog only displaying once per parent dialog.</li>
-    <li>Fixed Help dialog escape key handling.</li>
+    <li>Fixed Help dialog escape libraryKey handling.</li>
 </ul>
 
 <h3>15 October 2025</h3>
@@ -304,7 +324,7 @@
 <ul>
     <li>Fixed Library field updating. More testing needed.</li>
     <li>Fixed an sftp port bug when reopening remote Subscribers.</li>
-    <li>Fixed Libraries key handling.</li>
+    <li>Fixed Libraries libraryKey handling.</li>
 </ul>
 
 <h3>15 October 2024</h3>
@@ -322,7 +342,7 @@
     <li>Subscriber operations do not require a Hint Server and will be ignored. Hints are handled by Publishers.</li>
     <li>Removed Hint Tracker/Server combobox and file value from Operations so the Hint Tracker/Sever Origin is defined in a Job Task.</li>
     <li><i>Important:</i> To enable the use of Hints in a Job Task define Hint Keys in the Operations Tool.</li>
-    <li>Fixed updating Jobs when a Library is renamed or its key is changed, or if Hint Keys are removed.</li>
+    <li>Fixed updating Jobs when a Library is renamed or its libraryKey is changed, or if Hint Keys are removed.</li>
     <li>Fixed dynamic updating of the Browser and Hints dialog as Hints are added, run, etc.</li>
     <li>Fixed restoring mnemonics, arrows, etc. on Cancel in Settings.</li>
     <li>Changed the default Browser tab location from bottom to top and fixed a related bug.</li>
@@ -359,7 +379,7 @@
 
 <h3>27 July 2024</h3>
 <ul>
-    <li>Fixed null pointer after Job Run if an origin library was not previously loaded.</li>
+    <li>Fixed null pointer after Job Run if an origin libraryKey was not previously loaded.</li>
     <li>Fixed toolbar show/hide on restart.</li>
     <li>Fixed start-up bug when there are no repositories defined yet.</li>
     <li>Fixed File, Open Subscriber when there is an existing remote connection.</li>
@@ -369,7 +389,7 @@
     <li>Added -J | --override-hints-server to use the listen address:port for out-going Hint Server connections from clients.</li>
     <li>Note: "Clients" are Navigator and remote Publisher processes.</li>
     <li>Added Hint Tracker/Server to Jobs, Tasks, Origins when required by the Task.</li>
-    <li>Hint Server previously used the Task Subscriber key for Job Tasks but was changed to have its own key.</li>
+    <li>Hint Server previously used the Task Subscriber libraryKey for Job Tasks but was changed to have its own libraryKey.</li>
     <li>Cleaned-up dry-run handling in Run and Generate dialogs. Removed that option from Operations.</li>
     <li>Added Run in another foreground or background instance option to the Jobs, Generate dialog.</li>
     <li>Added display of dynamically-loaded remote Repository to Libraries tab. Not editable. Removed when closed.</li>
@@ -496,7 +516,7 @@
 
 <h3>4 March 2024</h3>
 <ul>
-    <li>Updated log4j library to 2.23.0.</li>
+    <li>Updated log4j libraryKey to 2.23.0.</li>
     <li>Created project <a href="https://github.com/Corionis/MergeLog4j2Plugins">MergeLog4j2Plugins</a> and added to Ant build script to solve start-up warnings.</li>
 </ul>
 
@@ -559,7 +579,7 @@
 
 <h3>31 January 2024</h3>
 <ul>
-    <li>Fixed a null pointer bug if the subscriber key is missing from Hint Keys.</li>
+    <li>Fixed a null pointer bug if the subscriber libraryKey is missing from Hint Keys.</li>
 </ul>
 
 <h3>31 January 2024</h3>
@@ -672,7 +692,7 @@
 <h3>11 October 2023</h3>
 <ul>
     <li>Fixed File, Open Subscriber to default to the correct previous path and filename.</li>
-    <li>Enhanced Browser tab key, Alt-1 through 4 and mouse tab change default focus handling.</li>
+    <li>Enhanced Browser tab libraryKey, Alt-1 through 4 and mouse tab change default focus handling.</li>
 </ul>
 
 <h3>9 October 2023</h3>
@@ -705,7 +725,7 @@
 <h3>4 October 2023</h3>
 <ul>
     <li>Changed rules to allow a Navigator to connect to a remote subscriber with only the General tab connection information.</li>
-    <li>Fixed bug that did not request a remote subscriber library using File, Open Subscriber.</li>
+    <li>Fixed bug that did not request a remote subscriber libraryKey using File, Open Subscriber.</li>
     <li>Fixed bug where Hints were created for System tab operations. Hints are only used in Libraries.</li>
     <li>Fixed bug that did not reset the accent color to default if Setting, Appearance, Accent color was cleared.</li>
     <li>Rearranged the ant build script:</li>

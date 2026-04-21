@@ -25,7 +25,9 @@ import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.text.MessageFormat;
 import java.util.*;
@@ -121,6 +123,16 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         return e.toString();
     }
 
+    /**
+     * Find entry in Whitelist
+     *
+     * Note: There are 3 various of this method. See also InviteUI and Listener.
+     *
+     * @param socketAddress The new connection
+     * @param whiteList True if searching whitelist, others will search blacklist
+     * @return true if in list
+     * @throws IOException
+     */
     private boolean isListed(SocketAddress socketAddress, boolean whiteList) throws IOException
     {
         boolean sense = whiteList;
@@ -144,6 +156,21 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                         line = line.trim();
                         if (line.length() > 0 && !line.startsWith("#"))
                         {
+                            if (line.matches("[a-zA-Z-]+"))
+                            {
+                                try
+                                {
+                                    InetAddress address = InetAddress.getByName(line);
+                                    line = address.getHostAddress();
+                                    line = line.replaceAll("/", "");
+                                    line = line.replaceAll("\\\\", "");
+                                }
+                                catch (UnknownHostException ex)
+                                {
+                                    logger.error(MessageFormat.format(context.cfg.gs("Listener.unknown.host.in.choice.whitelist.blacklist"), (whiteList) ? 0 : 1, line));
+                                    continue;
+                                }
+                            }
                             if (inet.equals(line))
                             {
                                 sense = true;

@@ -10,11 +10,13 @@ public class JunkTableModel extends DefaultTableModel
 {
     private Context context;
     private JunkRemoverTool tool;
+    private JunkRemoverUI junkRemoverUI;
 
-    public JunkTableModel(Context context)
+    public JunkTableModel(Context context, JunkRemoverUI junkRemoverUI)
     {
         super();
         this.context = context;
+        this.junkRemoverUI = junkRemoverUI;
     }
 
     public int find(String pattern)
@@ -117,17 +119,20 @@ public class JunkTableModel extends DefaultTableModel
     {
         if (tool != null)
         {
+            int configIndex = junkRemoverUI.configItems.getSelectedRow();
             JunkRemoverTool.JunkItem ji = tool.getJunkList().get(row);
             if (column == 0)
             {
                 ji.wildcard = ((JTextField) object).getText();
                 tool.setDataHasChanged();
+                junkRemoverUI.configModel.fireTableRowsUpdated(configIndex, configIndex);
             }
 
             if (column == 1)
             {
                 ji.caseSensitive = ((Boolean) object).booleanValue();
                 tool.setDataHasChanged();
+                junkRemoverUI.configModel.fireTableRowsUpdated(configIndex, configIndex);
             }
         }
     }

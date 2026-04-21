@@ -5,7 +5,7 @@ show_blog: false
 
 <center><span style="font-size: 28px; font-face: bold; font-weight: bold; margin-top: 10px; color: #925600;">What Is ELS?</span></center>
 <hr/>
-Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built library and title oriented tool for managing and backing-up data
+Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built libraryKey and title oriented tool for managing and backing-up data
 with expandable storage spanning multiple devices.
 
 Any project with large amounts of data for home videos, YouTube, TikTok, Instagram, game development, 3D modeling, science, or media systems such as Plex
@@ -17,7 +17,7 @@ ELS is a free tool with both graphical and command line interfaces and a wide va
 
  * ELS was started in 2015 as a command line back-up tool for home media systems. Version 4.0 adds a full-featured desktop application.
 
- * Views a collection of libraries spanning multiple storage devices the same way modern media systems do - on a logical library basis. 
+ * Views a collection of libraries spanning multiple storage devices the same way modern media systems do - on a logical libraryKey basis. 
    Things like movies, TV shows, video segments, graphics, sound effects, scientific data, etc.
    
    Works well for home media systems, video and music projects, graphics modeling, game projects, scientific data or any large amount 

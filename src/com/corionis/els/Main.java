@@ -58,6 +58,7 @@ import static com.corionis.els.Configuration.*;
 public class Main
 {
     public Context context;
+    public Job job = null;
     public String localeAbbrev; // abbreviation of locale, e.g. en_US
     public Logger logger = null; // log4j2 logger singleton
     public boolean mockMode = false; // instead of downloading get from mock/bin/; see els_updater/Main
@@ -70,7 +71,7 @@ public class Main
 
     private boolean catchExceptions = true;
     private boolean isListening = false; // listener mode
-    public Job job = null;
+    private Thread shutdownHook = null;
 
     /**
      * Hide default constructor
@@ -400,38 +401,12 @@ public class Main
                                 // execute the download and unpack procedure then execute the Updater
                                 new DownloadUpdater(context, gui ? context.navigator : null, version, prefix);
                             }
-/* Enabled Mac Updates 6/5/2025 with .mac.tar.gz
-                            else
-                            {
-                                try
-                                {
-                                    if (gui)
-                                        Desktop.getDesktop().browse(uri);
-                                    else
-                                    {
-                                        String note;
-                                        if (Utils.isOsMac())
-                                            note = context.cfg.gs("Navigator.install.available.at") + uri;
-                                        else
-                                            note = context.cfg.gs("Navigator.install.use.option.y.to.install.update");
-                                        message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.update.version.text"),
-                                                Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE)) + note;
-                                        System.out.println(message);
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.launching.browser"),
-                                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                }
-                            }
-*/
                             break;
                         }
                         else if (reply == JOptionPane.CANCEL_OPTION) // show Changelist
                         {
                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                            NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context,
+                            NavHelp helpDialog = new NavHelp(context.mainFrame, context,
                                     context.cfg.gs("Navigator.recent.changes"), version.get(Configuration.BUILD_CHANGES_URL), true);
                             if (!helpDialog.fault)
                             {
@@ -473,6 +448,7 @@ public class Main
      */
     public void checkWorkingDirectories() throws Exception
     {
+        // main directories
         String[] stdDirs = {"jobs", "libraries", "local", "system", "tools"};
         String working = context.cfg.getWorkingDirectory();
         for (int i = 0; i < stdDirs.length; ++i)
@@ -482,7 +458,8 @@ public class Main
                 Files.createDirectories(dir);
         }
 
-        String[] localDirs = {"Email"};
+        // local subdirectories
+        String[] localDirs = {"Email", "Templates"};
         for (int i = 0; i < localDirs.length; ++i)
         {
             Path dir = Paths.get(working, "local", localDirs[i]);
@@ -490,7 +467,8 @@ public class Main
                 Files.createDirectories(dir);
         }
 
-        String[] toolDirs = {"Archiver", "JunkRemover", "Operations", "Renamer", "Sleep"};
+        // tools subdirectories
+        String[] toolDirs = {"Archiver", "Cleanup", "JunkRemover", "Operations", "Renamer", "Sleep"};
         for (int i = 0; i < toolDirs.length; ++i)
         {
             Path dir = Paths.get(working, "tools", toolDirs[i]);
@@ -550,7 +528,7 @@ public class Main
                             catchExceptions = true;
 
                             // start the hintsStty client connection to the Hint Status Server
-                            context.hintsStty = new ClientStty(context, false, true, true); //primaryServers);
+                            context.hintsStty = new ClientStty(context, false, true); //primaryServers);
                             if (!context.hintsStty.connect(repo, context.hintsRepo))
                             {
                                 msg = "";
@@ -653,7 +631,7 @@ public class Main
             if (context.publisherRepo != null && context.subscriberRepo != null)
             {
                 // start the clientStty
-                context.clientStty = new ClientStty(context, isTerminal, true, false);
+                context.clientStty = new ClientStty(context, isTerminal, false);
                 if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                 {
                     Persistent.couldNotConnect = true;
@@ -676,6 +654,9 @@ public class Main
             context.clientSftp = null;
             context.clientSftpMetadata = null;
             context.cfg.setOperation("-");
+            context.subscriberRepo = null;
+            context.cfg.setSubscriberCollectionFilename("");
+            context.cfg.setSubscriberLibrariesFileName("");
 
             if (isStartupActive() && promptOnFailure)
             {
@@ -1118,6 +1099,8 @@ public class Main
             // use preferences for empty publisher/subscriber/hint server arguments for Navigator
             checkEmptyArguments();
 
+            context.tools = new Tools();
+
             //
             // an execution of this program can only be configured as one of these operations
             //
@@ -1136,14 +1119,23 @@ public class Main
                         if (context.cfg.getPublisherFilename().length() > 0)
                         {
                             context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+
+                            if ((context.publisherUser = context.publisherRepo.login()) == null)
+                                throw new MungeException(context.cfg.gs("Z.publisher.login.failed"));
                         }
 
                         if (context.cfg.getSubscriberFilename().length() > 0)
                         {
+                            if (context.publisherRepo == null && context.preferences.isUsersEnabled())
+                                throw new MungeException(context.cfg.gs("Cannot open Subscriber without a Publisher"));
+
                             context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+
+                            if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, false)) == null)
+                                throw new MungeException(MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                        context.publisherRepo.getLibraries().description, context.subscriberRepo.getLibraries().description));
                         }
 
-                        context.tools = new Tools();
                         context.tools.loadAllTools(context, null);
 
                         // setup the hint status server if defined
@@ -1167,6 +1159,9 @@ public class Main
                         else
                             throw new MungeException(context.cfg.gs("Process.a.p.publisher.library.or.p.collection.file.is.required.for.local.publish"));
 
+                        if ((context.publisherUser = context.publisherRepo.login()) == null)
+                            throw new MungeException(context.cfg.gs("Z.publisher.login.failed"));
+
                         if (!context.cfg.isValidation() && (context.cfg.getSubscriberFilename().length() > 0))
                         {
                             context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
@@ -1176,50 +1171,22 @@ public class Main
                             context.subscriberRepo = context.publisherRepo;
                         }
 
+                        if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, false)) == null)
+                            throw new MungeException(MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                    context.publisherRepo.getLibraries().description, context.subscriberRepo.getLibraries().description));
+
+                        context.tools.loadAllTools(context, null);
+
                         // setup the hint status server for local use if defined
                         connectHints(context.publisherRepo);
+
+                        if (context.cfg.isGui())
+                            context.navigator.displayConnection();
 
                         // the Process class handles the ELS process
                         context.process = new Process(context);
                         context.process.process();
                         context.process = null;
-                    }
-                    break;
-
-                // --- -r L publisher listener for remote subscriber -r T connections
-                case PUBLISHER_LISTENER:
-                    logger.info("+------------------------------------------");
-                    whatsRunning = "ELS: Publisher Listener";
-                    logger.info(whatsRunning + context.cfg.gs("Main.version") + getBuildVersionName() + ", " + getBuildDate());
-                    context.cfg.dump();
-
-                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
-                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
-
-                    // start servers for -r T & clients for get command in stty.publisher.Daemon
-                    if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
-                    {
-                        // connect to the hint status server if defined
-                        if (context.cfg.isHintTrackingEnabled())
-                        {
-                            context.cfg.disableHintTracking();
-                            logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
-                        }
-                        connectHints(context.publisherRepo);
-
-                        // start serveStty server
-                        sessionThreads = new ThreadGroup("publisher.listener");
-                        context.serveStty = new ServeStty(sessionThreads, 100, context, true);
-                        context.serveStty.startListening(context.publisherRepo);
-                        isListening = true;
-
-                        // start serveSftp server
-                        context.serveSftp = new ServeSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                        context.serveSftp.startServer();
-                    }
-                    else
-                    {
-                        throw new MungeException(context.cfg.gs("Main.a.publisher.library.p.or.collection.file.p.is.required.for"));
                     }
                     break;
 
@@ -1276,7 +1243,13 @@ public class Main
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+
+                    if ((context.publisherUser = context.publisherRepo.login()) == null)
+                        throw new MungeException(context.cfg.gs("Z.publisher.login.failed"));
+
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+
+                    context.tools.loadAllTools(context, null);
 
                     // start clients
                     if (context.cfg.isNavigator() || (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized()))
@@ -1286,14 +1259,21 @@ public class Main
                         connectHints(context.publisherRepo);
 
                         // start the serveStty client for automation
-                        if (connectSubscriber(false, true))
+                        if (connectSubscriber(false, context.cfg.isGui()))
                         {
+                            if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, true)) == null)
+                            {
+                                context.clientStty.disconnect();
+                                throw new MungeException(MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                        context.publisherRepo.getLibraries().description, context.subscriberRepo.getLibraries().description));
+                            }
+
                             // start the serveSftp transfer client
                             context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                             if (!context.clientSftp.startClient("transfer"))
                             {
                                 throw new MungeException(MessageFormat.format(context.cfg.gs("Main.subscriber.sftp.transfer.to.failed.to.connect"),
-                                        context.subscriberRepo.getLibraryData().libraries.description));
+                                        context.subscriberRepo.getLibraries().description));
                             }
                         }
                         else
@@ -1302,9 +1282,6 @@ public class Main
                         // handle -n|--navigator to display the Navigator
                         if (context.cfg.isNavigator())
                         {
-                            context.tools = new Tools();
-                            context.tools.loadAllTools(context, null);
-
                             if (commOk)
                             {
                                 // start the serveSftp metadata client
@@ -1346,8 +1323,8 @@ public class Main
                     logger.info(whatsRunning + context.cfg.gs("Main.version") + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
-                    if (!context.cfg.isTargetsEnabled())
-                        throw new MungeException(context.cfg.gs("Main.targets.required"));
+//                    if (!context.cfg.isTargetsEnabled())
+//                        throw new MungeException(context.cfg.gs("Main.targets.required"));
 
                     if (context.cfg.getPublisherFilename().length() > 0)
                     {
@@ -1362,6 +1339,8 @@ public class Main
                     }
 
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.VALIDATE);
+
+                    // QUESTION: Should subscriber login to itself like publisher?
 
                     // start servers
                     if (context.subscriberRepo.isInitialized() && ((context.publisherRepo == null || context.publisherRepo.isInitialized())))
@@ -1387,60 +1366,6 @@ public class Main
                     else
                     {
                         throw new MungeException(context.cfg.gs("Main.subscriber.and.publisher.or.authentication.options.are.required.for"));
-                    }
-                    break;
-
-                // --- -r T subscriber manual terminal to publisher -r L
-                case SUBSCRIBER_TERMINAL:
-                    logger.info("+------------------------------------------");
-                    whatsRunning = "ELS: Subscriber Terminal";
-                    logger.info(whatsRunning + context.cfg.gs("Main.version") + getBuildVersionName() + ", " + getBuildDate());
-                    context.cfg.dump();
-
-                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
-                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.VALIDATE);
-
-                    // start clients
-                    if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
-                    {
-                        // connect to the hint status server if defined
-                        if (context.cfg.isHintTrackingEnabled())
-                        {
-                            context.cfg.disableHintTracking();
-                            logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
-                        }
-                        connectHints(context.subscriberRepo);
-
-                        // start the serveStty client interactively
-                        if (connectSubscriber(true, false))
-                        {
-                            String directory = context.clientStty.getWorkingDirectoryRemote();
-                            context.cfg.setWorkingDirectorySubscriber(directory);
-
-                            // start the serveSftp transfer client
-                            context.clientSftp = new ClientSftp(context, context.subscriberRepo, context.publisherRepo, true);
-                            if (!context.clientSftp.startClient("transfer"))
-                            {
-                                throw new MungeException(MessageFormat.format(context.cfg.gs("Main.publisher.sftp.transfer.to.failed.to.connect"), context.publisherRepo.getLibraryData().libraries.description));
-                            }
-
-                            // start serveStty server
-                            sessionThreads = new ThreadGroup("subscriber.terminal");
-                            context.serveStty = new ServeStty(sessionThreads, 100, context, false);
-                            context.serveStty.startListening(context.subscriberRepo);
-                            isListening = true;
-
-                            // start serveSftp server
-                            context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, false);
-                            context.serveSftp.startServer();
-
-                            context.clientStty.terminalSession();
-                            setListening(true); // fake listener to wait for shutdown
-                        }
-                    }
-                    else
-                    {
-                        throw new MungeException(context.cfg.gs("Main.a.subscriber.s.or.s.file.and.publisher.p.or.p.is.required.for.r.t"));
                     }
                     break;
 
@@ -1550,6 +1475,13 @@ public class Main
                         // start the serveStty client
                         if (connectSubscriber(false, false))
                         {
+                            if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, true)) == null)
+                            {
+                                context.clientStty.disconnect();
+                                throw new MungeException(MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                        context.publisherRepo.getLibraries().description, context.subscriberRepo.getLibraries().description));
+                            }
+
                             try
                             {
                                 context.clientStty.send("stop", context.cfg.gs("Main.sending.stop.command.to.remote.subscriber"));
@@ -1569,11 +1501,21 @@ public class Main
                     if (context.cfg.getPublisherFilename().length() > 0)
                     {
                         context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+
+                        if ((context.publisherUser = context.publisherRepo.login()) == null)
+                            throw new MungeException(context.cfg.gs("Z.publisher.login.failed"));
                     }
 
                     if (context.cfg.getSubscriberFilename().length() > 0)
                     {
+                        if (context.publisherRepo == null && context.preferences.isUsersEnabled())
+                            throw new MungeException(context.cfg.gs("Cannot open Subscriber without a Publisher"));
+
                         context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+
+                        if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, false)) == null)
+                            throw new MungeException(MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                    context.publisherRepo.getLibraries().description, context.subscriberRepo.getLibraries().description));
                     }
 
                     Job tmpJob = new Job(context, context.cfg.getJobName());
@@ -1581,7 +1523,6 @@ public class Main
                     if (job == null)
                         throw new MungeException(MessageFormat.format(context.cfg.gs("Main.job.could.not.be.loaded"), context.cfg.getJobName()));
 
-                    context.tools = new Tools();
                     context.tools.loadAllTools(context, null);
 
                     if (!job.getTasks().isEmpty())
@@ -1720,7 +1661,7 @@ public class Main
                 // see ServeStty.run(). Also System.exit(0) triggers it and
                 // is preferred over trying to determine which threads are
                 // still alive and will block or hang
-                Runtime.getRuntime().addShutdownHook(new Thread()
+                shutdownHook = new Thread()
                 {
                     @Override
                     public void run()
@@ -1730,7 +1671,8 @@ public class Main
                             Runtime.getRuntime().halt(context.fault ? 1 : 0);
                         }
                     }
-                });
+                };
+                Runtime.getRuntime().addShutdownHook(shutdownHook);
                 logger.trace(context.cfg.gs("Main.listener.shutdown.hook.added") + whatsRunning);
             }
         }
@@ -1762,22 +1704,24 @@ public class Main
                         JOptionPane.PLAIN_MESSAGE, context.cfg.isUpdateSuccessful() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE,
                         null, opts, opts[0]);
             }
-            else if (context.cfg.isNavigator() && context.preferences.isShowGettingStarted()) // show Getting Started
+            else if (context.cfg.isNavigator())
             {
-                try
+                if (context.preferences.isShowGettingStarted()) // show Getting Started
                 {
-                    // give the GUI time to come up
-                    while (context.navigator == null || context.mainFrame == null || !context.mainFrame.isVisible())
-                        Thread.sleep(1000);
-                }
-                catch (Exception e)
-                {
-                    //
-                }
+                    try
+                    {
+                        // give the GUI time to come up on it's own thread
+                        while (context.navigator == null || context.mainFrame == null || !context.mainFrame.isVisible())
+                            Thread.sleep(2000);
+                    }
+                    catch (Exception e)
+                    {
+                    }
 
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html", false);
-                if (!dialog.fault)
-                    dialog.buttonFocus();
+                    NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html", false);
+                    if (!dialog.fault)
+                        dialog.buttonFocus();
+                }
             }
         }
 
@@ -1936,7 +1880,7 @@ public class Main
         if (buf.length > 0 && input != null)
             input = decrypt(key, buf);
 
-        logger.trace(MessageFormat.format(context.cfg.gs("Main.read.done.choice.bytes"), input.length(),(input != null) ? 0 : 1) + whatsRunning);
+        logger.trace(MessageFormat.format(context.cfg.gs("Main.read.done.choice.bytes"), (input != null) ? input.length() : 0, (input != null) ? 0 : 1) + whatsRunning);
         return input;
     }
 
@@ -2101,6 +2045,13 @@ public class Main
                 logger.trace(context.cfg.gs("Main.stty.server"));
                 context.serveStty.stopServer();
                 context.serveStty = null;
+                setListening(false);
+                if (shutdownHook != null)
+                {
+                    Runtime.getRuntime().removeShutdownHook(shutdownHook);
+                    logger.trace(context.cfg.gs("Main.listener.shutdown.hook.removed") + whatsRunning);
+                }
+                shutdownHook = null;
             }
         }
         catch (Exception e)

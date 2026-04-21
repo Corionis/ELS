@@ -76,6 +76,16 @@ public class Listener extends Thread
         return addr.getHostAddress();
     }
 
+    /**
+     * Find entry in Whitelist
+     *
+     * Note: There are 3 various of this method. See also InviteUI and ServeSftp.
+     *
+     * @param aSocket The socket of the new connection
+     * @param whiteList True if searching whitelist, others will search blacklist
+     * @return true if in list
+     * @throws IOException
+     */
     private boolean isListed(Socket aSocket, boolean whiteList) throws IOException
     {
         boolean sense = whiteList;
@@ -98,6 +108,23 @@ public class Listener extends Thread
                         line = line.trim();
                         if (line.length() > 0 && !line.startsWith("#"))
                         {
+                            if (line.matches("[a-zA-Z-]+"))
+                            {
+                                try
+                                {
+                                    InetAddress address = InetAddress.getByName(line);
+                                    line = address.getHostAddress();
+                                    line = line.replaceAll("/", "");
+                                    line = line.replaceAll("\\\\", "");
+                                }
+                                catch (UnknownHostException ex)
+                                {
+                                    logger.error(MessageFormat.format(context.cfg.gs("Listener.unknown.host.in.choice.whitelist.blacklist"), (whiteList) ? 0 : 1, line));
+                                    context.main.flushLogger();
+                                    context.main.sendFaultEmail();
+                                    continue;
+                                }
+                            }
                             if (inet.equals(line))
                             {
                                 sense = true;

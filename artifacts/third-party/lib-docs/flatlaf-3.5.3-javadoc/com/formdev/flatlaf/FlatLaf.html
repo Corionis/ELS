@@ -349,9 +349,9 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStyleableValue(javax.swing.JComponent,java.lang.String)">getStyleableValue</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/javax/swing/JComponent.html?is-external=true" title="class or interface in javax.swing" class="externalLink">JComponent</a>&nbsp;c,
-                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key)</code></th>
+                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;libraryKey)</code></th>
 <td class="colLast">
-<div class="block">Returns the (styled) value for the given key from the given component.</div>
+<div class="block">Returns the (styled) value for the given libraryKey from the given component.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
@@ -444,7 +444,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop
 </tr>
 <tr id="i30" class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDefaultsValue(java.lang.String,java.lang.String,java.lang.Class)">parseDefaultsValue</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDefaultsValue(java.lang.String,java.lang.String,java.lang.Class)">parseDefaultsValue</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;libraryKey,
                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;value,
                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;?&gt;&nbsp;valueType)</code></th>
 <td class="colLast">
@@ -1215,7 +1215,7 @@ public static&nbsp;boolean&nbsp;install&#8203;(<a href="https://docs.oracle.com/
 <ul class="blockList">
 <li class="blockList">
 <h4>parseDefaultsValue</h4>
-<pre class="methodSignature">public static&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;parseDefaultsValue&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
+<pre class="methodSignature">public static&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;parseDefaultsValue&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;libraryKey,
                                         <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;value,
                                         <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;?&gt;&nbsp;valueType)
                                  throws <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang" class="externalLink">IllegalArgumentException</a></pre>
@@ -1224,7 +1224,7 @@ public static&nbsp;boolean&nbsp;install&#8203;(<a href="https://docs.oracle.com/
  See: <a href="https://www.formdev.com/flatlaf/properties-files/">https://www.formdev.com/flatlaf/properties-files/</a></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>key</code> - the key, which is used to determine the value type if parameter <code>valueType</code> is <code>null</code></dd>
+<dd><code>libraryKey</code> - the libraryKey, which is used to determine the value type if parameter <code>valueType</code> is <code>null</code></dd>
 <dd><code>value</code> - the value string</dd>
 <dd><code>valueType</code> - the expected value type, or <code>null</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1307,7 +1307,7 @@ public static&nbsp;boolean&nbsp;install&#8203;(<a href="https://docs.oracle.com/
 <div class="block">Returns whether native window decorations are supported on current platform.
  <p>
  This requires Windows 10/11, but may be disabled if running in special environments
- (JetBrains Projector, Webswing or WinPE) or if loading native library fails.
+ (JetBrains Projector, Webswing or WinPE) or if loading native libraryKey fails.
  If system property <a href="FlatSystemProperties.html#USE_WINDOW_DECORATIONS"><code>FlatSystemProperties.USE_WINDOW_DECORATIONS</code></a> is set to
  <code>false</code>, then this method also returns <code>false</code>.</div>
 <dl>
@@ -1443,7 +1443,7 @@ public static&nbsp;boolean&nbsp;install&#8203;(<a href="https://docs.oracle.com/
  This allows using different UI defaults for special purposes
  (e.g. using multiple themes at the same time).
  <p>
- The key is passed as parameter to the function.
+ The libraryKey is passed as parameter to the function.
  If the function returns <code>null</code>, then the next registered function is invoked.
  If all registered functions return <code>null</code>, then the current look and feel is asked.
  If the function returns <a href="#NULL_VALUE"><code>NULL_VALUE</code></a>, then the UI value becomes <code>null</code>.</div>
@@ -1488,7 +1488,7 @@ public static&nbsp;boolean&nbsp;install&#8203;(<a href="https://docs.oracle.com/
  If the current look and feel is not FlatLaf, then the getter is ignored and
  the given runnable invoked.
  <p>
- The key is passed as parameter to the function.
+ The libraryKey is passed as parameter to the function.
  If the function returns <code>null</code>, then the next registered function is invoked.
  If all registered functions return <code>null</code>, then the current look and feel is asked.
  If the function returns <a href="#NULL_VALUE"><code>NULL_VALUE</code></a>, then the UI value becomes <code>null</code>.
@@ -1499,8 +1499,8 @@ public static&nbsp;boolean&nbsp;install&#8203;(<a href="https://docs.oracle.com/
  UIDefaults darkDefaults = new FlatDarkLaf().getDefaults();
 
  // create panel using secondary theme
- FlatLaf.runWithUIDefaultsGetter( key -&gt; {
-     Object value = darkDefaults.get( key );
+ FlatLaf.runWithUIDefaultsGetter( libraryKey -&gt; {
+     Object value = darkDefaults.get( libraryKey );
      return (value != null) ? value : FlatLaf.NULL_VALUE;
  }, () -&gt; {
      // TODO create components that should use secondary theme here
@@ -1538,10 +1538,10 @@ public static&nbsp;boolean&nbsp;install&#8203;(<a href="https://docs.oracle.com/
 <li class="blockList">
 <h4>getStyleableValue</h4>
 <pre class="methodSignature">public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;getStyleableValue&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/javax/swing/JComponent.html?is-external=true" title="class or interface in javax.swing" class="externalLink">JComponent</a>&nbsp;c,
-                                      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key)</pre>
-<div class="block">Returns the (styled) value for the given key from the given component.
+                                      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;libraryKey)</pre>
+<div class="block">Returns the (styled) value for the given libraryKey from the given component.
  <p>
- This is equivalent to: <code>((StyleableUI)c.getUI()).getStyleableValue(c, key)</code></div>
+ This is equivalent to: <code>((StyleableUI)c.getUI()).getStyleableValue(c, libraryKey)</code></div>
 <dl>
 <dt><span class="simpleTagLabel">Since:</span></dt>
 <dd>2.5</dd>

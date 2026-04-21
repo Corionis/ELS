@@ -3,8 +3,8 @@ package com.corionis.els.gui.tools.cleanup;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
-import com.corionis.els.gui.jobs.AbstractToolDialog;
-import com.corionis.els.gui.jobs.ConfigModel;
+import com.corionis.els.gui.util.AbstractToolDialog;
+import com.corionis.els.gui.util.ConfigModel;
 import com.corionis.els.gui.util.NumberFilter;
 import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Origins;
@@ -26,7 +26,7 @@ import javax.swing.text.PlainDocument;
 
 public class CleanupUI extends AbstractToolDialog
 {
-    private ConfigModel configModel;
+    public ConfigModel configModel;
     private Context context;
     private CleanupTool currentTool = null;
     private NavHelp helpDialog;
@@ -85,12 +85,18 @@ public class CleanupUI extends AbstractToolDialog
 
         // setup the left-side list of configurations
         configModel = new ConfigModel(context, this);
-        configModel.setColumnCount(1);
+        configModel.setColumnCount(2);
         configItems.setModel(configModel);
 
         configItems.getTableHeader().setUI(null);
         configItems.setTableHeader(null);
         scrollPaneConfig.setColumnHeaderView(null);
+
+        configItems.getColumnModel().getColumn(1).setPreferredWidth(6);
+        configItems.getColumnModel().getColumn(1).setWidth(6);
+        configItems.getColumnModel().getColumn(1).setMaxWidth(6);
+        configItems.getColumnModel().getColumn(1).setMinWidth(6);
+        configItems.getColumnModel().getColumn(1).setResizable(false);
 
         loadConfigurations();
         context.navigator.enableDisableToolMenus(this, false);
@@ -140,8 +146,10 @@ public class CleanupUI extends AbstractToolDialog
             {
                 CleanupTool tool = origTool.clone();
                 tool.setConfigName(rename);
-                tool.setDataHasChanged();
                 configModel.addRow(new Object[]{ tool });
+                tool.setDataHasChanged();
+
+                loadTool(configItems.getRowCount() - 1);
 
                 configItems.editCellAt(configModel.getRowCount() - 1, 0);
                 configItems.changeSelection(configModel.getRowCount() - 1, configModel.getRowCount() - 1, false, false);
@@ -197,7 +205,7 @@ public class CleanupUI extends AbstractToolDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, context, context.cfg.gs("Cleanup.help"), "cleanup_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("Cleanup.help"), "cleanup_" + context.preferences.getLocale() + ".html", false);
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }
@@ -609,6 +617,7 @@ public class CleanupUI extends AbstractToolDialog
         String name = null;
         if (source != null && currentTool != null && !loading)
         {
+            int configIndex = configItems.getSelectedRow();
             String current = "";
             String value = "";
             if (source instanceof JTextField)
@@ -627,6 +636,7 @@ public class CleanupUI extends AbstractToolDialog
             if (!current.equals(value))
             {
                 currentTool.setDataHasChanged();
+                configModel.fireTableRowsUpdated(configIndex, configIndex);
             }
         }
         inUpdateOnChange = false;

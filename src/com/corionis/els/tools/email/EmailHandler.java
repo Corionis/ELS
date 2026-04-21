@@ -342,7 +342,7 @@ public class EmailHandler extends Thread
             emailUi.labelStatus.updateUI();
             emailUi.updateControls();
             emailUi.buttonTest.setText(context.cfg.gs("EmailUI.buttonTest.text"));
-            emailUi.buttonTest.setToolTipText(context.cfg.gs("EmailUI.buttonTest.toolTipText"));
+            emailUi.buttonTest.setToolTipText(context.cfg.gs("EmailUI.buttonTest.toolTipText") + " " + context.publisherRepo.getLibraryData().libraries.email);
         }
     }
 
@@ -793,7 +793,7 @@ public class EmailHandler extends Thread
             }
         }
 
-        // TODO: Add publisher user emails and retrieve subscriber user emails from remote (Version 5)
+// LEFTOFF: Add publisher user emails and retrieve subscriber user emails from remote, Version 5
 
         return recipients;
     }

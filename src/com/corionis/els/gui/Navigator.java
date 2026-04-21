@@ -24,10 +24,11 @@ import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Origins;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
+import com.corionis.els.repository.User;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.stty.ClientStty;
 import com.corionis.els.gui.browser.Browser;
-import com.corionis.els.gui.jobs.AbstractToolDialog;
+import com.corionis.els.gui.util.AbstractToolDialog;
 import com.corionis.els.gui.jobs.JobsUI;
 import com.corionis.els.gui.libraries.LibrariesUI;
 import com.corionis.els.gui.system.FileEditor;
@@ -68,10 +69,10 @@ import static com.corionis.els.gui.system.FileEditor.EditorTypes.*;
 
 public class Navigator
 {
-    public ArchiverUI dialogArchiver;
-    public CleanupUI dialogCleanup;
     public Bookmarks bookmarks;
     public Context context;
+    public ArchiverUI dialogArchiver;
+    public CleanupUI dialogCleanup;
     public DuplicateFinderUI dialogDuplicateFinder;
     public EmailUI dialogEmail;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
@@ -94,7 +95,6 @@ public class Navigator
     private ArrayList<ArrayList<Origin>> originsArray = null;
     private boolean quitRemoteHintStatusServer = false;
     private boolean quitRemoteSubscriber = false;
-    private boolean secondaryNavigator = false;
     private String updaterJar = null;
     private boolean updaterProcess = false;
     private boolean workerRunning = false;
@@ -109,7 +109,7 @@ public class Navigator
     {
         this.context = context;
         if (this.context.navigator != null)
-            this.secondaryNavigator = true;
+            this.context.main.secondaryNavigator = true;
         this.context.navigator = this;
     }
 
@@ -307,9 +307,11 @@ public class Navigator
     {
         disconnectSubscriber(true);
         context.subscriberRepo = null;
+        context.subscriberUser = null;
         context.cfg.setSubscriberCollectionFilename("");
         context.cfg.setSubscriberLibrariesFileName("");
         context.cfg.setOperation("-");
+        displayConnection();
     }
 
     /**
@@ -318,6 +320,7 @@ public class Navigator
      */
     public void disconnectSubscriber(boolean clear)
     {
+        logger.info(context.cfg.gs("Main.disconnecting.stty"));
         context.preferences.setLastSubscriberIsOpen(false);
         quitByeRemotes(true, false);
         NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
@@ -325,6 +328,45 @@ public class Navigator
         root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
         root.loadTable();
         setQuitTerminateVisibility();
+    }
+
+    public void displayConnection()
+    {
+        String text = "";
+        User user = null;
+        if (context.preferences.isUsersEnabled())
+        {
+            user = context.publisherUser;
+            if (context.subscriberUser != null)
+                user = context.subscriberUser;
+            String name = "";
+            String remote = "";
+            if (user != null)
+                name = user.getName();
+            if (context.subscriberRepo != null)
+            {
+                remote = ((user != null) ? " : " : "") + (context.cfg.isRemoteSubscriber() ?
+                        context.cfg.gs("Z.remote.uppercase").trim() : context.cfg.gs("Z.local.uppercase").trim());
+            }
+            text = name + remote;
+        }
+        else
+        {
+            if (context.subscriberRepo != null)
+            {
+                String remote = (context.cfg.isRemoteSubscriber() ?
+                        context.cfg.gs("Z.remote.uppercase").trim() : context.cfg.gs("Z.local.uppercase").trim());
+                text = remote;
+            }
+            else
+            {
+                text = "";
+            }
+        }
+        context.mainFrame.labelUserMenu.setText(text);
+        context.mainFrame.labelUserMenu.repaint();
+        context.mainFrame.labelUserToolbar.setText(text);
+        context.mainFrame.labelUserToolbar.repaint();
     }
 
     /**
@@ -337,7 +379,7 @@ public class Navigator
     {
         if (enable)
         {
-            context.mainFrame.menuItemHints.setEnabled(true);
+            //context.mainFrame.menuItemHints.setEnabled(true);
             context.mainFrame.menuItemAuthKeys.setEnabled(true);
             context.mainFrame.menuItemHintKeys.setEnabled(true);
             context.mainFrame.menuItemBlacklist.setEnabled(true);
@@ -348,35 +390,35 @@ public class Navigator
             switch (type)
             {
                 case Authentication:
-                    context.mainFrame.menuItemHints.setEnabled(false);
+                    //context.mainFrame.menuItemHints.setEnabled(false);
                     context.mainFrame.menuItemAuthKeys.setEnabled(true);
                     context.mainFrame.menuItemHintKeys.setEnabled(false);
                     context.mainFrame.menuItemBlacklist.setEnabled(false);
                     context.mainFrame.menuItemWhitelist.setEnabled(false);
                     break;
                 case Hints:
-                    context.mainFrame.menuItemHints.setEnabled(true);
-                    context.mainFrame.menuItemAuthKeys.setEnabled(false);
-                    context.mainFrame.menuItemHintKeys.setEnabled(false);
-                    context.mainFrame.menuItemBlacklist.setEnabled(false);
-                    context.mainFrame.menuItemWhitelist.setEnabled(false);
+                    //context.mainFrame.menuItemHints.setEnabled(true);
+                    //context.mainFrame.menuItemAuthKeys.setEnabled(false);
+                    //context.mainFrame.menuItemHintKeys.setEnabled(false);
+                    //context.mainFrame.menuItemBlacklist.setEnabled(false);
+                    //context.mainFrame.menuItemWhitelist.setEnabled(false);
                     break;
                 case HintKeys:
-                    context.mainFrame.menuItemHints.setEnabled(false);
+                    //context.mainFrame.menuItemHints.setEnabled(false);
                     context.mainFrame.menuItemAuthKeys.setEnabled(false);
                     context.mainFrame.menuItemHintKeys.setEnabled(true);
                     context.mainFrame.menuItemBlacklist.setEnabled(false);
                     context.mainFrame.menuItemWhitelist.setEnabled(false);
                     break;
                 case BlackList:
-                    context.mainFrame.menuItemHints.setEnabled(false);
+                    //context.mainFrame.menuItemHints.setEnabled(false);
                     context.mainFrame.menuItemAuthKeys.setEnabled(false);
                     context.mainFrame.menuItemHintKeys.setEnabled(false);
                     context.mainFrame.menuItemBlacklist.setEnabled(true);
                     context.mainFrame.menuItemWhitelist.setEnabled(false);
                     break;
                 case WhiteList:
-                    context.mainFrame.menuItemHints.setEnabled(false);
+                    //context.mainFrame.menuItemHints.setEnabled(false);
                     context.mainFrame.menuItemAuthKeys.setEnabled(false);
                     context.mainFrame.menuItemHintKeys.setEnabled(false);
                     context.mainFrame.menuItemBlacklist.setEnabled(false);
@@ -638,17 +680,6 @@ public class Navigator
             context.browser = new Browser(context);
             context.libraries = new LibrariesUI(context);
 
-/*
-            // set the GuiLogAppender localContext for a second invocation
-            if (context.main.primaryExecution)
-            {
-                GuiLogAppender appender = context.main.guiLogAppender;
-                appender.setContext(context);
-                 // this causes the preBuffer to be appended to the Navigator Log panel
-                logger.info(context.cfg.gs("Navigator.appender.updated"));
-            }
-*/
-
             // disable back-fill because we never know what combination of items might be selected
             context.cfg.setNoBackFill(true);
 
@@ -830,11 +861,33 @@ public class Navigator
                                 context.cfg.setPublisherLibrariesFileName("");
                             }
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+
                             context.publisherRepo = context.main.readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+
+                            if ((context.publisherUser = context.publisherRepo.login()) == null)
+                            {
+                                String msg = context.cfg.gs("Z.publisher.login.failed");
+                                JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            if (context.subscriberRepo != null && !context.cfg.isRemoteSubscriber()) // remote Subscriber disconnected
+                            {
+                                if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, false)) == null)
+                                {
+                                    String msg = MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                            context.publisherRepo.getLibraries().description, context.subscriberRepo.getLibraries().description);
+                                    JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+
+                            displayConnection();
                             context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
                             context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
                             setQuitTerminateVisibility();
                             context.libraries.loadConfigurations();
+                            setControls();
 
                             checkForHints();
                             if (dialogHints != null && dialogHints.isVisible())
@@ -860,6 +913,12 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                if (context.publisherRepo == null)
+                {
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Open.a.publisher.library.required"), context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
                 JFileChooser fc = new JFileChooser();
                 fc.setFileFilter(new FileFilter()
                 {
@@ -1099,12 +1158,6 @@ public class Navigator
                     int selection = fc.showOpenDialog(context.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        if (cbIsRemote.isSelected() && context.publisherRepo == null)
-                        {
-                            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Open.a.publisher.library.required"), context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
-                            return;
-                        }
-
                         // verify file
                         File last = fc.getCurrentDirectory();
                         File file = fc.getSelectedFile();
@@ -1230,6 +1283,34 @@ public class Navigator
 
                                     if (context.preferences.isLastSubscriberIsRemote())
                                     {
+                                        // start the serveStty client for automation
+                                        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
+                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+                                        context.clientStty = new ClientStty(context, false, false);
+                                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                                        {
+                                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                            disconnectSubscriber();
+                                            JOptionPane.showMessageDialog(context.mainFrame,
+                                                    context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
+                                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                            context.cfg.setOperation("-");
+                                            context.fault = false;
+                                            return;
+                                        }
+
+                                        if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, true)) == null)
+                                        {
+                                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                            disconnectSubscriber();
+                                            String msg = MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                                    context.publisherRepo.getLibraryData().libraries.description, context.subscriberRepo.getLibraryData().libraries.description);
+                                            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                            context.fault = false;
+                                            return;
+                                        }
+
                                         // start the serveSftp transfer client
                                         context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                                         if (!context.clientSftp.startClient("transfer"))
@@ -1258,27 +1339,12 @@ public class Navigator
                                             return;
                                         }
 
-                                        // start the serveStty client for automation
-                                        context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
-                                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-                                        context.clientStty = new ClientStty(context, false, true, false);
-                                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
-                                        {
-                                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                                            disconnectSubscriber();
-                                            JOptionPane.showMessageDialog(context.mainFrame,
-                                                    context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
-                                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                            context.cfg.setOperation("-");
-                                            context.fault = false;
-                                            return;
-                                        }
+                                        displayConnection();
 
                                         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                                         if (context.clientStty.checkBannerCommands())
                                         {
-                                            logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
+                                            logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : ""));
                                         }
 
                                         String directory = context.clientStty.getWorkingDirectoryRemote();
@@ -1286,15 +1352,30 @@ public class Navigator
 
                                         context.transfer.requestLibrary();
                                     }
-                                    else
+                                    else // is local
+                                    {
                                         context.cfg.setWorkingDirectorySubscriber(context.cfg.getWorkingDirectory());
 
+                                        if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, false)) == null)
+                                        {
+                                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                            disconnectSubscriber();
+                                            String msg = MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                                    context.publisherRepo.getLibraryData().libraries.description, context.subscriberRepo.getLibraryData().libraries.description);
+                                            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                            context.fault = false;
+                                            return;
+                                        }
+                                    }
+
                                     // load the subscriber library
+                                    displayConnection();
                                     setQuitTerminateVisibility();
                                     context.libraries.loadConfigurations();
                                     context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
                                     context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
                                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                    setControls();
 
                                     checkForHints();
                                     if (dialogHints != null && dialogHints.isVisible())
@@ -1302,18 +1383,27 @@ public class Navigator
                                 }
                                 catch (Exception e)
                                 {
-                                    logger.error(Utils.getStackTrace(e));
                                     context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
                                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                     disconnectSubscriber();
-                                    JOptionPane.showMessageDialog(context.mainFrame,
-                                            context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
-                                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    if (e.getCause() != null && e.getCause().getMessage().equals("SecurityFailure"))
+                                    {
+                                        logger.error(e.getMessage());
+                                        JOptionPane.showMessageDialog(context.mainFrame, e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    }
+                                    else
+                                    {
+                                        logger.error(Utils.getStackTrace(e));
+                                        JOptionPane.showMessageDialog(context.mainFrame,
+                                                context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
+                                                context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    }
                                     context.fault = false;
                                 }
                             }
                         });
                     }
+                    context.mainFrame.repaint();
                     break;
                 }
             }
@@ -1766,9 +1856,11 @@ public class Navigator
                     root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemOne, context.cfg.gs("Browser.open.a.publisher"), false);
                     root.loadTable();
                     context.publisherRepo = null;
+                    context.publisherUser = null;
                     context.cfg.setPublisherCollectionFilename("");
                     context.cfg.setPublisherLibrariesFileName("");
                     context.preferences.setLastPublisherIsOpen(false);
+                    displayConnection();
                     setQuitTerminateVisibility();
                     context.libraries.loadConfigurations();
 
@@ -2201,6 +2293,29 @@ public class Navigator
 
                     if (!tooMany)
                     {
+                        // privileges : access
+                        String name = "";
+                        if (tuo.getParentLibrary() == null)
+                            name = tuo.name;
+                        else
+                            name = tuo.getParentLibrary().getUserObject().name;
+                        if (tuo.getRepo().isPublisher() && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, name))
+                        {
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), name);
+                            logger.error(msg);
+                            context.mainFrame.labelStatusMiddle.setText(msg);
+                            return;
+                        }
+                        if (tuo.getRepo().isSubscriber() && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, name))
+                        {
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), name);
+                            logger.error(msg);
+                            context.mainFrame.labelStatusMiddle.setText(msg);
+                            return;
+                        }
+                        
                         // select source in library
                         String path = selectLibrarySource(tuo);
                         if (path == null || path.length() < 1)
@@ -2350,7 +2465,29 @@ public class Navigator
 
                     if (!tooMany)
                     {
+                        // privileges : access
                         String name = "";
+                        if (tuo.getParentLibrary() == null)
+                            name = tuo.name;
+                        else
+                            name = tuo.getParentLibrary().getUserObject().name;
+                        if (tuo.getRepo().isPublisher() && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, name))
+                        {
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), name);
+                            logger.error(msg);
+                            context.mainFrame.labelStatusMiddle.setText(msg);
+                            return;
+                        }
+                        if (tuo.getRepo().isSubscriber() && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, name))
+                        {
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), name);
+                            logger.error(msg);
+                            context.mainFrame.labelStatusMiddle.setText(msg);
+                            return;
+                        }
+
                         String path = "";
                         if (tuo.type == NavTreeUserObject.REAL)
                         {
@@ -2616,12 +2753,14 @@ public class Navigator
                     context.mainFrame.menuItemWordWrap.setSelected(selected);
                     context.mainFrame.popupCheckBoxMenuItemWordWrap.setSelected(selected);
                     context.mainFrame.textAreaLog.setLineWrap(context.mainFrame.menuItemWordWrap.isSelected());
+                    context.preferences.setWordWrap(selected);
                 }
             }
         };
         // set initial state of Word Wrap Log
-        context.mainFrame.menuItemWordWrap.setSelected(true);
-        context.mainFrame.popupCheckBoxMenuItemWordWrap.setSelected(true);
+        context.mainFrame.menuItemWordWrap.setSelected(context.preferences.isWordWrap());
+        context.mainFrame.popupCheckBoxMenuItemWordWrap.setSelected(context.preferences.isWordWrap());
+        context.mainFrame.textAreaLog.setLineWrap(context.preferences.isWordWrap());
         context.mainFrame.menuItemWordWrap.addActionListener(wordWrapAction);
         context.mainFrame.popupCheckBoxMenuItemWordWrap.addActionListener(wordWrapAction);
 
@@ -2675,8 +2814,8 @@ public class Navigator
                 else
                 {
                     dialogDuplicateFinder.toFront();
-                    dialogDuplicateFinder.requestFocus();
                 }
+                dialogDuplicateFinder.requestFocus();
             }
         });
 
@@ -2694,8 +2833,8 @@ public class Navigator
                 else
                 {
                     dialogEmptyDirectoryFinder.toFront();
-                    dialogEmptyDirectoryFinder.requestFocus();
                 }
+                dialogEmptyDirectoryFinder.requestFocus();
             }
         });
         
@@ -2713,8 +2852,8 @@ public class Navigator
                 else
                 {
                     dialogArchiver.toFront();
-                    dialogArchiver.requestFocus();
                 }
+                dialogArchiver.requestFocus();
             }
         });
 
@@ -2732,8 +2871,8 @@ public class Navigator
                 else
                 {
                     dialogCleanup.toFront();
-                    dialogCleanup.requestFocus();
                 }
+                dialogCleanup.requestFocus();
             }
         });
 
@@ -2751,8 +2890,8 @@ public class Navigator
                 else
                 {
                     dialogJunkRemover.toFront();
-                    dialogJunkRemover.requestFocus();
                 }
+                dialogJunkRemover.requestFocus();
             }
         });
 
@@ -2770,8 +2909,8 @@ public class Navigator
                 else
                 {
                     dialogOperations.toFront();
-                    dialogOperations.requestFocus();
                 }
+                dialogOperations.requestFocus();
             }
         });
 
@@ -2789,8 +2928,8 @@ public class Navigator
                 else
                 {
                     dialogRenamer.toFront();
-                    dialogRenamer.requestFocus();
                 }
+                dialogRenamer.requestFocus();
             }
         });
 
@@ -2808,8 +2947,8 @@ public class Navigator
                 else
                 {
                     dialogSleep.toFront();
-                    dialogSleep.requestFocus();
                 }
+                dialogSleep.requestFocus();
             }
         });
 
@@ -2829,10 +2968,9 @@ public class Navigator
                 }
                 else
                 {
-                    dialogJobs.setVisible(true);
                     dialogJobs.toFront();
-                    dialogJobs.requestFocus();
                 }
+                dialogJobs.requestFocus();
             }
         });
 
@@ -2852,6 +2990,7 @@ public class Navigator
                     dialogHints.toFront();
                 else
                     dialogHints = new HintsUI(context);
+                dialogHints.requestFocus();
             }
         });
 
@@ -2865,6 +3004,7 @@ public class Navigator
                     fileeditor.requestFocus();
                 else
                     fileeditor = new FileEditor(context, Authentication);
+                fileeditor.requestFocus();
             }
         });
 
@@ -2878,6 +3018,7 @@ public class Navigator
                     fileeditor.requestFocus();
                 else
                     fileeditor = new FileEditor(context, HintKeys);
+                fileeditor.requestFocus();
             }
         });
 
@@ -2891,6 +3032,7 @@ public class Navigator
                     fileeditor.requestFocus();
                 else
                     fileeditor = new FileEditor(context, FileEditor.EditorTypes.BlackList);
+                fileeditor.requestFocus();
             }
         });
 
@@ -2904,6 +3046,7 @@ public class Navigator
                     fileeditor.requestFocus();
                 else
                     fileeditor = new FileEditor(context, WhiteList);
+                fileeditor.requestFocus();
             }
         });
 
@@ -2921,8 +3064,8 @@ public class Navigator
                 else
                 {
                     dialogEmail.toFront();
-                    dialogEmail.requestFocus();
                 }
+                dialogEmail.requestFocus();
             }
         });
 
@@ -2938,8 +3081,8 @@ public class Navigator
                 else
                 {
                     dialogSettings.toFront();
-                    dialogSettings.requestFocus();
                 }
+                dialogSettings.requestFocus();
             });
 
             for (Component comp : context.mainFrame.menuSystem.getComponents())
@@ -2966,8 +3109,9 @@ public class Navigator
                     else
                     {
                         dialogSettings.toFront();
-                        dialogSettings.requestFocus();
                     }
+                    dialogSettings.requestFocus();
+                    setControls();
                 }
             });
         }
@@ -3042,7 +3186,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.controls.help.title"), "controls_" + context.preferences.getLocale() + ".html", false);
+                NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.controls.help.title"), "controls_" + context.preferences.getLocale() + ".html", false);
                 if (!dialog.fault)
                     dialog.buttonFocus();
             }
@@ -3054,7 +3198,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html", false);
+                NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html", false);
                 if (!dialog.fault)
                     dialog.buttonFocus();
             }
@@ -3156,7 +3300,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.changes.help.title"), "changes_" + context.preferences.getLocale() + ".html", false);
+                NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.changes.help.title"), "changes_" + context.preferences.getLocale() + ".html", false);
                 if (!dialog.fault)
                     dialog.buttonFocus();
             }
@@ -3168,7 +3312,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html", false);
+                NavHelp helpDialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html", false);
                 if (!helpDialog.fault)
                     helpDialog.buttonFocus();
             }
@@ -3210,7 +3354,7 @@ public class Navigator
         // -- popup menu browser log tab
         // --------------------------------------------------------
 
-        /* Other popup menu items are defined under the Edit menu */
+        // Other popup menu items are defined under the Edit menu
 
         // --- Bottom
         context.mainFrame.popupMenuItemBottom.addActionListener(new AbstractAction()
@@ -3698,7 +3842,7 @@ public class Navigator
             if (!isLogger())
             {
                 disableGui(false);
-                reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
+                reconnectRemote(context, context.publisherRepo, context.subscriberRepo, false);
             }
         }
         catch (Exception e)
@@ -3769,10 +3913,12 @@ public class Navigator
                             context.clientStty.send("quit", "Sending quit command to remote subscriber");
                         else
                             context.clientStty.send("bye", "Sending bye command to remote subscriber");
-
-                        context.clientStty.disconnect();
                     }
                 }
+
+                if (context.clientStty != null && !context.timeout)
+                    context.clientStty.disconnect();
+
                 context.clientStty = null;
                 context.clientSftp = null;
             }
@@ -3845,10 +3991,10 @@ public class Navigator
      * @return True if successful, otherwise false
      * @throws Exception
      */
-    public boolean reconnectRemote(Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
+    public boolean reconnectRemote(Context context, Repository publisherRepo, Repository subscriberRepo, boolean force) throws Exception
     {
         // is this necessary?
-        if (context.cfg.isRemoteOperation() && subscriberRepo != null &&
+        if (!force && context.cfg.isRemoteOperation() && subscriberRepo != null &&
                 context.clientStty != null && context.clientStty.getTheirKey().equals(subscriberRepo.getLibraryData().libraries.key) &&
                 context.clientStty.isConnected())
             return true;
@@ -3873,7 +4019,7 @@ public class Navigator
         if (context.cfg.isRemoteOperation())
         {
             // start the serveStty client for automation
-            context.clientStty = new ClientStty(context, false, true, false);
+            context.clientStty = new ClientStty(context, false, false);
             if (!context.clientStty.connect(publisherRepo, subscriberRepo))
             {
                 context.cfg.setOperation("-");
@@ -3886,10 +4032,22 @@ public class Navigator
                 return false;
             }
 
+            if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, true)) == null)
+            {
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                disconnectSubscriber();
+                String msg = MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                        context.publisherRepo.getLibraryData().libraries.description, context.subscriberRepo.getLibraryData().libraries.description);
+                JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                context.cfg.setOperation("-");
+                context.fault = false;
+                return false;
+            }
+
             // check for opening commands from Subscriber
             if (context.clientStty.checkBannerCommands())
             {
-                logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
+                logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : ""));
             }
 
             String directory = context.clientStty.getWorkingDirectoryRemote();
@@ -4068,10 +4226,15 @@ public class Navigator
 
                     context.preferences.fixBrowserDivider(context, -1);
                     context.mainFrame.treeCollectionOne.requestFocus();
+                    displayConnection();
 
                     if (context.cfg.isLoggerView())
                     {
                         context.navigator.processLoggerJob();
+                    }
+                    else
+                    {
+                        setControls(); // privileges: options; enable/disable controls based on user-level security type
                     }
                 }
                 else
@@ -4155,6 +4318,132 @@ public class Navigator
     }
 
     /**
+     * Set GUI controls based on user-level security type
+     */
+    public void setControls()
+    {
+        // Enable all menus
+        // File
+        context.mainFrame.menuItemOpenHintKeys.setVisible(true);
+        context.mainFrame.menuItemOpenHintTracking.setVisible(true);
+        // Tools
+        context.mainFrame.menuItemArchiver.setVisible(true);
+        context.mainFrame.menuItemCleanup.setVisible(true);
+        context.mainFrame.menuItemOperations.setVisible(true);
+        context.mainFrame.menuItemSleep.setVisible(true);
+        // Jobs
+        context.mainFrame.menuJobs.setVisible(true);
+        // System
+        context.mainFrame.menuItemHints.setVisible(true); // 0
+        Component comp = context.mainFrame.menuSystem.getMenuComponent(1);
+        comp.setVisible(true);
+        context.mainFrame.menuItemAuthKeys.setVisible(true); // 2
+        context.mainFrame.menuItemHintKeys.setVisible(true); // 3
+        comp = context.mainFrame.menuSystem.getMenuComponent(4);
+        comp.setVisible(true);
+        context.mainFrame.menuItemBlacklist.setVisible(true); // 5
+        context.mainFrame.menuItemWhitelist.setVisible(true); // 6
+        comp = context.mainFrame.menuSystem.getMenuComponent(7);
+        comp.setVisible(true);
+        context.mainFrame.menuItemEmail.setVisible(true); // 8
+        comp = context.mainFrame.menuSystem.getMenuComponent(9);
+        comp.setVisible(true);
+        // context.mainFrame.menuItemSettings always visible // 10
+
+        // privileges : options
+        if (context.preferences.isUsersEnabled())
+        {
+            // Enable Libraries, User tab
+            context.mainFrame.tabbedPaneLibrarySpaces.getComponentAt(3).setEnabled(true);
+            context.mainFrame.tabbedPaneLibrarySpaces.setToolTipTextAt(3, "");
+            context.mainFrame.textFieldUserName.setEnabled(true);
+            context.mainFrame.buttonInviteUser.setEnabled(true);
+            context.mainFrame.buttonInviteUser.setVisible(true);
+            context.mainFrame.comboBoxUserType.setEnabled(true);
+            context.mainFrame.comboBoxLibraries.setEnabled(true);
+            context.mainFrame.buttonAddUserLibrary.setEnabled(true);
+            context.mainFrame.buttonDeleteUserLibrary.setEnabled(true);
+            context.mainFrame.buttonUpdateUserLibrary.setEnabled(true);
+            context.mainFrame.tableGrants.setEnabled(true);
+            context.mainFrame.buttonReadAll.setEnabled(true);
+            context.mainFrame.buttonWriteAll.setEnabled(true);
+
+            // Add or remove Subscriber System tab based on minimum Publisher/Subscriber User Type
+            int pubType = (context.publisherUser != null) ? context.publisherUser.getType() : User.ADMIN;
+            int subType = (context.subscriberUser != null) ? context.subscriberUser.getType() : User.ADMIN;
+            int minType = Integer.min(pubType, subType);
+            if (minType != User.ADMIN)
+            {
+                if (context.mainFrame.tabbedPaneBrowserTwo.getTabCount() == 2)
+                    context.mainFrame.tabbedPaneBrowserTwo.remove(1);
+            }
+            else
+            {
+                if (context.mainFrame.tabbedPaneBrowserTwo.getTabCount() == 1)
+                {
+                    context.mainFrame.tabbedPaneBrowserTwo.addTab(context.cfg.gs("Navigator.panel.SystemTwo.tab.title"), context.mainFrame.panelSystemTwo);
+                    context.mainFrame.tabbedPaneBrowserTwo.setMnemonicAt(1, context.cfg.gs("Navigator.panel.SystemTwo.tab.mnemonic").charAt(0));
+                }
+            }
+
+            // Simplify for Basic
+            if (context.publisherUser.isBasic())
+            {
+                // Libraries
+                context.mainFrame.buttonInviteUser.setVisible(false);
+                // File
+                context.mainFrame.menuItemOpenHintKeys.setVisible(false);
+                context.mainFrame.menuItemOpenHintTracking.setVisible(false);
+                // Tools
+                context.mainFrame.menuItemArchiver.setVisible(false);
+                context.mainFrame.menuItemCleanup.setVisible(false);
+                context.mainFrame.menuItemOperations.setVisible(false);
+                context.mainFrame.menuItemSleep.setVisible(false);
+                // Jobs
+                context.mainFrame.menuJobs.setVisible(false);
+                // System
+                context.mainFrame.menuItemHints.setVisible(false); // 0
+                comp = context.mainFrame.menuSystem.getMenuComponent(1);
+                comp.setVisible(false);
+                context.mainFrame.menuItemAuthKeys.setVisible(false); // 2
+                context.mainFrame.menuItemHintKeys.setVisible(false); // 3
+                comp = context.mainFrame.menuSystem.getMenuComponent(4);
+                comp.setVisible(false);
+                context.mainFrame.menuItemBlacklist.setVisible(false); // 5
+                context.mainFrame.menuItemWhitelist.setVisible(false); // 6
+                comp = context.mainFrame.menuSystem.getMenuComponent(7);
+                comp.setVisible(false);
+                context.mainFrame.menuItemEmail.setVisible(false); // 8
+                comp = context.mainFrame.menuSystem.getMenuComponent(9);
+                comp.setVisible(false);
+                // context.mainFrame.menuItemSettings always visible // 10
+            }
+            //else if (context.publisherUser.isAdmin())
+            //{
+                // See OperationsUI.initialize(), Mode objects
+            //}
+        }
+        else
+        {
+            // Disable Libraries, User tab
+            context.mainFrame.tabbedPaneLibrarySpaces.getComponentAt(3).setEnabled(false);
+            context.mainFrame.tabbedPaneLibrarySpaces.setToolTipTextAt(3, context.cfg.gs("LibrariesUI.users.may.be.enabled.in.preferences.general"));
+            context.mainFrame.textFieldUserName.setEnabled(false);
+            context.mainFrame.buttonInviteUser.setEnabled(false);
+            if (context.publisherUser.isBasic())
+                context.mainFrame.buttonInviteUser.setVisible(false);
+            context.mainFrame.comboBoxUserType.setEnabled(false);
+            context.mainFrame.comboBoxLibraries.setEnabled(false);
+            context.mainFrame.buttonAddUserLibrary.setEnabled(false);
+            context.mainFrame.buttonDeleteUserLibrary.setEnabled(false);
+            context.mainFrame.buttonUpdateUserLibrary.setEnabled(false);
+            context.mainFrame.tableGrants.setEnabled(false);
+            context.mainFrame.buttonReadAll.setEnabled(false);
+            context.mainFrame.buttonWriteAll.setEnabled(false);
+        }
+    }
+
+    /**
      * Set host & listen fields text for a JFileChooser
      *
      * @param fc The JFileChooser
@@ -4187,7 +4476,7 @@ public class Navigator
     /**
      * Set the visibility of the Quit & Stop Remove(s) menu option
      */
-    private void setQuitTerminateVisibility()
+    public void setQuitTerminateVisibility()
     {
         if (context.cfg.isRemoteActive())
             context.mainFrame.menuItemQuitTerminate.setVisible(true);
@@ -4229,11 +4518,14 @@ public class Navigator
         if (context.cfg.isRemoteActive())
         {
             // show disconnecting status message
-            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.disconnecting"));
-            Graphics gfx = context.mainFrame.labelStatusMiddle.getGraphics();
-            if (gfx != null)
-                context.mainFrame.labelStatusMiddle.update(gfx);
-            context.mainFrame.labelStatusMiddle.repaint();
+            if (context.mainFrame != null)
+            {
+                context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.disconnecting"));
+                Graphics gfx = context.mainFrame.labelStatusMiddle.getGraphics();
+                if (gfx != null)
+                    context.mainFrame.labelStatusMiddle.update(gfx);
+                context.mainFrame.labelStatusMiddle.repaint();
+            }
 
             // give it time to be updated
             final Timer time = new Timer(1500, new ActionListener()

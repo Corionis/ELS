@@ -115,11 +115,12 @@ public class NavTransferHandler extends TransferHandler
     {
         context.fault = false;
         context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
+        NavTreeNode targetNode = null;
         if (info.getComponent() instanceof JTable)
         {
             JTable targetTable = (JTable) info.getComponent();
             JTree targetTree = getTargetTree(targetTable);
-            NavTreeNode targetNode = getTargetNode(info, targetTree, targetTable);
+            targetNode = getTargetNode(info, targetTree, targetTable);
             if (targetNode == null || (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0))
                 return false;
         }
@@ -127,10 +128,21 @@ public class NavTransferHandler extends TransferHandler
         {
             JTree targetTree = (JTree) info.getComponent();
             JTable targetTable = getTargetTable(targetTree);
-            NavTreeNode targetNode = getTargetNode(info, targetTree, targetTable);
+            targetNode = getTargetNode(info, targetTree, targetTable);
             if (targetNode == null || (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0))
                 return false;
         }
+
+        // privileges : access
+        String name = "";
+        if (targetNode == null || targetNode.getUserObject() == null || targetNode.getUserObject().getParentLibrary() == null)
+            return false;
+        name = targetNode.getUserObject().getParentLibrary().getUserObject().name;
+        if (targetNode.getMyRepo().isPublisher() && targetNode.getMyTree().getName().contains("Collection") && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, name))
+            return false;
+        if (targetNode.getMyRepo().isSubscriber() && targetNode.getMyTree().getName().contains("Collection") && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, name))
+            return false;
+
         boolean supported = info.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
         return supported;
     }
@@ -138,7 +150,10 @@ public class NavTransferHandler extends TransferHandler
     @Override
     protected Transferable createTransferable(JComponent component)
     {
+        int saveAction = action;
         reset();
+        action = saveAction;
+
         context.fault = false;
         List<File> rowList = new ArrayList<File>(); // for standards-based possible operation outside ELS
         actionList = new ArrayList<NavTreeUserObject>(); // for internal use
@@ -156,6 +171,25 @@ public class NavTransferHandler extends TransferHandler
             for (int i = 0; i < rows.length; ++i)
             {
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                if (action == TransferHandler.MOVE)
+                {
+                    // privileges : access
+                    if (tuo.getRepo().isPublisher() && sourceTable.getName().contains("Collection") && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key,
+                            tuo.getParentLibrary().getUserObject().name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), tuo.getParentLibrary().getUserObject().name);
+                        logger.error(msg);
+                        context.mainFrame.labelStatusMiddle.setText(msg);
+                        return null;
+                    }
+                    if (tuo.getRepo().isSubscriber() && sourceTable.getName().contains("Collection") && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, tuo.getParentLibrary().getUserObject().name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), tuo.getParentLibrary().getUserObject().name);
+                        logger.error(msg);
+                        context.mainFrame.labelStatusMiddle.setText(msg);
+                        return null;
+                    }
+                }
                 if (sourceTree == null)
                 {
                     sourceTree = tuo.node.getMyTree();
@@ -184,6 +218,25 @@ public class NavTransferHandler extends TransferHandler
             {
                 NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
                 NavTreeUserObject tuo = ntn.getUserObject();
+                if (action == TransferHandler.MOVE)
+                {
+                    // privileges : access
+                    if (tuo.getRepo().isPublisher() && sourceTable.getName().contains("Collection") && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key,
+                            tuo.getParentLibrary().getUserObject().name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), tuo.getParentLibrary().getUserObject().name);
+                        logger.error(msg);
+                        context.mainFrame.labelStatusMiddle.setText(msg);
+                        return null;
+                    }
+                    if (tuo.getRepo().isSubscriber() && sourceTable.getName().contains("Collection") && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, tuo.getParentLibrary().getUserObject().name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), tuo.getParentLibrary().getUserObject().name);
+                        logger.error(msg);
+                        context.mainFrame.labelStatusMiddle.setText(msg);
+                        return null;
+                    }
+                }
                 if (sourceTree == null)
                 {
                     sourceTree = tuo.node.getMyTree();
@@ -535,7 +588,6 @@ public class NavTransferHandler extends TransferHandler
     {
         context.fault = false;
         context.mainFrame.toFront();
-        //localContext.mainFrame.requestFocus();
 
         isDrop = info.isDrop();
         if (isDrop)
@@ -560,6 +612,32 @@ public class NavTransferHandler extends TransferHandler
 
         NavTreeNode targetNode = getTargetNode(info, targetTree, targetTable);
         NavTreeUserObject targetTuo = targetNode.getUserObject();
+
+        // privileges : access
+        String name = "";
+        if (targetTuo.getParentLibrary() == null)
+            name = targetTuo.name;
+        else
+            name = targetTuo.getParentLibrary().getUserObject().name;
+        if (targetTuo.getRepo().isPublisher() && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, name))
+        {
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), name);
+            logger.error(msg);
+            context.mainFrame.labelStatusMiddle.setText(msg);
+            reset();
+            return false;
+        }
+        if (targetTuo.getRepo().isSubscriber() && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, name))
+        {
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), name);
+            logger.error(msg);
+            context.mainFrame.labelStatusMiddle.setText(msg);
+            reset();
+            return false;
+        }
+
         if (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0)
         {
             reset();
@@ -599,6 +677,7 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeNode parent = (NavTreeNode) sourceNode.getParent();
                 if (parent == targetNode)
                 {
+                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     reset();
                     logger.info(context.cfg.gs("NavTransferHandler.action.cancelled"));
                     context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.action.cancelled"));
@@ -609,6 +688,27 @@ public class NavTransferHandler extends TransferHandler
                 // sum the count and size with deep scan
                 if (sourceTuo.type == NavTreeUserObject.REAL)
                 {
+                    if (action == TransferHandler.MOVE)
+                    {
+                        // privileges : access
+                        if (sourceTuo.getRepo().isPublisher() && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), sourceTuo.getParentLibrary().getUserObject().name);
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            logger.error(msg);
+                            context.mainFrame.labelStatusMiddle.setText(msg);
+                            return false;
+                        }
+                        if (sourceTuo.getRepo().isSubscriber() && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), sourceTuo.getParentLibrary().getUserObject().name);
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            logger.error(msg);
+                            context.mainFrame.labelStatusMiddle.setText(msg);
+                            return false;
+                        }
+                    }
+
                     if (sourceTuo.isDir)
                     {
                         sourceNode.deepScanChildren(true);
@@ -938,6 +1038,11 @@ public class NavTransferHandler extends TransferHandler
         sourceTable = null;
         targetTree = null;
         targetTable = null;
+    }
+
+    public void setAction(int action)
+    {
+        this.action = action;
     }
 
     // ==========================================

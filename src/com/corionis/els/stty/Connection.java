@@ -101,7 +101,7 @@ public class Connection extends Thread
             {
                 try
                 {
-                    logger.trace(context.cfg.gs("Stty.shutdown.via.stty"));
+                    logger.info(context.cfg.gs("Stty.shutdown.via.stty"));
 
                     if ((status == 1 && !service.context.cfg.isKeepGoing()) || status == 2)
                     {
@@ -112,7 +112,7 @@ public class Connection extends Thread
 
                         service.context.main.shutdown();
 
-                        if (!service.context.cfg.isLoggerView())
+                        if (!context.cfg.isGui() && context.navigator == null)
                             System.exit(0);
                     }
                 }

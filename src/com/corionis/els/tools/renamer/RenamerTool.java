@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
@@ -414,14 +415,8 @@ public class RenamerTool extends AbstractTool
         reset();
         isDryRun = task.dryRun;
 
-        if (task.publisherRepo != null && task.subscriberRepo != null)
-        {
-            context.fault = true;
-            throw new MungeException(java.text.MessageFormat.format(getCfg().gs("Renamer.uses.only.one.repository"), getInternalName()));
-        }
-
-        // this tool only uses one repository
-        repo = (task.publisherRepo != null) ? task.publisherRepo : task.subscriberRepo;
+        // use Subscriber if defined; Publisher required for login if Users enabled
+        repo = (task.subscriberKey != null && !task.subscriberKey.isEmpty()) ? task.localContext.subscriberRepo : task.localContext.publisherRepo;
         if (repo == null)
         {
             context.fault = true;
@@ -429,13 +424,15 @@ public class RenamerTool extends AbstractTool
             return;
         }
 
+        boolean isPublisher = repo.isPublisher();
+
         if (task.previousTask != null)
         {
             task.origins = task.previousTask.getOrigins(); //.getTool().getUpdatedOrigins();
         }
 
         // only subscribers can be remote
-        if (task.subscriberRepo != null && getCfg().isRemoteSubscriber())
+        if (task.localContext.subscriberRepo != null && getCfg().isRemoteSubscriber())
             setRemote(true);
 
         for (int i = 0; i < task.origins.size(); ++i)
@@ -458,6 +455,19 @@ public class RenamerTool extends AbstractTool
                 // process in the order defined in the JSON
                 for (Library lib : repo.getLibraryData().libraries.bibliography)
                 {
+                    // privileges : access
+                    if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
+                        logger.error(msg);
+                        continue;
+                    }
+                    if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
+                        logger.error(msg);
+                        continue;
+                    }
                     for (String source : lib.sources)
                     {
                         scan(source, true, false); // cannot rename, return value ignored
@@ -470,6 +480,20 @@ public class RenamerTool extends AbstractTool
                 {
                     if (lib.name.equalsIgnoreCase(origin.getLocation()))
                     {
+                        // privileges : access
+                        if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
+                            logger.error(msg);
+                            continue;
+                        }
+                        if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
+                            logger.error(msg);
+                            continue;
+                        }
+
                         // process in the order defined in the JSON
                         for (String source : lib.sources)
                         {
@@ -480,6 +504,24 @@ public class RenamerTool extends AbstractTool
             }
             else if (origin.getType() == NavTreeUserObject.REAL)
             {
+                // privileges : access
+                Library lib = Utils.findLibraryFromPath(repo, origin.getLocation());
+                if (lib != null && context.preferences.isUsersEnabled())
+                {
+                    if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
+                        logger.error(msg);
+                        continue;
+                    }
+                    if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                    {
+                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
+                        logger.error(msg);
+                        continue;
+                    }
+                }
+
                 // process the single item
                 String change = scan(path, true, true);
                 if (!origin.getLocation().equals(change))
@@ -500,6 +542,7 @@ public class RenamerTool extends AbstractTool
         {
             File[] files;
             boolean pathIsDir = false;
+            // v5
             if (isRemote())
             {
                 Vector listing;

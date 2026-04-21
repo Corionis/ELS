@@ -1,6 +1,7 @@
 package com.corionis.els.gui.browser;
 
 import com.corionis.els.Context;
+import com.corionis.els.repository.User;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -32,9 +33,6 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
 
                 switch (tuo.type)
                 {
-                    case NavTreeUserObject.BOOKMARKS:
-                        setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
-                        break;
                     case NavTreeUserObject.COLLECTION:
                         setIcon(UIManager.getIcon("FileChooser.homeFolderIcon")); // collection root
                         setToolTipText((tuo.isRemote ? context.cfg.gs("Z.remote.uppercase") : context.cfg.gs("NavTreeNode.local")) +
@@ -54,13 +52,29 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                         setToolTipText(tuo.path);
                         break;
                     case NavTreeUserObject.LIBRARY:
-                        setIcon(UIManager.getIcon("FileView.directoryIcon"));
-                        setToolTipText(context.cfg.gs("NavTreeNode.library") + ", " + tuo.sources.length + (tuo.sources.length == 1 ? context.cfg.gs("NavTreeNode.source") : context.cfg.gs("NavTreeNode.sources")));
+                        if (expanded && node.hasDirectories())
+                            setIcon(UIManager.getIcon("Tree.openIcon"));
+                        else
+                            setIcon(UIManager.getIcon("Tree.closedIcon"));
+                        boolean mayWrite = true;
+                        User user = (node.getMyRepo().isPublisher()) ? context.publisherUser : context.subscriberUser;
+                        // privileges : access
+                        if (user != null)
+                            mayWrite = user.mayWrite(node.getMyRepo().getLibraries().key, tuo.name);
+                        String tip = context.cfg.gs("NavTreeNode.library") + ", " + tuo.sources.length +
+                                (tuo.sources.length == 1 ? context.cfg.gs("NavTreeNode.source") : context.cfg.gs("NavTreeNode.sources")) +
+                                (mayWrite ? "" : context.cfg.gs(context.cfg.gs("NavTreeNode.not.writable")));
+                        setToolTipText(tip);
                         break;
                     case NavTreeUserObject.REAL:
                         setToolTipText(tuo.path);
                         if (tuo.isDir)
-                            setIcon(UIManager.getIcon("FileView.directoryIcon"));
+                        {
+                            if (expanded && node.hasDirectories())
+                                setIcon(UIManager.getIcon("Tree.openIcon"));
+                            else
+                                setIcon(UIManager.getIcon("Tree.closedIcon"));
+                        }
                         else
                             setIcon(UIManager.getIcon("FileView.fileIcon"));
                         break;

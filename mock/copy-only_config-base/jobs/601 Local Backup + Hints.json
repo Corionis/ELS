@@ -1,0 +1,63 @@
+{
+  "configName": "601 Local Backup + Hints",
+  "tasks": [
+    {
+      "configName": "Local publish+Local Hints",
+      "internalName": "Operations",
+      "emailTool": "noreply@elsnavigator.com",
+      "hintsKey": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
+      "hintsOverrideHost": false,
+      "hintsPath": "libraries/Hint Server.json",
+      "hintsRemote": false,
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherPath": "libraries/Publisher.json",
+      "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+      "subscriberOverride": "",
+      "subscriberPath": "libraries/Subscriber One.json",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "PubSub Backup",
+      "internalName": "Archiver",
+      "emailTool": "",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "publisherKey": "",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverride": "",
+      "subscriberPath": "",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "location": "output-cleanup",
+          "type": 6
+        }
+      ]
+    },
+    {
+      "configName": "Archive Files 2 days",
+      "internalName": "Cleanup",
+      "emailTool": "",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "publisherKey": "",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverride": "",
+      "subscriberPath": "",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "location": "output-cleanup",
+          "type": 6
+        }
+      ]
+    }
+  ]
+}

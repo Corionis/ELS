@@ -1,0 +1,26 @@
+{
+  "configName": "700 Archive mock-output",
+  "tasks": [
+    {
+      "configName": "PubSub Backup",
+      "internalName": "Archiver",
+      "emailTool": "",
+      "hintsKey": "",
+      "hintsOverrideHost": false,
+      "hintsPath": "",
+      "hintsRemote": false,
+      "publisherKey": "",
+      "publisherPath": "",
+      "subscriberKey": "",
+      "subscriberOverride": "",
+      "subscriberPath": "",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "location": "output-cleanup",
+          "type": 6
+        }
+      ]
+    }
+  ]
+}

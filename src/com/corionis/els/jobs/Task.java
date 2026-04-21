@@ -8,11 +8,13 @@ import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.tools.AbstractTool;
+import com.corionis.els.tools.operations.OperationsTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 
 public class Task implements Comparable, Serializable
@@ -42,9 +44,7 @@ public class Task implements Comparable, Serializable
     transient public Repository hintsRepo = null;
     transient public Context localContext = null;
     transient public Task previousTask = null;
-    transient public Repository publisherRepo = null;
     transient public String remoteType = null;
-    transient public Repository subscriberRepo = null;
     transient private Logger logger = LogManager.getLogger("applog");
     // @formatter:on
 
@@ -111,9 +111,9 @@ public class Task implements Comparable, Serializable
         task.currentTool = this.currentTool;
         task.dryRun = this.dryRun;
         task.previousTask = this.previousTask;
-        task.publisherRepo = this.publisherRepo;
+//        task.publisherRepo = this.publisherRepo;
         task.remoteType = this.remoteType;
-        task.subscriberRepo = this.subscriberRepo;
+//        task.subscriberRepo = this.subscriberRepo;
         return task;
     }
 
@@ -235,12 +235,36 @@ public class Task implements Comparable, Serializable
                 {
                     localContext.cfg.setPublisherLibrariesFileName(repo.getJsonFilename());
                     localContext.publisherRepo = repo;
+                    if (localContext.preferences.isUsersEnabled())
+                    {
+                        if ((localContext.publisherUser = repo.login()) == null)
+                            throw new MungeException(localContext.cfg.gs("Z.publisher.login.failed"));
+                    }
+                    if (localContext.cfg.isGui())
+                        localContext.navigator.displayConnection();
                     break;
                 }
                 case Repository.SUBSCRIBER:
                 {
                     localContext.cfg.setSubscriberLibrariesFileName(repo.getJsonFilename());
                     localContext.subscriberRepo = repo;
+
+                    // Subscriber Listener does not need a Publisher if Authentication keys are defined
+                    if (!(localContext.publisherRepo == null &&
+                            currentTool.getInternalName().equalsIgnoreCase("Operations") &&
+                            ((OperationsTool)currentTool).getOperation() == OperationsTool.Operations.SubscriberListener &&
+                            ((OperationsTool)currentTool).getOptAuthKeys() != null && !((OperationsTool)currentTool).getOptAuthKeys().isEmpty()))
+                    {
+                        // otherwise login the Publisher to the Subscriber
+                        if (localContext.preferences.isUsersEnabled())
+                        {
+                            if (localContext.publisherRepo == null)
+                                throw new MungeException(localContext.cfg.gs("Z.publisher.login.missing"));
+                            if ((localContext.subscriberUser = repo.login(localContext.publisherRepo.getLibraries().key, false)) == null)
+                                throw new MungeException(MessageFormat.format(localContext.cfg.gs("Z.login.failed.from.to"), localContext.publisherUser.getName(),
+                                        localContext.publisherRepo.getLibraries().description, repo.getLibraries().description));
+                        }
+                    }
                     break;
                 }
                 case Repository.HINT_SERVER:
@@ -251,6 +275,7 @@ public class Task implements Comparable, Serializable
                         localContext.cfg.setHintsDaemonFilename(repo.getJsonFilename());
                     else
                         localContext.cfg.setHintTrackerFilename(repo.getJsonFilename());
+                    // no login for Hint Server that uses authentication keys
                     break;
                 }
             }
@@ -263,26 +288,6 @@ public class Task implements Comparable, Serializable
     {
         return subscriberKey;
     }
-
-/*
-    public String getRepoPath(String key)
-    {
-        String path = "";
-        Repositories repositories = new Repositories();
-        repositories.loadList(localContext);
-
-        RepoMeta repoMeta = null;
-        if (key.length() > 0)
-        {
-            repoMeta = repositories.findMeta(key);
-            if (repoMeta != null)
-            {
-                path = repoMeta.path;
-            }
-        }
-        return path;
-    }
-*/
 
     public String getSubscriberOverride()
     {
@@ -344,8 +349,8 @@ public class Task implements Comparable, Serializable
 
         if (currentTool == null)
             currentTool = getTool();
-        else
-            currentTool.setContext(localContext);
+
+        currentTool.setContext(localContext);
 
         if (currentTool != null)
         {
@@ -366,26 +371,28 @@ public class Task implements Comparable, Serializable
             if (useCachedLastTask(localContext)) // not an Operations tool
             {
                 setPublisherKey(previousTask.getPublisherKey());
-                if (previousTask.publisherRepo != null)
+                if (previousTask.localContext != null)
                 {
-                    publisherPath = previousTask.publisherRepo.getJsonFilename();
-                    publisherRepo = previousTask.publisherRepo;
+                    publisherPath = previousTask.publisherPath;
+                    localContext.publisherRepo = previousTask.localContext.publisherRepo;
+                    localContext.publisherUser = previousTask.localContext.publisherUser;
                 }
                 else
                     publisherPath = "";
 
                 remoteType = previousTask.remoteType;
 
-                if (previousTask.subscriberRepo != null)
+                if (previousTask.localContext.subscriberRepo != null)
                 {
-                    subscriberPath = previousTask.subscriberRepo.getJsonFilename();
+                    subscriberPath = previousTask.subscriberPath;
+                    localContext.subscriberRepo = previousTask.localContext.subscriberRepo;
+                    localContext.subscriberUser = previousTask.localContext.subscriberUser;
                     setSubscriberKey(previousTask.getSubscriberKey());
                     setSubscriberOverride(previousTask.subscriberOverride);
                     setSubscriberRemote(previousTask.subscriberRemote);
                 }
                 else
                     subscriberPath = "";
-                subscriberRepo = previousTask.subscriberRepo;
 
                 setHintsKey(previousTask.getHintsKey());
                 setHintsOverrideHost(previousTask.isHintsOverrideHost());
@@ -396,15 +403,15 @@ public class Task implements Comparable, Serializable
             }
             else
             {
-                publisherRepo = getRepo(getPublisherKey(), getPublisherPath(), Repository.PUBLISHER);
-                if (publisherRepo != null)
-                    publisherPath = publisherRepo.getJsonFilename();
+                localContext.publisherRepo = getRepo(getPublisherKey(), getPublisherPath(), Repository.PUBLISHER);
+                if (localContext.publisherRepo != null)
+                    publisherPath = localContext.publisherRepo.getJsonFilename();
                 else if (getPublisherKey().equals(Task.ANY_SERVER))
                     throw new MungeException("\"Any Server\" defined for Publisher but none specified");
 
-                subscriberRepo = getRepo(getSubscriberKey(), getSubscriberPath(), Repository.SUBSCRIBER);
-                if (subscriberRepo != null)
-                    subscriberPath = subscriberRepo.getJsonFilename();
+                localContext.subscriberRepo = getRepo(getSubscriberKey(), getSubscriberPath(), Repository.SUBSCRIBER);
+                if (localContext.subscriberRepo != null)
+                    subscriberPath = localContext.subscriberRepo.getJsonFilename();
                 else if (getSubscriberKey().equals(Task.ANY_SERVER))
                     throw new MungeException("\"Any Server\" defined for Subscriber but none specified");
 
@@ -417,10 +424,16 @@ public class Task implements Comparable, Serializable
                     throw new MungeException("\"Any Server\" defined for Hint Status Server but none specified");
             }
 
-            if (publisherRepo != null)
-                Persistent.lastPublisherRepo = publisherRepo;
-            if (subscriberRepo != null)
-                Persistent.lastSubscriberRepo = subscriberRepo;
+            if (localContext.publisherRepo != null)
+            {
+                Persistent.lastPublisherRepo = localContext.publisherRepo;
+                Persistent.lastPublisherUser = localContext.publisherUser;
+            }
+            if (localContext.subscriberRepo != null)
+            {
+                Persistent.lastSubscriberRepo = localContext.subscriberRepo;
+                Persistent.lastSubscriberUser = localContext.subscriberUser;
+            }
 
             localContext.cfg.setOperation(remoteType);
 

@@ -1,0 +1,280 @@
+JFDML JFormDesigner: "8.3" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": false
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "InviteUI"
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.i18nGetStringFormat": "context.cfg.gs(${key})"
+			"JavaCodeGenerator.i18nGetBundleFormat": "context.cfg.bundle()"
+		}
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"title": new FormMessage( null, "InviteUI.title" )
+			"modal": true
+			"resizable": false
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+					name: "panelTop"
+					"minimumSize": new java.awt.Dimension( 140, 38 )
+					"preferredSize": new java.awt.Dimension( 400, 38 )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+						"alignment": 0
+						"hgap": 2
+						"vgap": 4
+					} ) {
+						name: "panelTopRadio"
+						"minimumSize": new java.awt.Dimension( 140, 38 )
+						add( new FormContainer( "javax.swing.JMenuBar", new FormLayoutManager( class javax.swing.JMenuBar ) ) {
+							name: "menuBarRadio"
+							"margin": new java.awt.Insets( 2, 8, 2, 8 )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "labelWhat"
+								"text": new FormMessage( null, "InviteUI.labelWhat.text" )
+								"font": new com.jformdesigner.model.SwingDerivedFont( null, 65536, 1, false )
+							} )
+							add( new FormComponent( "javax.swing.JRadioButton" ) {
+								name: "radioButtonInitial"
+								"text": new FormMessage( null, "InviteUI.radioButtonInitial.text" )
+								"$buttonGroup": new FormReference( "buttonGroupType" )
+								"toolTipText": new FormMessage( null, "InviteUI.radioButtonInitial.toolTipText" )
+								"actionCommand": "Initial"
+								"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, 1, false )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionTypeClicked", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JRadioButton" ) {
+								name: "radioButtonInvite"
+								"text": new FormMessage( null, "InviteUI.radioButtonInvite.text" )
+								"$buttonGroup": new FormReference( "buttonGroupType" )
+								"toolTipText": new FormMessage( null, "InviteUI.radioButtonInvite.toolTipText" )
+								"actionCommand": "Invite"
+								"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, 1, false )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionTypeClicked", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JRadioButton" ) {
+								name: "radioButtonUpdate"
+								"text": new FormMessage( null, "InviteUI.radioButtonUpdate.text" )
+								"$buttonGroup": new FormReference( "buttonGroupType" )
+								"toolTipText": new FormMessage( null, "InviteUI.radioButtonUpdate.toolTipText" )
+								"actionCommand": "Update"
+								"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, 1, false )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionTypeClicked", true ) )
+							} )
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "West"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+						"alignment": 2
+						"hgap": 4
+						"vgap": 4
+					} ) {
+						name: "panelHelp"
+						"preferredSize": new java.awt.Dimension( 40, 38 )
+						"minimumSize": new java.awt.Dimension( 0, 38 )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelHelp"
+							"icon": new com.jformdesigner.model.SwingIcon( 2, "OptionPane.informationIcon" )
+							"preferredSize": new java.awt.Dimension( 32, 30 )
+							"minimumSize": new java.awt.Dimension( 32, 30 )
+							"maximumSize": new java.awt.Dimension( 32, 30 )
+							"toolTipText": new FormMessage( null, "InviteUI.labelHelp.toolTipText" )
+							"cursor": new java.awt.Cursor( 12 )
+							"iconTextGap": 0
+							addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "actionHelpClicked", true ) )
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "East"
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "North"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+					name: "contentPanel"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+						"alignment": 0
+						"hgap": 4
+						"vgap": 4
+					} ) {
+						name: "panelTopButtons"
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "buttonEditTemplate"
+							"text": new FormMessage( null, "InviteUI.buttonEditTemplate.text" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionEditClicked", true ) )
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "North"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+						"$columnSpecs": "0, 0"
+						"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0"
+						"$hGap": 4
+						"$alignLeft": true
+						"$alignTop": true
+						"$vGap": 4
+					} ) {
+						name: "panelOptions"
+						"alignmentY": 0.0f
+						add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+							name: "vSpacer2"
+							"preferredSize": new java.awt.Dimension( 10, 4 )
+							"minimumSize": new java.awt.Dimension( 12, 4 )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelAuthKeys"
+							"text": new FormMessage( null, "InviteUI.labelAuthKeys.text" )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridy": 1
+							"insets": new java.awt.Insets( 0, 15, 0, 0 )
+						} )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "checkBoxAuthKeys"
+							"toolTipText": new FormMessage( null, "InviteUI.checkBoxAuthKeys.toolTipText" )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridx": 1
+							"gridy": 1
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelHintKeys"
+							"text": new FormMessage( null, "InviteUI.labelHintKeys.text" )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridy": 2
+							"insets": new java.awt.Insets( 0, 15, 0, 0 )
+						} )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "checkBoxHintKeys"
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridx": 1
+							"gridy": 2
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelWhitelist"
+							"text": new FormMessage( null, "InviteUI.labelWhitelist.text" )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridy": 3
+							"insets": new java.awt.Insets( 0, 15, 0, 0 )
+						} )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "checkBoxWhitelist"
+							"toolTipText": new FormMessage( null, "InviteUI.checkBoxWhitelist.toolTipText" )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridx": 1
+							"gridy": 3
+						} )
+						add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+							name: "vSpacer1"
+							"preferredSize": new java.awt.Dimension( 10, 4 )
+							"minimumSize": new java.awt.Dimension( 12, 4 )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridy": 4
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelServer"
+							"text": new FormMessage( null, "InviteUI.labelServer.text" )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridy": 5
+							"insets": new java.awt.Insets( 0, 10, 0, 0 )
+							"hAlign": 4
+						} )
+						add( new FormComponent( "javax.swing.JComboBox" ) {
+							name: "comboBoxServer"
+							"toolTipText": new FormMessage( null, "InviteUI.comboBoxServer.toolTipText" )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridy": 5
+							"gridx": 1
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelTo"
+							"text": new FormMessage( null, "InviteUI.labelTo.text" )
+							"horizontalAlignment": 4
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridy": 6
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "textFieldTo"
+							"preferredSize": new java.awt.Dimension( 240, 34 )
+							"minimumSize": new java.awt.Dimension( 240, 34 )
+							"toolTipText": new FormMessage( null, "InviteUI.textFieldTo.toolTipText" )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridx": 1
+							"gridy": 6
+							"vAlign": 0
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+							"hgap": 4
+							"vgap": 4
+						} ) {
+							name: "panelActions"
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonPreview"
+								"text": new FormMessage( null, "InviteUI.buttonPreview.text" )
+								"toolTipText": new FormMessage( null, "EmailEditor.buttonPreview.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionPreviewClicked", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonBrowser"
+								"text": new FormMessage( null, "InviteUI.buttonBrowser.text" )
+								"toolTipText": new FormMessage( null, "EmailEditor.buttonBrowser.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionBrowserClicked", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonSend"
+								"text": new FormMessage( null, "InviteUI.buttonSend.text" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSendClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridy": 7
+							"gridwidth": 2
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "Center"
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0, 80"
+					"$rowSpecs": "0"
+					"$hGap": 5
+				} ) {
+					name: "buttonBar"
+					"border": new javax.swing.border.EmptyBorder( 0, 0, 0, 0 )
+					"minimumSize": new java.awt.Dimension( 93, 34 )
+					"preferredSize": new java.awt.Dimension( 93, 34 )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelStatus"
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"insets": new java.awt.Insets( 0, 8, 0, 0 )
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "okButton"
+						"text": "OK"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOkClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+						"gridy": 0
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "South"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 465, 425 )
+		} )
+		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
+			name: "buttonGroupType"
+			auxiliary() {
+				"JavaCodeGenerator.variableLocal": false
+			}
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 520, 255 )
+		} )
+	}
+}

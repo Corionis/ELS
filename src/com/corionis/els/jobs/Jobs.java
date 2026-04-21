@@ -107,12 +107,6 @@ public class Jobs
             GsonBuilder builder = new GsonBuilder();
             builder.registerTypeAdapter(Job.class, new objInstanceCreator());
 
-            // Brute-force adding paths from keys
-/*
-             Repositories repositories = new Repositories();
-             repositories.loadList(localContext);
-*/
-
             DirectoryStream<Path> directoryStream = Files.newDirectoryStream(jobDir.toPath());
             for (Path entry : directoryStream)
             {

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.8" encoding: "UTF-8"
+JFDML JFormDesigner: "8.3" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -11,10 +11,11 @@ new FormModel {
 			"JavaCodeGenerator.i18nGetStringFormat": "context.cfg.gs(${key})"
 			"JavaCodeGenerator.i18nGetBundleFormat": "context.cfg.bundle()"
 		}
-		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
 			"name": new FormMessage( null, "NavHelp.name" )
 			"minimumSize": new java.awt.Dimension( 100, 50 )
+			"iconImage": new com.jformdesigner.model.SwingIcon( 0, "/els-logo-98px.png" )
 			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "thisWindowClosing", true ) )
 			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosed", "thisWindowClosed", true ) )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
@@ -32,7 +33,6 @@ new FormModel {
 						}
 						add( new FormComponent( "javax.swing.JEditorPane" ) {
 							name: "helpText"
-							"editable": false
 							"contentType": "text/html"
 						} )
 					} )

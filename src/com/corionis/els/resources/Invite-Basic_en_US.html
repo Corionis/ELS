@@ -1,0 +1,63 @@
+<html>
+<head>
+    <style>
+        <!-- body { font-family: Arial, Helvetica, sans-serif; font-size: 100%; } -->
+    </style>
+</head>
+<body>
+&nbsp;
+<div><a href="https://www.elsnavigator.com/" target="_blank" title="Go to elsnavigator.com"><img src="https://www.elsnavigator.com/assets/images/els-logo-64px.png" border="0" style="vertical-align: middle;"/></a>&nbsp;&nbsp;To: <b>${userName}</b></div></div>
+Greetings from <b>${publisherName}</b> at <b>${publisherRepo}</b> :
+
+Steps to complete the process of connecting to ${publisherRepo} with ELS:
+
+&nbsp; 1. If ELS is not installed <a href="https://www.elsnavigator.com/" target="_blank" title="Go to elsnavigator.com">download</a>, install and run it once so it creates it's directories.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a. For Windows use the desktop shortcut to start ELS.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b. For Linux and Mac run ELS-Navigator in your <span style='font-family: Georgia, serif;'><b>[Home]/.els/</b></span> directory.
+
+&nbsp; 2. If ELS is running please close it.
+
+&nbsp; 3. Unpack the attached file into your <span style='font-family: Georgia, serif;'><b>[Home]/.els/</b></span> directory. You may need to "show hidden files" to see it.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a. Be sure the directory you select contains at least these subdirectories:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; <span style='font-family: Georgia, serif;'>bin/</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; <span style='font-family: Georgia, serif;'>libraries/</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; <span style='font-family: Georgia, serif;'>local/</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; <span style='font-family: Georgia, serif;'>rt/</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; <span style='font-family: Georgia, serif;'>system/</span>
+
+&nbsp; 4. Start ELS. Goto System, Preferences and <b><i>make sure</i></b> &quot;User-level security&quot; is enabled on the General tab.
+
+&nbsp; 5. Go to File, Open Publisher and open your &quot;${userRepo}&quot; library.
+
+&nbsp; 6. Adjust your ELS setup using the Libraries tab to adjust your General options, Locations and Bibliography as needed, see below.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a. <b>Do not change</b> any Keys on the Libraries, General tab. They are used for login and to control ELS operations.
+
+&nbsp; 7. Go to File, Open Subscriber and connect to &quot;${publisherRepo}_connection&quot;. <b><i>Be sure</i></b> to select Remote Connection and Host on the right.
+
+
+<b>Other Notes</b>
+
+&nbsp; A. The Libraries tab shows the definition of ${userRepo} and ${publisherRepo}. Those tabs are:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; General defines the basic options for ELS instances.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; Locations specify minimum disk space for library sources.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; Bibliography specifies libraries and their source(s).
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; User specifies Resources (ELS instances) and related permissions.
+
+&nbsp; B. Locations and Bibliography details for ${publisherRepo} are not provided for security reasons. Only connection options are used.
+
+
+ELS is available here: <a href="https://www.elsnavigator.com/" target="_blank" title="Go to elsnavigator.com">ELS Navigator</a>.
+
+More information is available in the <a href="https://github.com/Corionis/ELS/wiki" target="_blank" title="On GitHub.com">ELS Wiki Documentation</a> and <a href="https://github.com/Corionis/ELS/discussions" target="_blank" title="On GitHub.com">ELS Discussions</a>.
+
+
+Welcome to ${publisherRepo}!
+
+&nbsp;&nbsp;-- ${publisherName}
+
+</body></html>
