@@ -11,6 +11,7 @@ import com.corionis.els.gui.hints.HintsUI;
 import com.corionis.els.gui.tools.archiver.ArchiverUI;
 import com.corionis.els.gui.tools.cleanup.CleanupUI;
 import com.corionis.els.gui.tools.duplicateFinder.DuplicateFinderUI;
+import com.corionis.els.gui.tools.email.EmailTemplates;
 import com.corionis.els.gui.tools.email.EmailUI;
 import com.corionis.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.corionis.els.gui.tools.junkRemover.JunkRemoverUI;
@@ -75,6 +76,7 @@ public class Navigator
     public CleanupUI dialogCleanup;
     public DuplicateFinderUI dialogDuplicateFinder;
     public EmailUI dialogEmail;
+    public EmailTemplates dialogTemplates;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
     public HintsUI dialogHints = null;
     public JobsUI dialogJobs = null;
@@ -3050,7 +3052,7 @@ public class Navigator
             }
         });
 
-        // --- Email Tool
+        // --- Email Servers
         context.mainFrame.menuItemEmail.addActionListener(new AbstractAction()
         {
             @Override
@@ -3066,6 +3068,25 @@ public class Navigator
                     dialogEmail.toFront();
                 }
                 dialogEmail.requestFocus();
+            }
+        });
+
+        // --- Email Templates
+        context.mainFrame.menuItemTemplates.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogTemplates == null || !dialogTemplates.isShowing())
+                {
+                    dialogTemplates = new EmailTemplates(context.mainFrame, context);
+                    dialogTemplates.setVisible(true);
+                }
+                else
+                {
+                    dialogTemplates.toFront();
+                }
+                dialogTemplates.requestFocus();
             }
         });
 

@@ -133,7 +133,7 @@ public class MainFrame extends JFrame
         // TODO EXTEND+ Add other Tool checkForChanges() here
         if (context.libraries != null && context.libraries.checkForChanges())
             changes = true;
-/* Logic changed where these dialogs handle Save/Cancel themselves
+/* TODO Logic changed where these dialogs handle Save/Cancel themselves
         else if (context.navigator.dialogArchiver != null &&  context.navigator.dialogArchiver.checkForChanges())
             changes = true;
         else if (context.navigator.dialogCleanup != null &&  context.navigator.dialogCleanup.checkForChanges())
@@ -508,6 +508,7 @@ public class MainFrame extends JFrame
         menuItemBlacklist = new JMenuItem();
         menuItemWhitelist = new JMenuItem();
         menuItemEmail = new JMenuItem();
+        menuItemTemplates = new JMenuItem();
         menuItemSettings = new JMenuItem();
         menuWindows = new JMenu();
         menuItemMaximize = new JMenuItem();
@@ -1151,6 +1152,11 @@ public class MainFrame extends JFrame
                 menuItemEmail.setMnemonic(context.cfg.gs("Navigator.menuItemEmail.mnemonic").charAt(0));
                 menuItemEmail.setIcon(new ImageIcon(getClass().getResource("/email.png")));
                 menuSystem.add(menuItemEmail);
+
+                //---- menuItemTemplates ----
+                menuItemTemplates.setText(context.cfg.gs("Navigator.menuItemTemplates.text"));
+                menuItemTemplates.setIcon(new ImageIcon(getClass().getResource("/template.png")));
+                menuSystem.add(menuItemTemplates);
                 menuSystem.addSeparator();
 
                 //---- menuItemSettings ----
@@ -2862,7 +2868,7 @@ public class MainFrame extends JFrame
                                         comboBoxLibraries.setName("userLibraries");
                                         comboBoxLibraries.setToolTipText(context.cfg.gs("Navigator.comboBoxLibraries.toolTipText"));
                                         panelUserOptions.add(comboBoxLibraries, new GridBagConstraints(2, 3, 2, 1, 0.0, 0.0,
-                                            GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                                            GridBagConstraints.WEST, GridBagConstraints.NONE,
                                             new Insets(0, 0, 4, 4), 0, 0));
 
                                         //---- buttonAddUserLibrary ----
@@ -3209,6 +3215,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemBlacklist;
     public JMenuItem menuItemWhitelist;
     public JMenuItem menuItemEmail;
+    public JMenuItem menuItemTemplates;
     public JMenuItem menuItemSettings;
     public JMenu menuWindows;
     public JMenuItem menuItemMaximize;

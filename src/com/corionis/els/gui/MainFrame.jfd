@@ -1630,6 +1630,7 @@ new FormModel {
 												"gridy": 3
 												"gridwidth": 2
 												"hAlign": 2
+												"vAlign": 0
 											} )
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonAddUserLibrary"
@@ -2218,6 +2219,11 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menu.Email.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemEmail.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/email.png" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemTemplates"
+						"text": new FormMessage( null, "Navigator.menuItemTemplates.text" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/template.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separatorPreferences"

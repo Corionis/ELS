@@ -4,6 +4,8 @@ import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
+import com.corionis.els.gui.tools.email.EmailPreview;
+import com.corionis.els.gui.tools.email.EmailTemplates;
 import com.corionis.els.hints.HintKeys;
 import com.corionis.els.repository.User;
 import com.corionis.els.tools.AbstractTool;
@@ -73,7 +75,7 @@ public class InviteUI extends JDialog
 
     private void actionEditClicked(ActionEvent e)
     {
-        EmailEditor editor = new EmailEditor(this, context, type, libMeta);
+        EmailTemplates editor = new EmailTemplates(this, context);
         switch (type)
         {
             case "Initial" :
@@ -628,6 +630,10 @@ public class InviteUI extends JDialog
         return content;
     }
 
+    private void actionArchiveClicked(ActionEvent e) {
+        // TODO add your code here
+    }
+
     // ================================================================================================================
 
     // <editor-fold desc="Generated code (Fold)">
@@ -638,26 +644,20 @@ public class InviteUI extends JDialog
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         dialogPane = new JPanel();
         panelTop = new JPanel();
-        panelTopRadio = new JPanel();
-        menuBarRadio = new JMenuBar();
+        panelTopTemplates = new JPanel();
         labelWhat = new JLabel();
-        radioButtonInitial = new JRadioButton();
-        radioButtonInvite = new JRadioButton();
-        radioButtonUpdate = new JRadioButton();
+        comboBoxTemplates = new JComboBox();
+        buttonEditTemplate = new JButton();
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         contentPanel = new JPanel();
-        panelTopButtons = new JPanel();
-        buttonEditTemplate = new JButton();
         panelOptions = new JPanel();
-        vSpacer2 = new JPanel(null);
         labelAuthKeys = new JLabel();
         checkBoxAuthKeys = new JCheckBox();
         labelHintKeys = new JLabel();
         checkBoxHintKeys = new JCheckBox();
         labelWhitelist = new JLabel();
         checkBoxWhitelist = new JCheckBox();
-        vSpacer1 = new JPanel(null);
         labelServer = new JLabel();
         comboBoxServer = new JComboBox();
         labelTo = new JLabel();
@@ -665,15 +665,15 @@ public class InviteUI extends JDialog
         panelActions = new JPanel();
         buttonPreview = new JButton();
         buttonBrowser = new JButton();
+        hSpacer1 = new JPanel(null);
+        buttonArchive = new JButton();
         buttonSend = new JButton();
         buttonBar = new JPanel();
         labelStatus = new JLabel();
         okButton = new JButton();
-        buttonGroupType = new ButtonGroup();
 
         //======== this ========
         setTitle(context.cfg.gs("InviteUI.title"));
-        setModal(true);
         setResizable(false);
         var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
@@ -689,47 +689,27 @@ public class InviteUI extends JDialog
                 panelTop.setPreferredSize(new Dimension(400, 38));
                 panelTop.setLayout(new BorderLayout());
 
-                //======== panelTopRadio ========
+                //======== panelTopTemplates ========
                 {
-                    panelTopRadio.setMinimumSize(new Dimension(140, 38));
-                    panelTopRadio.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
+                    panelTopTemplates.setMinimumSize(new Dimension(140, 38));
+                    panelTopTemplates.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
-                    //======== menuBarRadio ========
-                    {
-                        menuBarRadio.setMargin(new Insets(2, 8, 2, 8));
+                    //---- labelWhat ----
+                    labelWhat.setText(context.cfg.gs("InviteUI.labelWhat.text"));
+                    labelWhat.setFont(labelWhat.getFont().deriveFont(labelWhat.getFont().getStyle() & ~Font.BOLD, labelWhat.getFont().getSize() + 1f));
+                    panelTopTemplates.add(labelWhat);
 
-                        //---- labelWhat ----
-                        labelWhat.setText(context.cfg.gs("InviteUI.labelWhat.text"));
-                        labelWhat.setFont(labelWhat.getFont().deriveFont(labelWhat.getFont().getStyle() & ~Font.BOLD, labelWhat.getFont().getSize() + 1f));
-                        menuBarRadio.add(labelWhat);
+                    //---- comboBoxTemplates ----
+                    comboBoxTemplates.setToolTipText(context.cfg.gs("InviteUI.comboBoxTemplates.toolTipText"));
+                    panelTopTemplates.add(comboBoxTemplates);
 
-                        //---- radioButtonInitial ----
-                        radioButtonInitial.setText(context.cfg.gs("InviteUI.radioButtonInitial.text"));
-                        radioButtonInitial.setToolTipText(context.cfg.gs("InviteUI.radioButtonInitial.toolTipText"));
-                        radioButtonInitial.setActionCommand("Initial");
-                        radioButtonInitial.setFont(radioButtonInitial.getFont().deriveFont(radioButtonInitial.getFont().getSize() + 1f));
-                        radioButtonInitial.addActionListener(e -> actionTypeClicked(e));
-                        menuBarRadio.add(radioButtonInitial);
-
-                        //---- radioButtonInvite ----
-                        radioButtonInvite.setText(context.cfg.gs("InviteUI.radioButtonInvite.text"));
-                        radioButtonInvite.setToolTipText(context.cfg.gs("InviteUI.radioButtonInvite.toolTipText"));
-                        radioButtonInvite.setActionCommand("Invite");
-                        radioButtonInvite.setFont(radioButtonInvite.getFont().deriveFont(radioButtonInvite.getFont().getSize() + 1f));
-                        radioButtonInvite.addActionListener(e -> actionTypeClicked(e));
-                        menuBarRadio.add(radioButtonInvite);
-
-                        //---- radioButtonUpdate ----
-                        radioButtonUpdate.setText(context.cfg.gs("InviteUI.radioButtonUpdate.text"));
-                        radioButtonUpdate.setToolTipText(context.cfg.gs("InviteUI.radioButtonUpdate.toolTipText"));
-                        radioButtonUpdate.setActionCommand("Update");
-                        radioButtonUpdate.setFont(radioButtonUpdate.getFont().deriveFont(radioButtonUpdate.getFont().getSize() + 1f));
-                        radioButtonUpdate.addActionListener(e -> actionTypeClicked(e));
-                        menuBarRadio.add(radioButtonUpdate);
-                    }
-                    panelTopRadio.add(menuBarRadio);
+                    //---- buttonEditTemplate ----
+                    buttonEditTemplate.setText(context.cfg.gs("InviteUI.buttonEditTemplate.text"));
+                    buttonEditTemplate.setMnemonic('E');
+                    buttonEditTemplate.addActionListener(e -> actionEditClicked(e));
+                    panelTopTemplates.add(buttonEditTemplate);
                 }
-                panelTop.add(panelTopRadio, BorderLayout.WEST);
+                panelTop.add(panelTopTemplates, BorderLayout.WEST);
 
                 //======== panelHelp ========
                 {
@@ -761,17 +741,6 @@ public class InviteUI extends JDialog
             {
                 contentPanel.setLayout(new BorderLayout());
 
-                //======== panelTopButtons ========
-                {
-                    panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 4));
-
-                    //---- buttonEditTemplate ----
-                    buttonEditTemplate.setText(context.cfg.gs("InviteUI.buttonEditTemplate.text"));
-                    buttonEditTemplate.addActionListener(e -> actionEditClicked(e));
-                    panelTopButtons.add(buttonEditTemplate);
-                }
-                contentPanel.add(panelTopButtons, BorderLayout.NORTH);
-
                 //======== panelOptions ========
                 {
                     panelOptions.setAlignmentY(0.0F);
@@ -780,13 +749,6 @@ public class InviteUI extends JDialog
                     ((GridBagLayout)panelOptions.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
                     ((GridBagLayout)panelOptions.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
                     ((GridBagLayout)panelOptions.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
-
-                    //---- vSpacer2 ----
-                    vSpacer2.setPreferredSize(new Dimension(10, 4));
-                    vSpacer2.setMinimumSize(new Dimension(12, 4));
-                    panelOptions.add(vSpacer2, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 4, 4), 0, 0));
 
                     //---- labelAuthKeys ----
                     labelAuthKeys.setText(context.cfg.gs("InviteUI.labelAuthKeys.text"));
@@ -821,13 +783,6 @@ public class InviteUI extends JDialog
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 4, 0), 0, 0));
 
-                    //---- vSpacer1 ----
-                    vSpacer1.setPreferredSize(new Dimension(10, 4));
-                    vSpacer1.setMinimumSize(new Dimension(12, 4));
-                    panelOptions.add(vSpacer1, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 4, 4), 0, 0));
-
                     //---- labelServer ----
                     labelServer.setText(context.cfg.gs("InviteUI.labelServer.text"));
                     panelOptions.add(labelServer, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
@@ -861,18 +816,33 @@ public class InviteUI extends JDialog
 
                         //---- buttonPreview ----
                         buttonPreview.setText(context.cfg.gs("InviteUI.buttonPreview.text"));
-                        buttonPreview.setToolTipText(context.cfg.gs("EmailEditor.buttonPreview.toolTipText"));
+                        buttonPreview.setToolTipText(context.cfg.gs("EmailTemplates.buttonPreview.toolTipText"));
+                        buttonPreview.setMnemonic('P');
                         buttonPreview.addActionListener(e -> actionPreviewClicked(e));
                         panelActions.add(buttonPreview);
 
                         //---- buttonBrowser ----
                         buttonBrowser.setText(context.cfg.gs("InviteUI.buttonBrowser.text"));
-                        buttonBrowser.setToolTipText(context.cfg.gs("EmailEditor.buttonBrowser.toolTipText"));
+                        buttonBrowser.setToolTipText(context.cfg.gs("EmailTemplates.buttonBrowser.toolTipText"));
+                        buttonBrowser.setMnemonic('B');
                         buttonBrowser.addActionListener(e -> actionBrowserClicked(e));
                         panelActions.add(buttonBrowser);
 
+                        //---- hSpacer1 ----
+                        hSpacer1.setPreferredSize(new Dimension(22, 10));
+                        hSpacer1.setMinimumSize(new Dimension(22, 12));
+                        panelActions.add(hSpacer1);
+
+                        //---- buttonArchive ----
+                        buttonArchive.setText(context.cfg.gs("InviteUI.buttonArchive.text"));
+                        buttonArchive.setToolTipText(context.cfg.gs("InviteUI.buttonArchive.toolTipText"));
+                        buttonArchive.addActionListener(e -> actionArchiveClicked(e));
+                        panelActions.add(buttonArchive);
+
                         //---- buttonSend ----
                         buttonSend.setText(context.cfg.gs("InviteUI.buttonSend.text"));
+                        buttonSend.setToolTipText(context.cfg.gs("InviteUI.buttonSend.toolTipText"));
+                        buttonSend.setMnemonic('S');
                         buttonSend.addActionListener(e -> actionSendClicked(e));
                         panelActions.add(buttonSend);
                     }
@@ -908,37 +878,26 @@ public class InviteUI extends JDialog
         contentPane.add(dialogPane, BorderLayout.CENTER);
         pack();
         setLocationRelativeTo(getOwner());
-
-        //---- buttonGroupType ----
-        buttonGroupType.add(radioButtonInitial);
-        buttonGroupType.add(radioButtonInvite);
-        buttonGroupType.add(radioButtonUpdate);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
     private JPanel dialogPane;
     private JPanel panelTop;
-    private JPanel panelTopRadio;
-    private JMenuBar menuBarRadio;
+    private JPanel panelTopTemplates;
     private JLabel labelWhat;
-    private JRadioButton radioButtonInitial;
-    private JRadioButton radioButtonInvite;
-    private JRadioButton radioButtonUpdate;
+    private JComboBox comboBoxTemplates;
+    private JButton buttonEditTemplate;
     private JPanel panelHelp;
     private JLabel labelHelp;
     private JPanel contentPanel;
-    private JPanel panelTopButtons;
-    private JButton buttonEditTemplate;
     private JPanel panelOptions;
-    private JPanel vSpacer2;
     private JLabel labelAuthKeys;
     private JCheckBox checkBoxAuthKeys;
     private JLabel labelHintKeys;
     private JCheckBox checkBoxHintKeys;
     private JLabel labelWhitelist;
     private JCheckBox checkBoxWhitelist;
-    private JPanel vSpacer1;
     private JLabel labelServer;
     private JComboBox comboBoxServer;
     private JLabel labelTo;
@@ -946,11 +905,12 @@ public class InviteUI extends JDialog
     private JPanel panelActions;
     private JButton buttonPreview;
     private JButton buttonBrowser;
+    private JPanel hSpacer1;
+    private JButton buttonArchive;
     private JButton buttonSend;
     private JPanel buttonBar;
-    private JLabel labelStatus;
+    public JLabel labelStatus;
     private JButton okButton;
-    private ButtonGroup buttonGroupType;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     //
