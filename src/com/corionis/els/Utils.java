@@ -432,6 +432,16 @@ public class Utils
         return ext;
     }
 
+    public static String getFileName(String name)
+    {
+        File file = new File(name);
+        String fileName = file.getName();
+        int i = fileName.lastIndexOf(".");
+        if (i > 0)
+            fileName = fileName.substring(i + 1);
+        return fileName;
+    }
+
     /**
      * Get the file separator for the flavor of operating system
      *

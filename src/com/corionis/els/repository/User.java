@@ -103,6 +103,18 @@ public class User
         return type;
     }
 
+    public String getTypeString()
+    {
+        String typeString = "";
+        if (type == 0)
+            typeString =  "Basic";
+        else if (type == 1)
+            typeString =  "Advanced";
+        else if (type == 2)
+            typeString =  "Administrator";
+        return typeString;
+    }
+
     public boolean isAdmin()
     {
         return type == ADMIN;

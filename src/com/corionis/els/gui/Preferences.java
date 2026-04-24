@@ -60,13 +60,14 @@ public class Preferences implements Serializable
     private String defaultEmailServer = "";
     private int directoryPickerXpos = -1;
     private int directoryPickerYpos = 0;
-    private int emailEditorHeight = 320;
-    private int emailEditorWidth = 460;
-    private int emailEditorXpos = -1;
-    private int emailEditorYpos = 0;
     private String emailInviteLastServer = "";
     private int emailInviteXpos = -1;
     private int emailInviteYpos = 0;
+    private int emailTemplatesDividerLocation = 150;
+    private int emailTemplatesHeight = 320;
+    private int emailTemplatesWidth = 460;
+    private int emailTemplatesXpos = -1;
+    private int emailTemplatesYpos = 0;
     private int fileEditorHeight = 365;
     private int fileEditorWidth = 425;
     private int fileEditorXpos = -1;
@@ -634,26 +635,6 @@ public class Preferences implements Serializable
         return directoryPickerYpos;
     }
 
-    public int getEmailEditorHeight()
-    {
-        return emailEditorHeight;
-    }
-
-    public int getEmailEditorWidth()
-    {
-        return emailEditorWidth;
-    }
-
-    public int getEmailEditorXpos()
-    {
-        return emailEditorXpos;
-    }
-
-    public int getEmailEditorYpos()
-    {
-        return emailEditorYpos;
-    }
-
     public String getEmailInviteLastServer()
     {
         return emailInviteLastServer;
@@ -667,6 +648,31 @@ public class Preferences implements Serializable
     public int getEmailInviteYpos()
     {
         return emailInviteYpos;
+    }
+
+    public int getEmailTemplatesDividerLocation()
+    {
+        return emailTemplatesDividerLocation;
+    }
+
+    public int getEmailTemplatesHeight()
+    {
+        return emailTemplatesHeight;
+    }
+
+    public int getEmailTemplatesWidth()
+    {
+        return emailTemplatesWidth;
+    }
+
+    public int getEmailTemplatesXpos()
+    {
+        return emailTemplatesXpos;
+    }
+
+    public int getEmailTemplatesYpos()
+    {
+        return emailTemplatesYpos;
     }
 
     public int getFileEditorHeight()
@@ -1726,26 +1732,6 @@ public class Preferences implements Serializable
         this.directoryPickerYpos = directoryPickerYpos;
     }
 
-    public void setEmailEditorHeight(int emailEditorHeight)
-    {
-        this.emailEditorHeight = emailEditorHeight;
-    }
-
-    public void setEmailEditorWidth(int emailEditorWidth)
-    {
-        this.emailEditorWidth = emailEditorWidth;
-    }
-
-    public void setEmailEditorXpos(int emailEditorXpos)
-    {
-        this.emailEditorXpos = emailEditorXpos;
-    }
-
-    public void setEmailEditorYpos(int emailEditorYpos)
-    {
-        this.emailEditorYpos = emailEditorYpos;
-    }
-
     public void setEmailInviteLastServer(String emailInviteLastServer)
     {
         this.emailInviteLastServer = emailInviteLastServer;
@@ -1759,6 +1745,31 @@ public class Preferences implements Serializable
     public void setEmailInviteYpos(int emailInviteYpos)
     {
         this.emailInviteYpos = emailInviteYpos;
+    }
+
+    public void setEmailTemplatesDividerLocation(int emailTemplatesDividerLocation)
+    {
+        this.emailTemplatesDividerLocation = emailTemplatesDividerLocation;
+    }
+
+    public void setEmailTemplatesHeight(int emailTemplatesHeight)
+    {
+        this.emailTemplatesHeight = emailTemplatesHeight;
+    }
+
+    public void setEmailTemplatesWidth(int emailTemplatesWidth)
+    {
+        this.emailTemplatesWidth = emailTemplatesWidth;
+    }
+
+    public void setEmailTemplatesXpos(int emailTemplatesXpos)
+    {
+        this.emailTemplatesXpos = emailTemplatesXpos;
+    }
+
+    public void setEmailTemplatesYpos(int emailTemplatesYpos)
+    {
+        this.emailTemplatesYpos = emailTemplatesYpos;
     }
 
     public void setFileEditorHeight(int fileEditorHeight)

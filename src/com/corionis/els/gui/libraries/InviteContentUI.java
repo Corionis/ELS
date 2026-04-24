@@ -2,7 +2,6 @@ package com.corionis.els.gui.libraries;
 
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
-import com.corionis.els.repository.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -86,21 +85,6 @@ public class InviteContentUI extends JDialog
         if (ld.exists() && ld.isDirectory())
             fc.setCurrentDirectory(ld);
 
-/*
-        if (libMeta.repo.getJsonFilename().length() > 0)
-        {
-            File lf = new File(libMeta.repo.getJsonFilename());
-            if (lf.exists())
-                fc.setSelectedFile(lf);
-        }
-        else if (context.preferences.getLastSubscriberOpenFile().length() > 0)
-        {
-            File lf = new File(context.preferences.getLastSubscriberOpenFile());
-            if (lf.exists())
-                fc.setSelectedFile(lf);
-        }
-*/
-
         while (true)
         {
             int selection = fc.showOpenDialog(context.mainFrame);
@@ -139,7 +123,7 @@ public class InviteContentUI extends JDialog
             checkBoxHintServer.isSelected() && textFieldCurrentHintServer.getText().isEmpty() ||
             checkBoxHints.isSelected() && textFieldCurrentHints.getText().isEmpty() )
         {
-            JOptionPane.showConfirmDialog(this, context.cfg.gs("InviteContent.please.complete.missing.selected.files"), this.getTitle(), JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showConfirmDialog(this, context.cfg.gs("InviteContent.please.complete.missing.selected.files"), getTitle(), JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE);
             return;
         }
 

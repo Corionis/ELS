@@ -2,6 +2,7 @@ package com.corionis.els.gui.tools.email;
 
 import java.awt.event.*;
 import com.corionis.els.Context;
+import com.corionis.els.Utils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -54,9 +55,12 @@ public class EmailPreview extends JDialog
     private void initialize()
     {
         // position & size
-        this.setLocation(x, y);
-        Dimension dim = new Dimension(width, height);
-        this.setSize(dim);
+        if (x != -1 && Utils.isOnScreen(x, y))
+        {
+            setLocation(x, y);
+            Dimension dim = new Dimension(width, height);
+            setSize(dim);
+        }
 
         // Escape key
         ActionListener escListener = new AbstractAction()
@@ -149,6 +153,8 @@ public class EmailPreview extends JDialog
             }
         }
     }
+
+    // ================================================================================================================
 
     private void initComponents()
     {

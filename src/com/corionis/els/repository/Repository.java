@@ -54,6 +54,36 @@ public class Repository implements Comparable
         this.purpose = purpose;
     }
 
+    public Repository cloneConnection()
+    {
+        Repository commItems = new Repository(context, purpose);
+        commItems.setJsonFilename(getJsonFilename());
+        commItems.createStructure();
+        commItems.libraryData.libraries.description = getLibraryData().libraries.description;
+        commItems.libraryData.libraries.key = getLibraryData().libraries.key;
+        commItems.libraryData.libraries.host = getLibraryData().libraries.host;
+        commItems.libraryData.libraries.listen = getLibraryData().libraries.listen;
+        commItems.libraryData.libraries.timeout = getLibraryData().libraries.timeout;
+        commItems.libraryData.libraries.flavor = getLibraryData().libraries.flavor;
+        commItems.libraryData.libraries.case_sensitive = getLibraryData().libraries.case_sensitive;
+        commItems.libraryData.libraries.temp_dated = getLibraryData().libraries.temp_dated;
+        commItems.libraryData.libraries.temp_location = getLibraryData().libraries.temp_location;
+        commItems.libraryData.libraries.terminal_allowed = getLibraryData().libraries.terminal_allowed;
+
+        if (getLibraryData().libraries.ignore_patterns != null)
+            commItems.libraryData.libraries.ignore_patterns = (String[])getLibraryData().libraries.ignore_patterns.clone();
+        else
+            commItems.libraryData.libraries.ignore_patterns = null;
+
+        commItems.libraryData.libraries.email = getLibraryData().libraries.email;
+        commItems.libraryData.libraries.format = getLibraryData().libraries.format;
+        commItems.libraryData.libraries.mismatches = getLibraryData().libraries.mismatches;
+        commItems.libraryData.libraries.whatsNew = getLibraryData().libraries.whatsNew;
+        commItems.libraryData.libraries.skipOffline = getLibraryData().libraries.skipOffline;
+        commItems.setUser(new User(context));
+        return commItems;
+    }
+
     /**
      * Close this repository but do not include individual items
      *
@@ -173,7 +203,7 @@ public class Repository implements Comparable
     @Override
     public int compareTo(Object o)
     {
-        return this.getLibraryData().libraries.description.compareTo(((Repository) o).getLibraryData().libraries.description);
+        return getLibraryData().libraries.description.compareTo(((Repository) o).getLibraryData().libraries.description);
     }
 
     public void createLibrary(String name)
@@ -652,7 +682,7 @@ public class Repository implements Comparable
      */
     public boolean isInitialized()
     {
-        return getLibraryData() != null && (this.jsonFilename != null && this.jsonFilename.length() > 0);
+        return getLibraryData() != null && (jsonFilename != null && jsonFilename.length() > 0);
     }
 
     public boolean isPublisher()
@@ -1105,22 +1135,22 @@ public class Repository implements Comparable
      */
     public void setDynamic(boolean sense)
     {
-        this.dynamic = sense;
+        dynamic = sense;
     }
 
     /**
      * Sets LibraryData file.
      *
-     * @param jsonFilename of the LibraryData file
+     * @param filename of the LibraryData file
      */
-    public void setJsonFilename(String jsonFilename)
+    public void setJsonFilename(String filename)
     {
-        this.jsonFilename = jsonFilename;
+        jsonFilename = filename;
     }
 
     public void setUser(User user)
     {
-        this.libraryData.user = user;
+        libraryData.user = user;
     }
 
     /**

@@ -86,6 +86,8 @@ public class LinkUI extends JDialog
             textFieldText.setText(text);
     }
 
+    // ================================================================================================================
+
     private void initComponents()
     {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents

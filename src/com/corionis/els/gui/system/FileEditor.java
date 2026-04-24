@@ -179,10 +179,10 @@ public class FileEditor extends JDialog
 
     private void actionSaveClicked(ActionEvent e)
     {
-        if (saveContent())
+        if (saveContent((ArrayList)null, (HintKeys)null, type))
         {
             savePreferences();
-            context.navigator.enableDisableSystemMenus(null, true);
+            context.navigator.enableDisableSystemMenus((EditorTypes)null, true);
             setVisible(false);
         }
     }
@@ -341,6 +341,11 @@ public class FileEditor extends JDialog
         return "system";
     }
 
+    public boolean has(ArrayList<String> addresses, String address)
+    {
+        return addresses != null && addresses.contains(address);
+    }
+
     private void process()
     {
         setVisible(true);
@@ -358,13 +363,13 @@ public class FileEditor extends JDialog
         // position, size & dividers
         if (context.preferences.getFileEditorXpos() != -1 && Utils.isOnScreen(context.preferences.getFileEditorXpos(), context.preferences.getFileEditorYpos()))
         {
-            this.setLocation(context.preferences.getFileEditorXpos(), context.preferences.getFileEditorYpos());
+            setLocation(context.preferences.getFileEditorXpos(), context.preferences.getFileEditorYpos());
             Dimension dim = new Dimension(context.preferences.getFileEditorWidth(), context.preferences.getFileEditorHeight());
-            this.setSize(dim);
+            setSize(dim);
         }
         else
         {
-            this.setLocation(Utils.getRelativePosition(context.mainFrame, this));
+            setLocation(Utils.getRelativePosition(context.mainFrame, this));
         }
 
         // Escape key
@@ -420,16 +425,16 @@ public class FileEditor extends JDialog
         switch (type)
         {
             case Authentication:
-                hintKeys = readHintKeys();
+                hintKeys = readHintKeys(EditorTypes.Authentication);
                 break;
             case HintKeys:
-                hintKeys = readHintKeys();
+                hintKeys = readHintKeys(EditorTypes.HintKeys);
                 break;
             case BlackList:
-                ipAddresses = readIpAddresses();
+                ipAddresses = readIpAddresses(EditorTypes.BlackList);
                 break;
             case WhiteList:
-                ipAddresses = readIpAddresses();
+                ipAddresses = readIpAddresses(EditorTypes.WhiteList);
                 break;
         }
 
@@ -437,7 +442,7 @@ public class FileEditor extends JDialog
         tableContent.setModel(dataTableModel);
     }
 
-    private HintKeys readHintKeys()
+    public HintKeys readHintKeys(EditorTypes type)
     {
         hintKeys = new HintKeys(context);
         try
@@ -470,7 +475,7 @@ public class FileEditor extends JDialog
         return hintKeys;
     }
 
-    private ArrayList<String> readIpAddresses()
+    public ArrayList<String> readIpAddresses(EditorTypes type)
     {
         ipAddresses = new ArrayList<>();
         try
@@ -510,90 +515,95 @@ public class FileEditor extends JDialog
         return ipAddresses;
     }
 
-    private boolean saveContent()
-    {
+    public boolean saveContent(ArrayList<String> addresses, HintKeys keys, EditorTypes type) {
         if (tableContent.isEditing())
-            tableContent.getCellEditor().stopCellEditing();
-
-        if (dataTableModel.isDataChanged())
         {
+            tableContent.getCellEditor().stopCellEditing();
+        }
+
+        if (dataTableModel.isDataChanged() || addresses != null || keys != null)
+        {
+            if (addresses == null)
+            {
+                addresses = ipAddresses;
+            }
+
+            if (keys == null)
+            {
+                keys = hintKeys;
+            }
+
             try
             {
                 String header = "";
-                switch (type)
+                switch (type.ordinal())
                 {
-                    case Authentication:
+                    case 0:
                         header = "# ELS Authentication Keys" + System.getProperty("line.separator");
+                    case 1:
+                    default:
                         break;
-                    case HintKeys:
+                    case 2:
                         header = "# ELS Hint Keys" + System.getProperty("line.separator");
                         break;
-                    case BlackList:
+                    case 3:
                         header = "# ELS Blacklist" + System.getProperty("line.separator");
                         break;
-                    case WhiteList:
+                    case 4:
                         header = "# ELS Whitelist" + System.getProperty("line.separator");
-                        break;
                 }
-                switch (type)
+
+                switch (type.ordinal())
                 {
-                    case Authentication:
-                    case HintKeys:
-                        header += "#" + System.getProperty("line.separator") +
-                                "# Format: name uuid" + System.getProperty("line.separator") +
-                                "#" + System.getProperty("line.separator") +
-                                "#   Name is any shortname, no spaces." + System.getProperty("line.separator") +
-                                "#   UUID is the key from the collection JSON file." + System.getProperty("line.separator") +
-                                "#" + System.getProperty("line.separator") +
-                                "# Use space/tab separators, no quotes." + System.getProperty("line.separator") +
-                                "#" + System.getProperty("line.separator");
-                        hintKeys.write(header);
+                    case 0:
+                    case 2:
+                        header = header + "#" + System.getProperty("line.separator") + "# Format: name uuid" + System.getProperty("line.separator") + "#" + System.getProperty("line.separator") + "#   Name is any shortname, no spaces." + System.getProperty("line.separator") + "#   UUID is the key from the collection JSON file." + System.getProperty("line.separator") + "#" + System.getProperty("line.separator") + "# Use space/tab separators, no quotes." + System.getProperty("line.separator") + "#" + System.getProperty("line.separator");
+                        keys.write(header);
+                    case 1:
+                    default:
                         break;
-                    case BlackList:
-                    case WhiteList:
-                        header += "#" + System.getProperty("line.separator") +
-                                "# Format: xxx.xxx.xxx.xxx" + System.getProperty("line.separator") +
-                                "#" + System.getProperty("line.separator") +
-                                "#   A standard IPv4 address." + System.getProperty("line.separator") +
-                                "#   One address per line." + System.getProperty("line.separator") +
-                                "#" + System.getProperty("line.separator");
-                        writeIpAddresses(header);
-                        break;
+                    case 3:
+                    case 4:
+                        header = header + "#" + System.getProperty("line.separator") + "# Format: xxx.xxx.xxx.xxx" + System.getProperty("line.separator") + "#" + System.getProperty("line.separator") + "#   A standard IPv4 address." + System.getProperty("line.separator") + "#   One address per line." + System.getProperty("line.separator") + "#" + System.getProperty("line.separator");
+                        writeIpAddresses(header, addresses);
                 }
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 logger.error(Utils.getStackTrace(e));
             }
-
-
         }
+
         return true;
     }
 
     private void savePreferences()
     {
-        context.preferences.setFileEditorHeight(this.getHeight());
-        context.preferences.setFileEditorWidth(this.getWidth());
-        Point location = this.getLocation();
+        context.preferences.setFileEditorHeight(getHeight());
+        context.preferences.setFileEditorWidth(getWidth());
+        Point location = getLocation();
         context.preferences.setFileEditorXpos(location.x);
         context.preferences.setFileEditorYpos(location.y);
     }
 
-    private void writeIpAddresses(String header) throws Exception
+    private void writeIpAddresses(String header, ArrayList<String> addresses) throws Exception
     {
-        if (ipAddresses != null)
+        if (addresses != null)
         {
             File file = new File(fileName);
             file.getParentFile().mkdirs();
             BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
             bw.write(header);
             bw.write(System.getProperty("line.separator"));
-            for (int i = 0; i < ipAddresses.size(); ++i)
+
+            for (int i = 0; i < addresses.size(); ++i)
             {
-                if (ipAddresses.get(i) != null && ipAddresses.get(i).length() > 0)
-                    bw.write(ipAddresses.get(i) + System.getProperty("line.separator"));
+                if (addresses.get(i) != null && ((String)addresses.get(i)).length() > 0)
+                {
+                    String var10001 = (String)addresses.get(i);
+                    bw.write(var10001 + System.getProperty("line.separator"));
+                }
             }
+
             bw.write(System.getProperty("line.separator"));
             bw.close();
         }

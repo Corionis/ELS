@@ -3,6 +3,7 @@ package com.corionis.els.tools.email;
 import com.corionis.els.Context;
 import com.corionis.els.Persistent;
 import com.corionis.els.Utils;
+import com.corionis.els.gui.libraries.InviteUI;
 import com.corionis.els.gui.tools.email.EmailUI;
 import com.corionis.els.repository.Libraries;
 
@@ -67,11 +68,12 @@ public class EmailHandler extends Thread
     private final int ZOHO_FIXED_PORT = 60271;
 
     private final Logger logger = LogManager.getLogger("applog");
-    public static enum Function {AUTH, FAULT, SEND, TEST};
+    public static enum Function {AUTH, FAULT, SEND, TEST, INVITE};
 
     private String api_domain = "";
     private String attachment = null;
     private String authToken;
+    private String body = "";
     private String codeVerifier;
     private String codeChallenge;
     private final Context context;
@@ -79,9 +81,12 @@ public class EmailHandler extends Thread
     private String error = "";
     private boolean expired = false;
     private boolean fault = false;
+    private String format = "";
+    private String from = "";
     private Function function = null;
     private HttpExchange httpExchange = null;
     private int httpPort = -1;
+    private InviteUI inviteUI = null;
     private String location = null;
     private boolean nothingToDo = false;
     private String now;
@@ -94,6 +99,7 @@ public class EmailHandler extends Thread
     private boolean stop = false;
     private boolean success = false;
     private boolean timeout = false;
+    private String to = "";
     private EmailTool tool = null;
     private boolean workerRunning = false;
 
@@ -103,6 +109,19 @@ public class EmailHandler extends Thread
         this.emailUi = emailUi;
         this.tool = tool;
         this.function = function;
+    }
+
+    public EmailHandler(Context context, InviteUI inviteUI, EmailTool tool, String format, String from, String to, String body, String attachment)
+    {
+        this.context = context;
+        this.inviteUI = inviteUI;
+        this.tool = tool;
+        this.format = format;
+        this.from = from;
+        this.to = to;
+        this.body = body;
+        this.attachment = attachment;
+        this.function = EmailHandler.Function.INVITE;
     }
 
     /**
@@ -568,27 +587,47 @@ public class EmailHandler extends Thread
 
         // set subject field
         String ends = "";
-        if (context.publisherRepo != null)
-            ends = context.publisherRepo.getLibraryData().libraries.description + "-";
-        if (context.subscriberRepo != null)
-            ends += context.subscriberRepo.getLibraryData().libraries.description + " ";
-        else if (context.hintsRepo != null)
-            ends = context.hintsRepo.getLibraryData().libraries.description + " ";
-
-        if (function == Function.FAULT)
+        if (function != EmailHandler.Function.INVITE)
         {
-            message.setSubject("ELS Problem: " + ends + now);
+            if (context.publisherRepo != null)
+            {
+                ends = context.publisherRepo.getLibraryData().libraries.description + "-";
+            }
+
+            if (context.subscriberRepo != null)
+            {
+                ends = ends + context.subscriberRepo.getLibraryData().libraries.description + " ";
+            }
+            else if (context.hintsRepo != null)
+            {
+                ends = context.hintsRepo.getLibraryData().libraries.description + " ";
+            }
         }
-        else if (function == Function.SEND)
+
+        if (function == EmailHandler.Function.FAULT)
+        {
+            message.setSubject(context.cfg.gs("EmailUI.els.problem") + ends + now);
+        }
+        else if (function == EmailHandler.Function.SEND)
         {
             String subject = "";
             if (isMisMatches)
-                message.setSubject("ELS Mismatches: " + ends + now);
+            {
+                message.setSubject(MessageFormat.format(context.cfg.gs("EmailUI.els.mismatches"), ends, now));
+            }
             else
-                message.setSubject("ELS What's New: " + ends + now);
+            {
+                message.setSubject(MessageFormat.format(context.cfg.gs("EmailUI.els.what.s.new"), ends, now));
+            }
         }
-        else if (function == Function.TEST)
-            message.setSubject("ELS Test Email: " + now);
+        else if (function == EmailHandler.Function.TEST)
+        {
+            message.setSubject(MessageFormat.format(context.cfg.gs("EmailUI.els.test.email"), now));
+        }
+        else if (function == EmailHandler.Function.INVITE)
+        {
+            message.setSubject(context.cfg.gs("EmailUI.els.invitation.or.update"));
+        }
 
         // set content
         Multipart multipart = new MimeMultipart("related"); // alternative, related, mixed
@@ -662,12 +701,12 @@ public class EmailHandler extends Thread
                 text = "<!DOCTYPE html><html><body style=\"font-family: Arial, Helvetica, sans-serif;font-size: 100%;\">\n";
                 text += "<div><img src='https://www.elsnavigator.com/assets/images/els-logo-64px.png' style=\"vertical-align: middle;\"/>\n";
                 text += "<span style=\"font-family: Arial, Helvetica, sans-serif;font-size: 120%;vertical-align: middle;\">\n";
-                text += "<b>&nbsp;&nbsp;Automated email from: " + from + "</b></span></div>\n";
+                text = text + "<b>&nbsp;&nbsp;" + context.cfg.gs("EmailUI.automated.email.from") + from + "</b></span></div>\n";
                 text += "<hr/>\n";
             }
             else if (recipient.format.equalsIgnoreCase("text"))
             {
-                text = "Automated email from: " + from + "\n";
+                text = context.cfg.gs("EmailUI.automated.email.from") + from + "\n";
                 text += "------------------------------------------\n";
             }
         }
@@ -679,14 +718,14 @@ public class EmailHandler extends Thread
 
             if (recipient.format.equalsIgnoreCase("html"))
             {
-                text += "<p><b>Problem</b></p>";
+                text += "<p><b>" + context.cfg.gs("EmailUI.problem") + "</b></p>";
                 text += "<span style=\"font-family: monospace; font-size: 120%;\">";
             }
             else if (recipient.format.equalsIgnoreCase("text"))
             {
-                text += "Problem\n\n";
+                text += context.cfg.gs("EmailUI.problem") + "\n\n";
             }
-            text += "An ELS process appears to have failed. See attached log.\n";
+            text += context.cfg.gs("EmailUI.an.els.process.appears.to.have.failed.see.attached.log");
             if (recipient.format.equalsIgnoreCase("html"))
             {
                 text += "</span><hr/>";
@@ -721,7 +760,7 @@ public class EmailHandler extends Thread
                 text += "Test Email\n\n";
             }
 
-            text += "This is a test for sending emails using ";
+            text += context.cfg.gs("EmailUI.this.is.a.test.for.sending.emails.using");
             text += tool.getServer();
             text += "\n";
 
@@ -734,9 +773,13 @@ public class EmailHandler extends Thread
                 text += "------------------------------------------\n";
             }
         }
+        else if (this.function == EmailHandler.Function.INVITE)
+        {
+            text = this.body;
+        }
 
         // footer
-        if (function != Function.SEND)
+        if (this.function != Function.SEND && this.function != Function.INVITE)
         {
             if (recipient.format.equalsIgnoreCase("html"))
             {
@@ -1114,6 +1157,7 @@ public class EmailHandler extends Thread
             case FAULT:
             case SEND:
             case TEST:
+            case INVITE:
                 email();
                 break;
         }

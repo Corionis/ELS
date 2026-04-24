@@ -4,43 +4,56 @@ import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
+import com.corionis.els.gui.system.FileEditor;
+import com.corionis.els.gui.system.FileEditor.EditorTypes;
 import com.corionis.els.gui.tools.email.EmailPreview;
 import com.corionis.els.gui.tools.email.EmailTemplates;
+import com.corionis.els.gui.tools.email.Template;
+import com.corionis.els.hints.HintKey;
 import com.corionis.els.hints.HintKeys;
-import com.corionis.els.repository.User;
+import com.corionis.els.repository.Repository;
 import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.Tools;
+import com.corionis.els.tools.email.EmailHandler;
 import com.corionis.els.tools.email.EmailTool;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.filechooser.FileSystemView;
 
-public class InviteUI extends JDialog 
+public class InviteUI extends JDialog
 {
+    private String attachment = "";
     private HintKeys authKeys = null;
-    private Context context;
+    private String body = "";
+    private final Context context;
+    private Template currentTemplate = null;
     private ArrayList<AbstractTool> emailToolList = new ArrayList<AbstractTool>();
+    private String from = "";
     private NavHelp helpDialog;
     private HintKeys hintKeys = null;
-    private LibrariesUI.LibMeta libMeta;
-    private Logger logger = LogManager.getLogger("applog");
-    private Template template;
-    private String type;
+    private InviteContentUI inviteContentUI = null;
+    private final LibrariesUI.LibMeta libMeta;
+    private final Logger logger = LogManager.getLogger("applog");
+    private EmailTool server;
+    private String to;
 
     public InviteUI(Window owner, Context context, LibrariesUI.LibMeta libMeta) throws MungeException
     {
@@ -51,54 +64,57 @@ public class InviteUI extends JDialog
         initialize();
     }
 
+    private void actionArchiveClicked(ActionEvent e)
+    {
+        try
+        {
+            createArchive(true);
+            if (!inviteContentUI.cancelled)
+            {
+                String head = context.cfg.gs("InviteUI.archive.file.created");
+                String msg = head + attachment;
+                JOptionPane.showConfirmDialog(this, msg, context.cfg.gs("InviteUI.title"), -1);
+                labelStatus.setText("<html><body>&nbsp;</body></html>");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.error(ex.getMessage());
+            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+        }
+    }
+
     private void actionBrowserClicked(ActionEvent e)
     {
         try
         {
-            String text = template.getContent(type, libMeta.repo.getLibraries().format, false);
-            text = getFormattedText(text);
+            currentTemplate = (Template) comboBoxTemplates.getSelectedItem();
+            currentTemplate.setContext(context);
+            String text = currentTemplate.getContent(null);
+            text = currentTemplate.getFormattedText(text, libMeta.repo);
             String filename = "emailPreview.html";
             filename = Utils.getTemporaryFilePrefix(context.publisherRepo, filename);
             File file = new File(filename);
-            Files.write(file.toPath(), text.getBytes(Charset.forName("UTF-8")));
-
+            Files.write(file.toPath(), text.getBytes(StandardCharsets.UTF_8));
             filename = "file:///" + filename;
-
             URI uri = new URI(filename);
             Desktop.getDesktop().browse(uri);
         }
         catch (Exception ex)
         {
             logger.error(ex.getMessage(), ex);
+            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
         }
     }
 
     private void actionEditClicked(ActionEvent e)
     {
-        EmailTemplates editor = new EmailTemplates(this, context);
-        switch (type)
-        {
-            case "Initial" :
-                editor.setTitle(context.cfg.gs(context.cfg.gs("EmailEditor.initial.email.editor")));
-                break;
-            case "Invite":
-                editor.setTitle(context.cfg.gs(context.cfg.gs("EmailEditor.invitation.email.editor")));
-                break;
-            case "Update":
-                editor.setTitle(context.cfg.gs(context.cfg.gs("EmailEditor.update.email.editor")));
-                break;
-        }
-
-        String title = editor.getTitle();
-        if (libMeta.repo.getLibraries().format.equalsIgnoreCase("html"))
-            editor.setTitle(title + context.cfg.gs("EmailEditor.html.format"));
-        else
-        {
-            editor.setTitle(title + context.cfg.gs("EmailEditor.text.format"));
-            editor.toolBar.setVisible(false);
-        }
-
-        editor.setVisible(true);
+        currentTemplate = (Template) comboBoxTemplates.getSelectedItem();
+        EmailTemplates emailTemplates = new EmailTemplates(this, context);
+        emailTemplates.setStart(currentTemplate, libMeta.repo.getUser());
+        emailTemplates.setVisible(true);
+        emailTemplates.toFront();
+        emailTemplates.requestFocus();
     }
 
     private void actionHelpClicked(MouseEvent e)
@@ -121,102 +137,151 @@ public class InviteUI extends JDialog
     private void actionOkClicked(ActionEvent e)
     {
         savePreferences();
+        if (helpDialog != null && helpDialog.isVisible())
+        {
+            helpDialog.setVisible(false);
+        }
+
         setVisible(false);
         context.mainFrame.requestFocus();
-    }
-
-    private void actionSendClicked(ActionEvent e)
-    {
-
     }
 
     private void actionPreviewClicked(ActionEvent e)
     {
         try
         {
-            String text = template.getContent(type, libMeta.repo.getLibraries().format, false);
-            text = getFormattedText(text);
-            EmailPreview preview = new EmailPreview(this, context, text, libMeta.repo.getLibraries().format,
-                    context.preferences.getEmailEditorXpos(), context.preferences.getEmailEditorYpos(),
-                    context.preferences.getEmailEditorWidth(), context.preferences.getEmailEditorHeight());
+            currentTemplate = (Template) comboBoxTemplates.getSelectedItem();
+            currentTemplate.setContext(context);
+            String text = currentTemplate.getContent(null);
+            text = currentTemplate.getFormattedText(text, libMeta.repo);
+            EmailPreview preview = new EmailPreview(this, null, context, text, libMeta.repo.getLibraries().format,
+                    context.preferences.getEmailTemplatesXpos(), context.preferences.getEmailTemplatesYpos(),
+                    context.preferences.getEmailTemplatesWidth(), context.preferences.getEmailTemplatesHeight());
             preview.setVisible(true);
         }
         catch (Exception ex)
         {
             logger.error(ex.getMessage());
+            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
         }
     }
 
-    private void actionTypeClicked(ActionEvent e)
+    private void actionSendClicked(ActionEvent e)
     {
-        // Type radio buttons
-        Enumeration<AbstractButton> elements = buttonGroupType.getElements();
-        while (elements.hasMoreElements())
+        try
         {
-            AbstractButton button = elements.nextElement();
-            if (button.isSelected())
+            if (!checkParameters())
             {
-                type = button.getActionCommand();
-                setDialog();
+                return;
             }
+
+            createArchive(false);
+            if (!inviteContentUI.cancelled)
+            {
+                performAdds();
+                currentTemplate = (Template) comboBoxTemplates.getSelectedItem();
+                currentTemplate.setContext(context);
+                body = currentTemplate.getContent(null);
+                body = currentTemplate.getFormattedText(body, libMeta.repo);
+                sendInviteEmail();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.error(ex.getMessage());
+            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
         }
     }
 
-    /**
-     * Get formatted text
-     * <p>
-     * Reformats the raw text that include newlines and inserts a <br/> to match.
-     *
-     * @param raw Raw text
-     * @return Formatted text
-     */
-    public String getFormattedText(String raw)
+    private boolean checkParameters()
     {
-        String text = "";
-
-        // if using HTML
-        if (libMeta.repo.getLibraries().format.equalsIgnoreCase("html"))
+        server = (EmailTool) comboBoxServer.getSelectedItem();
+        if (server == null)
         {
-            // copy everything up to the end of the BODY tag
-            int i = raw.indexOf("<body");
-            text = raw.substring(0, i);
-            for ( ; i < raw.length() ; ++i)
-            {
-                text += raw.charAt(i);
-                if (raw.charAt(i) == '>')
-                {
-                    ++i;
-                    text += "\n";
-                    if (raw.charAt(i) == '\n')
-                        ++i;
-                    break;
-                }
-            }
-
-            // find the end BODY tag
-            int k = raw.indexOf("</body>");
-
-            for ( ; i < k; ++i)
-            {
-                if (raw.charAt(i) == '\n')
-                {
-                    text += "<br/>\n"; // insert break
-                }
-                else
-                {
-                    text += raw.charAt(i);
-                }
-            }
-
-            for ( ; i < raw.length(); ++i)
-            {
-                text += raw.charAt(i);
-            }
+            JOptionPane.showMessageDialog(this, context.cfg.gs("InviteUI.please.select.a.server"), "Send", 2);
+            return false;
         }
         else
-            text = raw;
-        text = substituteVariables(text);
-        return text;
+        {
+            to = textFieldTo.getText();
+            if (to.isEmpty())
+            {
+                JOptionPane.showMessageDialog(this, context.cfg.gs("InviteUI.please.enter.a.to.address"), "Send", 2);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
+    private void createArchive(boolean archiveOnly) throws Exception
+    {
+        inviteContentUI = new InviteContentUI(this, context, libMeta, archiveOnly);
+        inviteContentUI.setVisible(true);
+
+        if (!inviteContentUI.cancelled)
+        {
+            ArrayList<String> filesToCompress = new ArrayList();
+            if (inviteContentUI.textFieldChoose.getText().isEmpty())
+            {
+                if (inviteContentUI.checkBoxPublisher.isSelected() && !inviteContentUI.textFieldCurrentPublisher.getText().isEmpty())
+                {
+                    String relPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), inviteContentUI.textFieldCurrentPublisher.getText());
+                    filesToCompress.add(relPath);
+                }
+
+                String repoFilename = "";
+                if (inviteContentUI.checkBoxSubscriber.isSelected() && !inviteContentUI.textFieldCurrentSubscriber.getText().isEmpty())
+                {
+                    Repository subRepo = new Repository(context, 2);
+                    subRepo.read(inviteContentUI.textFieldCurrentSubscriber.getText(), "Subscriber", false);
+                    subRepo = subRepo.cloneConnection();
+                    String filename = subRepo.getJsonFilename();
+                    String dir = Utils.getLeftPath(filename, subRepo.getSeparator());
+                    String ren = Utils.getFileName(filename);
+                    repoFilename = dir + System.getProperty("file.separator") + ren + "_connection.json";
+                    subRepo.setJsonFilename(repoFilename);
+                    subRepo.write();
+                    String relPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), subRepo.getJsonFilename());
+                    filesToCompress.add(relPath);
+                }
+
+                if (inviteContentUI.checkBoxHintServer.isSelected() && !inviteContentUI.textFieldCurrentHintServer.getText().isEmpty())
+                {
+                    String relPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), inviteContentUI.textFieldCurrentHintServer.getText());
+                    filesToCompress.add(relPath);
+                }
+
+                if (inviteContentUI.checkBoxHints.isSelected() && !inviteContentUI.textFieldCurrentHints.getText().isEmpty())
+                {
+                    String relPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), inviteContentUI.textFieldCurrentHints.getText());
+                    filesToCompress.add(relPath);
+                }
+
+                if (!filesToCompress.isEmpty())
+                {
+                    if (libMeta.repo.getLibraries().flavor.equalsIgnoreCase("Windows"))
+                        attachment = makeZip(filesToCompress);
+                    else
+                        attachment = makeTar(filesToCompress);
+                }
+                else
+                    inviteContentUI.cancelled = true;
+
+                if (!repoFilename.isEmpty())
+                {
+                    File reduced = new File(repoFilename);
+                    if (reduced.exists())
+                    {
+                        Files.delete(reduced.toPath());
+                    }
+                }
+            }
+            else
+                attachment = inviteContentUI.textFieldChoose.getText();
+        }
     }
 
     private String getFullPath(String filename)
@@ -239,15 +304,12 @@ public class InviteUI extends JDialog
         if (context.preferences.getEmailInviteXpos() != -1 && Utils.isOnScreen(context.preferences.getEmailInviteXpos(),
                 context.preferences.getEmailInviteYpos()))
         {
-            this.setLocation(context.preferences.getEmailInviteXpos(), context.preferences.getEmailInviteYpos());
+            setLocation(context.preferences.getEmailInviteXpos(), context.preferences.getEmailInviteYpos());
         }
         else
         {
-            this.setLocation(Utils.getRelativePosition(context.mainFrame, this));
+            setLocation(Utils.getRelativePosition(context.mainFrame, this));
         }
-
-        radioButtonInitial.setSelected(true);
-        type = radioButtonInitial.getActionCommand();
 
         // Escape key
         ActionListener escListener = new AbstractAction()
@@ -260,6 +322,22 @@ public class InviteUI extends JDialog
         };
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
+        comboBoxTemplates.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent itemEvent)
+            {
+                labelStatus.setText(" ");
+            }
+        });
+
+        comboBoxServer.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent itemEvent)
+            {
+                labelStatus.setText(" ");
+            }
+        });
+
         // get email servers
         Tools tools = new Tools();
         try
@@ -269,7 +347,7 @@ public class InviteUI extends JDialog
             {
                 for (AbstractTool tool : emailToolList)
                 {
-                    comboBoxServer.addItem(tool.getConfigName());
+                    comboBoxServer.addItem(tool);
                 }
             }
         }
@@ -278,6 +356,7 @@ public class InviteUI extends JDialog
             logger.error(Utils.getStackTrace(e));
             comboBoxServer.setEnabled(false);
         }
+
         if (comboBoxServer.getItemCount() < 1)
         {
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("InviteUI.at.least.one.email.server.must.be.defined"),
@@ -285,7 +364,8 @@ public class InviteUI extends JDialog
             throw new MungeException("ignore this");
         }
 
-        template = new Template(context);
+        loadConfigurations();
+        currentTemplate = (Template) comboBoxTemplates.getItemAt(0);
         setDialog();
     }
 
@@ -342,7 +422,7 @@ public class InviteUI extends JDialog
                                 }
                                 catch (UnknownHostException ex)
                                 {
-                                    logger.error(MessageFormat.format(context.cfg.gs("Listener.unknown.host.in.choice.whitelist.blacklist"), (true) ? 0 : 1, line));
+                                    logger.error(MessageFormat.format(context.cfg.gs("Listener.unknown.host.in.choice.whitelist.blacklist"), 0, line));
                                     continue;
                                 }
                             }
@@ -358,6 +438,239 @@ public class InviteUI extends JDialog
             }
         }
         return sense;
+    }
+
+    private void loadConfigurations()
+    {
+        String userFormat = libMeta.repo.getLibraries().format;
+        if (userFormat.equalsIgnoreCase("text"))
+        {
+            userFormat = "txt";
+        }
+
+        ArrayList<Template> templates = new ArrayList();
+        Template tempTemplate = new Template(context, null, null, false, libMeta.repo);
+
+        for (String name : tempTemplate.getBuiltIns())
+        {
+            String format = Utils.getFileExtension(name);
+            if (format.equalsIgnoreCase(userFormat))
+            {
+                Template template = new Template(context, name, format, true, libMeta.repo);
+                templates.add(template);
+            }
+        }
+
+        File file = new File(tempTemplate.getFullPath(""));
+        File[] files = FileSystemView.getFileSystemView().getFiles(file, Utils.isOsMac());
+
+        for (File entry : files)
+        {
+            boolean has = false;
+            String name = entry.getName();
+            String format = Utils.getFileExtension(name);
+            if (format.equalsIgnoreCase(userFormat))
+            {
+                for (Template template : templates)
+                {
+                    if (template.getFileName().equals(name))
+                    {
+                        has = true;
+                        break;
+                    }
+                }
+
+                if (!has)
+                {
+                    Template template = new Template(context, name, format, false, libMeta.repo);
+                    templates.add(template);
+                }
+            }
+        }
+
+        for (Template template : templates)
+        {
+            comboBoxTemplates.addItem(template);
+        }
+
+        comboBoxTemplates.setSelectedIndex(0);
+    }
+
+    private String makeTar(ArrayList<String> filesToCompress)
+    {
+        String filename = "";
+
+        try
+        {
+            String archive = "ELS-Configuration.tar";
+            filename = Utils.getTemporaryFilePrefix(context.publisherRepo, archive);
+            File file = new File(filename);
+            if (file.exists())
+            {
+                file.delete();
+            }
+
+            String tarFilePath = file.getAbsolutePath();
+            TarArchiveOutputStream taos = new TarArchiveOutputStream(new FileOutputStream(tarFilePath));
+            int count = 0;
+
+            for (String path : filesToCompress)
+            {
+                File input = new File(path);
+                if (!input.exists())
+                {
+                    logger.warn(context.cfg.gs("Repository.file.does.not.exist") + path);
+                }
+                else
+                {
+                    TarArchiveEntry entry = new TarArchiveEntry(input, path);
+                    entry.setModTime(input.lastModified());
+                    taos.putArchiveEntry(entry);
+
+                    try (FileInputStream fis = new FileInputStream(path))
+                    {
+                        byte[] buffer = new byte[1024];
+
+                        int len;
+                        while ((len = fis.read(buffer)) > 0)
+                        {
+                            taos.write(buffer, 0, len);
+                        }
+
+                        ++count;
+                        logger.info("  + " + context.cfg.gs("Archiver.compressed.file") + path);
+                    }
+
+                    taos.closeArchiveEntry();
+                }
+            }
+
+            taos.close();
+            String msg = count + context.cfg.gs("Archiver.files.successfully.to") + tarFilePath;
+            logger.info(msg);
+            labelStatus.setText(msg);
+        }
+        catch (Exception ex)
+        {
+            logger.error(Utils.getStackTrace(ex));
+            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+        }
+
+        return filename;
+    }
+
+    private String makeZip(ArrayList<String> filesToCompress)
+    {
+        String filename = "";
+
+        try
+        {
+            String archive = "ELS-Configuration.zip";
+            filename = Utils.getTemporaryFilePrefix(context.publisherRepo, archive);
+            File file = new File(filename);
+            if (file.exists())
+            {
+                file.delete();
+            }
+
+            String zipFilePath = file.getAbsolutePath();
+            ZipArchiveOutputStream zaos = new ZipArchiveOutputStream(new FileOutputStream(zipFilePath));
+            int count = 0;
+
+            for (String path : filesToCompress)
+            {
+                File input = new File(path);
+                if (!input.exists())
+                {
+                    logger.warn(context.cfg.gs("Repository.file.does.not.exist") + path);
+                }
+                else
+                {
+                    ZipArchiveEntry entry = new ZipArchiveEntry(path);
+                    entry.setLastModifiedTime(FileTime.fromMillis(input.lastModified()));
+                    zaos.putArchiveEntry(entry);
+
+                    try (FileInputStream fis = new FileInputStream(path))
+                    {
+                        byte[] buffer = new byte[1024];
+
+                        int len;
+                        while ((len = fis.read(buffer)) > 0)
+                        {
+                            zaos.write(buffer, 0, len);
+                        }
+
+                        ++count;
+                        logger.info("  + " + context.cfg.gs("Archiver.compressed.file") + path);
+                    }
+
+                    zaos.closeArchiveEntry();
+                }
+            }
+
+            zaos.close();
+            String msg = count + context.cfg.gs("Archiver.files.successfully.to") + zipFilePath;
+            logger.info(msg);
+            labelStatus.setText(msg);
+        }
+        catch (Exception ex)
+        {
+            logger.error(Utils.getStackTrace(ex));
+            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+        }
+
+        return filename;
+    }
+
+    private void performAdds()
+    {
+        ArrayList<String> ips = null;
+        String address = Utils.parseHost(libMeta.repo.getLibraries().host);
+        String key = libMeta.repo.getLibraries().key;
+        String system = libMeta.repo.getLibraries().description;
+        system = system.replaceAll(" ", "");
+
+        if (checkBoxAuthKeys.isSelected())
+        {
+            FileEditor authEdit = new FileEditor(context, EditorTypes.Authentication);
+            HintKeys keys = authEdit.readHintKeys(FileEditor.EditorTypes.Authentication);
+            if (keys.findKey(key) == null)
+            {
+                HintKey addKey = new HintKey();
+                addKey.uuid = key;
+                addKey.system = system;
+                keys.get().add(addKey);
+                authEdit.saveContent((ArrayList) null, keys, EditorTypes.Authentication);
+            }
+        }
+
+        if (checkBoxHintKeys.isSelected())
+        {
+            FileEditor hintsEdit = new FileEditor(context, FileEditor.EditorTypes.HintKeys);
+            HintKeys keys = hintsEdit.readHintKeys(EditorTypes.HintKeys);
+            if (keys.findKey(key) == null)
+            {
+                HintKey addKey = new HintKey();
+                addKey.uuid = key;
+                addKey.system = system;
+                keys.get().add(addKey);
+                hintsEdit.saveContent((ArrayList) null, keys, EditorTypes.HintKeys);
+            }
+        }
+
+        if (checkBoxWhitelist.isSelected())
+        {
+            FileEditor wlEdit = new FileEditor(context, EditorTypes.WhiteList);
+            ips = wlEdit.readIpAddresses(EditorTypes.WhiteList);
+            if (!wlEdit.has(ips, address))
+            {
+                ips.add(address);
+            }
+
+            wlEdit.saveContent(ips, (HintKeys) null, FileEditor.EditorTypes.WhiteList);
+        }
+
+        context.navigator.enableDisableSystemMenus(null, true);
     }
 
     private HintKeys readHintKeys(int type)
@@ -422,216 +735,209 @@ public class InviteUI extends JDialog
 
     private void savePreferences()
     {
-        Point location = this.getLocation();
+        Point location = getLocation();
         context.preferences.setEmailInviteXpos(location.x);
         context.preferences.setEmailInviteYpos(location.y);
         context.preferences.setEmailInviteLastServer(comboBoxServer.getSelectedItem().toString());
     }
 
-    private void setDialog()
+    private void sendInviteEmail()
     {
-        // Edit button
-        switch (type)
+        Tools emailTools = new Tools();
+
+        try
         {
-            case "Initial":
-                buttonEditTemplate.setText(context.cfg.gs("InviteUI.edit.initial.email.template"));
-                buttonEditTemplate.setToolTipText(context.cfg.gs("InviteUI.edit.initial.email.template"));
-                break;
-            case "Invite":
-                buttonEditTemplate.setText(context.cfg.gs("InviteUI.edit.invitation.email.template"));
-                buttonEditTemplate.setToolTipText(context.cfg.gs("InviteUI.edit.invitation.email.template"));
-                break;
-            case "Update":
-                buttonEditTemplate.setText(context.cfg.gs("InviteUI.edit.update.email.template"));
-                buttonEditTemplate.setToolTipText(context.cfg.gs("InviteUI.edit.update.email.template"));
-                break;
+            emailTools.loadAllTools(context, "Email");
+        }
+        catch (Exception ex)
+        {
+            logger.error(Utils.getStackTrace(ex));
+            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+            return;
         }
 
-        // Authentication keys
+        EmailTool tool = (EmailTool) emailTools.getTool("Email", server.getConfigName());
+        if (tool != null)
+        {
+            from = tool.getUsername();
+            EmailHandler emailHandler = new EmailHandler(context, this, tool, libMeta.repo.getLibraries().format, from, to, body, attachment);
+            emailHandler.start();
+
+            try
+            {
+                while (emailHandler.isAlive())
+                {
+                    Thread.sleep(500L);
+                }
+            }
+            catch (InterruptedException ie)
+            {
+            }
+        }
+        else
+        {
+            String msg = context.cfg.gs("Process.email.tool.not.found" + server.getConfigName());
+            logger.error(msg);
+            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("InviteUI.title"), 0);
+        }
+    }
+
+    private void setDialog()
+    {
         boolean enabled = false;
         boolean listed = false;
         if (libMeta.repo.getLibraries().key != null && libMeta.repo.getLibraries().key.length() > 0)
         {
             try
             {
-                if (!isKeyListed(0, libMeta.repo.getLibraries().key))
-                    enabled = true;
-                else
+                if (isKeyListed(0, libMeta.repo.getLibraries().key))
+                {
                     listed = true;
+                }
+                else
+                {
+                    enabled = true;
+                }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.error(e.getMessage());
+                logger.error(Utils.getStackTrace(ex));
+                JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
             }
         }
+
         if (listed)
         {
             checkBoxAuthKeys.setToolTipText(context.cfg.gs(context.cfg.gs("InviteUI.already.in.authentication.keys")));
             checkBoxAuthKeys.setSelected(true);
         }
+
         if (enabled)
         {
             labelAuthKeys.setEnabled(true);
             checkBoxAuthKeys.setEnabled(true);
-            checkBoxAuthKeys.setToolTipText("");
+            checkBoxAuthKeys.setSelected(true);
+            checkBoxAuthKeys.setToolTipText(context.cfg.gs("InviteUI.add.to.authentication.keys.to.allow.login"));
         }
         else
         {
             labelAuthKeys.setEnabled(false);
             checkBoxAuthKeys.setEnabled(false);
             if (!listed)
-                checkBoxAuthKeys.setToolTipText("Requires General, Key");
+            {
+                checkBoxAuthKeys.setToolTipText(context.cfg.gs("InviteUI.requires.general.key"));
+            }
         }
 
-        // Hint keys
         enabled = false;
         listed = false;
-        if (libMeta.repo.getUser().getType() != User.BASIC)
+        if (libMeta.repo.getLibraries().key != null && libMeta.repo.getLibraries().key.length() > 0)
         {
-            if (libMeta.repo.getLibraries().key != null && libMeta.repo.getLibraries().key.length() > 0)
+            try
             {
-                try
+                if (isKeyListed(1, libMeta.repo.getLibraries().key))
                 {
-                    if (!isKeyListed(1, libMeta.repo.getLibraries().key))
-                        enabled = true;
-                    else
-                        listed = true;
+                    listed = true;
                 }
-                catch (Exception e)
+                else
                 {
-                    logger.error(e.getMessage());
+                    enabled = true;
                 }
             }
-            if (listed)
+            catch (Exception ex)
             {
-                checkBoxHintKeys.setToolTipText(context.cfg.gs(context.cfg.gs("InviteUI.already.in.hint.keys")));
-                checkBoxHintKeys.setSelected(true);
+                logger.error(ex.getMessage());
+                JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
             }
-            if (enabled)
-            {
-                labelHintKeys.setEnabled(true);
-                checkBoxHintKeys.setEnabled(true);
-                checkBoxHintKeys.setToolTipText("");
-            }
-            else
-            {
-                labelHintKeys.setEnabled(false);
-                checkBoxHintKeys.setEnabled(false);
-            }
+        }
+
+        if (listed)
+        {
+            checkBoxHintKeys.setToolTipText(context.cfg.gs(context.cfg.gs("InviteUI.already.in.hint.keys")));
+            checkBoxHintKeys.setSelected(true);
+        }
+
+        if (enabled)
+        {
+            labelHintKeys.setEnabled(true);
+            checkBoxHintKeys.setEnabled(true);
+            checkBoxHintKeys.setToolTipText(context.cfg.gs("InviteUI.only.add.to.hint.keys.if.performing.automated.back.ups"));
         }
         else
         {
             labelHintKeys.setEnabled(false);
             checkBoxHintKeys.setEnabled(false);
-            if (!listed)
-                checkBoxHintKeys.setToolTipText(context.cfg.gs(context.cfg.gs("InviteUI.basic.users.do.not.use.hint.keys")));
         }
 
-        // Whitelist
         enabled = false;
         listed = false;
         if (libMeta.repo.getLibraries().host != null && libMeta.repo.getLibraries().host.length() > 0)
         {
             String host = Utils.parseHost(libMeta.repo.getLibraries().host);
+
             try
             {
-                if (!isWhitelisted(host))
-                    enabled = true;
-                else
+                if (isWhitelisted(host))
+                {
                     listed = true;
+                }
+                else
+                {
+                    enabled = true;
+                }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.error(e.getMessage());
+                logger.error(ex.getMessage());
+                JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
             }
         }
+
         if (listed)
         {
             checkBoxWhitelist.setToolTipText(context.cfg.gs(context.cfg.gs("InviteUI.already.in.the.whitelist")));
             checkBoxWhitelist.setSelected(true);
         }
+
         if (enabled)
         {
             labelWhitelist.setEnabled(true);
             checkBoxWhitelist.setEnabled(true);
-            checkBoxWhitelist.setToolTipText("");
+            checkBoxWhitelist.setSelected(true);
+            checkBoxWhitelist.setToolTipText(context.cfg.gs("InviteUI.add.to.whitelist.to.allow.connection"));
         }
         else
         {
             labelWhitelist.setEnabled(false);
             checkBoxWhitelist.setEnabled(false);
             if (!listed)
+            {
                 checkBoxWhitelist.setToolTipText(context.cfg.gs("InviteUI.requires.general.host.name.or.ip.address"));
+            }
         }
 
-        // email servers combobox
-        if (context.preferences.getDefaultEmailServer().length() > 0)
+        String defSrv = "";
+        if (context.preferences.getEmailInviteLastServer().length() > 0)
         {
-            if (context.preferences.getEmailInviteLastServer().length() > 0)
-                comboBoxServer.setSelectedItem(context.preferences.getEmailInviteLastServer());
-            else
-                comboBoxServer.setSelectedItem(context.preferences.getDefaultEmailServer());
+            defSrv = context.preferences.getEmailInviteLastServer();
+        }
+        else if (context.preferences.getDefaultEmailServer().length() > 0)
+        {
+            defSrv = context.preferences.getDefaultEmailServer();
         }
 
-        // to address
+        if (!defSrv.isEmpty())
+        {
+            for (int i = 0; i < comboBoxServer.getItemCount(); ++i)
+            {
+                if (((EmailTool) comboBoxServer.getItemAt(i)).getConfigName().equals(defSrv))
+                {
+                    comboBoxServer.setSelectedIndex(i);
+                }
+            }
+        }
+
         textFieldTo.setText(libMeta.repo.getLibraries().email);
-
-        // send button
-        switch (type)
-        {
-            case "Initial":
-                buttonSend.setToolTipText(context.cfg.gs("InviteUI.send.initial.email"));
-                break;
-            case "Invite":
-                buttonSend.setToolTipText(context.cfg.gs("InviteUI.send.invitation.email"));
-                break;
-            case "Update":
-                buttonSend.setToolTipText(context.cfg.gs("InviteUI.send.update.email"));
-                break;
-        }
-    }
-
-    /**
-     * Substitute embeeded variables
-     * <p>
-     * Supported variables, case-insensitive:
-     * <li>${publisherHost} : Current Publisher host</li>
-     * <li>${publisherName} : Current Publisher Collection name</li>
-     * <li>${publisherUser} : Current Publisher User name</li>
-     * <li>${userName} : User name</li>
-     * <li>${userType} : Type of user, Basic, Advanced or Administrator</li>
-     *
-     * @param content
-     * @return Expanded content
-     */
-    private String substituteVariables(String content)
-    {
-        content = content.replaceAll("\\$\\{(?i)publishername}", libMeta.repo.getLibraries().description);
-        content = content.replaceAll("\\$\\{(?i)publisheruser}", libMeta.repo.getUser().getName());
-        content = content.replaceAll("\\$\\{(?i)publisherhost}", libMeta.repo.getLibraries().host);
-
-        content = content.replaceAll("\\$\\{(?i)username}", libMeta.repo.getUser().getName());
-
-        String text = "";
-        switch (libMeta.repo.getUser().getType())
-        {
-            case 0:
-                text = context.cfg.gs("Navigator.user.type.basic");
-                break;
-            case 1:
-                text = context.cfg.gs("Navigator.user.type.advanced");
-                break;
-            case 2:
-                text = context.cfg.gs("Navigator.user.type.admin");
-                break;
-        }
-        content = content.replaceAll("\\$\\{(?i)usertype}", text);
-
-        return content;
-    }
-
-    private void actionArchiveClicked(ActionEvent e) {
-        // TODO add your code here
     }
 
     // ================================================================================================================
