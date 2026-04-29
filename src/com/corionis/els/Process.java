@@ -268,7 +268,6 @@ public class Process
                     }
 
                     // if the publisher has a matching library
-// LEFTOFF Could auto-create right here, Version 5
                     if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
                     {
                         // do the libraries have items or do they need to be scanned?

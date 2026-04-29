@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.8" encoding: "UTF-8"
+JFDML JFormDesigner: "8.3" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": false
@@ -352,6 +352,9 @@ new FormModel {
 						"text": new FormMessage( null, "EmailUI.saveButton.text" )
 						"toolTipText": new FormMessage( null, "EmailUI.saveButton.toolTipText" )
 						"mnemonic": 83
+						auxiliary() {
+							"JavaCodeGenerator.variableModifiers": 1
+						}
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1

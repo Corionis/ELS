@@ -130,29 +130,30 @@ public class MainFrame extends JFrame
     private boolean changesCheckAll()
     {
         boolean changes = false;
-        // TODO EXTEND+ Add other Tool checkForChanges() here
         if (context.libraries != null && context.libraries.checkForChanges())
-            changes = true;
-/* TODO Logic changed where these dialogs handle Save/Cancel themselves
-        else if (context.navigator.dialogArchiver != null &&  context.navigator.dialogArchiver.checkForChanges())
-            changes = true;
-        else if (context.navigator.dialogCleanup != null &&  context.navigator.dialogCleanup.checkForChanges())
-            changes = true;
-        else if (context.navigator.dialogEmail != null &&  context.navigator.dialogEmail.checkForChanges())
-            changes = true;
-//        else if (context.navigator.dialogHints != null && context.navigator.dialogHints.checkForChanges())
-//            changes = true;
+            changes =  true;
+        else if (context.navigator.dialogArchiver != null && context.navigator.dialogArchiver.checkForChanges())
+            changes =  true;
+        else if (context.navigator.dialogCleanup != null && context.navigator.dialogCleanup.checkForChanges())
+            changes =  true;
+        else if (context.navigator.dialogEmail != null && context.navigator.dialogEmail.checkForChanges())
+            changes =  true;
+        else if (context.navigator.dialogHints != null && context.navigator.dialogHints.checkForChanges())
+            changes =  true;
         else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
-            changes = true;
+            changes =  true;
         else if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
-            changes = true;
+            changes =  true;
         else if (context.navigator.dialogOperations != null && context.navigator.dialogOperations.checkForChanges())
-            changes = true;
+            changes =  true;
         else if (context.navigator.dialogRenamer != null && context.navigator.dialogRenamer.checkForChanges())
-            changes = true;
+            changes =  true;
         else if (context.navigator.dialogSleep != null && context.navigator.dialogSleep.checkForChanges())
-            changes = true;
-*/
+            changes =  true;
+        else if (context.navigator.dialogTemplates != null && context.navigator.dialogTemplates.checkForChanges())
+            changes =  true;
+        else if (context.navigator.fileeditor != null && context.navigator.fileeditor.checkForChanges())
+            changes =  true;
         return changes;
     }
 
@@ -161,18 +162,42 @@ public class MainFrame extends JFrame
      */
     private void changesGotoUnsaved()
     {
-        // TODO EXTEND+ Add other Tool checkForChanges() here
         if (context.libraries != null && context.libraries.checkForChanges())
         {
             context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
             context.mainFrame.saveButton.requestFocus();
         }
-/* Logic changed where these dialogs handle Save/Cancel themselves
+        else if (context.navigator.dialogArchiver != null && context.navigator.dialogArchiver.checkForChanges())
+        {
+            context.navigator.dialogArchiver.setVisible(true);
+            context.navigator.dialogArchiver.toFront();
+            context.navigator.dialogArchiver.requestFocus();
+            context.navigator.dialogArchiver.saveButton.requestFocus();
+        }
+        else if (context.navigator.dialogCleanup != null && context.navigator.dialogCleanup.checkForChanges())
+        {
+            context.navigator.dialogCleanup.setVisible(true);
+            context.navigator.dialogCleanup.toFront();
+            context.navigator.dialogCleanup.requestFocus();
+            context.navigator.dialogCleanup.saveButton.requestFocus();
+        }
+        else if (context.navigator.dialogEmail != null && context.navigator.dialogEmail.checkForChanges())
+        {
+            context.navigator.dialogEmail.setVisible(true);
+            context.navigator.dialogEmail.toFront();
+            context.navigator.dialogEmail.requestFocus();
+            context.navigator.dialogEmail.saveButton.requestFocus();
+        }
+        else if (context.navigator.dialogHints != null && context.navigator.dialogHints.checkForChanges())
+        {
+            context.navigator.dialogHints.setVisible(true);
+            context.navigator.dialogHints.toFront();
+            context.navigator.dialogHints.requestFocus();
+            context.navigator.dialogHints.okButton.requestFocus();
+        }
         else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
         {
             context.navigator.dialogJobs.setVisible(true);
-            context.navigator.dialogJobs.toFront();
-            context.navigator.dialogJobs.requestFocus();
             context.navigator.dialogJobs.toFront();
             context.navigator.dialogJobs.requestFocus();
             context.navigator.dialogJobs.saveButton.requestFocus();
@@ -182,8 +207,6 @@ public class MainFrame extends JFrame
             context.navigator.dialogJunkRemover.setVisible(true);
             context.navigator.dialogJunkRemover.toFront();
             context.navigator.dialogJunkRemover.requestFocus();
-            context.navigator.dialogJunkRemover.toFront();
-            context.navigator.dialogJunkRemover.requestFocus();
             context.navigator.dialogJunkRemover.saveButton.requestFocus();
         }
         else if (context.navigator.dialogOperations != null && context.navigator.dialogOperations.checkForChanges())
@@ -191,27 +214,36 @@ public class MainFrame extends JFrame
             context.navigator.dialogOperations.setVisible(true);
             context.navigator.dialogOperations.toFront();
             context.navigator.dialogOperations.requestFocus();
-            context.navigator.dialogOperations.toFront();
-            context.navigator.dialogOperations.requestFocus();
             context.navigator.dialogOperations.buttonOperationSave.requestFocus();
         }
         else if (context.navigator.dialogRenamer != null && context.navigator.dialogRenamer.checkForChanges())
         {
-            context.navigator.dialogRenamer.toFront();
-            context.navigator.dialogRenamer.requestFocus();
+            context.navigator.dialogRenamer.setVisible(true);
             context.navigator.dialogRenamer.toFront();
             context.navigator.dialogRenamer.requestFocus();
             context.navigator.dialogRenamer.saveButton.requestFocus();
         }
         else if (context.navigator.dialogSleep != null && context.navigator.dialogSleep.checkForChanges())
         {
-            context.navigator.dialogSleep.toFront();
-            context.navigator.dialogSleep.requestFocus();
+            context.navigator.dialogSleep.setVisible(true);
             context.navigator.dialogSleep.toFront();
             context.navigator.dialogSleep.requestFocus();
             context.navigator.dialogSleep.saveButton.requestFocus();
         }
- */
+        else if (context.navigator.dialogTemplates != null && context.navigator.dialogTemplates.checkForChanges())
+        {
+            context.navigator.dialogTemplates.setVisible(true);
+            context.navigator.dialogTemplates.toFront();
+            context.navigator.dialogTemplates.requestFocus();
+            context.navigator.dialogTemplates.okButton.requestFocus();
+        }
+        else if (context.navigator.fileeditor != null && context.navigator.fileeditor.checkForChanges())
+        {
+            context.navigator.fileeditor.setVisible(true);
+            context.navigator.fileeditor.toFront();
+            context.navigator.fileeditor.requestFocus();
+            context.navigator.fileeditor.okButton.requestFocus();
+        }
     }
 
     /**

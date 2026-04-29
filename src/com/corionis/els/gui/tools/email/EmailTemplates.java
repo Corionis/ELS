@@ -4,6 +4,7 @@ import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
 
+import com.corionis.els.repository.Repository;
 import com.corionis.els.repository.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,11 +34,12 @@ public class EmailTemplates extends JDialog
     private Context context;
     private Template currentTemplate = null;
     private ArrayList<Template> deletedTemplates = new ArrayList<>();
+    private EmailTemplatesModel emailTemplatesModel;
     private NavHelp helpDialog;
     private boolean loading = false;
     private Logger logger = LogManager.getLogger("applog");
     private Window owner;
-    private EmailTemplatesModel emailTemplatesModel;
+    private Repository repo = null;
     private Template startTemplate = null;
     private User startUser = null;
 
@@ -57,7 +59,7 @@ public class EmailTemplates extends JDialog
         try
         {
             currentTemplate.setContext(context);
-            String text = currentTemplate.getFormattedText(editorPane.getText(), null);
+            String text = currentTemplate.getFormattedText(editorPane.getText(), repo);
             String filename = "emailPreview.html";
             filename = Utils.getTemporaryFilePrefix(context.publisherRepo, filename);
             File file = new File(filename);
@@ -88,7 +90,9 @@ public class EmailTemplates extends JDialog
                 return;
         }
         if (helpDialog != null && helpDialog.isVisible())
+        {
             helpDialog.setVisible(false);
+        }
         setVisible(false);
         owner.requestFocus();
    }
@@ -251,7 +255,7 @@ public class EmailTemplates extends JDialog
 
     private void actionPreviewClicked(ActionEvent e)
     {
-        String text = currentTemplate.getFormattedText(editorPane.getText(), null);
+        String text = currentTemplate.getFormattedText(editorPane.getText(), repo);
         currentTemplate.setContext(context);
         EmailPreview preview = new EmailPreview(this, this, context, text, currentTemplate.getFormat(),
                 this.getX(), this.getY(), this.getWidth(), this.getHeight());
@@ -263,6 +267,10 @@ public class EmailTemplates extends JDialog
         currentTemplate.setContent(editorPane.getText());
         saveConfigurations();
         savePreferences();
+        if (helpDialog != null && helpDialog.isVisible())
+        {
+            helpDialog.setVisible(false);
+        }
         setVisible(false);
     }
 
@@ -592,12 +600,14 @@ public class EmailTemplates extends JDialog
 
     /**
      * Set the desired Template for User
+     *
      * @param template
      */
-    public void setStart(Template template, User user)
+    public void setStart(Template template, Repository repo)
     {
         this.startTemplate = template;
-        this.startUser = user;
+        this.repo  = repo;
+        this.startUser = repo.getUser();
         for (int i  = 0; i < emailTemplatesModel.getRowCount(); i++)
         {
             if (((Template)emailTemplatesModel.getValueAt(i, 0)).getFileName().equals(template.getFileName()))

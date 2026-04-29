@@ -31,6 +31,7 @@ import javax.swing.*;
  */
 public class FileEditor extends JDialog
 {
+    private boolean changed = false;
     private Context context;
     private DataTableModel dataTableModel;
     private String description;
@@ -59,7 +60,6 @@ public class FileEditor extends JDialog
         this.type = type;
         initComponents();
         initialize();
-        process();
     }
 
     private void actionAddClicked(ActionEvent e)
@@ -92,7 +92,7 @@ public class FileEditor extends JDialog
                 ((JTextField) tableContent.getEditorComponent()).selectAll();
                 break;
         }
-
+        changed = true;
     }
 
     private void actionCancelClicked(ActionEvent e)
@@ -106,11 +106,20 @@ public class FileEditor extends JDialog
                     null, opts, opts[1]);
             if (reply == JOptionPane.YES_OPTION)
             {
+                if (helpDialog != null && helpDialog.isVisible())
+                {
+                    helpDialog.setVisible(false);
+                }
                 setVisible(false);
+                changed = false;
             }
         }
         else
         {
+            if (helpDialog != null && helpDialog.isVisible())
+            {
+                helpDialog.setVisible(false);
+            }
             setVisible(false);
         }
         context.navigator.enableDisableSystemMenus(null, true);
@@ -173,6 +182,7 @@ public class FileEditor extends JDialog
                 }
                 dataTableModel.setDataHasChanged();
                 dataTableModel.fireTableDataChanged();
+                changed = true;
             }
         }
     }
@@ -182,6 +192,11 @@ public class FileEditor extends JDialog
         if (saveContent((ArrayList)null, (HintKeys)null, type))
         {
             savePreferences();
+            if (helpDialog != null && helpDialog.isVisible())
+            {
+                helpDialog.setVisible(false);
+            }
+            changed = false;
             context.navigator.enableDisableSystemMenus((EditorTypes)null, true);
             setVisible(false);
         }
@@ -282,7 +297,7 @@ public class FileEditor extends JDialog
                             {
                                 hk.system = Utils.compactString(cs.description);
                             }
-
+                            changed = true;
                             dataTableModel.setDataHasChanged();
                             dataTableModel.fireTableDataChanged();
                         }
@@ -298,6 +313,11 @@ public class FileEditor extends JDialog
         {
             JOptionPane.showMessageDialog(this, context.cfg.gs("FileEditor.please.select.a.single.row.to.update"), displayName, JOptionPane.INFORMATION_MESSAGE);
         }
+    }
+
+    public boolean checkForChanges()
+    {
+        return changed;
     }
 
     private String getConfigName()
@@ -344,11 +364,6 @@ public class FileEditor extends JDialog
     public boolean has(ArrayList<String> addresses, String address)
     {
         return addresses != null && addresses.contains(address);
-    }
-
-    private void process()
-    {
-        setVisible(true);
     }
 
     private void initialize()
@@ -599,8 +614,8 @@ public class FileEditor extends JDialog
             {
                 if (addresses.get(i) != null && ((String)addresses.get(i)).length() > 0)
                 {
-                    String var10001 = (String)addresses.get(i);
-                    bw.write(var10001 + System.getProperty("line.separator"));
+                    String addr = (String)addresses.get(i);
+                    bw.write(addr + System.getProperty("line.separator"));
                 }
             }
 
@@ -798,7 +813,7 @@ public class FileEditor extends JDialog
     private JPanel hSpacer1;
     private JButton buttonUuidList;
     private JPanel buttonBar;
-    private JButton okButton;
+    public JButton okButton;
     private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
     //

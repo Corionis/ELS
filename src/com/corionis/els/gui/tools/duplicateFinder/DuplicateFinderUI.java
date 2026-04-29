@@ -93,6 +93,10 @@ public class DuplicateFinderUI extends JDialog
                 return;
         }
         savePreferences();
+        if (helpDialog != null && helpDialog.isVisible())
+        {
+            helpDialog.setVisible(false);
+        }
         setVisible(false);
     }
 

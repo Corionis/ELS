@@ -110,6 +110,10 @@ public class EmptyDirectoryFinderUI extends JDialog
                 return;
         }
         savePreferences();
+        if (helpDialog != null && helpDialog.isVisible())
+        {
+            helpDialog.setVisible(false);
+        }
         setVisible(false);
     }
 

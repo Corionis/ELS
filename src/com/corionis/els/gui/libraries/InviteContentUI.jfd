@@ -23,7 +23,7 @@ new FormModel {
 					name: "contentPanel"
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 						"$columnSpecs": "0, 0, 0, 0"
-						"$rowSpecs": "0, 0, 0, 0, 0, 0"
+						"$rowSpecs": "0, 0, 0, 0, 0, 0, 0"
 						"$hGap": 4
 						"$vGap": 4
 						"$alignLeft": true
@@ -197,18 +197,29 @@ new FormModel {
 							"gridx": 3
 							"insets": &Insets0 new java.awt.Insets( 2, 0, 2, 8 )
 						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "buttonAll"
+							"text": new FormMessage( null, "InviteContentUI.buttonAll.text" )
+							"toolTipText": new FormMessage( null, "InviteContentUI.buttonAll.toolTipText" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionAllClicked", true ) )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridx": 1
+							"gridy": 4
+							"gridwidth": 2
+							"hAlign": 2
+						} )
 						add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 							name: "vSpacer1"
 							"minimumSize": new java.awt.Dimension( 10, 11 )
 							"preferredSize": new java.awt.Dimension( 10, 11 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-							"gridy": 4
+							"gridy": 5
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "labelChoose"
 							"text": new FormMessage( null, "InviteContentUI.labelChoose.text" )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-							"gridy": 5
+							"gridy": 6
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "textFieldChoose"
@@ -219,7 +230,7 @@ new FormModel {
 							}
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridx": 2
-							"gridy": 5
+							"gridy": 6
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "buttonChoose"
@@ -229,7 +240,7 @@ new FormModel {
 							"maximumSize": #Dimension2
 							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "buttonChooseClicked", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-							"gridy": 5
+							"gridy": 6
 							"insets": #Insets0
 							"gridx": 3
 						} )
@@ -271,7 +282,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 490, 320 )
+			"size": new java.awt.Dimension( 490, 335 )
 		} )
 	}
 }

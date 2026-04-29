@@ -379,9 +379,8 @@ public class Main
                         // a new version is available
                         if (gui)
                         {
-                            String prompt = context.cfg.gs("Navigator.install.update.version");
-                            message = java.text.MessageFormat.format(prompt,
-                                    Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
+                            String prompt = this.context.cfg.gs("Navigator.install.update.version");
+                            message = MessageFormat.format(prompt, Configuration.getBuildVersionName(), Configuration.getBuildDate(), version.get(0), version.get(2));
                             Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
                             reply = JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
                                     JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null,
@@ -1339,8 +1338,6 @@ public class Main
                     }
 
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.VALIDATE);
-
-                    // QUESTION: Should subscriber login to itself like publisher?
 
                     // start servers
                     if (context.subscriberRepo.isInitialized() && ((context.publisherRepo == null || context.publisherRepo.isInitialized())))

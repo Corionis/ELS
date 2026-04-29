@@ -164,12 +164,20 @@ public class EmailUI extends AbstractToolDialog
             {
                 cleanUp();
                 cancelChanges();
+                if (helpDialog != null && helpDialog.isVisible())
+                {
+                    helpDialog.setVisible(false);
+                }
                 setVisible(false);
             }
         }
         else
         {
             cleanUp();
+            if (helpDialog != null && helpDialog.isVisible())
+            {
+                helpDialog.setVisible(false);
+            }
             setVisible(false);
         }
     }
@@ -304,6 +312,10 @@ public class EmailUI extends AbstractToolDialog
         cleanUp();
         saveConfigurations();
         savePreferences();
+        if (helpDialog != null && helpDialog.isVisible())
+        {
+            helpDialog.setVisible(false);
+        }
         setVisible(false);
     }
 
@@ -1188,7 +1200,7 @@ public class EmailUI extends AbstractToolDialog
     public JButton buttonTest;
     private JPanel buttonBar;
     public JLabel labelStatus;
-    private JButton saveButton;
+    public JButton saveButton;
     private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
     //

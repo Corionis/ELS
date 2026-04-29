@@ -123,11 +123,21 @@ public class ArchiverUI extends AbstractToolDialog
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     cancelChanges();
+                    if (helpDialog != null && helpDialog.isVisible())
+                    {
+                        helpDialog.setVisible(false);
+                    }
                     setVisible(false);
                 }
             }
             else
+            {
+                if (helpDialog != null && helpDialog.isVisible())
+                {
+                    helpDialog.setVisible(false);
+                }
                 setVisible(false);
+            }
         }
     }
 
@@ -362,6 +372,10 @@ public class ArchiverUI extends AbstractToolDialog
         if (saveConfigurations())
         {
             savePreferences();
+            if (helpDialog != null && helpDialog.isVisible())
+            {
+                helpDialog.setVisible(false);
+            }
             setVisible(false);
         }
     }
@@ -1117,7 +1131,7 @@ public class ArchiverUI extends AbstractToolDialog
     private JPanel panelOptionsButtons;
     private JPanel buttonBar;
     public JLabel labelStatus;
-    private JButton saveButton;
+    public JButton saveButton;
     private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
     //

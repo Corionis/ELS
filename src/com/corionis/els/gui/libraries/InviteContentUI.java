@@ -2,6 +2,7 @@ package com.corionis.els.gui.libraries;
 
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
+import com.corionis.els.repository.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,10 +16,11 @@ import javax.swing.filechooser.FileFilter;
 
 public class InviteContentUI extends JDialog 
 {
+    private boolean allState = false;
     private boolean archiveOnly = false;
     private Context context;
     private InviteUI inviteUI;
-    public boolean cancelled = true;
+    public boolean cancelled = false;
     private LibrariesUI.LibMeta libMeta;
     private Logger logger = LogManager.getLogger("applog");
 
@@ -42,18 +44,23 @@ public class InviteContentUI extends JDialog
             setSize(dim);
             repaint();
         }
-        else
-        {
-            // position & size
-            this.setLocation(inviteUI.getLocation().x, inviteUI.getLocation().y);
-            this.setSize(inviteUI.getSize());
-        }
 
+        this.setLocation(inviteUI.getLocation().x, inviteUI.getLocation().y);
         setDialog();
+    }
+
+    private void actionAllClicked(ActionEvent e)
+    {
+        allState = !allState;
+        checkBoxPublisher.setSelected(allState);
+        checkBoxSubscriber.setSelected(allState);
+        checkBoxHints.setSelected(allState);
+        checkBoxHintServer.setSelected(allState);
     }
 
     private void actionCancelClicked(ActionEvent e)
     {
+        cancelled = true;
         setVisible(false);
     }
 
@@ -123,8 +130,29 @@ public class InviteContentUI extends JDialog
             checkBoxHintServer.isSelected() && textFieldCurrentHintServer.getText().isEmpty() ||
             checkBoxHints.isSelected() && textFieldCurrentHints.getText().isEmpty() )
         {
-            JOptionPane.showConfirmDialog(this, context.cfg.gs("InviteContent.please.complete.missing.selected.files"), getTitle(), JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, context.cfg.gs("InviteContent.please.complete.missing.selected.files"), getTitle(), JOptionPane.WARNING_MESSAGE);
             return;
+        }
+
+        if ((checkBoxPublisher.isSelected() ||
+            checkBoxSubscriber.isSelected() ||
+            checkBoxHintServer.isSelected() ||
+            checkBoxHints.isSelected()) &&
+            !textFieldChoose.getText().isEmpty())
+        {
+            JOptionPane.showMessageDialog(this, context.cfg.gs("InviteContentUI.select.files.to.include.or.choose.archive.not.both"), getTitle(), JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!checkBoxPublisher.isSelected() &&
+            !checkBoxSubscriber.isSelected() &&
+            !checkBoxHintServer.isSelected() &&
+            !checkBoxHints.isSelected() &&
+            textFieldChoose.getText().isEmpty())
+        {
+            int resp = JOptionPane.showConfirmDialog(this, context.cfg.gs("InviteContentUI.confirm.no.attachment"), getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (resp == JOptionPane.NO_OPTION)
+                return;
         }
 
         cancelled = false;
@@ -486,6 +514,15 @@ public class InviteContentUI extends JDialog
         {
             checkBoxHintServer.setSelected(false);
         }
+
+        User user = libMeta.repo.getUser();
+        if (user != null && user.getType() == User.BASIC)
+        {
+            checkBoxPublisher.setSelected(false);
+            checkBoxSubscriber.setSelected(false);
+            checkBoxHints.setSelected(false);
+            checkBoxHintServer.setSelected(false);
+        }
     }
 
     // ================================================================================================================
@@ -512,6 +549,7 @@ public class InviteContentUI extends JDialog
         checkBoxHints = new JCheckBox();
         textFieldCurrentHints = new JTextField();
         buttonHints = new JButton();
+        buttonAll = new JButton();
         vSpacer1 = new JPanel(null);
         labelChoose = new JLabel();
         textFieldChoose = new JTextField();
@@ -542,9 +580,9 @@ public class InviteContentUI extends JDialog
                     panelOptions.setAlignmentY(1.0F);
                     panelOptions.setLayout(new GridBagLayout());
                     ((GridBagLayout)panelOptions.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0};
-                    ((GridBagLayout)panelOptions.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0};
+                    ((GridBagLayout)panelOptions.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0};
                     ((GridBagLayout)panelOptions.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0E-4};
-                    ((GridBagLayout)panelOptions.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout)panelOptions.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
                     //---- labelPub ----
                     labelPub.setText(context.cfg.gs("InviteContentUI.labelPub.text"));
@@ -668,23 +706,31 @@ public class InviteContentUI extends JDialog
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(2, 0, 6, 8), 0, 0));
 
+                    //---- buttonAll ----
+                    buttonAll.setText(context.cfg.gs("InviteContentUI.buttonAll.text"));
+                    buttonAll.setToolTipText(context.cfg.gs("InviteContentUI.buttonAll.toolTipText"));
+                    buttonAll.addActionListener(e -> actionAllClicked(e));
+                    panelOptions.add(buttonAll, new GridBagConstraints(1, 4, 2, 1, 0.0, 0.0,
+                        GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                        new Insets(0, 0, 4, 4), 0, 0));
+
                     //---- vSpacer1 ----
                     vSpacer1.setMinimumSize(new Dimension(10, 11));
                     vSpacer1.setPreferredSize(new Dimension(10, 11));
-                    panelOptions.add(vSpacer1, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                    panelOptions.add(vSpacer1, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 4, 4), 0, 0));
 
                     //---- labelChoose ----
                     labelChoose.setText(context.cfg.gs("InviteContentUI.labelChoose.text"));
-                    panelOptions.add(labelChoose, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                    panelOptions.add(labelChoose, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 0, 4), 0, 0));
 
                     //---- textFieldChoose ----
                     textFieldChoose.setEditable(false);
                     textFieldChoose.setToolTipText(context.cfg.gs("InviteContentUI.textFieldChoose.toolTipText"));
-                    panelOptions.add(textFieldChoose, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
+                    panelOptions.add(textFieldChoose, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 0, 4), 0, 0));
 
@@ -694,7 +740,7 @@ public class InviteContentUI extends JDialog
                     buttonChoose.setMinimumSize(new Dimension(30, 30));
                     buttonChoose.setMaximumSize(new Dimension(30, 30));
                     buttonChoose.addActionListener(e -> buttonChooseClicked(e));
-                    panelOptions.add(buttonChoose, new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0,
+                    panelOptions.add(buttonChoose, new GridBagConstraints(3, 6, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(2, 0, 2, 8), 0, 0));
                 }
@@ -751,6 +797,7 @@ public class InviteContentUI extends JDialog
     public JCheckBox checkBoxHints;
     public JTextField textFieldCurrentHints;
     private JButton buttonHints;
+    private JButton buttonAll;
     private JPanel vSpacer1;
     private JLabel labelChoose;
     public JTextField textFieldChoose;

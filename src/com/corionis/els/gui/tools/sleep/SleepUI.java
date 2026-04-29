@@ -134,11 +134,21 @@ public class SleepUI extends AbstractToolDialog
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     cancelChanges();
+                    if (helpDialog != null && helpDialog.isVisible())
+                    {
+                        helpDialog.setVisible(false);
+                    }
                     setVisible(false);
                 }
             }
             else
+            {
+                if (helpDialog != null && helpDialog.isVisible())
+                {
+                    helpDialog.setVisible(false);
+                }
                 setVisible(false);
+            }
         }
     }
 
@@ -261,6 +271,10 @@ public class SleepUI extends AbstractToolDialog
     {
         saveConfigurations();
         savePreferences();
+        if (helpDialog != null && helpDialog.isVisible())
+        {
+            helpDialog.setVisible(false);
+        }
         setVisible(false);
     }
 

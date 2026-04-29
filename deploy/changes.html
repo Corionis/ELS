@@ -5,10 +5,36 @@
 <body>
 <h2>Recent Changes</h2>
 
-<h3>Known Bugs</h3>
+<h3>Known Issues</h3>
 <ul>
     <li>Drag 'n drop and copy/cut/paste work to and from ELS to outside applications, except Linux
         and MacOS copy/cut/paste <i>from</i> ELS. This is a known problem with Linux and Java.</li>
+    <li>If a file or browser is opened ELS will remain in memory even if closed until those
+        applications are closed.</li>
+</ul>
+
+<hr/>
+
+<h3>29 April 2026</h3>
+<ul>
+    <li>Added Libraries, User tab to define user access and options if User-level security is enabled in Preferences.</li>
+    <li>Added an Invite mechanism on the User tab to bundle and email configuration files.</li>
+    <li>Added System, Email Templates to edit HTML and text templates for Basic, Advanced or Administrator users.</li>
+    <li>Added a <b>*</b> change indicator for configuration dialogs.</li>
+    <li>Added "User:Connection" information to the top-right toolbar.</li>
+    <li>Added the ability for the Whitelist and Blacklist to contain both IP addresses and host/domain names.</li>
+    <li>Made the Word Wrap Log option persistent.</li>
+    <li>Added tooltips to the Duplicate Finder for long paths.</li>
+    <li>Added a Reload? option dialog if the Publisher Library is changed.</li>
+    <li>Changed the Help dialog to be an independent window with it's own taskbar button.</li>
+    <li>Fixed the Copy function in some Tool dialogs.</li>
+    <li>Fixed renaming a configuration where the original file was not deleted.</li>
+    <li>Fixed going from a local connection to a remote connection.</li>
+    <li>Removed support for -r L Publisher Listener and -r T Subscriber Terminal operations.</li>
+    <li>Removed -T [file] targets option.</li>
+    <li>Redefined -t option to trigger a back-up operation from a Publisher.</li>
+    <li>Upgraded the embedded Java to 21.0.9.</li>
+    <li>Upgraded the FlatLaf libraries to 3.6.2.</li>
 </ul>
 
 <hr/>

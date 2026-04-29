@@ -205,11 +205,19 @@ public class HintsUI extends JDialog
                     null, opts, opts[1]);
             if (reply != JOptionPane.YES_OPTION)
             {
+                if (helpDialog != null && helpDialog.isVisible())
+                {
+                    helpDialog.setVisible(false);
+                }
                 return;
             }
         }
         context.navigator.checkForHints();
         context.navigator.enableDisableSystemMenus(null, true);
+        if (helpDialog != null && helpDialog.isVisible())
+        {
+            helpDialog.setVisible(false);
+        }
         setVisible(false);
     }
 
@@ -229,6 +237,10 @@ public class HintsUI extends JDialog
             }
         }
         savePreferences();
+        if (helpDialog != null && helpDialog.isVisible())
+        {
+            helpDialog.setVisible(false);
+        }
         context.navigator.enableDisableSystemMenus(null, true);
         setVisible(false);
     }

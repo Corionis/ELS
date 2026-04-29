@@ -49,6 +49,7 @@ public class InviteUI extends JDialog
     private String from = "";
     private NavHelp helpDialog;
     private HintKeys hintKeys = null;
+    private ArrayList<String> ips = null;
     private InviteContentUI inviteContentUI = null;
     private final LibrariesUI.LibMeta libMeta;
     private final Logger logger = LogManager.getLogger("applog");
@@ -68,19 +69,20 @@ public class InviteUI extends JDialog
     {
         try
         {
+            labelStatus.setText("<html><body>&nbsp;</body></html>");
             createArchive(true);
             if (!inviteContentUI.cancelled)
             {
                 String head = context.cfg.gs("InviteUI.archive.file.created");
                 String msg = head + attachment;
-                JOptionPane.showConfirmDialog(this, msg, context.cfg.gs("InviteUI.title"), -1);
+                JOptionPane.showConfirmDialog(this, msg, context.cfg.gs("InviteUI.title"), JOptionPane.PLAIN_MESSAGE);
                 labelStatus.setText("<html><body>&nbsp;</body></html>");
             }
         }
         catch (Exception ex)
         {
             logger.error(ex.getMessage());
-            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -88,6 +90,7 @@ public class InviteUI extends JDialog
     {
         try
         {
+            labelStatus.setText("<html><body>&nbsp;</body></html>");
             currentTemplate = (Template) comboBoxTemplates.getSelectedItem();
             currentTemplate.setContext(context);
             String text = currentTemplate.getContent(null);
@@ -103,15 +106,16 @@ public class InviteUI extends JDialog
         catch (Exception ex)
         {
             logger.error(ex.getMessage(), ex);
-            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void actionEditClicked(ActionEvent e)
     {
+        labelStatus.setText("<html><body>&nbsp;</body></html>");
         currentTemplate = (Template) comboBoxTemplates.getSelectedItem();
         EmailTemplates emailTemplates = new EmailTemplates(this, context);
-        emailTemplates.setStart(currentTemplate, libMeta.repo.getUser());
+        emailTemplates.setStart(currentTemplate, libMeta.repo);
         emailTemplates.setVisible(true);
         emailTemplates.toFront();
         emailTemplates.requestFocus();
@@ -119,6 +123,7 @@ public class InviteUI extends JDialog
 
     private void actionHelpClicked(MouseEvent e)
     {
+        labelStatus.setText("<html><body>&nbsp;</body></html>");
         if (helpDialog == null)
         {
             helpDialog = new NavHelp(this, context, context.cfg.gs("InviteUI.help"), "invite_" + context.preferences.getLocale() + ".html", false);
@@ -136,6 +141,7 @@ public class InviteUI extends JDialog
 
     private void actionOkClicked(ActionEvent e)
     {
+        labelStatus.setText("<html><body>&nbsp;</body></html>");
         savePreferences();
         if (helpDialog != null && helpDialog.isVisible())
         {
@@ -150,6 +156,7 @@ public class InviteUI extends JDialog
     {
         try
         {
+            labelStatus.setText("<html><body>&nbsp;</body></html>");
             currentTemplate = (Template) comboBoxTemplates.getSelectedItem();
             currentTemplate.setContext(context);
             String text = currentTemplate.getContent(null);
@@ -162,7 +169,7 @@ public class InviteUI extends JDialog
         catch (Exception ex)
         {
             logger.error(ex.getMessage());
-            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -170,10 +177,9 @@ public class InviteUI extends JDialog
     {
         try
         {
+            labelStatus.setText("<html><body>&nbsp;</body></html>");
             if (!checkParameters())
-            {
                 return;
-            }
 
             createArchive(false);
             if (!inviteContentUI.cancelled)
@@ -189,7 +195,7 @@ public class InviteUI extends JDialog
         catch (Exception ex)
         {
             logger.error(ex.getMessage());
-            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -198,7 +204,7 @@ public class InviteUI extends JDialog
         server = (EmailTool) comboBoxServer.getSelectedItem();
         if (server == null)
         {
-            JOptionPane.showMessageDialog(this, context.cfg.gs("InviteUI.please.select.a.server"), "Send", 2);
+            JOptionPane.showMessageDialog(this, context.cfg.gs("InviteUI.please.select.a.server"), "Send", JOptionPane.INFORMATION_MESSAGE);
             return false;
         }
         else
@@ -206,7 +212,7 @@ public class InviteUI extends JDialog
             to = textFieldTo.getText();
             if (to.isEmpty())
             {
-                JOptionPane.showMessageDialog(this, context.cfg.gs("InviteUI.please.enter.a.to.address"), "Send", 2);
+                JOptionPane.showMessageDialog(this, context.cfg.gs("InviteUI.please.enter.a.to.address"), "Send", JOptionPane.INFORMATION_MESSAGE);
                 return false;
             }
             else
@@ -214,6 +220,37 @@ public class InviteUI extends JDialog
                 return true;
             }
         }
+    }
+
+
+    private void compAuthKeys(ActionEvent e)
+    {
+        labelStatus.setText("<html><body>&nbsp;</body></html>");
+    }
+
+    private void compHintKeys(ActionEvent e)
+    {
+        labelStatus.setText("<html><body>&nbsp;</body></html>");
+    }
+
+    private void compServer(ActionEvent e)
+    {
+        labelStatus.setText("<html><body>&nbsp;</body></html>");
+    }
+
+    private void compTemplates(ActionEvent e)
+    {
+        labelStatus.setText("<html><body>&nbsp;</body></html>");
+    }
+
+    private void compTo(ActionEvent e)
+    {
+        labelStatus.setText("<html><body>&nbsp;</body></html>");
+    }
+
+    private void compWhitelist(ActionEvent e)
+    {
+        labelStatus.setText("<html><body>&nbsp;</body></html>");
     }
 
     private void createArchive(boolean archiveOnly) throws Exception
@@ -235,7 +272,7 @@ public class InviteUI extends JDialog
                 String repoFilename = "";
                 if (inviteContentUI.checkBoxSubscriber.isSelected() && !inviteContentUI.textFieldCurrentSubscriber.getText().isEmpty())
                 {
-                    Repository subRepo = new Repository(context, 2);
+                    Repository subRepo = new Repository(context, Repository.SUBSCRIBER);
                     subRepo.read(inviteContentUI.textFieldCurrentSubscriber.getText(), "Subscriber", false);
                     subRepo = subRepo.cloneConnection();
                     String filename = subRepo.getJsonFilename();
@@ -267,8 +304,6 @@ public class InviteUI extends JDialog
                     else
                         attachment = makeTar(filesToCompress);
                 }
-                else
-                    inviteContentUI.cancelled = true;
 
                 if (!repoFilename.isEmpty())
                 {
@@ -359,7 +394,7 @@ public class InviteUI extends JDialog
 
         if (comboBoxServer.getItemCount() < 1)
         {
-            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("InviteUI.at.least.one.email.server.must.be.defined"),
+            JOptionPane.showMessageDialog(this, context.cfg.gs("InviteUI.at.least.one.email.server.must.be.defined"),
                     context.cfg.gs("InviteUI.title"), JOptionPane.WARNING_MESSAGE);
             throw new MungeException("ignore this");
         }
@@ -553,7 +588,7 @@ public class InviteUI extends JDialog
         catch (Exception ex)
         {
             logger.error(Utils.getStackTrace(ex));
-            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
         }
 
         return filename;
@@ -616,7 +651,7 @@ public class InviteUI extends JDialog
         catch (Exception ex)
         {
             logger.error(Utils.getStackTrace(ex));
-            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
         }
 
         return filename;
@@ -624,7 +659,6 @@ public class InviteUI extends JDialog
 
     private void performAdds()
     {
-        ArrayList<String> ips = null;
         String address = Utils.parseHost(libMeta.repo.getLibraries().host);
         String key = libMeta.repo.getLibraries().key;
         String system = libMeta.repo.getLibraries().description;
@@ -633,7 +667,7 @@ public class InviteUI extends JDialog
         if (checkBoxAuthKeys.isSelected())
         {
             FileEditor authEdit = new FileEditor(context, EditorTypes.Authentication);
-            HintKeys keys = authEdit.readHintKeys(FileEditor.EditorTypes.Authentication);
+            HintKeys keys = authKeys;
             if (keys.findKey(key) == null)
             {
                 HintKey addKey = new HintKey();
@@ -647,7 +681,7 @@ public class InviteUI extends JDialog
         if (checkBoxHintKeys.isSelected())
         {
             FileEditor hintsEdit = new FileEditor(context, FileEditor.EditorTypes.HintKeys);
-            HintKeys keys = hintsEdit.readHintKeys(EditorTypes.HintKeys);
+            HintKeys keys = hintKeys;
             if (keys.findKey(key) == null)
             {
                 HintKey addKey = new HintKey();
@@ -752,7 +786,7 @@ public class InviteUI extends JDialog
         catch (Exception ex)
         {
             logger.error(Utils.getStackTrace(ex));
-            JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -760,25 +794,14 @@ public class InviteUI extends JDialog
         if (tool != null)
         {
             from = tool.getUsername();
-            EmailHandler emailHandler = new EmailHandler(context, this, tool, libMeta.repo.getLibraries().format, from, to, body, attachment);
+            EmailHandler emailHandler = new EmailHandler(context, this, tool, libMeta.repo.getLibraries().format, to, body, attachment);
             emailHandler.start();
-
-            try
-            {
-                while (emailHandler.isAlive())
-                {
-                    Thread.sleep(500L);
-                }
-            }
-            catch (InterruptedException ie)
-            {
-            }
         }
         else
         {
-            String msg = context.cfg.gs("Process.email.tool.not.found" + server.getConfigName());
+            String msg = context.cfg.gs("Process.email.tool.not.found") + server.getConfigName();
             logger.error(msg);
-            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("InviteUI.title"), 0);
+            JOptionPane.showMessageDialog(this, msg, context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -802,7 +825,7 @@ public class InviteUI extends JDialog
             catch (Exception ex)
             {
                 logger.error(Utils.getStackTrace(ex));
-                JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -847,7 +870,7 @@ public class InviteUI extends JDialog
             catch (Exception ex)
             {
                 logger.error(ex.getMessage());
-                JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -889,7 +912,7 @@ public class InviteUI extends JDialog
             catch (Exception ex)
             {
                 logger.error(ex.getMessage());
-                JOptionPane.showMessageDialog(context.mainFrame, ex.getMessage(), context.cfg.gs("InviteUI.title"), 0);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), context.cfg.gs("InviteUI.title"), JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -1007,6 +1030,7 @@ public class InviteUI extends JDialog
 
                     //---- comboBoxTemplates ----
                     comboBoxTemplates.setToolTipText(context.cfg.gs("InviteUI.comboBoxTemplates.toolTipText"));
+                    comboBoxTemplates.addActionListener(e -> compTemplates(e));
                     panelTopTemplates.add(comboBoxTemplates);
 
                     //---- buttonEditTemplate ----
@@ -1064,6 +1088,7 @@ public class InviteUI extends JDialog
 
                     //---- checkBoxAuthKeys ----
                     checkBoxAuthKeys.setToolTipText(context.cfg.gs("InviteUI.checkBoxAuthKeys.toolTipText"));
+                    checkBoxAuthKeys.addActionListener(e -> compAuthKeys(e));
                     panelOptions.add(checkBoxAuthKeys, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 4, 0), 0, 0));
@@ -1073,6 +1098,9 @@ public class InviteUI extends JDialog
                     panelOptions.add(labelHintKeys, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 15, 4, 4), 0, 0));
+
+                    //---- checkBoxHintKeys ----
+                    checkBoxHintKeys.addActionListener(e -> compHintKeys(e));
                     panelOptions.add(checkBoxHintKeys, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 4, 0), 0, 0));
@@ -1085,6 +1113,7 @@ public class InviteUI extends JDialog
 
                     //---- checkBoxWhitelist ----
                     checkBoxWhitelist.setToolTipText(context.cfg.gs("InviteUI.checkBoxWhitelist.toolTipText"));
+                    checkBoxWhitelist.addActionListener(e -> compWhitelist(e));
                     panelOptions.add(checkBoxWhitelist, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 4, 0), 0, 0));
@@ -1097,6 +1126,7 @@ public class InviteUI extends JDialog
 
                     //---- comboBoxServer ----
                     comboBoxServer.setToolTipText(context.cfg.gs("InviteUI.comboBoxServer.toolTipText"));
+                    comboBoxServer.addActionListener(e -> compServer(e));
                     panelOptions.add(comboBoxServer, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 4, 0), 0, 0));
@@ -1109,9 +1139,10 @@ public class InviteUI extends JDialog
                         new Insets(0, 0, 4, 4), 0, 0));
 
                     //---- textFieldTo ----
-                    textFieldTo.setPreferredSize(new Dimension(240, 34));
-                    textFieldTo.setMinimumSize(new Dimension(240, 34));
+                    textFieldTo.setMinimumSize(new Dimension(240, 22));
                     textFieldTo.setToolTipText(context.cfg.gs("InviteUI.textFieldTo.toolTipText"));
+                    textFieldTo.setPreferredSize(new Dimension(240, 22));
+                    textFieldTo.addActionListener(e -> compTo(e));
                     panelOptions.add(textFieldTo, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                         new Insets(0, 0, 4, 0), 0, 0));

@@ -1,8 +1,6 @@
 
 # Project To Do
 
-* Clean-up scripts and Intellij profiles. Subscriber listener with Auth does not need -t or -p and does not use the Hint Server - right?
-
 * Go through all email providers and try OAuth2 again.
 
 * Test from a scratch install for a Publisher and separate User Subscriber - go through the setup sequence

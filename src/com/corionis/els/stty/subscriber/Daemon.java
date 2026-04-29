@@ -128,7 +128,7 @@ public class Daemon extends AbstractDaemon
     /**
      * Perform a handshake
      * <br/>
-     * If a Hint Keys file is specified (-k|-K) those keys are used for authentication.
+     * If a Auth Keys file is specified (-k|-K) those keys are used for authentication.
      * Otherwise the previous point-to-point authentication is used.
      *
      * @return String name of back-up system
@@ -162,7 +162,7 @@ public class Daemon extends AbstractDaemon
                 // validate with Authentication Keys if specified
                 if (context.authKeys != null)
                 {
-                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
+                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in auth keys file
                     if (connectedKey != null)
                     {
                         // send my flavor + security tag

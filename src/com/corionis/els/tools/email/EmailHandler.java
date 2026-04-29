@@ -76,13 +76,12 @@ public class EmailHandler extends Thread
     private String body = "";
     private String codeVerifier;
     private String codeChallenge;
-    private final Context context;
-    private EmailUI emailUi = null;
+    private Context context = null;
+    private EmailUI emailUI = null;
     private String error = "";
     private boolean expired = false;
     private boolean fault = false;
     private String format = "";
-    private String from = "";
     private Function function = null;
     private HttpExchange httpExchange = null;
     private int httpPort = -1;
@@ -103,25 +102,28 @@ public class EmailHandler extends Thread
     private EmailTool tool = null;
     private boolean workerRunning = false;
 
-    public EmailHandler(Context context, EmailUI emailUi, EmailTool tool, Function function)
+    private EmailHandler()
+    {
+    }
+
+    public EmailHandler(Context context, EmailUI emailUI, EmailTool tool, Function function)
     {
         this.context = context;
-        this.emailUi = emailUi;
+        this.emailUI = emailUI;
         this.tool = tool;
         this.function = function;
     }
 
-    public EmailHandler(Context context, InviteUI inviteUI, EmailTool tool, String format, String from, String to, String body, String attachment)
+    public EmailHandler(Context context, InviteUI inviteUI, EmailTool tool, String format, String to, String body, String attachment)
     {
         this.context = context;
         this.inviteUI = inviteUI;
         this.tool = tool;
         this.format = format;
-        this.from = from;
         this.to = to;
         this.body = body;
         this.attachment = attachment;
-        this.function = EmailHandler.Function.INVITE;
+        this.function = Function.INVITE;
     }
 
     /**
@@ -159,16 +161,25 @@ public class EmailHandler extends Thread
             }
         }
 
-        emailUi.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        if (emailUI != null)
+            emailUI.setCursor(Cursor.getPredefinedCursor(0));
+
+        if (inviteUI != null)
+            inviteUI.setCursor(Cursor.getPredefinedCursor(0));
 
         if (fault)
         {
             String msg = context.cfg.gs("EmailUI.authentication.error") + error;
             logger.error(msg);
-            if (emailUi != null)
+            if (emailUI != null)
             {
-                emailUi.labelStatus.setText(msg);
-                JOptionPane.showMessageDialog(context.navigator.dialogEmail, msg, context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
+                emailUI.labelStatus.setText(msg);
+                JOptionPane.showMessageDialog(emailUI, msg, context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
+            }
+            if (inviteUI != null)
+            {
+                inviteUI.labelStatus.setText(msg);
+                JOptionPane.showMessageDialog(inviteUI, msg, context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
             }
             fault = false;
             success = false;
@@ -180,8 +191,16 @@ public class EmailHandler extends Thread
             {
                 String msg = context.cfg.gs("EmailUI.authentication.timeout");
                 logger.error(msg);
-                emailUi.labelStatus.setText(msg);
-                JOptionPane.showMessageDialog(context.navigator.dialogEmail, msg, context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
+                if (emailUI != null)
+                {
+                    emailUI.labelStatus.setText(msg);
+                    JOptionPane.showMessageDialog(emailUI, msg, context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
+                }
+                if (inviteUI != null)
+                {
+                    inviteUI.labelStatus.setText(msg);
+                    JOptionPane.showMessageDialog(inviteUI, msg, context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
+                }
             }
             else
             {
@@ -194,10 +213,20 @@ public class EmailHandler extends Thread
                     }
                     catch (Exception e)
                     {
+                        success = false;
                         logger.error(Utils.getStackTrace(e));
-                        JOptionPane.showMessageDialog(context.navigator.dialogEmail, e.getMessage(), context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
+                        if (emailUI != null)
+                            JOptionPane.showMessageDialog(emailUI, e.getMessage(), context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
+                        if (inviteUI != null)
+                            JOptionPane.showMessageDialog(inviteUI, e.getMessage(), context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
                     }
-                    emailUi.labelStatus.setText(context.cfg.gs("EmailUI.authentication.success"));
+                    if (success)
+                    {
+                        if (emailUI != null)
+                            emailUI.labelStatus.setText(context.cfg.gs("EmailUI.authentication.success"));
+                        if (inviteUI != null)
+                            inviteUI.labelStatus.setText(context.cfg.gs("EmailUI.authentication.success"));
+                    }
                 }
             }
         }
@@ -207,9 +236,9 @@ public class EmailHandler extends Thread
         if (workerRunning)
             stopHttpServer();
 
-        emailUi.updateControls();
-        emailUi.buttonAuth.setText(context.cfg.gs("EmailUI.buttonAuth.text"));
-        emailUi.buttonAuth.setToolTipText(context.cfg.gs("EmailUI.buttonAuth.toolTipText"));
+        emailUI.updateControls();
+        emailUI.buttonAuth.setText(context.cfg.gs("EmailUI.buttonAuth.text"));
+        emailUI.buttonAuth.setToolTipText(context.cfg.gs("EmailUI.buttonAuth.toolTipText"));
     }
 
     /**
@@ -313,10 +342,10 @@ public class EmailHandler extends Thread
         success = false;
         timeout = false;
 
-        emailConnect();
+        emailConnect(); // connect to email server and send
 
-        if (emailUi != null)
-            emailUi.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        if (emailUI != null)
+            emailUI.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
         String msg;
         if (fault)
@@ -333,9 +362,13 @@ public class EmailHandler extends Thread
         {
             msg = MessageFormat.format(context.cfg.gs("EmailHandler.the.access.and.refresh.tokens.have.expired.for"), tool.getUsername());
             logger.error(msg);
-            msg = context.cfg.gs("EmailHandler.the.access.and.refresh.tokens.have.expired");
-            if (emailUi != null)
-                JOptionPane.showMessageDialog(emailUi, msg, context.cfg.gs("Email.title"), JOptionPane.WARNING_MESSAGE);
+            if (emailUI != null)
+                JOptionPane.showMessageDialog(emailUI, msg, context.cfg.gs("EmailUI.title"), JOptionPane.WARNING_MESSAGE);
+            if (inviteUI != null)
+            {
+                JOptionPane.showMessageDialog(inviteUI, msg, context.cfg.gs("EmailUI.title"), JOptionPane.WARNING_MESSAGE);
+                msg = context.cfg.gs("EmailHandler.the.access.and.refresh.tokens.have.expired"); // shorter message
+            }
         }
         else
         {
@@ -355,13 +388,19 @@ public class EmailHandler extends Thread
             }
         }
 
-        if (emailUi != null)
+        if (emailUI != null)
         {
-            emailUi.labelStatus.setText(msg);
-            emailUi.labelStatus.updateUI();
-            emailUi.updateControls();
-            emailUi.buttonTest.setText(context.cfg.gs("EmailUI.buttonTest.text"));
-            emailUi.buttonTest.setToolTipText(context.cfg.gs("EmailUI.buttonTest.toolTipText") + " " + context.publisherRepo.getLibraryData().libraries.email);
+            emailUI.labelStatus.setText(msg);
+            emailUI.labelStatus.updateUI();
+            emailUI.updateControls();
+            emailUI.buttonTest.setText(context.cfg.gs("EmailUI.buttonTest.text"));
+            emailUI.buttonTest.setToolTipText(context.cfg.gs("EmailUI.buttonTest.toolTipText") + " " + context.publisherRepo.getLibraryData().libraries.email);
+        }
+
+        if (inviteUI != null)
+        {
+            inviteUI.labelStatus.setText(msg);
+            inviteUI.labelStatus.updateUI();
         }
     }
 
@@ -559,16 +598,20 @@ public class EmailHandler extends Thread
         if (fault)
         {
             String msg = context.cfg.gs("EmailUI.email.send.error") + error;
-            if (emailUi != null)
+            if (emailUI != null)
             {
-                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                JOptionPane.showMessageDialog(context.navigator.dialogEmail, msg, context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
+                emailUI.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                JOptionPane.showMessageDialog(emailUI, msg, context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
+            }
+            if (inviteUI != null)
+            {
+                inviteUI.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                JOptionPane.showMessageDialog(inviteUI, msg, context.cfg.gs("EmailUI.title"), JOptionPane.ERROR_MESSAGE);
             }
             fault = false;
         }
         else
             success = true;
-
     }
 
     /**
@@ -662,7 +705,14 @@ public class EmailHandler extends Thread
 
         String msg;
         if (function == Function.FAULT)
+        {
             msg = "Fault" + context.cfg.gs("EmailHandler.email.sent.to") + recipient.address;
+        }
+        else if (function == EmailHandler.Function.INVITE)
+        {
+            msg = context.cfg.gs("EmailUI.invitation.update");
+            msg += context.cfg.gs("EmailHandler.email.sent.to") + recipient.address;
+        }
         else
             msg = (isMisMatches ? "Mismatches" : "What's New") + context.cfg.gs("EmailHandler.email.sent.to") + recipient.address;
         logger.info(msg);
@@ -773,13 +823,13 @@ public class EmailHandler extends Thread
                 text += "------------------------------------------\n";
             }
         }
-        else if (this.function == EmailHandler.Function.INVITE)
+        else if (function == EmailHandler.Function.INVITE)
         {
-            text = this.body;
+            text = body;
         }
 
         // footer
-        if (this.function != Function.SEND && this.function != Function.INVITE)
+        if (function != Function.SEND && function != Function.INVITE)
         {
             if (recipient.format.equalsIgnoreCase("html"))
             {
@@ -809,34 +859,41 @@ public class EmailHandler extends Thread
     {
         ArrayList<Recipient> recipients = new ArrayList<>();
 
-        if (context.publisherRepo != null)
+        if (function == EmailHandler.Function.INVITE)
         {
-            Libraries lib = context.publisherRepo.getLibraryData().libraries;
-            if (lib.email != null && !lib.email.isEmpty())
-            {
-                recipients.add(new Recipient(lib.email, lib.format, lib.mismatches, lib.whatsNew));
-            }
+            recipients.add(new Recipient(to, format, false, false));
         }
-        if (function != Function.TEST && context.subscriberRepo != null)
+        else
         {
-            Libraries lib = context.subscriberRepo.getLibraryData().libraries;
-            if (lib.email != null && !lib.email.isEmpty())
+            if (context.publisherRepo != null)
             {
-                if ((!Persistent.couldNotConnect && lib.skipOffline) ||
-                        (function == Function.FAULT && Persistent.couldNotConnect && !lib.skipOffline))
+                Libraries lib = context.publisherRepo.getLibraryData().libraries;
+                if (lib.email != null && !lib.email.isEmpty())
+                {
                     recipients.add(new Recipient(lib.email, lib.format, lib.mismatches, lib.whatsNew));
+                }
             }
-        }
-        else if (function == Function.FAULT && context.hintsRepo != null)
-        {
-            Libraries lib = context.hintsRepo.getLibraryData().libraries;
-            if (lib.email != null && !lib.email.isEmpty())
+            if (function != Function.TEST && context.subscriberRepo != null)
             {
-                recipients.add(new Recipient(lib.email, lib.format, lib.mismatches, lib.whatsNew));
+                Libraries lib = context.subscriberRepo.getLibraryData().libraries;
+                if (lib.email != null && !lib.email.isEmpty())
+                {
+                    if ((!Persistent.couldNotConnect && lib.skipOffline) ||
+                            (function == Function.FAULT && Persistent.couldNotConnect && !lib.skipOffline))
+                        recipients.add(new Recipient(lib.email, lib.format, lib.mismatches, lib.whatsNew));
+                }
+            }
+            else if (function == Function.FAULT && context.hintsRepo != null)
+            {
+                Libraries lib = context.hintsRepo.getLibraryData().libraries;
+                if (lib.email != null && !lib.email.isEmpty())
+                {
+                    recipients.add(new Recipient(lib.email, lib.format, lib.mismatches, lib.whatsNew));
+                }
             }
         }
 
-// LEFTOFF: Add publisher user emails and retrieve subscriber user emails from remote, Version 5
+        // TODO Add publisher user emails and retrieve subscriber user emails from remote, Version 5
 
         return recipients;
     }
@@ -929,7 +986,7 @@ public class EmailHandler extends Thread
                     {
                         String value = list.getItem(0);
                         if (value != null)
-                            this.authToken = value;
+                            authToken = value;
                     }
                     break;
                 case "Outlook":
@@ -950,7 +1007,7 @@ public class EmailHandler extends Thread
                     {
                         String value = list.getItem(0);
                         if (value != null)
-                            this.authToken = value;
+                            authToken = value;
                     }
                     break;
                 case "SMTP":
@@ -970,7 +1027,7 @@ public class EmailHandler extends Thread
                     {
                         String value = list.getItem(0);
                         if (value != null)
-                            this.authToken = value;
+                            authToken = value;
                     }
 
                     list = parameters.get("location");
@@ -978,7 +1035,7 @@ public class EmailHandler extends Thread
                     {
                         String value = list.getItem(0);
                         if (value != null)
-                            this.location = value;
+                            location = value;
                     }
 
                     list = parameters.get("accounts-server");
@@ -1317,7 +1374,7 @@ public class EmailHandler extends Thread
      */
     private void requestStop()
     {
-        this.stop = true;
+        stop = true;
     }
 
     /**

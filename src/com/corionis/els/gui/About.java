@@ -114,7 +114,7 @@ public class About extends JDialog
                     panelVersion.setLayout(new GridLayout(3, 1, 4, 8));
 
                     //---- labelVersion ----
-                    labelVersion.setText("Version 4.0.0");
+                    labelVersion.setText("Version");
                     labelVersion.setHorizontalAlignment(SwingConstants.TRAILING);
                     panelVersion.add(labelVersion);
 

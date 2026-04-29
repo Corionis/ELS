@@ -294,6 +294,7 @@ public class NavHelp extends JFrame
 
                     //---- helpText ----
                     helpText.setContentType("text/html");
+                    helpText.setEditable(false);
                     scrollPane.setViewportView(helpText);
                 }
                 contentPanel.add(scrollPane);

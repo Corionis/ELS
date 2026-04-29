@@ -438,7 +438,7 @@ public class Utils
         String fileName = file.getName();
         int i = fileName.lastIndexOf(".");
         if (i > 0)
-            fileName = fileName.substring(i + 1);
+            fileName = fileName.substring(0, i);
         return fileName;
     }
 

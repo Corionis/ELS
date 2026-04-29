@@ -3002,11 +3002,8 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (fileeditor != null && fileeditor.isShowing())
-                    fileeditor.requestFocus();
-                else
-                    fileeditor = new FileEditor(context, Authentication);
-                fileeditor.requestFocus();
+                fileeditor = new FileEditor(context, Authentication);
+                fileeditor.setVisible(true);
             }
         });
 
@@ -3016,11 +3013,8 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (fileeditor != null && fileeditor.isShowing())
-                    fileeditor.requestFocus();
-                else
-                    fileeditor = new FileEditor(context, HintKeys);
-                fileeditor.requestFocus();
+                fileeditor = new FileEditor(context, HintKeys);
+                fileeditor.setVisible(true);
             }
         });
 
@@ -3030,11 +3024,8 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (fileeditor != null && fileeditor.isShowing())
-                    fileeditor.requestFocus();
-                else
-                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.BlackList);
-                fileeditor.requestFocus();
+                fileeditor = new FileEditor(context, FileEditor.EditorTypes.BlackList);
+                fileeditor.setVisible(true);
             }
         });
 
@@ -3044,11 +3035,8 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (fileeditor != null && fileeditor.isShowing())
-                    fileeditor.requestFocus();
-                else
-                    fileeditor = new FileEditor(context, WhiteList);
-                fileeditor.requestFocus();
+                fileeditor = new FileEditor(context, WhiteList);
+                fileeditor.setVisible(true);
             }
         });
 
@@ -4347,6 +4335,7 @@ public class Navigator
         // File
         context.mainFrame.menuItemOpenHintKeys.setVisible(true);
         context.mainFrame.menuItemOpenHintTracking.setVisible(true);
+        context.mainFrame.menuItemQuitTerminate.setVisible(true);
         // Tools
         context.mainFrame.menuItemArchiver.setVisible(true);
         context.mainFrame.menuItemCleanup.setVisible(true);
@@ -4369,7 +4358,9 @@ public class Navigator
         context.mainFrame.menuItemEmail.setVisible(true); // 8
         comp = context.mainFrame.menuSystem.getMenuComponent(9);
         comp.setVisible(true);
-        // context.mainFrame.menuItemSettings always visible // 10
+        comp = context.mainFrame.menuSystem.getMenuComponent(10);
+        comp.setVisible(true);
+        // context.mainFrame.menuItemSettings always visible // 11
 
         // privileges : options
         if (context.preferences.isUsersEnabled())
@@ -4415,6 +4406,7 @@ public class Navigator
                 // File
                 context.mainFrame.menuItemOpenHintKeys.setVisible(false);
                 context.mainFrame.menuItemOpenHintTracking.setVisible(false);
+                context.mainFrame.menuItemQuitTerminate.setVisible(false);
                 // Tools
                 context.mainFrame.menuItemArchiver.setVisible(false);
                 context.mainFrame.menuItemCleanup.setVisible(false);
@@ -4437,7 +4429,9 @@ public class Navigator
                 context.mainFrame.menuItemEmail.setVisible(false); // 8
                 comp = context.mainFrame.menuSystem.getMenuComponent(9);
                 comp.setVisible(false);
-                // context.mainFrame.menuItemSettings always visible // 10
+                comp = context.mainFrame.menuSystem.getMenuComponent(10);
+                comp.setVisible(false);
+                // context.mainFrame.menuItemSettings always visible // 11
             }
             //else if (context.publisherUser.isAdmin())
             //{

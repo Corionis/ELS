@@ -78,11 +78,21 @@ public class OperationsUI extends AbstractToolDialog
             if (reply == JOptionPane.YES_OPTION)
             {
                 cancelChanges();
+                if (helpDialog != null && helpDialog.isVisible())
+                {
+                    helpDialog.setVisible(false);
+                }
                 setVisible(false);
             }
         }
         else
+        {
+            if (helpDialog != null && helpDialog.isVisible())
+            {
+                helpDialog.setVisible(false);
+            }
             setVisible(false);
+        }
     }
 
     private void actionCopyClicked(ActionEvent e)
@@ -300,6 +310,10 @@ public class OperationsUI extends AbstractToolDialog
         if (saveConfigurations())
         {
             savePreferences();
+            if (helpDialog != null && helpDialog.isVisible())
+            {
+                helpDialog.setVisible(false);
+            }
             setVisible(false);
         }
     }
@@ -827,9 +841,9 @@ public class OperationsUI extends AbstractToolDialog
         // See OperationsTool.Cards
 
         // privileges : options
-        if (context.publisherUser.isAdmin())
+        if (context.publisherUser.isAdvanced() || context.publisherUser.isAdmin())
         {
-            if (context.preferences.isShowDevOptions())
+            if (context.preferences.isShowDevOptions() && context.publisherUser.isAdmin())
                 modes = new Mode[6];
             else
                 modes = new Mode[5];
@@ -843,9 +857,9 @@ public class OperationsUI extends AbstractToolDialog
         modes[i++] = new Mode(context.cfg.gs("OperationsUI.mode.hintServer"), OperationsTool.Cards.HintServer, OperationsTool.Operations.StatusServer);
 
         // privileges : options
-        if (context.publisherUser.isAdmin())
+        if (context.publisherUser.isAdvanced() || context.publisherUser.isAdmin())
         {
-            if (context.preferences.isShowDevOptions())
+            if (context.preferences.isShowDevOptions() && context.publisherUser.isAdmin())
                 modes[i++] = new Mode(context.cfg.gs("OperationsUI.mode.publisherTerminal"), OperationsTool.Cards.Terminal, OperationsTool.Operations.PublisherManual);
             modes[i++] = new Mode(context.cfg.gs("OperationsUI.mode.hintForceQuit"), OperationsTool.Cards.StatusQuit, OperationsTool.Operations.StatusServerQuit);
             modes[i++] = new Mode(context.cfg.gs("OperationsUI.mode.subscriberForceQuit"), OperationsTool.Cards.SubscriberQuit, OperationsTool.Operations.SubscriberListenerQuit);

@@ -736,7 +736,7 @@ public class Repository implements Comparable
                 try
                 {
                     String login = "login \"" + key + "\"";
-                    String userJson = context.clientStty.roundTrip(login, "", 300000); // TODO 10000);
+                    String userJson = context.clientStty.roundTrip(login, "", 10000);
                     if (userJson != null)
                     {
                         if (userJson.equalsIgnoreCase("failed"))

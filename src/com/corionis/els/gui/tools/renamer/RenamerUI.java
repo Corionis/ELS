@@ -181,10 +181,20 @@ public class RenamerUI extends AbstractToolDialog
                 {
                     cancelChanges();
                     setVisible(false);
+                    if (helpDialog != null && helpDialog.isVisible())
+                    {
+                        helpDialog.setVisible(false);
+                    }
                 }
             }
             else
+            {
+                if (helpDialog != null && helpDialog.isVisible())
+                {
+                    helpDialog.setVisible(false);
+                }
                 setVisible(false);
+            }
         }
     }
 
@@ -328,6 +338,10 @@ public class RenamerUI extends AbstractToolDialog
     {
         saveConfigurations();
         savePreferences();
+        if (helpDialog != null && helpDialog.isVisible())
+        {
+            helpDialog.setVisible(false);
+        }
         setVisible(false);
     }
 

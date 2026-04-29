@@ -36,6 +36,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JComboBox" ) {
 							name: "comboBoxTemplates"
 							"toolTipText": new FormMessage( null, "InviteUI.comboBoxTemplates.toolTipText" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "compTemplates", true ) )
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "buttonEditTemplate"
@@ -93,6 +94,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JCheckBox" ) {
 							name: "checkBoxAuthKeys"
 							"toolTipText": new FormMessage( null, "InviteUI.checkBoxAuthKeys.toolTipText" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "compAuthKeys", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridx": 1
 							"gridy": 1
@@ -106,6 +108,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JCheckBox" ) {
 							name: "checkBoxHintKeys"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "compHintKeys", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridx": 1
 							"gridy": 2
@@ -120,6 +123,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JCheckBox" ) {
 							name: "checkBoxWhitelist"
 							"toolTipText": new FormMessage( null, "InviteUI.checkBoxWhitelist.toolTipText" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "compWhitelist", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridx": 1
 							"gridy": 3
@@ -135,6 +139,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JComboBox" ) {
 							name: "comboBoxServer"
 							"toolTipText": new FormMessage( null, "InviteUI.comboBoxServer.toolTipText" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "compServer", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridy": 5
 							"gridx": 1
@@ -148,9 +153,10 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "textFieldTo"
-							"preferredSize": new java.awt.Dimension( 240, 34 )
-							"minimumSize": new java.awt.Dimension( 240, 34 )
+							"minimumSize": new java.awt.Dimension( 240, 22 )
 							"toolTipText": new FormMessage( null, "InviteUI.textFieldTo.toolTipText" )
+							"preferredSize": new java.awt.Dimension( 240, 22 )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "compTo", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridx": 1
 							"gridy": 6
@@ -236,7 +242,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 465, 380 )
+			"size": new java.awt.Dimension( 465, 345 )
 		} )
 	}
 }
