@@ -44,6 +44,9 @@ public class ConfigModel extends DefaultTableModel
         int answer = 0;
         JList<String> conflictJList = new JList<String>();
 
+        if (oldName == null || oldName.isEmpty())
+            return 0;
+
         try
         {
             // get list of conflicts

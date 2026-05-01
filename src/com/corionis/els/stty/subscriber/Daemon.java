@@ -73,7 +73,6 @@ public class Daemon extends AbstractDaemon
         outFile.getParentFile().mkdirs();
         logger.info(context.cfg.gs("Stty.writing.library.file") + filename);
 
-        //Repository repo = myRepo.cloneNoItems(); // clone with no items
         Repository repo = myRepo.cloneSecurity(publisherUser); // clone with no items and no inaccessible libraries
         String json = gson.toJson(repo.getLibraryData());
         try

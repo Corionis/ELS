@@ -946,7 +946,7 @@ public class Transfer
             // request library data from remote subscriber
             String log = MessageFormat.format(context.cfg.gs("Transfer.requesting.subscriber.library"),
                     context.subscriberRepo.getLibraryData().libraries.description);
-            String location = context.clientStty.retrieveRemoteData("library", log, 300000); //20000);
+            String location = context.clientStty.retrieveRemoteData("library", log, 20000);
             if (location == null || location.length() < 1)
                 throw new MungeException(context.cfg.gs("Transfer.could.not.retrieve.remote.library.file"));
             context.cfg.setSubscriberCollectionFilename(""); // clear so the library file will be used

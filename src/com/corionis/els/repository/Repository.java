@@ -190,10 +190,11 @@ public class Repository implements Comparable
         if (libCount != getLibraryData().libraries.bibliography.length)
         {
             Library[] bibCopy = new Library[libCount];
+            int j = 0;
             for (int i = 0; i < secureItems.libraryData.libraries.bibliography.length; ++i)
             {
                 if (secureItems.libraryData.libraries.bibliography[i] != null)
-                    bibCopy[i] = secureItems.libraryData.libraries.bibliography[i];
+                    bibCopy[j++] = secureItems.libraryData.libraries.bibliography[i];
             }
             secureItems.libraryData.libraries.bibliography = bibCopy;
         }
