@@ -45,7 +45,7 @@ public class NavHelp extends JFrame
      * @param title Title for dialog
      * @param resourceFilename Internal resource filename or Internet URL
      */
-    public NavHelp(Component prev, Context context, String title, String resourceFilename, boolean modal)
+    public NavHelp(Component prev, Context context, String title, String resourceFilename)
     {
         previous = prev;
         this.context = context;

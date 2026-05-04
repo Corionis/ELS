@@ -150,7 +150,7 @@ public class FileEditor extends JDialog
                     helpName = "whitelist_";
                     break;
             }
-            helpDialog = new NavHelp(this, context, title, helpName + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, title, helpName + context.preferences.getLocale() + ".html");
         }
         else
         {

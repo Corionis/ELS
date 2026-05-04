@@ -204,13 +204,8 @@ public class HintsUI extends JDialog
                     getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
                     null, opts, opts[1]);
             if (reply != JOptionPane.YES_OPTION)
-            {
-                if (helpDialog != null && helpDialog.isVisible())
-                {
-                    helpDialog.setVisible(false);
-                }
                 return;
-            }
+            changesMade = false;
         }
         context.navigator.checkForHints();
         context.navigator.enableDisableSystemMenus(null, true);
@@ -228,6 +223,7 @@ public class HintsUI extends JDialog
             try
             {
                 context.hintsHandler.save(hints);
+                changesMade = false;
             }
             catch (Exception e1)
             {
@@ -249,7 +245,7 @@ public class HintsUI extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("HintsUI.help"), "hints_" + context.preferences.getLocale() + ".html");
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }

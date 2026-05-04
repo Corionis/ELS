@@ -160,7 +160,11 @@ public class NavTreeUserObject implements Comparable
         String path = getPath();
         if (node != null)
         {
-            String os = node.getMyRepo().getLibraryData().libraries.flavor;
+            String os;
+            if (node.getMyRepo() != null)
+                os = node.getMyRepo().getLibraryData().libraries.flavor;
+            else
+                os = Utils.getOS();
             boolean isWindows = os.equalsIgnoreCase("windows") ? true : false;
             if (isWindows && path.length() > 1 && path.startsWith("/"))
             {

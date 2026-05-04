@@ -335,7 +335,7 @@ public class JobsUI extends AbstractToolDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, context, context.cfg.gs("JobsUI.help"), "jobs_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("JobsUI.help"), "jobs_" + context.preferences.getLocale() + ".html");
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }

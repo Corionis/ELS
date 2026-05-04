@@ -126,7 +126,7 @@ public class InviteUI extends JDialog
         labelStatus.setText("<html><body>&nbsp;</body></html>");
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, context, context.cfg.gs("InviteUI.help"), "invite_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("InviteUI.help"), "invite_" + context.preferences.getLocale() + ".html");
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }

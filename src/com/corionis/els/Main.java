@@ -3,6 +3,7 @@ package com.corionis.els;
 import com.corionis.els.gui.NavHelp;
 import com.corionis.els.gui.Navigator;
 import com.corionis.els.gui.Preferences;
+import com.corionis.els.gui.update.CheckForUpdateUI;
 import com.corionis.els.gui.update.DownloadUpdater;
 import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.jobs.Job;
@@ -333,10 +334,7 @@ public class Main
                     else
                     {
                         String note;
-                        //if (Utils.isOsMac())
-                        //    note = context.cfg.gs("Navigator.install.available.at") + uri;
-                        //else
-                            note = context.cfg.gs("Navigator.install.use.option.y.to.install.update");
+                        note = context.cfg.gs("Navigator.install.use.option.y.to.install.update");
                         message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.update.version.text"),
                                 Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE)) + note;
                         System.out.println(message);
@@ -364,58 +362,33 @@ public class Main
                         System.out.println(message);
                     return false;
                 }
-                else
+                else // update available
                 {
+                    int reply = JOptionPane.YES_OPTION;
                     if (gui)
                     {
                         context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.update.available"));
                         context.mainFrame.labelAlertUpdateMenu.setVisible(true);
                         context.mainFrame.labelAlertUpdateToolbar.setVisible(true);
+
+                        NavHelp helpDialog = null;
+                        CheckForUpdateUI cfu = new CheckForUpdateUI(context.mainFrame, context, version.get(Configuration.BUILD_CHANGES_URL));
+                        cfu.labelInstalledVersion.setText(Configuration.getBuildVersionName() + ", " + Configuration.getBuildDate());
+                        cfu.labelUpdateVersion.setText(version.get(0) + ", " + version.get(2));
+                        cfu.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
+                        cfu.setVisible(true);
+                        reply = cfu.result;
                     }
-                    while (true)
+
+                    // install update?
+                    if (reply == JOptionPane.YES_OPTION)
                     {
-                        int reply = JOptionPane.YES_OPTION;
+                        message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.update.version.download.text"),
+                                Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
+                        System.out.println(message);
 
-                        // a new version is available
-                        if (gui)
-                        {
-                            String prompt = this.context.cfg.gs("Navigator.install.update.version");
-                            message = MessageFormat.format(prompt, Configuration.getBuildVersionName(), Configuration.getBuildDate(), version.get(0), version.get(2));
-                            Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
-                            reply = JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
-                                    JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null,
-                                    opts, opts[0]);
-                                    //Utils.isOsMac() ? mopts : opts, Utils.isOsMac() ? mopts[0] : opts[0]);
-                        }
-
-                        // proceed?
-                        if (reply == JOptionPane.YES_OPTION)
-                        {
-                            //if (true) //!Utils.isOsMac())
-                            {
-                                message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.update.version.download.text"),
-                                        Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
-                                System.out.println(message);
-
-                                // execute the download and unpack procedure then execute the Updater
-                                new DownloadUpdater(context, gui ? context.navigator : null, version, prefix);
-                            }
-                            break;
-                        }
-                        else if (reply == JOptionPane.CANCEL_OPTION) // show Changelist
-                        {
-                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                            NavHelp helpDialog = new NavHelp(context.mainFrame, context,
-                                    context.cfg.gs("Navigator.recent.changes"), version.get(Configuration.BUILD_CHANGES_URL), true);
-                            if (!helpDialog.fault)
-                            {
-                                helpDialog.buttonFocus();
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        // execute the download and unpack procedure then execute the Updater
+                        new DownloadUpdater(context, gui ? context.navigator : null, version, prefix);
                     }
                 }
             }
@@ -536,7 +509,7 @@ public class Main
                             }
 
                             String response = context.hintsStty.receive("", 5000); // check the initial prompt
-                            if (!response.startsWith("CMD"))
+                            if (response == null || !response.startsWith("CMD"))
                             {
                                 msg = "";
                                 throw new MungeException(context.cfg.gs("Main.bad.initial.response.from.hint.status.server") +
@@ -1715,7 +1688,7 @@ public class Main
                     {
                     }
 
-                    NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html", false);
+                    NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html");
                     if (!dialog.fault)
                         dialog.buttonFocus();
                 }

@@ -128,7 +128,7 @@ public class Settings extends JDialog
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                helpDialog = new NavHelp(thisDialog, context, context.cfg.gs("Settings.date.format.help.title"), "formats_" + context.preferences.getLocale() + ".html", false);
+                helpDialog = new NavHelp(thisDialog, context, context.cfg.gs("Settings.date.format.help.title"), "formats_" + context.preferences.getLocale() + ".html");
                 if (!helpDialog.fault)
                     helpDialog.buttonFocus();
             }

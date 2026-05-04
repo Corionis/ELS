@@ -3195,7 +3195,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.controls.help.title"), "controls_" + context.preferences.getLocale() + ".html", false);
+                NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.controls.help.title"), "controls_" + context.preferences.getLocale() + ".html");
                 if (!dialog.fault)
                     dialog.buttonFocus();
             }
@@ -3207,7 +3207,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html", false);
+                NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html");
                 if (!dialog.fault)
                     dialog.buttonFocus();
             }
@@ -3309,7 +3309,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.changes.help.title"), "changes_" + context.preferences.getLocale() + ".html", false);
+                NavHelp dialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.changes.help.title"), "changes_" + context.preferences.getLocale() + ".html");
                 if (!dialog.fault)
                     dialog.buttonFocus();
             }
@@ -3321,7 +3321,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp helpDialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html", false);
+                NavHelp helpDialog = new NavHelp(context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html");
                 if (!helpDialog.fault)
                     helpDialog.buttonFocus();
             }

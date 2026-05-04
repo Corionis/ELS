@@ -1,0 +1,145 @@
+JFDML JFormDesigner: "8.3" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": false
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "CheckForUpdateUI"
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"title": new FormMessage( null, "CheckForUpdateUI.this.title" )
+			"preferredSize": new java.awt.Dimension( 400, 178 )
+			"resizable": false
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "thisWindowClosing", true ) )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0, 0, 0"
+					"$rowSpecs": "0, 0, 0, 0, 0, 0"
+					"$hGap": 4
+					"$vGap": 4
+					"$alignLeft": true
+					"$alignTop": true
+				} ) {
+					name: "contentPanel"
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelHeader"
+						"text": new FormMessage( null, "CheckForUpdateUI.labelHeader.text" )
+						"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 0, false )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridwidth": 2
+					} )
+					add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+						name: "vSpacer1"
+						"preferredSize": new java.awt.Dimension( 10, 16 )
+						"minimumSize": new java.awt.Dimension( 12, 16 )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 1
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelInstalled"
+						"text": new FormMessage( null, "CheckForUpdateUI.labelInstalled.text" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 2
+						"hAlign": 4
+						"insets": new java.awt.Insets( 0, 10, 0, 0 )
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelInstalledVersion"
+						auxiliary() {
+							"JavaCodeGenerator.variableModifiers": 1
+						}
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+						"gridy": 2
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelUpdate"
+						"text": new FormMessage( null, "CheckForUpdateUI.labelUpdate.text" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 3
+						"hAlign": 4
+						"insets": new java.awt.Insets( 0, 10, 0, 0 )
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelUpdateVersion"
+						auxiliary() {
+							"JavaCodeGenerator.variableModifiers": 1
+						}
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+						"gridy": 3
+					} )
+					add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+						name: "vSpacer2"
+						"preferredSize": new java.awt.Dimension( 10, 16 )
+						"minimumSize": new java.awt.Dimension( 12, 16 )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 4
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelPrompt"
+						"text": new FormMessage( null, "CheckForUpdateUI.labelPrompt.text" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 5
+						"insets": new java.awt.Insets( 0, 8, 0, 0 )
+						"gridwidth": 2
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0, 80:1.0, 0:1.0"
+					"$rowSpecs": "0"
+					"$hGap": 4
+					"$vGap": 4
+				} ) {
+					name: "buttonBar"
+					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "yesButton"
+						"text": new FormMessage( null, "Z.yes" )
+						"preferredSize": new java.awt.Dimension( 90, 22 )
+						"toolTipText": new FormMessage( null, "CheckForUpdateUI.yesButton.toolTipText" )
+						"focusable": false
+						"mnemonic": new FormMessage( null, "Z.y" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "yesClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 0
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "noButton"
+						"text": new FormMessage( null, "Z.no" )
+						"preferredSize": new java.awt.Dimension( 90, 22 )
+						"toolTipText": new FormMessage( null, "Z.cancel" )
+						"focusable": false
+						"mnemonic": new FormMessage( null, "Z.n" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "noClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "changListButton"
+						"text": new FormMessage( null, "CheckForUpdateUI.changListButton.text" )
+						"toolTipText": new FormMessage( null, "CheckForUpdateUI.changListButton.toolTipText" )
+						"focusable": false
+						"mnemonic": new FormMessage( null, "Z.c" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "changListClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 2
+						"gridy": 0
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "South"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 420, 200 )
+		} )
+	}
+}

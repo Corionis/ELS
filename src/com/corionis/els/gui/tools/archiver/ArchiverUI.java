@@ -211,7 +211,7 @@ public class ArchiverUI extends AbstractToolDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, context, context.cfg.gs("Archiver.help"), "archiver_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("Archiver.help"), "archiver_" + context.preferences.getLocale() + ".html");
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }

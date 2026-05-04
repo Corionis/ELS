@@ -308,7 +308,8 @@ public class Template
         if (context.publisherRepo != null)
         {
             text = text.replaceAll("\\$\\{(?i)publisherrepo}", context.publisherRepo.getLibraries().description);
-            text = text.replaceAll("\\$\\{(?i)publishername}", context.publisherRepo.getUser().getName());
+            if (context.publisherRepo.getUser() != null)
+                text = text.replaceAll("\\$\\{(?i)publishername}", context.publisherRepo.getUser().getName());
             text = text.replaceAll("\\$\\{(?i)publisherhost}", context.publisherRepo.getLibraries().host);
         }
 

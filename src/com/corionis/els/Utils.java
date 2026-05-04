@@ -877,11 +877,17 @@ public class Utils
     {
         String location = filename;
         String path = "";
-        if (repo.getLibraryData().libraries.temp_location != null && repo.getLibraryData().libraries.temp_location.length() > 0)
+        String sep;
+        if (repo != null && repo.getLibraryData().libraries.temp_location != null && repo.getLibraryData().libraries.temp_location.length() > 0)
+        {
             path = repo.getLibraryData().libraries.temp_location;
+            sep = repo.getSeparator();
+        }
         else
+        {
             path = "output";
-        String sep = repo.getSeparator();
+            sep = System.getProperty("file.separator");
+        }
         if (!path.endsWith(sep))
             path += sep;
         location = path + filename;

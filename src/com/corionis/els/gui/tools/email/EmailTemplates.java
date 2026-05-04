@@ -184,7 +184,7 @@ public class EmailTemplates extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, context, context.cfg.gs("EmailTemplates.labelHelp.toolTipText"), "templates_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("EmailTemplates.labelHelp.toolTipText"), "templates_" + context.preferences.getLocale() + ".html");
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }

@@ -226,7 +226,7 @@ public class SleepUI extends AbstractToolDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, context, context.cfg.gs("Sleep.help"), "sleep_" + context.preferences.getLocale() + ".html", false);
+            helpDialog = new NavHelp(this, context, context.cfg.gs("Sleep.help"), "sleep_" + context.preferences.getLocale() + ".html");
             if (!helpDialog.fault)
                 helpDialog.buttonFocus();
         }

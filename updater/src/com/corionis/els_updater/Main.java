@@ -309,6 +309,15 @@ public class Main
                         System.exit(1); // <<<<<<<-------------- Exit
                     }
 
+                    // slight delay to allow Navigator to disconnect from remotes and end - to avoid locked files
+                    try
+                    {
+                        Thread.sleep(5000);
+                    }
+                    catch (InterruptedException e)
+                    {
+                    }
+
                     DownloadUpdate downloadUpdate = new DownloadUpdate(main, preferences, installedPath, version, prefix);
 
                     if (fault)
