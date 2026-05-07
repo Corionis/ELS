@@ -106,11 +106,22 @@ new FormModel {
 						"alignment": 2
 					} ) {
 						name: "panelAlertsToolbar"
-						"opaque": false
 						"alignmentX": -1.0f
+						"maximumSize": new java.awt.Dimension( 32767, 26 )
+						"opaque": false
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelAlertBlankToolbar"
+							"icon": &SwingIcon0 new com.jformdesigner.model.SwingIcon( 0, "/blank.png" )
+							"horizontalAlignment": 0
+							"preferredSize": new java.awt.Dimension( 14, 26 )
+							"minimumSize": new java.awt.Dimension( 14, 26 )
+							"maximumSize": new java.awt.Dimension( 14, 26 )
+							"iconTextGap": 0
+							"alignmentY": 0.0f
+						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "labelAlertHintsToolbar"
-							"icon": &SwingIcon0 new com.jformdesigner.model.SwingIcon( 0, "/hints.png" )
+							"icon": &SwingIcon1 new com.jformdesigner.model.SwingIcon( 0, "/hints.png" )
 							"horizontalAlignment": 0
 							"iconTextGap": 0
 							"toolTipText": new FormMessage( null, "Navigator.hints.available" )
@@ -122,7 +133,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "labelAlertUpdateToolbar"
-							"icon": &SwingIcon1 new com.jformdesigner.model.SwingIcon( 0, "/updates.png" )
+							"icon": &SwingIcon2 new com.jformdesigner.model.SwingIcon( 0, "/updates.png" )
 							"horizontalAlignment": 0
 							"iconTextGap": 0
 							"alignmentY": 0.0f
@@ -2365,8 +2376,18 @@ new FormModel {
 					"minimumSize": new java.awt.Dimension( 58, 21 )
 					"maximumSize": new java.awt.Dimension( 32767, 21 )
 					add( new FormComponent( "javax.swing.JLabel" ) {
-						name: "labelAlertHintsMenu"
+						name: "labelAlertBlankMenu"
 						"icon": #SwingIcon0
+						"horizontalAlignment": 0
+						"preferredSize": new java.awt.Dimension( 14, 21 )
+						"minimumSize": new java.awt.Dimension( 14, 21 )
+						"maximumSize": new java.awt.Dimension( 14, 21 )
+						"iconTextGap": 0
+						"alignmentY": 0.0f
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelAlertHintsMenu"
+						"icon": #SwingIcon1
 						"horizontalAlignment": 0
 						"iconTextGap": 0
 						"toolTipText": new FormMessage( null, "Navigator.hints.available" )
@@ -2378,7 +2399,7 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JLabel" ) {
 						name: "labelAlertUpdateMenu"
-						"icon": #SwingIcon1
+						"icon": #SwingIcon2
 						"horizontalAlignment": 0
 						"iconTextGap": 0
 						"alignmentY": 0.0f

@@ -561,6 +561,7 @@ public class MainFrame extends JFrame
         menuItemUpdates = new JMenuItem();
         menuItemAbout = new JMenuItem();
         panelAlertsMenu = new JPanel();
+        labelAlertBlankMenu = new JLabel();
         labelAlertHintsMenu = new JLabel();
         labelAlertUpdateMenu = new JLabel();
         labelUserMenu = new JLabel();
@@ -574,6 +575,7 @@ public class MainFrame extends JFrame
         menuTbNewFolder = new JButton();
         menuTbRefresh = new JButton();
         panelAlertsToolbar = new JPanel();
+        labelAlertBlankToolbar = new JLabel();
         labelAlertHintsToolbar = new JLabel();
         labelAlertUpdateToolbar = new JLabel();
         labelUserToolbar = new JLabel();
@@ -1322,6 +1324,16 @@ public class MainFrame extends JFrame
                 panelAlertsMenu.setMaximumSize(new Dimension(32767, 21));
                 panelAlertsMenu.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
 
+                //---- labelAlertBlankMenu ----
+                labelAlertBlankMenu.setIcon(new ImageIcon(getClass().getResource("/blank.png")));
+                labelAlertBlankMenu.setHorizontalAlignment(SwingConstants.CENTER);
+                labelAlertBlankMenu.setPreferredSize(new Dimension(14, 21));
+                labelAlertBlankMenu.setMinimumSize(new Dimension(14, 21));
+                labelAlertBlankMenu.setMaximumSize(new Dimension(14, 21));
+                labelAlertBlankMenu.setIconTextGap(0);
+                labelAlertBlankMenu.setAlignmentY(0.0F);
+                panelAlertsMenu.add(labelAlertBlankMenu);
+
                 //---- labelAlertHintsMenu ----
                 labelAlertHintsMenu.setIcon(new ImageIcon(getClass().getResource("/hints.png")));
                 labelAlertHintsMenu.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1432,9 +1444,20 @@ public class MainFrame extends JFrame
 
                 //======== panelAlertsToolbar ========
                 {
-                    panelAlertsToolbar.setOpaque(false);
                     panelAlertsToolbar.setAlignmentX(-1.0F);
+                    panelAlertsToolbar.setMaximumSize(new Dimension(32767, 26));
+                    panelAlertsToolbar.setOpaque(false);
                     panelAlertsToolbar.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+
+                    //---- labelAlertBlankToolbar ----
+                    labelAlertBlankToolbar.setIcon(new ImageIcon(getClass().getResource("/blank.png")));
+                    labelAlertBlankToolbar.setHorizontalAlignment(SwingConstants.CENTER);
+                    labelAlertBlankToolbar.setPreferredSize(new Dimension(14, 26));
+                    labelAlertBlankToolbar.setMinimumSize(new Dimension(14, 26));
+                    labelAlertBlankToolbar.setMaximumSize(new Dimension(14, 26));
+                    labelAlertBlankToolbar.setIconTextGap(0);
+                    labelAlertBlankToolbar.setAlignmentY(0.0F);
+                    panelAlertsToolbar.add(labelAlertBlankToolbar);
 
                     //---- labelAlertHintsToolbar ----
                     labelAlertHintsToolbar.setIcon(new ImageIcon(getClass().getResource("/hints.png")));
@@ -3268,6 +3291,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemUpdates;
     public JMenuItem menuItemAbout;
     public JPanel panelAlertsMenu;
+    public JLabel labelAlertBlankMenu;
     public JLabel labelAlertHintsMenu;
     public JLabel labelAlertUpdateMenu;
     public JLabel labelUserMenu;
@@ -3281,6 +3305,7 @@ public class MainFrame extends JFrame
     public JButton menuTbNewFolder;
     public JButton menuTbRefresh;
     public JPanel panelAlertsToolbar;
+    public JLabel labelAlertBlankToolbar;
     public JLabel labelAlertHintsToolbar;
     public JLabel labelAlertUpdateToolbar;
     public JLabel labelUserToolbar;

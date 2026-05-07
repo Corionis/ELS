@@ -80,7 +80,7 @@ public class Settings extends JDialog
                     }
 
                     refreshLookAndFeel(context.preferences.getLookAndFeel());
-                    if (helpDialog != null && helpDialog.isVisible())
+                    if (helpDialog != null && helpDialog.isVisible()) // date help
                         helpDialog.setVisible(false);
 
                     setVisible(false);
