@@ -402,8 +402,14 @@ public class Settings extends JDialog
 
         // general
         context.preferences.setDefaultDryrun(defaultDryrunCheckBox.isSelected());
-        String sel = comboBoxEmailServer.getSelectedItem().toString();
-        if (sel.equalsIgnoreCase("None"))
+        String sel;
+        if (comboBoxEmailServer.getItemCount() > 0)
+        {
+            sel = comboBoxEmailServer.getSelectedItem().toString();
+            if (sel.equalsIgnoreCase("None"))
+                sel = "";
+        }
+        else
             sel = "";
         context.preferences.setDefaultEmailServer(sel);
         context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());

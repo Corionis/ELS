@@ -459,8 +459,6 @@ public class LibrariesUI
                     {
                         try
                         {
-                            mf.tabbedPaneMain.setSelectedIndex(0);
-
                             // get Browser selection(s)
                             ArrayList<Origin> origins = new ArrayList<Origin>();
                             isSubscriber = Origins.makeOriginsFromSelected(context, context.mainFrame, origins);
@@ -515,7 +513,7 @@ public class LibrariesUI
                                             reply = JOptionPane.showConfirmDialog(directoryPicker.pane,
                                                     java.text.MessageFormat.format(context.cfg.gs("Libraries.selected.path.is.not.from.repository.continue"), name),
                                                     context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.YES_NO_OPTION);
-                                            if (reply == JOptionPane.YES_OPTION)
+                                            //if (reply == JOptionPane.YES_OPTION)
                                                 done = true;
                                         }
                                         else
@@ -532,9 +530,6 @@ public class LibrariesUI
 
                                     if (reply == JOptionPane.YES_OPTION)
                                         directoryPicker.directoryPathTextField.setText(path);
-
-                                    if (done)
-                                        mf.tabbedPaneMain.setSelectedIndex(1);
                                 }
                             }
                             else
@@ -648,7 +643,6 @@ public class LibrariesUI
                     }
                 }
 
-                mf.tabbedPaneMain.setSelectedIndex(1);
                 mf.buttonNew.setEnabled(true);
                 mf.buttonCopy.setEnabled(true);
                 mf.buttonDelete.setEnabled(true);
@@ -897,8 +891,6 @@ public class LibrariesUI
                         {
                             try
                             {
-                                mf.tabbedPaneMain.setSelectedIndex(0);
-
                                 // get selection(s)
                                 ArrayList<Origin> origins = new ArrayList<Origin>();
                                 isSubscriber = Origins.makeOriginsFromSelected(context, context.mainFrame, origins);
@@ -973,9 +965,6 @@ public class LibrariesUI
 
                                         if (reply == JOptionPane.YES_OPTION)
                                             directoryPicker.directoryPathTextField.setText(path);
-
-                                        if (done)
-                                            mf.tabbedPaneMain.setSelectedIndex(1);
                                     }
                                 }
                                 else
@@ -1069,7 +1058,6 @@ public class LibrariesUI
                         }
                     }
 
-                    mf.tabbedPaneMain.setSelectedIndex(1);
                     mf.buttonNew.setEnabled(true);
                     mf.buttonCopy.setEnabled(true);
                     mf.buttonDelete.setEnabled(true);
@@ -1161,8 +1149,6 @@ public class LibrariesUI
                         {
                             try
                             {
-                                mf.tabbedPaneMain.setSelectedIndex(0);
-
                                 // get selection(s)
                                 ArrayList<Origin> origins = new ArrayList<Origin>();
                                 isSubscriber = Origins.makeOriginsFromSelected(context, context.mainFrame, origins);
@@ -1216,7 +1202,7 @@ public class LibrariesUI
                                                 reply = JOptionPane.showConfirmDialog(directoryPicker.pane,
                                                         java.text.MessageFormat.format(context.cfg.gs("Libraries.selected.path.is.not.from.repository.continue"), name),
                                                         context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.YES_NO_OPTION);
-                                                if (reply == JOptionPane.YES_OPTION)
+                                                //if (reply == JOptionPane.YES_OPTION)
                                                     done = true;
                                             }
                                             else
@@ -1233,9 +1219,6 @@ public class LibrariesUI
 
                                         if (reply == JOptionPane.YES_OPTION)
                                             directoryPicker.directoryPathTextField.setText(path);
-
-                                        if (done)
-                                            mf.tabbedPaneMain.setSelectedIndex(1);
                                     }
                                 }
                                 else
@@ -1384,7 +1367,6 @@ public class LibrariesUI
                         }
                     }
 
-                    mf.tabbedPaneMain.setSelectedIndex(1);
                     mf.buttonNew.setEnabled(true);
                     mf.buttonCopy.setEnabled(true);
                     mf.buttonDelete.setEnabled(true);
@@ -1542,8 +1524,6 @@ public class LibrariesUI
                     {
                         try
                         {
-                            mf.tabbedPaneMain.setSelectedIndex(0);
-
                             // get selection(s)
                             ArrayList<Origin> origins = new ArrayList<Origin>();
                             isSubscriber = Origins.makeOriginsFromSelected(context, context.mainFrame, origins);
@@ -1576,7 +1556,7 @@ public class LibrariesUI
                                         reply = JOptionPane.showConfirmDialog(directoryPicker.pane,
                                                 java.text.MessageFormat.format(context.cfg.gs("Libraries.selected.path.is.not.from.repository.continue"), name),
                                                 context.cfg.gs("Libraries.select.temp.location.path"), JOptionPane.YES_NO_OPTION);
-                                        if (reply == JOptionPane.YES_OPTION)
+                                        //if (reply == JOptionPane.YES_OPTION)
                                             done = true;
                                     }
                                     else
@@ -1592,9 +1572,6 @@ public class LibrariesUI
 
                                     if (reply == JOptionPane.YES_OPTION)
                                         directoryPicker.directoryPathTextField.setText(path);
-
-                                    if (done)
-                                        mf.tabbedPaneMain.setSelectedIndex(1);
                                 }
                             }
                             else
@@ -1658,7 +1635,6 @@ public class LibrariesUI
                     }
                 }
 
-                mf.tabbedPaneMain.setSelectedIndex(1);
                 mf.buttonNew.setEnabled(true);
                 mf.buttonCopy.setEnabled(true);
                 mf.buttonDelete.setEnabled(true);

@@ -187,7 +187,7 @@ public class NavHelp extends JFrame
         {
             fault = true;
             logger.error(Utils.getStackTrace(e));
-            JOptionPane.showMessageDialog(this.getOwner(), context.cfg.gs("NavHelp.error.opening.help.file") + resourceFilename + ", " + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavHelp.error.opening.help.file") + resourceFilename + ", " + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
     }
 

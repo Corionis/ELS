@@ -1,6 +1,5 @@
 package com.corionis.els.gui.update;
 
-import com.corionis.els.Configuration;
 import com.corionis.els.Context;
 import com.corionis.els.gui.NavHelp;
 
@@ -97,8 +96,10 @@ public class CheckForUpdateUI extends JDialog
 
         //======== this ========
         setTitle(bundle.getString("CheckForUpdateUI.this.title"));
-        setPreferredSize(new Dimension(400, 178));
+        setPreferredSize(new Dimension(400, 210));
         setResizable(false);
+        setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
+        setAlwaysOnTop(true);
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {

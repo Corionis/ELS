@@ -1491,7 +1491,6 @@ public class Navigator
                             context.preferences.setLastHintKeysIsOpen(true);
                             context.cfg.setHintKeysFile(file.getPath());
                             context.main.connectHints(context.publisherRepo);
-                            //context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                         }
                         catch (Exception e)
                         {
@@ -1763,7 +1762,6 @@ public class Navigator
 
                             // connect to the hint tracker or status server
                             context.main.connectHints(context.publisherRepo);
-                            //context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.browser.setupHintTrackingButton();
                             setQuitTerminateVisibility();
                             context.libraries.loadConfigurations();
@@ -4456,6 +4454,8 @@ public class Navigator
             context.mainFrame.buttonReadAll.setEnabled(false);
             context.mainFrame.buttonWriteAll.setEnabled(false);
         }
+
+        setQuitTerminateVisibility();
     }
 
     /**
@@ -4494,9 +4494,23 @@ public class Navigator
     public void setQuitTerminateVisibility()
     {
         if (context.cfg.isRemoteActive())
+        {
             context.mainFrame.menuItemQuitTerminate.setVisible(true);
+            if (Utils.isOsMac())
+            {
+                Component comp = context.mainFrame.menuFile.getMenuComponent(8);
+                comp.setVisible(true);
+            }
+        }
         else
+        {
             context.mainFrame.menuItemQuitTerminate.setVisible(false);
+            if (Utils.isOsMac())
+            {
+                Component comp = context.mainFrame.menuFile.getMenuComponent(8);
+                comp.setVisible(false);
+            }
+        }
     }
 
     /**
