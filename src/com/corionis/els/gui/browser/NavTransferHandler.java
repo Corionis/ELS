@@ -677,6 +677,7 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeNode parent = (NavTreeNode) sourceNode.getParent();
                 if (parent == targetNode)
                 {
+                    // TODO Consider simply adding "(Copy)" to the filename before extension
                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     reset();
                     logger.info(context.cfg.gs("NavTransferHandler.action.cancelled"));

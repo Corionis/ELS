@@ -1623,6 +1623,8 @@ public class JobsUI extends AbstractToolDialog
         buttonSub.setVisible(false);
         labelHints.setVisible(false);
         buttonHints.setVisible(false);
+        labelEmail.setVisible(false);
+        buttonEmail.setVisible(false);
         enableDisableOrigins(false);
     }
 

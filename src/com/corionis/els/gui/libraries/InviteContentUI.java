@@ -180,31 +180,21 @@ public class InviteContentUI extends JDialog
         });
         fc.setDialogTitle(context.cfg.gs("InviteContent.select.publisher"));
         fc.setFileHidingEnabled(false);
-        File ld = null;
-        if (context.preferences.getLastSubscriberOpenPath().length() > 0)
-        {
-            ld = new File(context.preferences.getLastSubscriberOpenPath());
-            if (!ld.exists() || !ld.isDirectory())
-                ld = null;
-        }
-        if (ld == null)
-        {
-            ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
-            if (!ld.exists() || !ld.isDirectory())
-                ld = new File(context.cfg.getWorkingDirectory());
-        }
+        File ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
+        if (!ld.exists() || !ld.isDirectory())
+            ld = new File(context.cfg.getWorkingDirectory());
         if (ld.exists() && ld.isDirectory())
             fc.setCurrentDirectory(ld);
 
-        if (libMeta.repo.getJsonFilename().length() > 0)
+        if (context.publisherRepo != null && context.publisherRepo.getJsonFilename().length() > 0)
         {
-            File lf = new File(libMeta.repo.getJsonFilename());
+            File lf = new File(context.publisherRepo.getJsonFilename());
             if (lf.exists())
                 fc.setSelectedFile(lf);
         }
         else if (context.preferences.getLastSubscriberOpenFile().length() > 0)
         {
-            File lf = new File(context.preferences.getLastSubscriberOpenFile());
+            File lf = new File(context.preferences.getLastPublisherOpenFile());
             if (lf.exists())
                 fc.setSelectedFile(lf);
         }
@@ -233,11 +223,6 @@ public class InviteContentUI extends JDialog
                 textFieldCurrentPublisher.setText(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), file.getPath()));
                 checkBoxPublisher.setSelected(true);
             }
-            else
-            {
-                textFieldCurrentPublisher.setText("");
-                checkBoxPublisher.setSelected(false);
-            }
             break;
         }
     }
@@ -263,25 +248,15 @@ public class InviteContentUI extends JDialog
         });
         fc.setDialogTitle(context.cfg.gs("InviteContent.select.subscriber"));
         fc.setFileHidingEnabled(false);
-        File ld = null;
-        if (context.preferences.getLastPublisherOpenPath().length() > 0)
-        {
-            ld = new File(context.preferences.getLastPublisherOpenPath());
-            if (!ld.exists() || !ld.isDirectory())
-                ld = null;
-        }
-        if (ld == null)
-        {
-            ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
-            if (!ld.exists() || !ld.isDirectory())
-                ld = new File(context.cfg.getWorkingDirectory());
-        }
+        File ld = new File(context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + "libraries");
+        if (!ld.exists() || !ld.isDirectory())
+            ld = new File(context.cfg.getWorkingDirectory());
         if (ld.exists() && ld.isDirectory())
             fc.setCurrentDirectory(ld);
 
-        if (context.preferences.getLastPublisherOpenFile().length() > 0)
+        if (libMeta.repo.getJsonFilename().length() > 0)
         {
-            File lf = new File(context.preferences.getLastPublisherOpenFile());
+            File lf = new File(libMeta.repo.getJsonFilename());
             if (lf.exists())
                 fc.setSelectedFile(lf);
         }
@@ -309,11 +284,6 @@ public class InviteContentUI extends JDialog
 
                 textFieldCurrentSubscriber.setText(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), file.getPath()));
                 checkBoxSubscriber.setSelected(true);
-            }
-            else
-            {
-                textFieldCurrentSubscriber.setText("");
-                checkBoxSubscriber.setSelected(false);
             }
             break;
         }
@@ -387,11 +357,6 @@ public class InviteContentUI extends JDialog
                 textFieldCurrentHintServer.setText(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), file.getPath()));
                 checkBoxHintServer.setSelected(true);
             }
-            else
-            {
-                textFieldCurrentHintServer.setText("");
-                checkBoxHintServer.setSelected(false);
-            }
             break;
         }
     }
@@ -464,20 +429,15 @@ public class InviteContentUI extends JDialog
                 textFieldCurrentHints.setText(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), file.getPath()));
                 checkBoxHints.setSelected(true);
             }
-            else
-            {
-                textFieldCurrentHints.setText("");
-                checkBoxHints.setSelected(false);
-            }
             break;
         }
     }
 
     private void setDialog()
     {
-        if (libMeta.repo != null)
+        if (context.publisherRepo != null && !context.publisherRepo.getJsonFilename().equals(libMeta.repo.getJsonFilename()))
         {
-            textFieldCurrentPublisher.setText(Utils.makeRelativePath(context.cfg.getWorkingDirectorySubscriber(), libMeta.repo.getJsonFilename()));
+            textFieldCurrentPublisher.setText(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.publisherRepo.getJsonFilename()));
             checkBoxPublisher.setSelected(true);
         }
         else
@@ -485,9 +445,9 @@ public class InviteContentUI extends JDialog
             checkBoxPublisher.setSelected(false);
         }
 
-        if (context.publisherRepo != null && !context.publisherRepo.getJsonFilename().equals(libMeta.repo.getJsonFilename()))
+        if (libMeta.repo != null)
         {
-            textFieldCurrentSubscriber.setText(Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.publisherRepo.getJsonFilename()));
+            textFieldCurrentSubscriber.setText(Utils.makeRelativePath(context.cfg.getWorkingDirectorySubscriber(), libMeta.repo.getJsonFilename()));
             checkBoxSubscriber.setSelected(true);
         }
         else
@@ -591,7 +551,7 @@ public class InviteContentUI extends JDialog
                         new Insets(0, 8, 4, 4), 0, 0));
 
                     //---- checkBoxPublisher ----
-                    checkBoxPublisher.setToolTipText(context.cfg.gs("InviteContentUI.checkBoxPublisher.toolTipText"));
+                    checkBoxPublisher.setToolTipText("This system");
                     panelOptions.add(checkBoxPublisher, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 4, 4), 0, 0));
@@ -600,7 +560,6 @@ public class InviteContentUI extends JDialog
                     textFieldCurrentPublisher.setEditable(false);
                     textFieldCurrentPublisher.setPreferredSize(new Dimension(240, 34));
                     textFieldCurrentPublisher.setMinimumSize(new Dimension(240, 34));
-                    textFieldCurrentPublisher.setToolTipText(context.cfg.gs("InviteContentUI.checkBoxPublisher.toolTipText"));
                     panelOptions.add(textFieldCurrentPublisher, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 4, 4), 0, 0));
@@ -631,7 +590,6 @@ public class InviteContentUI extends JDialog
                     textFieldCurrentSubscriber.setEditable(false);
                     textFieldCurrentSubscriber.setPreferredSize(new Dimension(240, 34));
                     textFieldCurrentSubscriber.setMinimumSize(new Dimension(240, 34));
-                    textFieldCurrentSubscriber.setToolTipText(context.cfg.gs("InviteContentUI.checkBoxSubscriber.toolTipText"));
                     panelOptions.add(textFieldCurrentSubscriber, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 4, 4), 0, 0));

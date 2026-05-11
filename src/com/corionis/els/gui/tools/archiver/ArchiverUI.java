@@ -1021,8 +1021,8 @@ public class ArchiverUI extends AbstractToolDialog
                                     new Insets(0, 4, 0, 4), 0, 0));
 
                                 //---- textFieldTarget ----
-                                textFieldTarget.setPreferredSize(new Dimension(240, 34));
-                                textFieldTarget.setMinimumSize(new Dimension(240, 34));
+                                textFieldTarget.setPreferredSize(new Dimension(240, 22));
+                                textFieldTarget.setMinimumSize(new Dimension(240, 22));
                                 textFieldTarget.setToolTipText(context.cfg.gs("ArchiverUI.textFieldTarget.toolTipText"));
                                 textFieldTarget.setName("target");
                                 textFieldTarget.addFocusListener(new FocusAdapter() {

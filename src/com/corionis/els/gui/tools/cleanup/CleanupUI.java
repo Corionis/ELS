@@ -854,8 +854,6 @@ public class CleanupUI extends AbstractToolDialog
                                     new Insets(0, 4, 4, 16), 0, 0));
 
                                 //---- textFieldMaxAge ----
-                                textFieldMaxAge.setPreferredSize(new Dimension(64, 34));
-                                textFieldMaxAge.setMinimumSize(new Dimension(64, 34));
                                 textFieldMaxAge.setName("age");
                                 textFieldMaxAge.addActionListener(e -> genericAction(e));
                                 textFieldMaxAge.addFocusListener(new FocusAdapter() {

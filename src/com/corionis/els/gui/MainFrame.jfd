@@ -843,7 +843,6 @@ new FormModel {
 												} )
 												add( new FormComponent( "javax.swing.JTextField" ) {
 													name: "textFieldKey"
-													"preferredSize": new java.awt.Dimension( 240, 34 )
 													"name": "key"
 													"toolTipText": new FormMessage( null, "Navigator.textFieldKey.toolTipText" )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -935,8 +934,6 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JTextField" ) {
 													name: "textFieldTimeout"
 													"name": "timeout"
-													"preferredSize": new java.awt.Dimension( 104, 34 )
-													"minimumSize": new java.awt.Dimension( 101104, 30 )
 													"toolTipText": new FormMessage( null, "Navigator.textFieldTimeout.toolTipText" )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -967,8 +964,6 @@ new FormModel {
 														addElement( "Windows" )
 													}
 													"name": "flavor"
-													"minimumSize": new java.awt.Dimension( 104, 30 )
-													"preferredSize": new java.awt.Dimension( 104, 30 )
 													"toolTipText": new FormMessage( null, "Navigator.comboBoxFlavor.toolTipText" )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -1039,7 +1034,6 @@ new FormModel {
 												} )
 												add( new FormComponent( "javax.swing.JTextField" ) {
 													name: "textFieldTempLocation"
-													"preferredSize": new java.awt.Dimension( 240, 30 )
 													"maximumSize": new java.awt.Dimension( 240, 2147483647 )
 													"name": "templocation"
 													"toolTipText": new FormMessage( null, "Navigator.textFieldTempLocation.toolTipText" )
@@ -1647,9 +1641,6 @@ new FormModel {
 												name: "buttonAddUserLibrary"
 												"text": new FormMessage( null, "Navigator.buttonAddUserLibrary.text" )
 												"toolTipText": new FormMessage( null, "Navigator.buttonAddUserLibrary.toolTipText" )
-												"preferredSize": new java.awt.Dimension( 84, 34 )
-												"minimumSize": new java.awt.Dimension( 84, 34 )
-												"maximumSize": new java.awt.Dimension( 84, 34 )
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"gridx": 4
 												"gridy": 3

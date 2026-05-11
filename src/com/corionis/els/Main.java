@@ -336,7 +336,8 @@ public class Main
                         String note;
                         note = context.cfg.gs("Navigator.install.use.option.y.to.install.update");
                         message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.update.version.text"),
-                                Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE)) + note;
+                                Configuration.getBuildVersionName() + ", " + Configuration.getBuildDate(),
+                                version.get(Configuration.BUILD_VERSION_NAME) + ", " + version.get(Configuration.BUILD_DATE)) + note;
                         System.out.println(message);
                     }
                     return true;

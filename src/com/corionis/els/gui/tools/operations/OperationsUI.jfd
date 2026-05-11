@@ -342,10 +342,7 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationMismatches"
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "mismatches"
-											"maximumSize": new java.awt.Dimension( 32767, 30 )
-											"preferredSize": new java.awt.Dimension( 240, 30 )
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -357,9 +354,6 @@ new FormModel {
 											name: "buttonOperationMismatchesFilePick"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": &SwingDerivedFont1 new com.jformdesigner.model.SwingDerivedFont( null, 1, 0, false )
-											"maximumSize": &Dimension10 new java.awt.Dimension( 32, 24 )
-											"minimumSize": &Dimension11 new java.awt.Dimension( 32, 24 )
-											"preferredSize": &Dimension12 new java.awt.Dimension( 32, 24 )
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -396,10 +390,7 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationWhatsNew"
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "whatsNew"
-											"maximumSize": new java.awt.Dimension( 32767, 30 )
-											"preferredSize": new java.awt.Dimension( 240, 30 )
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -411,9 +402,6 @@ new FormModel {
 											name: "buttonOperationWhatsNewFilePick"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -459,10 +447,7 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationExportText"
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "exportText"
-											"maximumSize": new java.awt.Dimension( 32767, 30 )
-											"preferredSize": new java.awt.Dimension( 240, 30 )
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -474,9 +459,6 @@ new FormModel {
 											name: "buttonOperationExportTextFilePick"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -522,10 +504,7 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationExportItems"
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "exportItems"
-											"maximumSize": new java.awt.Dimension( 32767, 30 )
-											"preferredSize": new java.awt.Dimension( 240, 30 )
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -537,9 +516,6 @@ new FormModel {
 											name: "buttonOperationExportItemsFilePick"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -609,7 +585,6 @@ new FormModel {
 												addElement( "Hint keys:" )
 												addElement( "Hint keys, only:" )
 											}
-											"minimumSize": new java.awt.Dimension( 60, 30 )
 											"name": "keys"
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -618,10 +593,8 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationHintKeys"
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "hintKeys"
-											"maximumSize": new java.awt.Dimension( 32767, 30 )
-											"preferredSize": &Dimension13 new java.awt.Dimension( 240, 30 )
+											"preferredSize": new java.awt.Dimension( 240, 22 )
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -633,9 +606,9 @@ new FormModel {
 											name: "buttonOperationHintKeysFilePick"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
+											"maximumSize": new java.awt.Dimension( 32, 24 )
+											"minimumSize": new java.awt.Dimension( 32, 24 )
+											"preferredSize": new java.awt.Dimension( 32, 24 )
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -861,8 +834,6 @@ new FormModel {
 											name: "passwordFieldOperationsAuthorize"
 											"toolTipText": new FormMessage( null, "OperationsUI.passwordFieldOperationsAuthorize.toolTipText" )
 											"name": "authpassword"
-											"preferredSize": new java.awt.Dimension( 240, 30 )
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -952,8 +923,6 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationAuthKeys"
-											"preferredSize": &Dimension14 new java.awt.Dimension( 240, 30 )
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "authkeys"
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
@@ -966,9 +935,6 @@ new FormModel {
 											name: "buttonOperationAuthKeysFilePick"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -998,8 +964,6 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationBlacklist"
-											"preferredSize": #Dimension14
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "blacklist"
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
@@ -1012,9 +976,6 @@ new FormModel {
 											name: "buttonOperationBlacklistFilePick"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -1044,8 +1005,6 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationIpWhitelist"
-											"preferredSize": #Dimension14
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "ipwhitelist"
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
@@ -1058,9 +1017,6 @@ new FormModel {
 											name: "buttonOperationIpWhitelistFilePick"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -1116,9 +1072,8 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationHintKeys2"
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "hintKeys2"
-											"preferredSize": #Dimension13
+											"preferredSize": new java.awt.Dimension( 240, 22 )
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -1130,9 +1085,6 @@ new FormModel {
 											name: "buttonOperationHintKeysFilePick2"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -1258,10 +1210,7 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationHintKeys3"
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "hintKeys3"
-											"maximumSize": new java.awt.Dimension( 240, 30 )
-											"preferredSize": #Dimension13
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -1272,9 +1221,6 @@ new FormModel {
 											name: "buttonOperationHintKeysFilePick3"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -1288,8 +1234,8 @@ new FormModel {
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 											name: "vSpacer34"
-											"minimumSize": &Dimension15 new java.awt.Dimension( 10, 30 )
-											"preferredSize": &Dimension16 new java.awt.Dimension( 20, 30 )
+											"minimumSize": &Dimension10 new java.awt.Dimension( 10, 30 )
+											"preferredSize": &Dimension11 new java.awt.Dimension( 20, 30 )
 											"maximumSize": #Dimension0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridx": 3
@@ -1303,10 +1249,7 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationAuthKeys3"
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "authkeys3"
-											"maximumSize": new java.awt.Dimension( 240, 30 )
-											"preferredSize": new java.awt.Dimension( 240, 30 )
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -1317,9 +1260,6 @@ new FormModel {
 											name: "buttonOperationAuthKeysFilePick3"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -1333,8 +1273,8 @@ new FormModel {
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 											name: "vSpacer44"
-											"minimumSize": #Dimension15
-											"preferredSize": #Dimension16
+											"minimumSize": #Dimension10
+											"preferredSize": #Dimension11
 											"maximumSize": #Dimension0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridy": 2
@@ -1357,8 +1297,8 @@ new FormModel {
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 											name: "vSpacer36"
-											"minimumSize": #Dimension15
-											"preferredSize": #Dimension16
+											"minimumSize": #Dimension10
+											"preferredSize": #Dimension11
 											"maximumSize": #Dimension0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridy": 3
@@ -1366,8 +1306,8 @@ new FormModel {
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 											name: "vSpacer39"
-											"minimumSize": #Dimension15
-											"preferredSize": #Dimension16
+											"minimumSize": #Dimension10
+											"preferredSize": #Dimension11
 											"maximumSize": #Dimension0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridy": 4
@@ -1381,10 +1321,7 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationBlacklist3"
-											"preferredSize": #Dimension14
-											"minimumSize": new java.awt.Dimension( 240, 30 )
 											"name": "blacklist3"
-											"maximumSize": &Dimension17 new java.awt.Dimension( 240, 30 )
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -1395,9 +1332,6 @@ new FormModel {
 											name: "buttonOperationBlacklistFilePick3"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -1411,8 +1345,8 @@ new FormModel {
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 											name: "vSpacer37"
-											"minimumSize": #Dimension15
-											"preferredSize": #Dimension16
+											"minimumSize": #Dimension10
+											"preferredSize": #Dimension11
 											"maximumSize": #Dimension0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridy": 5
@@ -1426,10 +1360,8 @@ new FormModel {
 										} )
 										add( new FormComponent( "javax.swing.JTextField" ) {
 											name: "textFieldOperationIpWhitelist3"
-											"preferredSize": #Dimension14
-											"minimumSize": new java.awt.Dimension( 240, 30 )
+											"preferredSize": new java.awt.Dimension( 240, 22 )
 											"name": "ipwhitelist3"
-											"maximumSize": #Dimension17
 											addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -1440,9 +1372,6 @@ new FormModel {
 											name: "buttonOperationIpWhitelistFilePick3"
 											"text": new FormMessage( null, "Z.ellipsis" )
 											"font": #SwingDerivedFont1
-											"maximumSize": #Dimension10
-											"minimumSize": #Dimension11
-											"preferredSize": #Dimension12
 											"verticalTextPosition": 1
 											"iconTextGap": 0
 											"horizontalTextPosition": 10
@@ -1456,8 +1385,8 @@ new FormModel {
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 											name: "vSpacer38"
-											"minimumSize": #Dimension15
-											"preferredSize": #Dimension16
+											"minimumSize": #Dimension10
+											"preferredSize": #Dimension11
 											"maximumSize": #Dimension0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridy": 6

@@ -215,8 +215,8 @@ new FormModel {
 									} )
 									add( new FormComponent( "javax.swing.JTextField" ) {
 										name: "textFieldTarget"
-										"preferredSize": new java.awt.Dimension( 240, 34 )
-										"minimumSize": new java.awt.Dimension( 240, 34 )
+										"preferredSize": new java.awt.Dimension( 240, 22 )
+										"minimumSize": new java.awt.Dimension( 240, 22 )
 										"toolTipText": new FormMessage( null, "ArchiverUI.textFieldTarget.toolTipText" )
 										"name": "target"
 										addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )

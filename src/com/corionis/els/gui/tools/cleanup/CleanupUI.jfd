@@ -142,8 +142,6 @@ new FormModel {
 									} )
 									add( new FormComponent( "javax.swing.JTextField" ) {
 										name: "textFieldMaxAge"
-										"preferredSize": new java.awt.Dimension( 64, 34 )
-										"minimumSize": new java.awt.Dimension( 64, 34 )
 										"name": "age"
 										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 										addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )

@@ -263,25 +263,25 @@ public class InviteUI extends JDialog
             ArrayList<String> filesToCompress = new ArrayList();
             if (inviteContentUI.textFieldChoose.getText().isEmpty())
             {
+                String repoFilename = "";
                 if (inviteContentUI.checkBoxPublisher.isSelected() && !inviteContentUI.textFieldCurrentPublisher.getText().isEmpty())
                 {
-                    String relPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), inviteContentUI.textFieldCurrentPublisher.getText());
+                    Repository pubRepo = new Repository(context, Repository.PUBLISHER);
+                    pubRepo.read(inviteContentUI.textFieldCurrentPublisher.getText(), "Publisher", false);
+                    pubRepo = pubRepo.cloneConnection();
+                    String filename = pubRepo.getJsonFilename();
+                    String dir = Utils.getLeftPath(filename, pubRepo.getSeparator());
+                    String ren = Utils.getFileName(filename);
+                    repoFilename = dir + System.getProperty("file.separator") + ren + "_connection.json";
+                    pubRepo.setJsonFilename(repoFilename);
+                    pubRepo.write();
+                    String relPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pubRepo.getJsonFilename());
                     filesToCompress.add(relPath);
                 }
 
-                String repoFilename = "";
                 if (inviteContentUI.checkBoxSubscriber.isSelected() && !inviteContentUI.textFieldCurrentSubscriber.getText().isEmpty())
                 {
-                    Repository subRepo = new Repository(context, Repository.SUBSCRIBER);
-                    subRepo.read(inviteContentUI.textFieldCurrentSubscriber.getText(), "Subscriber", false);
-                    subRepo = subRepo.cloneConnection();
-                    String filename = subRepo.getJsonFilename();
-                    String dir = Utils.getLeftPath(filename, subRepo.getSeparator());
-                    String ren = Utils.getFileName(filename);
-                    repoFilename = dir + System.getProperty("file.separator") + ren + "_connection.json";
-                    subRepo.setJsonFilename(repoFilename);
-                    subRepo.write();
-                    String relPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), subRepo.getJsonFilename());
+                    String relPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), inviteContentUI.textFieldCurrentSubscriber.getText());
                     filesToCompress.add(relPath);
                 }
 
@@ -581,7 +581,7 @@ public class InviteUI extends JDialog
             }
 
             taos.close();
-            String msg = count + context.cfg.gs("Archiver.files.successfully.to") + tarFilePath;
+            String msg = count + context.cfg.gs("Archiver.files.successfully.archived");
             logger.info(msg);
             labelStatus.setText(msg);
         }
@@ -644,7 +644,7 @@ public class InviteUI extends JDialog
             }
 
             zaos.close();
-            String msg = count + context.cfg.gs("Archiver.files.successfully.to") + zipFilePath;
+            String msg = count + context.cfg.gs("Archiver.files.successfully.archived");
             logger.info(msg);
             labelStatus.setText(msg);
         }

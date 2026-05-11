@@ -2184,7 +2184,6 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- textFieldKey ----
-                                            textFieldKey.setPreferredSize(new Dimension(240, 34));
                                             textFieldKey.setName("key");
                                             textFieldKey.setToolTipText(context.cfg.gs("Navigator.textFieldKey.toolTipText"));
                                             panelLibraryCard.add(textFieldKey, new GridBagConstraints(1, 2, 3, 1, 0.0, 0.0,
@@ -2265,8 +2264,6 @@ public class MainFrame extends JFrame
 
                                             //---- textFieldTimeout ----
                                             textFieldTimeout.setName("timeout");
-                                            textFieldTimeout.setPreferredSize(new Dimension(104, 34));
-                                            textFieldTimeout.setMinimumSize(new Dimension(101104, 30));
                                             textFieldTimeout.setToolTipText(context.cfg.gs("Navigator.textFieldTimeout.toolTipText"));
                                             panelLibraryCard.add(textFieldTimeout, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
@@ -2293,8 +2290,6 @@ public class MainFrame extends JFrame
                                                 "Windows"
                                             }));
                                             comboBoxFlavor.setName("flavor");
-                                            comboBoxFlavor.setMinimumSize(new Dimension(104, 30));
-                                            comboBoxFlavor.setPreferredSize(new Dimension(104, 30));
                                             comboBoxFlavor.setToolTipText(context.cfg.gs("Navigator.comboBoxFlavor.toolTipText"));
                                             panelLibraryCard.add(comboBoxFlavor, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
@@ -2357,7 +2352,6 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 8), 0, 0));
 
                                             //---- textFieldTempLocation ----
-                                            textFieldTempLocation.setPreferredSize(new Dimension(240, 30));
                                             textFieldTempLocation.setMaximumSize(new Dimension(240, 2147483647));
                                             textFieldTempLocation.setName("templocation");
                                             textFieldTempLocation.setToolTipText(context.cfg.gs("Navigator.textFieldTempLocation.toolTipText"));
@@ -2929,9 +2923,6 @@ public class MainFrame extends JFrame
                                         //---- buttonAddUserLibrary ----
                                         buttonAddUserLibrary.setText(context.cfg.gs("Navigator.buttonAddUserLibrary.text"));
                                         buttonAddUserLibrary.setToolTipText(context.cfg.gs("Navigator.buttonAddUserLibrary.toolTipText"));
-                                        buttonAddUserLibrary.setPreferredSize(new Dimension(84, 34));
-                                        buttonAddUserLibrary.setMinimumSize(new Dimension(84, 34));
-                                        buttonAddUserLibrary.setMaximumSize(new Dimension(84, 34));
                                         panelUserOptions.add(buttonAddUserLibrary, new GridBagConstraints(4, 3, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));

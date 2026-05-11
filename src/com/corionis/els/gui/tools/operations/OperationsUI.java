@@ -2370,10 +2370,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 4, 4, 4), 0, 0));
 
                                     //---- textFieldOperationMismatches ----
-                                    textFieldOperationMismatches.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationMismatches.setName("mismatches");
-                                    textFieldOperationMismatches.setMaximumSize(new Dimension(32767, 30));
-                                    textFieldOperationMismatches.setPreferredSize(new Dimension(240, 30));
                                     textFieldOperationMismatches.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -2388,9 +2385,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationMismatchesFilePick ----
                                     buttonOperationMismatchesFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationMismatchesFilePick.setFont(buttonOperationMismatchesFilePick.getFont().deriveFont(buttonOperationMismatchesFilePick.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationMismatchesFilePick.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationMismatchesFilePick.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationMismatchesFilePick.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationMismatchesFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationMismatchesFilePick.setIconTextGap(0);
                                     buttonOperationMismatchesFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -2423,10 +2417,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 4, 4, 4), 0, 0));
 
                                     //---- textFieldOperationWhatsNew ----
-                                    textFieldOperationWhatsNew.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationWhatsNew.setName("whatsNew");
-                                    textFieldOperationWhatsNew.setMaximumSize(new Dimension(32767, 30));
-                                    textFieldOperationWhatsNew.setPreferredSize(new Dimension(240, 30));
                                     textFieldOperationWhatsNew.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -2441,9 +2432,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationWhatsNewFilePick ----
                                     buttonOperationWhatsNewFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationWhatsNewFilePick.setFont(buttonOperationWhatsNewFilePick.getFont().deriveFont(buttonOperationWhatsNewFilePick.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationWhatsNewFilePick.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationWhatsNewFilePick.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationWhatsNewFilePick.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationWhatsNewFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationWhatsNewFilePick.setIconTextGap(0);
                                     buttonOperationWhatsNewFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -2484,10 +2472,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 4, 4, 4), 0, 0));
 
                                     //---- textFieldOperationExportText ----
-                                    textFieldOperationExportText.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationExportText.setName("exportText");
-                                    textFieldOperationExportText.setMaximumSize(new Dimension(32767, 30));
-                                    textFieldOperationExportText.setPreferredSize(new Dimension(240, 30));
                                     textFieldOperationExportText.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -2502,9 +2487,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationExportTextFilePick ----
                                     buttonOperationExportTextFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationExportTextFilePick.setFont(buttonOperationExportTextFilePick.getFont().deriveFont(buttonOperationExportTextFilePick.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationExportTextFilePick.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationExportTextFilePick.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationExportTextFilePick.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationExportTextFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationExportTextFilePick.setIconTextGap(0);
                                     buttonOperationExportTextFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -2545,10 +2527,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 4, 4, 4), 0, 0));
 
                                     //---- textFieldOperationExportItems ----
-                                    textFieldOperationExportItems.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationExportItems.setName("exportItems");
-                                    textFieldOperationExportItems.setMaximumSize(new Dimension(32767, 30));
-                                    textFieldOperationExportItems.setPreferredSize(new Dimension(240, 30));
                                     textFieldOperationExportItems.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -2563,9 +2542,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationExportItemsFilePick ----
                                     buttonOperationExportItemsFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationExportItemsFilePick.setFont(buttonOperationExportItemsFilePick.getFont().deriveFont(buttonOperationExportItemsFilePick.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationExportItemsFilePick.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationExportItemsFilePick.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationExportItemsFilePick.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationExportItemsFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationExportItemsFilePick.setIconTextGap(0);
                                     buttonOperationExportItemsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -2627,7 +2603,6 @@ public class OperationsUI extends AbstractToolDialog
                                         "Hint keys:",
                                         "Hint keys, only:"
                                     }));
-                                    comboBoxOperationHintKeys.setMinimumSize(new Dimension(60, 30));
                                     comboBoxOperationHintKeys.setName("keys");
                                     comboBoxOperationHintKeys.addActionListener(e -> genericAction(e));
                                     panelCardPublisher.add(comboBoxOperationHintKeys, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
@@ -2635,10 +2610,8 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 4, 4, 4), 0, 0));
 
                                     //---- textFieldOperationHintKeys ----
-                                    textFieldOperationHintKeys.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationHintKeys.setName("hintKeys");
-                                    textFieldOperationHintKeys.setMaximumSize(new Dimension(32767, 30));
-                                    textFieldOperationHintKeys.setPreferredSize(new Dimension(240, 30));
+                                    textFieldOperationHintKeys.setPreferredSize(new Dimension(240, 22));
                                     textFieldOperationHintKeys.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -2858,8 +2831,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- passwordFieldOperationsAuthorize ----
                                     passwordFieldOperationsAuthorize.setToolTipText(context.cfg.gs("OperationsUI.passwordFieldOperationsAuthorize.toolTipText"));
                                     passwordFieldOperationsAuthorize.setName("authpassword");
-                                    passwordFieldOperationsAuthorize.setPreferredSize(new Dimension(240, 30));
-                                    passwordFieldOperationsAuthorize.setMinimumSize(new Dimension(240, 30));
                                     passwordFieldOperationsAuthorize.addActionListener(e -> genericAction(e));
                                     passwordFieldOperationsAuthorize.addFocusListener(new FocusAdapter() {
                                         @Override
@@ -2960,8 +2931,6 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 4, 4, 4), 0, 0));
 
                                     //---- textFieldOperationAuthKeys ----
-                                    textFieldOperationAuthKeys.setPreferredSize(new Dimension(240, 30));
-                                    textFieldOperationAuthKeys.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationAuthKeys.setName("authkeys");
                                     textFieldOperationAuthKeys.addFocusListener(new FocusAdapter() {
                                         @Override
@@ -2977,9 +2946,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationAuthKeysFilePick ----
                                     buttonOperationAuthKeysFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationAuthKeysFilePick.setFont(buttonOperationAuthKeysFilePick.getFont().deriveFont(buttonOperationAuthKeysFilePick.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationAuthKeysFilePick.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationAuthKeysFilePick.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationAuthKeysFilePick.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationAuthKeysFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationAuthKeysFilePick.setIconTextGap(0);
                                     buttonOperationAuthKeysFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -3006,8 +2972,6 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 4, 4, 4), 0, 0));
 
                                     //---- textFieldOperationBlacklist ----
-                                    textFieldOperationBlacklist.setPreferredSize(new Dimension(240, 30));
-                                    textFieldOperationBlacklist.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationBlacklist.setName("blacklist");
                                     textFieldOperationBlacklist.addFocusListener(new FocusAdapter() {
                                         @Override
@@ -3023,9 +2987,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationBlacklistFilePick ----
                                     buttonOperationBlacklistFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationBlacklistFilePick.setFont(buttonOperationBlacklistFilePick.getFont().deriveFont(buttonOperationBlacklistFilePick.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationBlacklistFilePick.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationBlacklistFilePick.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationBlacklistFilePick.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationBlacklistFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationBlacklistFilePick.setIconTextGap(0);
                                     buttonOperationBlacklistFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -3052,8 +3013,6 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 4, 4, 4), 0, 0));
 
                                     //---- textFieldOperationIpWhitelist ----
-                                    textFieldOperationIpWhitelist.setPreferredSize(new Dimension(240, 30));
-                                    textFieldOperationIpWhitelist.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationIpWhitelist.setName("ipwhitelist");
                                     textFieldOperationIpWhitelist.addFocusListener(new FocusAdapter() {
                                         @Override
@@ -3069,9 +3028,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationIpWhitelistFilePick ----
                                     buttonOperationIpWhitelistFilePick.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationIpWhitelistFilePick.setFont(buttonOperationIpWhitelistFilePick.getFont().deriveFont(buttonOperationIpWhitelistFilePick.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationIpWhitelistFilePick.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationIpWhitelistFilePick.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationIpWhitelistFilePick.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationIpWhitelistFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationIpWhitelistFilePick.setIconTextGap(0);
                                     buttonOperationIpWhitelistFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -3121,9 +3077,8 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 4, 4, 4), 0, 0));
 
                                     //---- textFieldOperationHintKeys2 ----
-                                    textFieldOperationHintKeys2.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationHintKeys2.setName("hintKeys2");
-                                    textFieldOperationHintKeys2.setPreferredSize(new Dimension(240, 30));
+                                    textFieldOperationHintKeys2.setPreferredSize(new Dimension(240, 22));
                                     textFieldOperationHintKeys2.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -3138,9 +3093,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationHintKeysFilePick2 ----
                                     buttonOperationHintKeysFilePick2.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationHintKeysFilePick2.setFont(buttonOperationHintKeysFilePick2.getFont().deriveFont(buttonOperationHintKeysFilePick2.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationHintKeysFilePick2.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationHintKeysFilePick2.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationHintKeysFilePick2.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationHintKeysFilePick2.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationHintKeysFilePick2.setIconTextGap(0);
                                     buttonOperationHintKeysFilePick2.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -3252,10 +3204,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- textFieldOperationHintKeys3 ----
-                                    textFieldOperationHintKeys3.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationHintKeys3.setName("hintKeys3");
-                                    textFieldOperationHintKeys3.setMaximumSize(new Dimension(240, 30));
-                                    textFieldOperationHintKeys3.setPreferredSize(new Dimension(240, 30));
                                     textFieldOperationHintKeys3.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -3270,9 +3219,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationHintKeysFilePick3 ----
                                     buttonOperationHintKeysFilePick3.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationHintKeysFilePick3.setFont(buttonOperationHintKeysFilePick3.getFont().deriveFont(buttonOperationHintKeysFilePick3.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationHintKeysFilePick3.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationHintKeysFilePick3.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationHintKeysFilePick3.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationHintKeysFilePick3.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationHintKeysFilePick3.setIconTextGap(0);
                                     buttonOperationHintKeysFilePick3.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -3299,10 +3245,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- textFieldOperationAuthKeys3 ----
-                                    textFieldOperationAuthKeys3.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationAuthKeys3.setName("authkeys3");
-                                    textFieldOperationAuthKeys3.setMaximumSize(new Dimension(240, 30));
-                                    textFieldOperationAuthKeys3.setPreferredSize(new Dimension(240, 30));
                                     textFieldOperationAuthKeys3.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -3317,9 +3260,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationAuthKeysFilePick3 ----
                                     buttonOperationAuthKeysFilePick3.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationAuthKeysFilePick3.setFont(buttonOperationAuthKeysFilePick3.getFont().deriveFont(buttonOperationAuthKeysFilePick3.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationAuthKeysFilePick3.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationAuthKeysFilePick3.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationAuthKeysFilePick3.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationAuthKeysFilePick3.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationAuthKeysFilePick3.setIconTextGap(0);
                                     buttonOperationAuthKeysFilePick3.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -3376,10 +3316,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- textFieldOperationBlacklist3 ----
-                                    textFieldOperationBlacklist3.setPreferredSize(new Dimension(240, 30));
-                                    textFieldOperationBlacklist3.setMinimumSize(new Dimension(240, 30));
                                     textFieldOperationBlacklist3.setName("blacklist3");
-                                    textFieldOperationBlacklist3.setMaximumSize(new Dimension(240, 30));
                                     textFieldOperationBlacklist3.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -3394,9 +3331,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationBlacklistFilePick3 ----
                                     buttonOperationBlacklistFilePick3.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationBlacklistFilePick3.setFont(buttonOperationBlacklistFilePick3.getFont().deriveFont(buttonOperationBlacklistFilePick3.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationBlacklistFilePick3.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationBlacklistFilePick3.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationBlacklistFilePick3.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationBlacklistFilePick3.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationBlacklistFilePick3.setIconTextGap(0);
                                     buttonOperationBlacklistFilePick3.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -3423,10 +3357,8 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 0, 4), 0, 0));
 
                                     //---- textFieldOperationIpWhitelist3 ----
-                                    textFieldOperationIpWhitelist3.setPreferredSize(new Dimension(240, 30));
-                                    textFieldOperationIpWhitelist3.setMinimumSize(new Dimension(240, 30));
+                                    textFieldOperationIpWhitelist3.setPreferredSize(new Dimension(240, 22));
                                     textFieldOperationIpWhitelist3.setName("ipwhitelist3");
-                                    textFieldOperationIpWhitelist3.setMaximumSize(new Dimension(240, 30));
                                     textFieldOperationIpWhitelist3.addFocusListener(new FocusAdapter() {
                                         @Override
                                         public void focusLost(FocusEvent e) {
@@ -3441,9 +3373,6 @@ public class OperationsUI extends AbstractToolDialog
                                     //---- buttonOperationIpWhitelistFilePick3 ----
                                     buttonOperationIpWhitelistFilePick3.setText(context.cfg.gs("Z.ellipsis"));
                                     buttonOperationIpWhitelistFilePick3.setFont(buttonOperationIpWhitelistFilePick3.getFont().deriveFont(buttonOperationIpWhitelistFilePick3.getFont().getStyle() | Font.BOLD));
-                                    buttonOperationIpWhitelistFilePick3.setMaximumSize(new Dimension(32, 24));
-                                    buttonOperationIpWhitelistFilePick3.setMinimumSize(new Dimension(32, 24));
-                                    buttonOperationIpWhitelistFilePick3.setPreferredSize(new Dimension(32, 24));
                                     buttonOperationIpWhitelistFilePick3.setVerticalTextPosition(SwingConstants.TOP);
                                     buttonOperationIpWhitelistFilePick3.setIconTextGap(0);
                                     buttonOperationIpWhitelistFilePick3.setHorizontalTextPosition(SwingConstants.LEADING);

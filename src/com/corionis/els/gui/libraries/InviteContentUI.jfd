@@ -39,7 +39,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JCheckBox" ) {
 							name: "checkBoxPublisher"
-							"toolTipText": new FormMessage( null, "InviteContentUI.checkBoxPublisher.toolTipText" )
+							"toolTipText": "This system"
 							auxiliary() {
 								"JavaCodeGenerator.variableModifiers": 1
 							}
@@ -51,7 +51,6 @@ new FormModel {
 							"editable": false
 							"preferredSize": new java.awt.Dimension( 240, 34 )
 							"minimumSize": new java.awt.Dimension( 240, 34 )
-							"toolTipText": new FormMessage( null, "InviteContentUI.checkBoxPublisher.toolTipText" )
 							auxiliary() {
 								"JavaCodeGenerator.variableModifiers": 1
 							}
@@ -92,7 +91,6 @@ new FormModel {
 							"editable": false
 							"preferredSize": new java.awt.Dimension( 240, 34 )
 							"minimumSize": new java.awt.Dimension( 240, 34 )
-							"toolTipText": new FormMessage( null, "InviteContentUI.checkBoxSubscriber.toolTipText" )
 							auxiliary() {
 								"JavaCodeGenerator.variableModifiers": 1
 							}
