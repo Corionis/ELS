@@ -1060,6 +1060,8 @@ public class Repository implements Comparable
         {
             for (Path entry : directoryStream)
             {
+                if (entry.endsWith(".DS_Store"))
+                    continue;
                 ++count;
                 item = new Item();
                 fullPath = entry.toString();                            // full path

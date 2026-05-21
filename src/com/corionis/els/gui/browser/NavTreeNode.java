@@ -614,7 +614,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
             String msg = context.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") +
                     context.subscriberRepo.getLibraryData().libraries.description + ", " + path;
             logger.error(msg);
-            context.fault = true;
+            //context.fault = true;
             JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
         return nodeArray;

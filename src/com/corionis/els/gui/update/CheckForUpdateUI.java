@@ -96,7 +96,6 @@ public class CheckForUpdateUI extends JDialog
 
         //======== this ========
         setTitle(bundle.getString("CheckForUpdateUI.this.title"));
-        setPreferredSize(new Dimension(400, 210));
         setResizable(false);
         setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
         setAlwaysOnTop(true);
@@ -112,6 +111,7 @@ public class CheckForUpdateUI extends JDialog
         //======== dialogPane ========
         {
             dialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
+            dialogPane.setPreferredSize(new Dimension(400, 190));
             dialogPane.setLayout(new BorderLayout());
 
             //======== contentPanel ========

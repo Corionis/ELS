@@ -111,7 +111,7 @@ public class Jobs
             for (Path entry : directoryStream)
             {
                 boolean isDir = Files.isDirectory(entry);
-                if (!isDir)
+                if (!isDir && !entry.endsWith(".DS_Store"))
                 {
                     String json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                     if (json != null)

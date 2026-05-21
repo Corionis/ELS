@@ -189,7 +189,7 @@ public class Job extends AbstractTool
             for (Path entry : directoryStream)
             {
                 boolean isDir = Files.isDirectory(entry);
-                if (!isDir)
+                if (!isDir && !entry.endsWith(".DS_Store"))
                 {
                     json = new String(Files.readAllBytes(Paths.get(entry.toString())));
                     if (json != null && json.length() > 0)

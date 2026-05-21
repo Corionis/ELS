@@ -397,6 +397,9 @@ public class ArchiverTool extends AbstractTool
                 if (isRequestStop())
                     break;
 
+                if (entry.endsWith(".DS_Store"))
+                    continue;
+
                 String filename = entry.toAbsolutePath().toString();
                 boolean isDir = Files.isDirectory(entry);
                 if (isDir)

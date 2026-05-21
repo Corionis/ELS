@@ -9,7 +9,6 @@ new FormModel {
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
 			"title": new FormMessage( null, "CheckForUpdateUI.this.title" )
-			"preferredSize": new java.awt.Dimension( 400, 210 )
 			"resizable": false
 			"modalityType": enum java.awt.Dialog$ModalityType DOCUMENT_MODAL
 			"alwaysOnTop": true
@@ -17,6 +16,7 @@ new FormModel {
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				"preferredSize": new java.awt.Dimension( 400, 190 )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 					"$columnSpecs": "0, 0, 0"
 					"$rowSpecs": "0, 0, 0, 0, 0, 0"

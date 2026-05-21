@@ -223,7 +223,7 @@ public class Repositories
                 for (Path entry : directoryStream)
                 {
                     boolean isDir = Files.isDirectory(entry);
-                    if (!isDir)
+                    if (!isDir && !entry.endsWith(".DS_Store"))
                     {
                         Repository repo = new Repository(context, -1);
                         if (repo.read(entry.toAbsolutePath().toString(), type, false))
@@ -270,7 +270,7 @@ public class Repositories
             for (Path entry : directoryStream)
             {
                 boolean isDir = Files.isDirectory(entry);
-                if (!isDir)
+                if (!isDir && !entry.endsWith(".DS_Store"))
                 {
                     addRepo(context, entry.toString());
                 }
