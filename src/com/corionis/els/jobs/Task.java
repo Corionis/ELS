@@ -404,6 +404,8 @@ public class Task implements Comparable, Serializable
             else
             {
                 localContext.publisherRepo = getRepo(getPublisherKey(), getPublisherPath(), Repository.PUBLISHER);
+                if (localContext.publisherRepo == null && localContext.preferences.isUsersEnabled())
+                    localContext.publisherRepo = context.publisherRepo;
                 if (localContext.publisherRepo != null)
                     publisherPath = localContext.publisherRepo.getJsonFilename();
                 else if (getPublisherKey().equals(Task.ANY_SERVER))
@@ -466,7 +468,7 @@ public class Task implements Comparable, Serializable
 
     public void setContext(Context context)
     {
-        this.localContext = context;
+        this.localContext = (Context)context.clone();
     }
 
     public void setDryRun(boolean sense)

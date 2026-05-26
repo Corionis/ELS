@@ -260,11 +260,8 @@ public class JunkRemoverTool extends AbstractTool
         reset();
         isDryRun = task.dryRun;
 
-        if (task.localContext.publisherRepo != null && task.localContext.subscriberRepo != null)
-            throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("JunkRemover.uses.only.one.repository"), getInternalName()));
-
         // this tool only uses one repository
-        repo = (task.localContext.publisherRepo != null) ? task.localContext.publisherRepo : task.localContext.subscriberRepo;
+        repo = (task.localContext.publisherRepo != null && task.localContext.subscriberRepo == null) ? task.localContext.publisherRepo : task.localContext.subscriberRepo;
         if (repo == null)
         {
             logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer.has.no.repository.defined"), getConfigName()));
