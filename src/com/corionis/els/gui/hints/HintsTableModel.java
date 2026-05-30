@@ -220,7 +220,7 @@ public class HintsTableModel extends DefaultTableModel
                     if ((column - 9) < context.hintKeys.get().size())
                         hs = hint.findStatus(context.hintKeys.get().get(column - 9).system);
                     String stat = (hs != null) ? hs.status.trim().toLowerCase() : "for";
-                    if (stat.equals("done"))
+                    if (stat.equals("done") || stat.equals("false"))
                         object = iconGreen;
                     else if (stat.equals("fault"))
                         object = iconYellow;

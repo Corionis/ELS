@@ -607,7 +607,7 @@ public class JobsUI extends AbstractToolDialog
                         !((OperationsTool) currentTool).getCard().equals(OperationsTool.Cards.Terminal)))
                     {
                         combo.addItem(new ComboItem(id++, context.cfg.gs("JobsUI.any.subscriber"), ANY_SUBSCRIBER));
-                        if (currentTask.getSubscriberKey().equals(Task.ANY_SERVER))
+                        if (command.equals("buttonSub")) //currentTask.getSubscriberKey().equals(Task.ANY_SERVER))
                         {
                             selectedCombo = id - 1;
                             anySelected = true;
@@ -632,9 +632,9 @@ public class JobsUI extends AbstractToolDialog
                 text = context.cfg.gs("JobsUI.subscriber.remote.custom");
                 combo.addItem(new ComboItem(id++, text, REMOTE_CUSTOM));
 
-                if (currentTask.getSubscriberKey().length() > 0 &&
+                if (command.equals("buttonSub") && currentTask.getSubscriberKey().length() > 0 &&
                         !currentTask.getSubscriberKey().equals(Task.ANY_SERVER) &&
-                        !currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK)) // check publisher key used to indicate last task
+                        !currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK)) // check publisher key used to indicate cached last task
                 {
                     selectedCombo = id - 4;
                     RepoMeta repoMeta = repositories.findMetaPath(currentTask.subscriberPath);
@@ -781,7 +781,7 @@ public class JobsUI extends AbstractToolDialog
                     }
                 });
 
-                if (command.equals("buttonSub"))
+                if (command.equals("buttonSub") || currentTool.isToolPubOrSub())
                 {
                     // set initial custom state
                     ComboItem item = (ComboItem) combo.getItemAt(selectedCombo);
@@ -888,8 +888,7 @@ public class JobsUI extends AbstractToolDialog
                                 configModel.fireTableRowsUpdated(configIndex, configIndex);
                             }
                             else if ((currentTask.getSubscriberOverride().isEmpty() ||
-                                    currentTask.getSubscriberOverride().trim().equals("true") ||
-                                    !currentTask.getSubscriberOverride().trim().equals(customAddress.getText())) && item.type == REMOTE_CUSTOM)
+                                    currentTask.getSubscriberOverride().trim().equals("true")) && item.type == REMOTE_CUSTOM)
                             {
                                 // validate the custom hostname:port
                                 boolean bad = false;
@@ -920,18 +919,21 @@ public class JobsUI extends AbstractToolDialog
                         }
                         else // anything else is not remote
                         {
-                            if (currentTask.isSubscriberRemote())
+                            if (command.equals("buttonsub"))
                             {
-                                currentTask.setSubscriberRemote(false);
-                                currentJob.setDataHasChanged();
-                                configModel.fireTableRowsUpdated(configIndex, configIndex);
-                            }
+                                if (currentTask.isSubscriberRemote())
+                                {
+                                    currentTask.setSubscriberRemote(false);
+                                    currentJob.setDataHasChanged();
+                                    configModel.fireTableRowsUpdated(configIndex, configIndex);
+                                }
 
-                            if (!currentTask.getSubscriberOverride().isEmpty())
-                            {
-                                currentTask.setSubscriberOverride("");
-                                currentJob.setDataHasChanged();
-                                configModel.fireTableRowsUpdated(configIndex, configIndex);
+                                if (!currentTask.getSubscriberOverride().isEmpty())
+                                {
+                                    currentTask.setSubscriberOverride("");
+                                    currentJob.setDataHasChanged();
+                                    configModel.fireTableRowsUpdated(configIndex, configIndex);
+                                }
                             }
                         }
                     }
@@ -1034,7 +1036,7 @@ public class JobsUI extends AbstractToolDialog
                                 }
                             }
                             else if (item.type == ANY_SUBSCRIBER || item.type == LOCAL ||
-                                    item.type == REMOTE_HOST || item.type == REMOTE_LISTEN) // a subscriber selection
+                                    item.type == REMOTE_HOST || item.type == REMOTE_LISTEN || item.type == REMOTE_CUSTOM) // a subscriber selection
                             {
                                 if (doesNotMatch(currentTask.getSubscriberKey(), key) || !currentTask.getSubscriberPath().equals(path))
                                 {
@@ -1043,8 +1045,6 @@ public class JobsUI extends AbstractToolDialog
                                         currentTask.setSubscriberPath("");
                                     else
                                         currentTask.setSubscriberPath(path);
-                                    currentTask.setPublisherKey("");
-                                    currentTask.setPublisherPath("");
                                     currentJob.setDataHasChanged();
                                     configModel.fireTableRowsUpdated(configIndex, configIndex);
                                 }
