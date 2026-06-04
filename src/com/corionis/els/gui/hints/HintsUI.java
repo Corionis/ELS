@@ -4,10 +4,7 @@ import com.corionis.els.Context;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.NavHelp;
 import com.corionis.els.gui.browser.BrowserTableCellRenderer;
-import com.corionis.els.hints.Hint;
-import com.corionis.els.hints.HintKey;
-import com.corionis.els.hints.HintStatus;
-import com.corionis.els.hints.Hints;
+import com.corionis.els.hints.*;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -59,6 +56,12 @@ public class HintsUI extends JDialog
                 context.hintsHandler = new Hints(context, null);
 
             hints = context.hintsHandler.getAll();
+
+            if (!context.cfg.getHintKeysFile().isEmpty())
+            {
+                context.hintKeys = new HintKeys(context);
+                context.hintKeys.read(context.cfg.getHintKeysFile());
+            }
         }
         catch (Exception e)
         {
@@ -656,7 +659,6 @@ public class HintsUI extends JDialog
         context.navigator.enableDisableSystemMenus(null, true);
         cancelButton.doClick();
     }
-
 
     // ================================================================================================================
 

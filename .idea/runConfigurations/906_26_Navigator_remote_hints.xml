@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="906-26_Navigator-remote-hints" type="Application" factoryName="Application" folderName="906-00 Windows">
+    <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
+    <module name="ELS" />
+    <option name="PROGRAM_PARAMETERS" value="-C . --navigator -c debug -d debug -J --hint-server &quot;libraries/Hint Server.json&quot; -k system/hint.keys --remote P -P &quot;libraries/Windows 10.json&quot; -O -s &quot;libraries/Subscriber One.json&quot; -F output/906-26_Navigator-remote-hints.log -M els.backup@monkeyboy.com" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml -Dsun.awt.disablegrab=true" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
+    <method v="2">
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/els.xml" target="stamp" />
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

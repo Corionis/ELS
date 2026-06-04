@@ -1,12 +1,10 @@
 package com.corionis.els.jobs;
 
-import com.corionis.els.Context;
-import com.corionis.els.MungeException;
-import com.corionis.els.Persistent;
-import com.corionis.els.Utils;
+import com.corionis.els.*;
 import com.corionis.els.repository.RepoMeta;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;
+import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.operations.OperationsTool;
 import org.apache.logging.log4j.LogManager;
@@ -170,6 +168,7 @@ public class Task implements Comparable, Serializable
 
     private Repository getRepo(String key, String path, int purpose) throws Exception
     {
+        String directory = "";
         Repository repo = null;
 
         if (key != null && key.length() > 0)
@@ -195,6 +194,7 @@ public class Task implements Comparable, Serializable
             else
             {
                 // is already-loaded
+/*
                 if (purpose == Repository.PUBLISHER && localContext.publisherRepo != null && localContext.publisherRepo.getLibraryData().libraries.key.equals(key))
                     repo = localContext.publisherRepo;
                 else if (purpose == Repository.SUBSCRIBER && localContext.subscriberRepo != null && localContext.subscriberRepo.getLibraryData().libraries.key.equals(key))
@@ -202,6 +202,7 @@ public class Task implements Comparable, Serializable
                 else if (purpose == Repository.HINT_SERVER && localContext.hintsRepo != null && localContext.hintsRepo.getLibraryData().libraries.key.equals(key))
                     repo = localContext.hintsRepo;
                 else
+*/
                 {
                     // load it; other parameters come from Job
                     Repositories repositories = new Repositories();
@@ -249,20 +250,53 @@ public class Task implements Comparable, Serializable
                     localContext.cfg.setSubscriberLibrariesFileName(repo.getJsonFilename());
                     localContext.subscriberRepo = repo;
 
-                    // Subscriber Listener does not need a Publisher if Authentication keys are defined
-                    if (!(localContext.publisherRepo == null &&
-                            currentTool.getInternalName().equalsIgnoreCase("Operations") &&
-                            ((OperationsTool)currentTool).getOperation() == OperationsTool.Operations.SubscriberListener &&
-                            ((OperationsTool)currentTool).getOptAuthKeys() != null && !((OperationsTool)currentTool).getOptAuthKeys().isEmpty()))
+                    // non-Operations task
+                    if (isSubscriberRemote() && !currentTool.getInternalName().equalsIgnoreCase("Operations"))
                     {
-                        // otherwise login the Publisher to the Subscriber
-                        if (localContext.preferences.isUsersEnabled())
+                        // start the serveStty client for automation
+                        if (localContext.main.connectSubscriber(localContext, false, localContext.cfg.isGui()))
                         {
-                            if (localContext.publisherRepo == null)
-                                throw new MungeException(localContext.cfg.gs("Z.publisher.login.missing"));
-                            if ((localContext.subscriberUser = repo.login(localContext.publisherRepo.getLibraries().key, false)) == null)
+                            try
+                            {
+                                Thread.sleep(2000);
+                            }
+                            catch (InterruptedException e)
+                            {
+                            }
+
+                            if ((localContext.subscriberUser = localContext.subscriberRepo.login(localContext.publisherRepo.getLibraries().key, true)) == null)
+                            {
+                                localContext.clientStty.disconnect();
                                 throw new MungeException(MessageFormat.format(localContext.cfg.gs("Z.login.failed.from.to"), localContext.publisherUser.getName(),
-                                        localContext.publisherRepo.getLibraries().description, repo.getLibraries().description));
+                                        localContext.publisherRepo.getLibraries().description, localContext.subscriberRepo.getLibraries().description));
+                            }
+
+                            // start the serveSftp transfer client
+                            localContext.clientSftp = new ClientSftp(localContext, localContext.publisherRepo, localContext.subscriberRepo, true);
+                            if (!localContext.clientSftp.startClient("transfer"))
+                            {
+                                throw new MungeException(MessageFormat.format(localContext.cfg.gs("Main.subscriber.sftp.transfer.to.failed.to.connect"),
+                                        localContext.subscriberRepo.getLibraries().description));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Subscriber Listener does not need a Publisher if Authentication keys are defined
+                        /* if (!(localContext.publisherRepo == null && */
+                        if ((currentTool.getInternalName().equalsIgnoreCase("Operations") &&
+                                ((OperationsTool) currentTool).getOperation() == OperationsTool.Operations.SubscriberListener &&
+                                ((OperationsTool) currentTool).getOptAuthKeys() != null && !((OperationsTool) currentTool).getOptAuthKeys().isEmpty()))
+                        {
+                            // otherwise login the Publisher to the Subscriber
+                            if (localContext.preferences.isUsersEnabled())
+                            {
+                                if (localContext.publisherRepo == null)
+                                    throw new MungeException(localContext.cfg.gs("Z.publisher.login.missing"));
+                                if ((localContext.subscriberUser = repo.login(localContext.publisherRepo.getLibraries().key, false)) == null)
+                                    throw new MungeException(MessageFormat.format(localContext.cfg.gs("Z.login.failed.from.to"), localContext.publisherUser.getName(),
+                                            localContext.publisherRepo.getLibraries().description, repo.getLibraries().description));
+                            }
                         }
                     }
                     break;
@@ -352,6 +386,15 @@ public class Task implements Comparable, Serializable
 
         currentTool.setContext(localContext);
 
+// LEFTOFF : Issues ...
+//  1. Renamer is hitting the same file twice
+//  2. Renamer is not using previous repo - with the disconnect & reconnect logic
+//  3. Jobs pub/sub does not allow changing the Subscriber connection
+//  4. Tasks are using Navigator context including Hints that might not be configured for the task
+//  5. Changes to currently-loaded Subscriber should offer a reload
+//  !!!
+//  !!! Renamer Job - No write access to local Subscriber
+
         if (currentTool != null)
         {
             if ((origins == null || origins.size() == 0) && !useCachedLastTask(localContext) && currentTool.isToolOriginsUsed())
@@ -376,6 +419,7 @@ public class Task implements Comparable, Serializable
                     publisherPath = previousTask.publisherPath;
                     localContext.publisherRepo = previousTask.localContext.publisherRepo;
                     localContext.publisherUser = previousTask.localContext.publisherUser;
+                    localContext.publisherUser.setContext(localContext);
                 }
                 else
                     publisherPath = "";
@@ -387,9 +431,13 @@ public class Task implements Comparable, Serializable
                     subscriberPath = previousTask.subscriberPath;
                     localContext.subscriberRepo = previousTask.localContext.subscriberRepo;
                     localContext.subscriberUser = previousTask.localContext.subscriberUser;
+                    localContext.subscriberUser.setContext(localContext);
+
                     setSubscriberKey(previousTask.getSubscriberKey());
                     setSubscriberOverride(previousTask.subscriberOverride);
                     setSubscriberRemote(previousTask.subscriberRemote);
+                    if (subscriberRemote)
+                        localContext.subscriberRepo = getRepo(getSubscriberKey(), getSubscriberPath(), Repository.SUBSCRIBER);
                 }
                 else
                     subscriberPath = "";
@@ -405,25 +453,48 @@ public class Task implements Comparable, Serializable
             {
                 localContext.publisherRepo = getRepo(getPublisherKey(), getPublisherPath(), Repository.PUBLISHER);
                 if (localContext.publisherRepo == null && localContext.preferences.isUsersEnabled())
+                {
                     localContext.publisherRepo = context.publisherRepo;
+                    localContext.publisherUser = context.publisherUser;
+                }
                 if (localContext.publisherRepo != null)
+                {
                     publisherPath = localContext.publisherRepo.getJsonFilename();
+                    localContext.publisherUser = localContext.publisherRepo.getUser();
+                    localContext.publisherUser.setContext(localContext);
+                }
                 else if (getPublisherKey().equals(Task.ANY_SERVER))
                     throw new MungeException("\"Any Server\" defined for Publisher but none specified");
 
+                localContext.cfg.setOverrideSubscriberHost(getSubscriberOverride());
                 localContext.subscriberRepo = getRepo(getSubscriberKey(), getSubscriberPath(), Repository.SUBSCRIBER);
                 if (localContext.subscriberRepo != null)
+                {
                     subscriberPath = localContext.subscriberRepo.getJsonFilename();
+                    localContext.subscriberUser = localContext.subscriberRepo.getUser();
+                    localContext.subscriberUser.setContext(localContext);
+                }
                 else if (getSubscriberKey().equals(Task.ANY_SERVER))
                     throw new MungeException("\"Any Server\" defined for Subscriber but none specified");
 
                 remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && localContext.cfg.isRemoteOperation())) ? "P" : "-";
 
-                hintsRepo = getRepo(getHintsKey(), getHintsPath(), Repository.HINT_SERVER);
-                if (hintsRepo != null)
-                    hintsPath = hintsRepo.getJsonFilename();
-                else if (getHintsKey().equals(Task.ANY_SERVER))
-                    throw new MungeException("\"Any Server\" defined for Hint Status Server but none specified");
+                if (getHintsKey() != null && !getHintsKey().isEmpty())
+                {
+                    localContext.cfg.setOverrideHintsHost(isHintsOverrideHost());
+                    hintsRepo = getRepo(getHintsKey(), getHintsPath(), Repository.HINT_SERVER);
+                    if (hintsRepo != null)
+                        hintsPath = hintsRepo.getJsonFilename();
+                    else if (getHintsKey().equals(Task.ANY_SERVER))
+                        throw new MungeException("\"Any Server\" defined for Hint Status Server but none specified");
+                }
+                else
+                {
+                    localContext.cfg.setOverrideHintsHost(false);
+                    hintsRepo = null;
+                    setHintsPath("");
+                    localContext.hintsRepo = null;
+                }
             }
 
             if (localContext.publisherRepo != null)
@@ -438,9 +509,28 @@ public class Task implements Comparable, Serializable
             }
 
             localContext.cfg.setOperation(remoteType);
+            localContext.transfer = new Transfer(localContext);
+            localContext.transfer.initialize();
+
+            // set subscriber working directory
+            String directory;
+            if (isSubscriberRemote())
+                directory = localContext.clientStty.getWorkingDirectoryRemote();
+            else
+                directory = localContext.cfg.getWorkingDirectory();
+            localContext.cfg.setWorkingDirectorySubscriber(directory);
 
             // run it
             currentTool.processTool(this);
+
+// LEFTOFF What about Hint Server??
+            // disconnect
+            if (isSubscriberRemote())
+            {
+                localContext.clientStty.send("bye", "Sending bye command to remote subscriber");
+                localContext.clientStty.disconnect();
+                localContext.clientSftp.stopClient();
+            }
 
             if (currentTool.isRequestStop())
                 return false;

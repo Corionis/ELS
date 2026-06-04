@@ -4,6 +4,7 @@ import com.corionis.els.Context;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 
+import javax.swing.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -145,6 +146,23 @@ public class User
     {
         if (!context.preferences.isUsersEnabled() || name.isEmpty() || forSystem == null || forSystem.isEmpty())
             return true;
+
+        // System tabs - if available
+        Object object = context.browser.lastComponent;
+        if (object instanceof JTree)
+        {
+            JTree sourceTree = (JTree) object;
+            name = sourceTree.getName();
+        }
+        else if (object instanceof JTable)
+        {
+            JTable sourceTable = (JTable) object;
+            name = sourceTable.getName();
+        }
+        if (name.toLowerCase().contains("system"))
+            return true;
+
+        // Collections tabs
         boolean may = false;
         Grant grant = findGrant(forSystem, libraryName);
         if (grant != null && grant.write)

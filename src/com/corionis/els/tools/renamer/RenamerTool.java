@@ -415,11 +415,10 @@ public class RenamerTool extends AbstractTool
         reset();
         isDryRun = task.dryRun;
 
-        // use Subscriber if defined; Publisher required for login if Users enabled
-        repo = (task.subscriberKey != null && !task.subscriberKey.isEmpty()) ? task.localContext.subscriberRepo : task.localContext.publisherRepo;
+        // this tool only uses one repository
+        repo = (task.localContext.publisherRepo != null && task.localContext.subscriberRepo == null) ? task.localContext.publisherRepo : task.localContext.subscriberRepo;
         if (repo == null)
         {
-            context.fault = true;
             logger.error(java.text.MessageFormat.format(context.cfg.gs("Renamer.has.no.repository.defined"), getConfigName()));
             return;
         }
@@ -428,11 +427,11 @@ public class RenamerTool extends AbstractTool
 
         if (task.previousTask != null)
         {
-            task.origins = task.previousTask.getOrigins(); //.getTool().getUpdatedOrigins();
+            task.origins = task.previousTask.getOrigins();
         }
 
         // only subscribers can be remote
-        if (task.localContext.subscriberRepo != null && getCfg().isRemoteSubscriber())
+        if (task.localContext.subscriberRepo != null && getCfg().isRemoteOperation()) //isRemoteSubscriber())
             setRemote(true);
 
         for (int i = 0; i < task.origins.size(); ++i)
@@ -546,7 +545,7 @@ public class RenamerTool extends AbstractTool
             if (isRemote())
             {
                 Vector listing;
-                path = context.cfg.getFullPathSubscriber(path);
+                path = context.cfg.getFullPathSubscriber(context, path);
                 SftpATTRS attrs = context.clientSftp.stat(path);
                 if (attrs.isDir())
                 {

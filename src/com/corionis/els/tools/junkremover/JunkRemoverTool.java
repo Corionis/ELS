@@ -324,7 +324,7 @@ public class JunkRemoverTool extends AbstractTool
         {
             try
             {
-                path = context.cfg.getFullPathSubscriber(path);
+                path = context.cfg.getFullPathSubscriber(context, path);
                 Vector listing = getContext().clientSftp.listDirectory(path);
                 for (int i = 0; i < listing.size(); ++i)
                 {

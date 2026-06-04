@@ -593,10 +593,13 @@ public class Main
     /**
      * Connect to remote Subscriber
      *
+     * @param context The current context
+     * @param isTerminal If this is a manual terminal operation
+     * @param promptOnFailure Whether to prompt on connection failure
      * @return true if successful, otherwise false
      * @throws Exception Configuration and connection exceptions
      */
-    public boolean connectSubscriber(boolean isTerminal, boolean promptOnFailure) throws Exception
+    public boolean connectSubscriber(Context context, boolean isTerminal, boolean promptOnFailure) throws Exception
     {
         try
         {
@@ -1185,7 +1188,7 @@ public class Main
                         connectHints(context.publisherRepo);
 
                         // start the serveStty client interactively
-                        if (connectSubscriber(true, false))
+                        if (connectSubscriber(context, true, false))
                         {
                             String directory = context.clientStty.getWorkingDirectoryRemote();
                             context.cfg.setWorkingDirectorySubscriber(directory);
@@ -1232,7 +1235,7 @@ public class Main
                         connectHints(context.publisherRepo);
 
                         // start the serveStty client for automation
-                        if (connectSubscriber(false, context.cfg.isGui()))
+                        if (connectSubscriber(context, false, context.cfg.isGui()))
                         {
                             if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, true)) == null)
                             {
@@ -1444,7 +1447,7 @@ public class Main
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // start the serveStty client
-                        if (connectSubscriber(false, false))
+                        if (connectSubscriber(context, false, false))
                         {
                             if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, true)) == null)
                             {
@@ -1537,8 +1540,8 @@ public class Main
                         // setup the hint status server if defined
                         connectHints(context.publisherRepo);
 
-                        context.transfer = new Transfer(context);
-                        context.transfer.initialize();
+//                        context.transfer = new Transfer(context);
+//                        context.transfer.initialize();
 
                         // run the Job
                         whatsRunning += ", " + job.getConfigName();

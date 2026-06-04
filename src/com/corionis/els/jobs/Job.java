@@ -319,8 +319,7 @@ public class Job extends AbstractTool
                     if (!currentTask.process(context))
                         requestStop();
 
-//                    if (currentTask.isToolCachedOrigins(context))
-                        previousTask = currentTask;
+                    previousTask = currentTask;
                 }
 
                 if (context.fault)
@@ -333,7 +332,7 @@ public class Job extends AbstractTool
                 context.mainFrame.labelStatusMiddle.setText(null);
             }
 
-            // invalid outside of a Job
+            // invalid outside a Job
             Persistent.lastPublisherRepo = null;
             Persistent.lastSubscriberRepo = null;
         }

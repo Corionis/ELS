@@ -210,7 +210,6 @@ public class Configuration
         clone.logFileName = logFileName;
         clone.logFilePath = logFilePath;
         clone.loggerView = loggerView;
-        ;
         clone.logOverwrite = logOverwrite;
         clone.longScale = longScale;
         clone.marker = marker;
@@ -954,6 +953,23 @@ public class Configuration
         String path;
         if (isRelativePath(filename))
             path = getWorkingDirectorySubscriber() + context.subscriberRepo.getSeparator() + filename;
+        else
+            path = filename;
+        if (path.matches("^[a-zA-Z]:.*"))
+            path = "/" + path;
+        return path;
+    }
+
+    /**
+     * Get the full path to the subscriber file with specific context
+     * @param filename
+     * @return
+     */
+    public String getFullPathSubscriber(Context specContext, String filename)
+    {
+        String path;
+        if (isRelativePath(filename))
+            path = getWorkingDirectorySubscriber() + specContext.subscriberRepo.getSeparator() + filename;
         else
             path = filename;
         if (path.matches("^[a-zA-Z]:.*"))

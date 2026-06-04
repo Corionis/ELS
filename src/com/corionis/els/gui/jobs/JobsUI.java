@@ -784,6 +784,7 @@ public class JobsUI extends AbstractToolDialog
                 if (command.equals("buttonSub") || currentTool.isToolPubOrSub())
                 {
                     // set initial custom state
+// LEFTOFF Changing connection type DOES NOT WORK !!!!!!!
                     ComboItem item = (ComboItem) combo.getItemAt(selectedCombo);
                     customLabel.setEnabled(item.type == REMOTE_CUSTOM);
                     customAddress.setEnabled(item.type == REMOTE_CUSTOM);
