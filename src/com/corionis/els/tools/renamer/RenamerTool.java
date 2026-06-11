@@ -654,20 +654,17 @@ public class RenamerTool extends AbstractTool
             else
             {
                 msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                logger.error(msg);
                 if (context.navigator != null)
-                {
-                    logger.error(msg);
                     JOptionPane.showMessageDialog(context.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
-                }
-                else
-                    logger.error(msg);
             }
             requestStop();
         }
         if (doesNotExist)
         {
             logger.warn(msg);
-            JOptionPane.showMessageDialog(context.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
+            if (context.navigator != null)
+                JOptionPane.showMessageDialog(context.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
         }
         return path;
     }

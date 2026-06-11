@@ -66,6 +66,8 @@ public class ArchiverTool extends AbstractTool
         super(context);
         setDisplayName(getCfg().gs("Archiver.displayName"));
         this.context = context;
+        this.pubRepo = context.publisherRepo;
+        this.subRepo = context.subscriberRepo;
         this.dataHasChanged = false;
     }
 
@@ -296,6 +298,9 @@ public class ArchiverTool extends AbstractTool
     {
         reset();
 
+        String msg = context.cfg.gs("Z.executing") + getDisplayName() + " " + getConfigName();
+        logger.info(msg);
+
         if (pubRepo == null)
             pubRepo = context.publisherRepo;
         if (pubRepo == null)
@@ -321,7 +326,7 @@ public class ArchiverTool extends AbstractTool
         {
             if (isRequestStop())
                 break;
-            logger.info(getDisplayName() + ", " + getConfigName() + ": " + path);
+            //logger.info(getDisplayName() + ", " + getConfigName() + ": " + path);
 
             // get fully-qualified list of filesToCompress
             scanForFiles(path);
@@ -341,20 +346,20 @@ public class ArchiverTool extends AbstractTool
             if (isDeleteFiles())
                 deleteFiles();
 
-            String msg = getDisplayName() + ", " + getConfigName() + context.cfg.gs("Archiver.compressed") +
-                    count + context.cfg.gs("Archiver.deleted") + deleteCount  + context.cfg.gs("Archiver.files.successfully.to") + outputFilename;
+            msg = getDisplayName() + ": " + getConfigName() + ". " + context.cfg.gs("Archiver.compressed") +
+                    count + context.cfg.gs("Archiver.deleted") + deleteCount + context.cfg.gs("Archiver.files.successfully.archived") + outputFilename;
             logger.info(msg);
-            if (context != null && context.cfg.isNavigator() && !context.cfg.isLoggerView())
+            if (context != null && context.cfg.isGui())
             {
                 if (context.navigator.dialogArchiver != null && context.navigator.dialogArchiver.isShowing())
+                {
+                    msg = context.cfg.gs("Archiver.compressed") + count + context.cfg.gs("Archiver.deleted") + deleteCount;
                     context.navigator.dialogArchiver.labelStatus.setText(msg);
+                }
 
                 // reset and reload relevant trees
-                if (deleteCount > 0)
-                {
-                    context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
-                    context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
-                }
+                context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
+                context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
             }
         }
         else
@@ -514,7 +519,6 @@ public class ArchiverTool extends AbstractTool
                 taos.closeArchiveEntry();
             }
             taos.close();
-            logger.info(context.cfg.gs("Archiver.compressed") + count + context.cfg.gs("Archiver.files.successfully.to") + tarFilePath);
         }
     }
 

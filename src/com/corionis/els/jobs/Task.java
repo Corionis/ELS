@@ -230,6 +230,8 @@ public class Task implements Comparable, Serializable
 
         if (repo != null)
         {
+            repo.setContext(localContext);
+
             switch (purpose)
             {
                 case Repository.PUBLISHER:
@@ -251,32 +253,68 @@ public class Task implements Comparable, Serializable
                     localContext.subscriberRepo = repo;
 
                     // non-Operations task
-                    if (isSubscriberRemote() && !currentTool.getInternalName().equalsIgnoreCase("Operations"))
+                    if (!currentTool.getInternalName().equalsIgnoreCase("Operations"))
                     {
-                        // start the serveStty client for automation
-                        if (localContext.main.connectSubscriber(localContext, false, localContext.cfg.isGui()))
+                        if (isSubscriberRemote())
                         {
-                            try
+                            boolean connect = true;
+                            if (!isPreviousTaskSameConnection())
                             {
-                                Thread.sleep(2000);
+                                if (previousTask != null)
+                                {
+                                    if (previousTask.isSubscriberRemote() && previousTask.localContext.clientStty != null && previousTask.localContext.clientStty.isConnected())
+                                    {
+                                        previousTask.localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
+                                        previousTask.localContext.clientStty.disconnect();
+                                        previousTask.localContext.clientSftp.stopClient();
+                                    }
+                                }
                             }
-                            catch (InterruptedException e)
+                            else
                             {
+                                connect = false;
+                                localContext.subscriberUser = previousTask.localContext.subscriberUser;
+                                localContext.clientStty = previousTask.localContext.clientStty;
+                                localContext.clientSftp = previousTask.localContext.clientSftp;
+                                localContext.hintsStty = previousTask.localContext.hintsStty;
                             }
 
-                            if ((localContext.subscriberUser = localContext.subscriberRepo.login(localContext.publisherRepo.getLibraries().key, true)) == null)
+                            if (connect)
                             {
-                                localContext.clientStty.disconnect();
+                                // start the serveStty client for automation
+                                if (localContext.main.connectSubscriber(localContext, false, localContext.cfg.isGui()))
+                                {
+                                    try
+                                    {
+                                        Thread.sleep(1000);
+                                    }
+                                    catch (InterruptedException e)
+                                    {
+                                    }
+
+                                    if ((localContext.subscriberUser = localContext.subscriberRepo.login(localContext.publisherRepo.getLibraries().key, true)) == null)
+                                    {
+                                        localContext.clientStty.disconnect();
+                                        throw new MungeException(MessageFormat.format(localContext.cfg.gs("Z.login.failed.from.to"), localContext.publisherUser.getName(),
+                                                localContext.publisherRepo.getLibraries().description, localContext.subscriberRepo.getLibraries().description));
+                                    }
+
+                                    // start the serveSftp transfer client
+                                    localContext.clientSftp = new ClientSftp(localContext, localContext.publisherRepo, localContext.subscriberRepo, true);
+                                    if (!localContext.clientSftp.startClient("transfer"))
+                                    {
+                                        throw new MungeException(MessageFormat.format(localContext.cfg.gs("Main.subscriber.sftp.transfer.to.failed.to.connect"),
+                                                localContext.subscriberRepo.getLibraries().description));
+                                    }
+                                }
+                            }
+                        }
+                        else // is local
+                        {
+                            if ((localContext.subscriberUser = localContext.subscriberRepo.login(localContext.publisherRepo.getLibraries().key, false)) == null)
+                            {
                                 throw new MungeException(MessageFormat.format(localContext.cfg.gs("Z.login.failed.from.to"), localContext.publisherUser.getName(),
                                         localContext.publisherRepo.getLibraries().description, localContext.subscriberRepo.getLibraries().description));
-                            }
-
-                            // start the serveSftp transfer client
-                            localContext.clientSftp = new ClientSftp(localContext, localContext.publisherRepo, localContext.subscriberRepo, true);
-                            if (!localContext.clientSftp.startClient("transfer"))
-                            {
-                                throw new MungeException(MessageFormat.format(localContext.cfg.gs("Main.subscriber.sftp.transfer.to.failed.to.connect"),
-                                        localContext.subscriberRepo.getLibraries().description));
                             }
                         }
                     }
@@ -284,9 +322,9 @@ public class Task implements Comparable, Serializable
                     {
                         // Subscriber Listener does not need a Publisher if Authentication keys are defined
                         /* if (!(localContext.publisherRepo == null && */
-                        if ((currentTool.getInternalName().equalsIgnoreCase("Operations") &&
+                        if (currentTool.getInternalName().equalsIgnoreCase("Operations") &&
                                 ((OperationsTool) currentTool).getOperation() == OperationsTool.Operations.SubscriberListener &&
-                                ((OperationsTool) currentTool).getOptAuthKeys() != null && !((OperationsTool) currentTool).getOptAuthKeys().isEmpty()))
+                                (((OperationsTool) currentTool).getOptAuthKeys() == null || ((OperationsTool) currentTool).getOptAuthKeys().isEmpty()))
                         {
                             // otherwise login the Publisher to the Subscriber
                             if (localContext.preferences.isUsersEnabled())
@@ -314,6 +352,9 @@ public class Task implements Comparable, Serializable
                 }
             }
         }
+
+        if (repo != null)
+            repo.setContext(localContext);
 
         return repo;
     }
@@ -356,6 +397,23 @@ public class Task implements Comparable, Serializable
         return false;
     }
 
+    private boolean isPreviousTaskSameConnection()
+    {
+        boolean result = false;
+
+        if (previousTask != null)
+        {
+            if (previousTask.subscriberRemote &&
+                previousTask.localContext.subscriberRepo.getLibraryData().libraries.description.equalsIgnoreCase(localContext.subscriberRepo.getLibraryData().libraries.description) &&
+                previousTask.localContext.clientStty != null && previousTask.localContext.clientStty.isConnected())
+            {
+                result = true;
+            }
+        }
+
+        return result;
+    }
+
     public boolean isSubscriberRemote()
     {
         return subscriberRemote;
@@ -385,15 +443,6 @@ public class Task implements Comparable, Serializable
             currentTool = getTool();
 
         currentTool.setContext(localContext);
-
-// LEFTOFF : Issues ...
-//  1. Renamer is hitting the same file twice
-//  2. Renamer is not using previous repo - with the disconnect & reconnect logic
-//  3. Jobs pub/sub does not allow changing the Subscriber connection
-//  4. Tasks are using Navigator context including Hints that might not be configured for the task
-//  5. Changes to currently-loaded Subscriber should offer a reload
-//  !!!
-//  !!! Renamer Job - No write access to local Subscriber
 
         if (currentTool != null)
         {
@@ -461,7 +510,8 @@ public class Task implements Comparable, Serializable
                 {
                     publisherPath = localContext.publisherRepo.getJsonFilename();
                     localContext.publisherUser = localContext.publisherRepo.getUser();
-                    localContext.publisherUser.setContext(localContext);
+                    if (localContext.publisherUser != null)
+                        localContext.publisherUser.setContext(localContext);
                 }
                 else if (getPublisherKey().equals(Task.ANY_SERVER))
                     throw new MungeException("\"Any Server\" defined for Publisher but none specified");
@@ -472,7 +522,8 @@ public class Task implements Comparable, Serializable
                 {
                     subscriberPath = localContext.subscriberRepo.getJsonFilename();
                     localContext.subscriberUser = localContext.subscriberRepo.getUser();
-                    localContext.subscriberUser.setContext(localContext);
+                    if (localContext.subscriberUser != null)
+                        localContext.subscriberUser.setContext(localContext);
                 }
                 else if (getSubscriberKey().equals(Task.ANY_SERVER))
                     throw new MungeException("\"Any Server\" defined for Subscriber but none specified");
@@ -509,28 +560,43 @@ public class Task implements Comparable, Serializable
             }
 
             localContext.cfg.setOperation(remoteType);
-            localContext.transfer = new Transfer(localContext);
-            localContext.transfer.initialize();
 
-            // set subscriber working directory
-            String directory;
-            if (isSubscriberRemote())
-                directory = localContext.clientStty.getWorkingDirectoryRemote();
+            // setup Transfer if needed
+            if ((currentTool.getInternalName().equalsIgnoreCase("JunkRemover") ||
+                currentTool.getInternalName().equalsIgnoreCase("Renamer")) &&
+                !isPreviousTaskSameConnection())
+            {
+                localContext.transfer = new Transfer(localContext);
+                localContext.transfer.initialize(); // checks banner commands and sets subscriber working directory
+            }
             else
-                directory = localContext.cfg.getWorkingDirectory();
-            localContext.cfg.setWorkingDirectorySubscriber(directory);
+            {
+                // set subscriber working directory
+                String directory;
+                if (isSubscriberRemote() && localContext.clientStty != null)
+                    directory = localContext.clientStty.getWorkingDirectoryRemote();
+                else
+                    directory = localContext.cfg.getWorkingDirectory();
+                localContext.cfg.setWorkingDirectorySubscriber(directory);
+            }
 
             // run it
             currentTool.processTool(this);
 
-// LEFTOFF What about Hint Server??
             // disconnect
-            if (isSubscriberRemote())
+            if (isHintsRemote() && localContext.hintsStty != null)
             {
-                localContext.clientStty.send("bye", "Sending bye command to remote subscriber");
+                localContext.hintsStty.send("bye", "Sending bye command to remote Hint Server");
+                localContext.hintsStty.disconnect();
+            }
+/*
+            if (isSubscriberRemote() && localContext.clientStty != null)
+            {
+                localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
                 localContext.clientStty.disconnect();
                 localContext.clientSftp.stopClient();
             }
+*/
 
             if (currentTool.isRequestStop())
                 return false;

@@ -3082,6 +3082,8 @@ public class LibrariesUI
 
             // write/update changed tool JSON configuration files
             boolean publisherChanged = false;
+            boolean publisherReloaded = false;
+            boolean subscriberChanged = false;
             for (int i = 0; i < configModel.getRowCount(); ++i)
             {
                 libMeta = (LibMeta) configModel.getValueAt(i, 0);
@@ -3097,6 +3099,9 @@ public class LibrariesUI
 
                     if (context.publisherRepo != null && libMeta.repo.getLibraries().key.equals(context.publisherRepo.getLibraries().key))
                         publisherChanged = true;
+
+                    if (context.subscriberRepo != null && libMeta.repo.getLibraries().key.equals(context.subscriberRepo.getLibraries().key))
+                        subscriberChanged = true;
                 }
                 libMeta.setDataHasChanged(false);
             }
@@ -3151,6 +3156,56 @@ public class LibrariesUI
                         context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
                         context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
                     }
+                    if (context.subscriberRepo != null)
+                    {
+                        context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
+                        context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
+                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    }
+                    context.navigator.setQuitTerminateVisibility();
+                    context.navigator.setControls();
+                    publisherReloaded = true;
+                }
+            }
+
+            // reload subscriber if changed and not already reloaded
+            if (subscriberChanged && !publisherReloaded)
+            {
+                int answer = JOptionPane.showConfirmDialog(context.mainFrame,
+                        MessageFormat.format(context.cfg.gs("Libraries.repo.was.changed.reload"), context.cfg.gs("Z.subscriber")), displayName, JOptionPane.YES_NO_OPTION);
+                if (answer == JOptionPane.YES_OPTION)
+                {
+                    // load & connect
+                    if (context.subscriberRepo != null)
+                    {
+                        context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    }
+
+                    if (context.subscriberRepo != null && !context.cfg.isRemoteSubscriber()) // local
+                    {
+                        if ((context.subscriberUser = context.subscriberRepo.login(context.publisherRepo.getLibraries().key, false)) == null)
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
+                                    context.publisherRepo.getLibraries().description, context.subscriberRepo.getLibraries().description);
+                            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            return -1;
+                        }
+                    }
+                    else if (context.subscriberRepo != null) // remote
+                    {
+                        if (!context.navigator.reconnectRemote(context, context.publisherRepo, context.subscriberRepo, true))
+                            return -1;
+
+                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        String directory = context.clientStty.getWorkingDirectoryRemote();
+                        context.cfg.setWorkingDirectorySubscriber(directory);
+
+                        context.transfer.requestLibrary();
+                    }
+
+                    // update data
+                    context.navigator.displayConnection();
+                    loadConfigurations();
                     if (context.subscriberRepo != null)
                     {
                         context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());

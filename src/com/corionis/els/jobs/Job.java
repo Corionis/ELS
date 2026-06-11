@@ -282,6 +282,8 @@ public class Job extends AbstractTool
     {
         stop = false;
 
+        ArrayList<Task> previousTasks = new ArrayList<>();
+
         if (job.getTasks() != null && !job.getTasks().isEmpty())
         {
             logger.info(context.cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
@@ -311,7 +313,7 @@ public class Job extends AbstractTool
                 else // regular task
                 {
                     // publisher key (only) is used to indicate cached last task
-                    if (previousTask != null && currentTask.isToolCachedOrigins(context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
+                    if (previousTask != null) // TODO && currentTask.isToolCachedOrigins(context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
                         currentTask.setPreviousTask(previousTask);
 
                     // run it
@@ -320,10 +322,26 @@ public class Job extends AbstractTool
                         requestStop();
 
                     previousTask = currentTask;
+                    previousTasks.add(currentTask);
                 }
 
                 if (context.fault)
                     break;
+            }
+
+            for (Task task : previousTasks)
+            {
+                if (task.isSubscriberRemote() && task.localContext.clientStty != null && task.localContext.clientStty.isConnected())
+                {
+                    task.localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
+                    task.localContext.clientStty.disconnect();
+                    task.localContext.clientSftp.stopClient();
+                }
+                if (task.localContext.hintsStty != null && task.localContext.hintsStty.isConnected())
+                {
+                    task.localContext.hintsStty.send("bye", "Sending bye command to remote Hints");
+                    task.localContext.hintsStty.disconnect();
+                }
             }
 
             if (context.mainFrame != null)

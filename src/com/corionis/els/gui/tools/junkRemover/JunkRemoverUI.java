@@ -670,15 +670,29 @@ public class JunkRemoverUI extends AbstractToolDialog
                 workerTask.setDryRun(isDryRun);
                 workerTask.setOrigins(origins);
 
-                if (isSubscriber)
-                    workerTask.setSubscriberKey(Task.ANY_SERVER);
-                else
-                    workerTask.setPublisherKey(Task.ANY_SERVER);
+                workerTask.setSubscriberKey(Task.ANY_SERVER);
+                workerTask.setSubscriberRemote(context.cfg.isRemoteSubscriber());
+                workerTask.setSubscriberOverride(context.cfg.getOverrideSubscriberHost());
+                workerTask.setPublisherKey(Task.ANY_SERVER);
 
-                if (context.cfg.isHintTrackingEnabled())
-                    workerTask.setHintsKey(Task.ANY_SERVER);
+                // JunkRemover does not use Hints, yet
+                //if (context.cfg.isHintTrackingEnabled())
+                //    workerTask.setHintsKey(Task.ANY_SERVER);
 
                 workerTask.process(context);
+
+                // disconnect last remotes
+                if (workerTask.isSubscriberRemote() && workerTask.localContext.clientStty != null && workerTask.localContext.clientStty.isConnected())
+                {
+                    workerTask.localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
+                    workerTask.localContext.clientStty.disconnect();
+                    workerTask.localContext.clientSftp.stopClient();
+                }
+                //if (workerTask.localContext.hintsStty != null && workerTask.localContext.hintsStty.isConnected())
+                //{
+                //    workerTask.localContext.hintsStty.send("bye", "Sending bye command to remote Hints");
+                //    workerTask.localContext.hintsStty.disconnect();
+                //}
             }
         }
     }

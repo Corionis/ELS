@@ -106,18 +106,21 @@ public class JunkRemoverTool extends AbstractTool
                 // process in the order defined in the JSON
                 for (Library lib : repo.getLibraryData().libraries.bibliography)
                 {
-                    // privileges : access
-                    if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                    if (lib != null && context.preferences.isUsersEnabled())
                     {
-                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
-                        logger.error(msg);
-                        continue;
-                    }
-                    if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
-                    {
-                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
-                        logger.error(msg);
-                        continue;
+                        // privileges : access
+                        if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
+                            logger.error(msg);
+                            continue;
+                        }
+                        if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
+                            logger.error(msg);
+                            continue;
+                        }
                     }
 
                     for (String source : lib.sources)
@@ -133,18 +136,21 @@ public class JunkRemoverTool extends AbstractTool
                 {
                     if (lib.name.equalsIgnoreCase(origin.getLocation()))
                     {
-                        // privileges : access
-                        if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                        if (lib != null && context.preferences.isUsersEnabled())
                         {
-                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
-                            logger.error(msg);
-                            continue;
-                        }
-                        if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
-                        {
-                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
-                            logger.error(msg);
-                            continue;
+                            // privileges : access
+                            if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                            {
+                                String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
+                                logger.error(msg);
+                                continue;
+                            }
+                            if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                            {
+                                String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
+                                logger.error(msg);
+                                continue;
+                            }
                         }
 
                         for (String source : lib.sources)
@@ -161,17 +167,20 @@ public class JunkRemoverTool extends AbstractTool
                 Library lib = Utils.findLibraryFromPath(repo, origin.getLocation());
                 if (lib != null)
                 {
-                    if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                    if (lib != null && context.preferences.isUsersEnabled())
                     {
-                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
-                        logger.error(msg);
-                        continue;
-                    }
-                    if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
-                    {
-                        String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
-                        logger.error(msg);
-                        continue;
+                        if (isPublisher && !context.publisherUser.mayWrite(context.publisherRepo.getLibraries().key, lib.name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.publisher.library"), lib.name);
+                            logger.error(msg);
+                            continue;
+                        }
+                        if (!isPublisher && !context.subscriberUser.mayWrite(context.subscriberRepo.getLibraries().key, lib.name))
+                        {
+                            String msg = MessageFormat.format(context.cfg.gs("Z.no.write.access.to.subscriber.library"), lib.name);
+                            logger.error(msg);
+                            continue;
+                        }
                     }
                 }
 

@@ -915,6 +915,8 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                context.fault = false;
+
                 if (context.publisherRepo == null)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Open.a.publisher.library.required"), context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
@@ -1408,6 +1410,7 @@ public class Navigator
                     context.mainFrame.repaint();
                     break;
                 }
+                context.fault = false;
             }
         };
         context.mainFrame.menuItemOpenSubscriber.addActionListener(openSubscriberAction);
@@ -1514,6 +1517,8 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                context.fault = false;
+
                 if (context.cfg.getHintKeysFile() == null || context.cfg.getHintKeysFile().length() == 0)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Open.hint.tracking.please.open.hints.keys.first"), context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
@@ -1780,6 +1785,7 @@ public class Navigator
                     }
                     break;
                 }
+                context.fault = false;
             }
         };
         context.mainFrame.menuItemOpenHintTracking.addActionListener(openHintTrackingAction);
@@ -3736,6 +3742,7 @@ public class Navigator
                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     disableComponent(false, context.mainFrame.getContentPane());
                     disableGui(true);
+                    context.mainFrame.splitPaneBrowser.setDividerSize(0);
 
                     context.mainFrame.labelAlertHintsMenu.setVisible(false);
                     context.mainFrame.labelAlertUpdateMenu.setVisible(false);

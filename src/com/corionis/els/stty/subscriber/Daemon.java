@@ -280,7 +280,9 @@ public class Daemon extends AbstractDaemon
                     send(response, "");
             }
             else
+            {
                 success = true;
+            }
         }
         catch (Exception e)
         {
@@ -291,7 +293,6 @@ public class Daemon extends AbstractDaemon
             else
                 logger.info(context.cfg.gs("Stty.eof.line.listener.keep.going.enabled"));
         }
-
         return success;
     }
 
@@ -306,7 +307,7 @@ public class Daemon extends AbstractDaemon
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
-        boolean trace = context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
+        boolean trace = true; // TODO context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
 
         port = getSocket().getPort();
         address = getSocket().getInetAddress();

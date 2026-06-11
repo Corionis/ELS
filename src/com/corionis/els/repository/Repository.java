@@ -35,7 +35,7 @@ public class Repository implements Comparable
     public static final boolean VALIDATE = true;
     public final String SUB_EXCLUDE = "ELS-SUBSCRIBER-SKIP_";
 
-    private final Context context;
+    private Context context;
     private boolean dynamic = false;
     private String jsonFilename = "";
     private LibraryData libraryData = null;
@@ -748,6 +748,7 @@ public class Repository implements Comparable
                             if (user != null)
                             {
                                 user.setContext(context);
+                                this.setUser(user);
                                 String from = "?";
                                 if (context.publisherRepo != null) // should never happen
                                     from = context.publisherRepo.getLibraries().description;
@@ -781,6 +782,7 @@ public class Repository implements Comparable
                     if (pubRepo != null)
                     {
                         user = pubRepo.getUser().clone();
+                        this.setUser(user);
                         if (user != null)
                         {
                             user.setContext(context);
@@ -1132,6 +1134,16 @@ public class Repository implements Comparable
     }
 
     /**
+     * Set the Context
+     *
+     * @param context The Context
+     */
+    public void setContext(Context context)
+    {
+        this.context = context;
+    }
+
+    /**
      * Set this Repository as dynamically loaded
      *
      * @param sense
@@ -1150,6 +1162,7 @@ public class Repository implements Comparable
     {
         jsonFilename = filename;
     }
+
 
     public void setUser(User user)
     {

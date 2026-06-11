@@ -784,7 +784,6 @@ public class JobsUI extends AbstractToolDialog
                 if (command.equals("buttonSub") || currentTool.isToolPubOrSub())
                 {
                     // set initial custom state
-// LEFTOFF Changing connection type DOES NOT WORK !!!!!!!
                     ComboItem item = (ComboItem) combo.getItemAt(selectedCombo);
                     customLabel.setEnabled(item.type == REMOTE_CUSTOM);
                     customAddress.setEnabled(item.type == REMOTE_CUSTOM);
@@ -920,7 +919,7 @@ public class JobsUI extends AbstractToolDialog
                         }
                         else // anything else is not remote
                         {
-                            if (command.equals("buttonsub"))
+                            if (command.equals("buttonSub"))
                             {
                                 if (currentTask.isSubscriberRemote())
                                 {

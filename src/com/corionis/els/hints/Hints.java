@@ -490,7 +490,7 @@ public class Hints
             for (int i = 0; i < hint.statuses.size(); ++i)
             {
                 HintStatus hs = hint.statuses.get(i);
-                if (!hs.status.trim().toLowerCase().equals("done"))
+                if (!(hs.status.trim().toLowerCase().equals("done") || hs.status.trim().toLowerCase().equals("false")))
                 {
                     return false;
                 }
