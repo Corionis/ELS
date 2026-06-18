@@ -442,20 +442,16 @@ public class Task implements Comparable, Serializable
         if (currentTool == null)
             currentTool = getTool();
 
-        currentTool.setContext(localContext);
-
         if (currentTool != null)
         {
+            currentTool.setContext(localContext);
+
             if ((origins == null || origins.size() == 0) && !useCachedLastTask(localContext) && currentTool.isToolOriginsUsed())
             {
+                String msg = localContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
+                logger.info(msg);
                 if (localContext.navigator != null)
-                {
-                    String msg = localContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
-                    logger.info(msg);
                     JOptionPane.showMessageDialog(localContext.mainFrame, msg, localContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
-                }
-                else
-                    logger.info(localContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
                 return false;
             }
 
@@ -530,6 +526,9 @@ public class Task implements Comparable, Serializable
 
                 remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && localContext.cfg.isRemoteOperation())) ? "P" : "-";
 
+                if (previousTask != null)
+                    previousTask.remoteType = remoteType;
+
                 if (getHintsKey() != null && !getHintsKey().isEmpty())
                 {
                     localContext.cfg.setOverrideHintsHost(isHintsOverrideHost());
@@ -571,14 +570,17 @@ public class Task implements Comparable, Serializable
             }
             else
             {
-                // set subscriber working directory
-                String directory;
-                if (isSubscriberRemote() && localContext.clientStty != null)
-                    directory = localContext.clientStty.getWorkingDirectoryRemote();
-                else
-                    directory = localContext.cfg.getWorkingDirectory();
-                localContext.cfg.setWorkingDirectorySubscriber(directory);
+                if (previousTask != null && previousTask.localContext != null)
+                    localContext.transfer = previousTask.localContext.transfer;
             }
+
+            // set subscriber working directory
+            String directory;
+            if (isSubscriberRemote() && localContext.clientStty != null)
+                directory = localContext.clientStty.getWorkingDirectoryRemote();
+            else
+                directory = localContext.cfg.getWorkingDirectory();
+            localContext.cfg.setWorkingDirectorySubscriber(directory);
 
             // run it
             currentTool.processTool(this);
