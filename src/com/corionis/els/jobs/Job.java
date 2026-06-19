@@ -293,7 +293,7 @@ public class Job extends AbstractTool
                 if (isRequestStop())
                     break;
 
-                task.localContext = context;
+                task.setContext(context);
                 currentTask = task.clone();
                 currentTask.setContext((Context)context.clone());
                 currentTask.setDryRun(isDryRun);
@@ -331,16 +331,22 @@ public class Job extends AbstractTool
 
             for (Task task : previousTasks)
             {
-                if (task.isSubscriberRemote() && task.localContext.clientStty != null && task.localContext.clientStty.isConnected())
+                // tasks make new Subscriber connections
+                if (task.localContext.clientStty != null && task.localContext.clientStty.isConnected())
                 {
                     task.localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
                     task.localContext.clientStty.disconnect();
                     task.localContext.clientSftp.stopClient();
                 }
+
+                // tasks use any existing connection; do not disconnect any original connection, i.e. in Navigator
                 if (task.localContext.hintsStty != null && task.localContext.hintsStty.isConnected())
                 {
-                    task.localContext.hintsStty.send("bye", "Sending bye command to remote Hints");
-                    task.localContext.hintsStty.disconnect();
+                    if (context.hintsStty == null)
+                    {
+                        task.localContext.hintsStty.send("bye", "Sending bye command to remote Hints");
+                        task.localContext.hintsStty.disconnect();
+                    }
                 }
             }
 

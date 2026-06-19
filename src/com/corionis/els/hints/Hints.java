@@ -7,6 +7,7 @@ import com.corionis.els.Utils;
 import com.corionis.els.gui.hints.HintsTableModel;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
+import com.corionis.els.stty.hintServer.Datastore;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -147,11 +148,12 @@ public class Hints
             }
             else
             {
-                if (context.datastore.hints != null)
-                {
-                    results = new ArrayList<Hint>();
-                    results.addAll(context.datastore.hints);
-                }
+                if (context.datastore == null)
+                    context.datastore = new Datastore(context);
+
+                context.datastore.read();
+                results = new ArrayList<Hint>();
+                results.addAll(context.datastore.hints);
             }
         }
         return results;

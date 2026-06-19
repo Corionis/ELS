@@ -1493,7 +1493,7 @@ public class Navigator
                             context.preferences.setLastHintKeysOpenPath(last.getPath());
                             context.preferences.setLastHintKeysIsOpen(true);
                             context.cfg.setHintKeysFile(file.getPath());
-                            context.main.connectHints(context.publisherRepo);
+                            context.main.connectHints(context, context.publisherRepo);
                         }
                         catch (Exception e)
                         {
@@ -1766,7 +1766,7 @@ public class Navigator
                             }
 
                             // connect to the hint tracker or status server
-                            context.main.connectHints(context.publisherRepo);
+                            context.main.connectHints(context, context.publisherRepo);
                             context.browser.setupHintTrackingButton();
                             setQuitTerminateVisibility();
                             context.libraries.loadConfigurations();
@@ -4028,7 +4028,7 @@ public class Navigator
         }
 
         // connect to the hint status server if defined
-        context.main.connectHints(context.publisherRepo);
+        context.main.connectHints(context, context.publisherRepo);
 
         if (context.cfg.isRemoteOperation())
         {

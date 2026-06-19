@@ -699,7 +699,7 @@ public class Repository implements Comparable
     /**
      * Login to Publisher
      *
-     * @return True if successful
+     * @return user object, may be empty but not null
      */
     public User login()
     {

@@ -463,7 +463,7 @@ public class Main
      * @param repo The Repository that is connecting to the tracker/server
      * @throws Exception Configuration and connection exceptions
      */
-    public void connectHints(Repository repo) throws Exception
+    public void connectHints(Context context, Repository repo) throws Exception
     {
         String msg = "";
         try
@@ -1115,7 +1115,7 @@ public class Main
                         context.tools.loadAllTools(context, null);
 
                         // setup the hint status server if defined
-                        connectHints(context.publisherRepo);
+                        connectHints(context, context.publisherRepo);
 
                         context.navigator = new Navigator(context);
                         if (!context.fault)
@@ -1154,7 +1154,7 @@ public class Main
                         context.tools.loadAllTools(context, null);
 
                         // setup the hint status server for local use if defined
-                        connectHints(context.publisherRepo);
+                        connectHints(context, context.publisherRepo);
 
                         if (context.cfg.isGui())
                             context.navigator.displayConnection();
@@ -1185,7 +1185,7 @@ public class Main
                             context.cfg.disableHintTracking();
                             logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
                         }
-                        connectHints(context.publisherRepo);
+                        connectHints(context, context.publisherRepo);
 
                         // start the serveStty client interactively
                         if (connectSubscriber(context, true, false))
@@ -1232,7 +1232,7 @@ public class Main
                     {
                         // connect to the hint status server if defined
                         boolean commOk = true;
-                        connectHints(context.publisherRepo);
+                        connectHints(context, context.publisherRepo);
 
                         // start the serveStty client for automation
                         if (connectSubscriber(context, false, context.cfg.isGui()))
@@ -1325,7 +1325,7 @@ public class Main
                             context.cfg.disableHintTracking();
                             logger.warn(context.cfg.gs("Main.hint.tracker.server.not.used.for.this.operation"));
                         }
-                        connectHints(context.subscriberRepo);
+                        connectHints(context, context.subscriberRepo);
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("subscriber.listener");
@@ -1411,7 +1411,7 @@ public class Main
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
 
-                    connectHints(context.publisherRepo);
+                    connectHints(context, context.publisherRepo);
 
                     if (context.publisherRepo.isInitialized() && context.hintsStty.isConnected())
                     {
@@ -1472,6 +1472,7 @@ public class Main
                 // --- -j|--job to execute a Job
                 case JOB_PROCESS:
                     // optional arguments for support of Any Publisher/Subscriber
+/*
                     if (context.cfg.getPublisherFilename().length() > 0)
                     {
                         context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -1491,6 +1492,7 @@ public class Main
                             throw new MungeException(MessageFormat.format(context.cfg.gs("Z.login.failed.from.to"), context.publisherUser.getName(),
                                     context.publisherRepo.getLibraries().description, context.subscriberRepo.getLibraries().description));
                     }
+*/
 
                     Job tmpJob = new Job(context, context.cfg.getJobName());
                     job = tmpJob.load(context.cfg.getJobName());
@@ -1499,6 +1501,7 @@ public class Main
 
                     context.tools.loadAllTools(context, null);
 
+                    // is it a Navigator task?
                     if (!job.getTasks().isEmpty())
                     {
                         ArrayList<Task> tasks = job.getTasks();
@@ -1538,7 +1541,7 @@ public class Main
                         context.cfg.dump();
 
                         // setup the hint status server if defined
-                        connectHints(context.publisherRepo);
+//                        connectHints(context.publisherRepo);
 
 //                        context.transfer = new Transfer(context);
 //                        context.transfer.initialize();

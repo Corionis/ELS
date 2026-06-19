@@ -7,6 +7,7 @@ import com.corionis.els.gui.browser.BrowserTableCellRenderer;
 import com.corionis.els.hints.*;
 import com.corionis.els.repository.Repositories;
 import com.corionis.els.repository.Repository;
+import com.corionis.els.stty.hintServer.Datastore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,30 +45,31 @@ public class HintsUI extends JDialog
 
         try
         {
+            // get repos
             repositories = getRepositories();
 
-            // get data for initialization of table and model
-            if (context.datastore != null)
-                context.datastore.reload();
-            else
-                hints = new ArrayList<>();
+            // get Hint Keys
+            if (!context.cfg.getHintKeysFile().isEmpty())
+            {
+                context.hintKeys = new HintKeys(context);
+                context.hintKeys.read(context.cfg.getHintKeysFile());
+            }
+
+            // get Hints
+            if (context.datastore == null)
+                context.datastore = new Datastore(context);
 
             if (context.hintsHandler == null)
                 context.hintsHandler = new Hints(context, null);
 
             hints = context.hintsHandler.getAll();
 
-            if (!context.cfg.getHintKeysFile().isEmpty())
-            {
-                context.hintKeys = new HintKeys(context);
-                context.hintKeys.read(context.cfg.getHintKeysFile());
-            }
         }
         catch (Exception e)
         {
             fault = true;
             String msg = context.cfg.gs("Z.exception") + e.getMessage();
-            logger.error(msg);
+            logger.error(Utils.getStackTrace(e));
             JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("HintsUI.this.title"), JOptionPane.ERROR_MESSAGE);
         }
 
