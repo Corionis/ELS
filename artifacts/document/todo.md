@@ -1,6 +1,17 @@
 
 # Project To Do
 
+## Bugs
+
+ * Removing and replacing the Origin for the CleanUp tool fails in Windows
+ * Generate log parameter in Windows is missing output\ directory
+ * Disable Hints when a Workstation is selected
+ * New Folder from tree on MacOS fails
+ ? Add permissions to Hints dialog for Delete, etc.
+ * Test Library, New on all platforms
+
+## Work
+
 * Go through all email providers and try OAuth2 again.
 
 * Test from a scratch install for a Publisher and separate User Subscriber - go through the setup sequence

@@ -1299,9 +1299,6 @@ public class Main
                     logger.info(whatsRunning + context.cfg.gs("Main.version") + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
-//                    if (!context.cfg.isTargetsEnabled())
-//                        throw new MungeException(context.cfg.gs("Main.targets.required"));
-
                     if (context.cfg.getPublisherFilename().length() > 0)
                     {
                         context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
@@ -1539,12 +1536,6 @@ public class Main
                         whatsRunning = "ELS: Job";
                         logger.info(whatsRunning + context.cfg.gs("Main.version") + getBuildVersionName() + ", " + getBuildDate());
                         context.cfg.dump();
-
-                        // setup the hint status server if defined
-//                        connectHints(context.publisherRepo);
-
-//                        context.transfer = new Transfer(context);
-//                        context.transfer.initialize();
 
                         // run the Job
                         whatsRunning += ", " + job.getConfigName();
@@ -1946,6 +1937,7 @@ public class Main
             logger.trace(context.cfg.gs("Main.shutdown.via.main"));
             if (context.main.job != null || (context.previousContext != null && context.previousContext.main.job != null))
             {
+                logger.info("------------------------------------------");
                 Job theJob = (job != null) ? job : context.previousContext.main.job;
                 String msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
                         theJob.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));

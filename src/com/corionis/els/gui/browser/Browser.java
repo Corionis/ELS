@@ -408,72 +408,59 @@ public class Browser
                     JTree tree = null;
                     NavTreeUserObject tuo = null;
                     Object object = keyEvent.getSource();
-                    if (object instanceof JTextField)
+                    if (object instanceof JTree)
                     {
-//                        JTextField field = (JTextField) object;
-//                        if (field.getName() != null && field.getName().equals("location"))
-//                        {
-//                            JOptionPane.showMessageDialog(localContext.form,
-//                                    "change location",
-//                                    localContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
-//                        }
+                        tree = (JTree) object;
+                        TreePath[] paths = tree.getSelectionPaths();
+                        if (paths.length > 0)
+                        {
+                            NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
+                            tuo = ntn.getUserObject();
+                        }
+                        else if (paths.length == 0)
+                            return;
+                    }
+                    else if (object instanceof JTable)
+                    {
+                        int[] rows = {0};
+                        tree = navTransferHandler.getTargetTree((JTable) object);
+                        rows = ((JTable) object).getSelectedRows();
+                        if (rows.length > 0)
+                        {
+                            tuo = (NavTreeUserObject) ((JTable) object).getValueAt(rows[0], 1);
+                        }
+                        else if (rows.length == 0)
+                            return;
+                    }
+                    if (tuo.isDir)
+                    {
+                        tree.setExpandsSelectedPaths(true);
+                        tree.expandPath(tuo.node.getTreePath());
+                        tree.setSelectionPath(tuo.node.getTreePath());
+                        tree.scrollPathToVisible(tuo.node.getTreePath());
                     }
                     else
                     {
-                        if (object instanceof JTree)
+                        if (tuo.type == NavTreeUserObject.REAL && !tuo.isRemote)
                         {
-                            tree = (JTree) object;
-                            TreePath[] paths = tree.getSelectionPaths();
-                            if (paths.length > 0)
+                            try
                             {
-                                NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
-                                tuo = ntn.getUserObject();
+                                Desktop.getDesktop().open(tuo.file);
                             }
-                            else if (paths.length == 0)
-                                return;
-                        }
-                        else if (object instanceof JTable)
-                        {
-                            int[] rows = {0};
-                            tree = navTransferHandler.getTargetTree((JTable) object);
-                            rows = ((JTable) object).getSelectedRows();
-                            if (rows.length > 0)
+                            catch (Exception e)
                             {
-                                tuo = (NavTreeUserObject) ((JTable) object).getValueAt(rows[0], 1);
+                                JOptionPane.showMessageDialog(context.mainFrame,
+                                        context.cfg.gs("Browser.error.launching.item"),
+                                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
-                            else if (rows.length == 0)
-                                return;
-                        }
-                        if (tuo.isDir)
-                        {
-                            tree.setExpandsSelectedPaths(true);
-                            tree.expandPath(tuo.node.getTreePath());
-                            tree.setSelectionPath(tuo.node.getTreePath());
-                            tree.scrollPathToVisible(tuo.node.getTreePath());
                         }
                         else
                         {
-                            if (tuo.type == NavTreeUserObject.REAL && !tuo.isRemote)
-                            {
-                                try
-                                {
-                                    Desktop.getDesktop().open(tuo.file);
-                                }
-                                catch (Exception e)
-                                {
-                                    JOptionPane.showMessageDialog(context.mainFrame,
-                                            context.cfg.gs("Browser.error.launching.item"),
-                                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                }
-                            }
-                            else
-                            {
-                                JOptionPane.showMessageDialog(context.mainFrame,
-                                        context.cfg.gs("Browser.launch.of") +
-                                                (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") : "") +
-                                                context.cfg.gs("Browser.launch.of.items.not.supported"),
-                                        context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
-                            }
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Browser.launch.of") +
+                                            (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") : "") +
+                                            context.cfg.gs("Browser.launch.of.items.not.supported"),
+                                    context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                         }
                     }
                 }
@@ -1813,6 +1800,30 @@ public class Browser
             }
         });
 
+        context.mainFrame.buttonHintTrackingToolbar.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hints"))
+                {
+                    toggleHintTracking(!hintTrackingButtonEnabled);
+                }
+            }
+        });
+
+        context.mainFrame.buttonHintTrackingMenu.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hints"))
+                {
+                    toggleHintTracking(!hintTrackingButtonEnabled);
+                }
+            }
+        });
+
         setupHintTrackingButton();
     }
 
@@ -2814,9 +2825,18 @@ public class Browser
             {
             }
         }
+
         context.mainFrame.buttonHintTracking.setText(tl);
         context.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
         context.mainFrame.buttonHintTracking.setToolTipText(tt);
+
+        context.mainFrame.buttonHintTrackingToolbar.setText(tl);
+        context.mainFrame.buttonHintTrackingToolbar.setIcon(new ImageIcon(icon));
+        context.mainFrame.buttonHintTrackingToolbar.setToolTipText(tt);
+
+        context.mainFrame.buttonHintTrackingMenu.setText(tl);
+        context.mainFrame.buttonHintTrackingMenu.setIcon(new ImageIcon(icon));
+        context.mainFrame.buttonHintTrackingMenu.setToolTipText(tt);
     }
 
     public void toggleShowHiddenFiles()

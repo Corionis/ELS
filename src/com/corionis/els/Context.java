@@ -8,6 +8,7 @@ import com.corionis.els.gui.browser.Browser;
 import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.hints.HintKeys;
 import com.corionis.els.hints.Hints;
+import com.corionis.els.jobs.Task;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.repository.User;
 import com.corionis.els.sftp.ClientSftp;
@@ -45,7 +46,7 @@ public class Context
     public boolean localMode = false; // operation intended for local execution
     public Main main = null;
     public Navigator navigator = null;
-    public Context previousContext = null; // the previous Context during a secondary invocation
+    public Context previousContext = null; // the previous Context during a secondary invocation or Task
     public Process process = null;
     public Repository publisherRepo = null;
     public User publisherUser = null;
@@ -66,6 +67,10 @@ public class Context
     public Preferences preferences = null;
     public Progress progress = null;
     public RollingFileAppender rollingFileAppender = null;
+
+    // Runtime flags
+    public Task task;
+    public boolean taskDone = false;
 
     public Context()
     {

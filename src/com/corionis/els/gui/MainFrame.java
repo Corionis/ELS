@@ -570,6 +570,7 @@ public class MainFrame extends JFrame
         labelAlertBlankMenu = new JLabel();
         labelAlertHintsMenu = new JLabel();
         labelAlertUpdateMenu = new JLabel();
+        buttonHintTrackingMenu = new JButton();
         labelUserMenu = new JLabel();
         panelMain = new JPanel();
         panelToolbar = new JPanel();
@@ -584,6 +585,7 @@ public class MainFrame extends JFrame
         labelAlertBlankToolbar = new JLabel();
         labelAlertHintsToolbar = new JLabel();
         labelAlertUpdateToolbar = new JLabel();
+        buttonHintTrackingToolbar = new JButton();
         labelUserToolbar = new JLabel();
         vSpacer5 = new JPanel(null);
         tabbedPaneMain = new JTabbedPane();
@@ -1364,8 +1366,23 @@ public class MainFrame extends JFrame
                 labelAlertUpdateMenu.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 panelAlertsMenu.add(labelAlertUpdateMenu);
 
+                //---- buttonHintTrackingMenu ----
+                buttonHintTrackingMenu.setText(context.cfg.gs("Navigator.buttonHintTrackingMenu.text"));
+                buttonHintTrackingMenu.setMnemonic(context.cfg.gs("Navigator.buttonHintTrackingMenu.mnemonic").charAt(0));
+                buttonHintTrackingMenu.setFocusable(false);
+                buttonHintTrackingMenu.setPreferredSize(new Dimension(124, 19));
+                buttonHintTrackingMenu.setMinimumSize(new Dimension(124, 19));
+                buttonHintTrackingMenu.setMaximumSize(new Dimension(124, 19));
+                buttonHintTrackingMenu.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
+                buttonHintTrackingMenu.setActionCommand("hints");
+                buttonHintTrackingMenu.setToolTipText(context.cfg.gs("Navigator.buttonHintTrackingMenu.toolTipText"));
+                buttonHintTrackingMenu.setFont(buttonHintTrackingMenu.getFont().deriveFont(buttonHintTrackingMenu.getFont().getSize() - 2f));
+                panelAlertsMenu.add(buttonHintTrackingMenu);
+
                 //---- labelUserMenu ----
                 labelUserMenu.setToolTipText(context.cfg.gs("Navigator.labelUserToolbar.toolTipText"));
+                labelUserMenu.setVerticalTextPosition(SwingConstants.BOTTOM);
+                labelUserMenu.setVerticalAlignment(SwingConstants.BOTTOM);
                 panelAlertsMenu.add(labelUserMenu);
             }
             menuBarMain.add(panelAlertsMenu);
@@ -1488,6 +1505,19 @@ public class MainFrame extends JFrame
                     labelAlertUpdateToolbar.setMaximumSize(new Dimension(14, 26));
                     labelAlertUpdateToolbar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     panelAlertsToolbar.add(labelAlertUpdateToolbar);
+
+                    //---- buttonHintTrackingToolbar ----
+                    buttonHintTrackingToolbar.setText(context.cfg.gs("Navigator.buttonHintTrackingToolbar.text"));
+                    buttonHintTrackingToolbar.setMnemonic(context.cfg.gs("Navigator.buttonHintTrackingToolbar.mnemonic").charAt(0));
+                    buttonHintTrackingToolbar.setFocusable(false);
+                    buttonHintTrackingToolbar.setPreferredSize(new Dimension(124, 24));
+                    buttonHintTrackingToolbar.setMinimumSize(new Dimension(124, 24));
+                    buttonHintTrackingToolbar.setMaximumSize(new Dimension(124, 24));
+                    buttonHintTrackingToolbar.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
+                    buttonHintTrackingToolbar.setActionCommand("hints");
+                    buttonHintTrackingToolbar.setToolTipText(context.cfg.gs("Navigator.buttonHintTrackingToolbar.toolTipText"));
+                    buttonHintTrackingToolbar.setFont(buttonHintTrackingToolbar.getFont().deriveFont(buttonHintTrackingToolbar.getFont().getSize() - 2f));
+                    panelAlertsToolbar.add(buttonHintTrackingToolbar);
 
                     //---- labelUserToolbar ----
                     labelUserToolbar.setToolTipText(context.cfg.gs("Navigator.labelUserToolbar.toolTipText"));
@@ -3291,6 +3321,7 @@ public class MainFrame extends JFrame
     public JLabel labelAlertBlankMenu;
     public JLabel labelAlertHintsMenu;
     public JLabel labelAlertUpdateMenu;
+    public JButton buttonHintTrackingMenu;
     public JLabel labelUserMenu;
     public JPanel panelMain;
     public JPanel panelToolbar;
@@ -3305,6 +3336,7 @@ public class MainFrame extends JFrame
     public JLabel labelAlertBlankToolbar;
     public JLabel labelAlertHintsToolbar;
     public JLabel labelAlertUpdateToolbar;
+    public JButton buttonHintTrackingToolbar;
     public JLabel labelUserToolbar;
     public JPanel vSpacer5;
     public JTabbedPane tabbedPaneMain;

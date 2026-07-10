@@ -307,7 +307,7 @@ public class Daemon extends AbstractDaemon
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
-        boolean trace = true; // TODO context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
+        boolean trace = context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace");
 
         port = getSocket().getPort();
         address = getSocket().getInetAddress();

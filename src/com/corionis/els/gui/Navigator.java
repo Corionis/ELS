@@ -200,8 +200,7 @@ public class Navigator
         }
         else
         {
-            context.mainFrame.labelAlertHintsMenu.setVisible(false);
-            context.mainFrame.labelAlertHintsToolbar.setVisible(false);
+            setHintTrackingVisibility();
         }
         return count;
     }
@@ -1768,6 +1767,7 @@ public class Navigator
                             // connect to the hint tracker or status server
                             context.main.connectHints(context, context.publisherRepo);
                             context.browser.setupHintTrackingButton();
+                            context.navigator.setHintTrackingVisibility();
                             setQuitTerminateVisibility();
                             context.libraries.loadConfigurations();
 
@@ -2702,12 +2702,25 @@ public class Navigator
                 {
                     context.preferences.setShowNavigation(true);
                     context.mainFrame.panelLocationAndButtons.setVisible(true);
+                    context.mainFrame.buttonHintTrackingMenu.setVisible(false);
+                    context.mainFrame.buttonHintTrackingToolbar.setVisible(false);
                 }
                 else
                 {
                     context.preferences.setShowNavigation(false);
+                    if (context.preferences.isShowToolbar())
+                    {
+                        context.mainFrame.buttonHintTrackingMenu.setVisible(false);
+                        context.mainFrame.buttonHintTrackingToolbar.setVisible(true);
+                    }
+                    else
+                    {
+                        context.mainFrame.buttonHintTrackingMenu.setVisible(true);
+                        context.mainFrame.buttonHintTrackingToolbar.setVisible(false);
+                    }
                     context.mainFrame.panelLocationAndButtons.setVisible(false);
                 }
+                setHintTrackingVisibility();
             }
         });
         // set initial state of Show Navigation checkbox
@@ -2735,6 +2748,7 @@ public class Navigator
                     context.mainFrame.panelAlertsMenu.setVisible(true);
                     context.mainFrame.panelToolbar.setVisible(false);
                 }
+                setHintTrackingVisibility();
             }
         });
         // set initial state of Show Toolbar checkbox
@@ -4192,6 +4206,10 @@ public class Navigator
                     {
                         listener.actionPerformed(new ActionEvent(context.mainFrame.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
                     }
+                    for (ActionListener listener : context.mainFrame.buttonHintTrackingMenu.getActionListeners())
+                    {
+                        listener.actionPerformed(new ActionEvent(context.mainFrame.buttonHintTrackingMenu, ActionEvent.ACTION_PERFORMED, null));
+                    }
 
                     String os = Utils.getOS();
                     logger.debug(context.cfg.gs("Navigator.detected.local.system.as") + os);
@@ -4215,6 +4233,10 @@ public class Navigator
 
                         checkForHints();
                     }
+                    else
+                    {
+                        context.mainFrame.buttonHintTrackingMenu.setVisible(false);
+                    }
 
                     if (context.preferences.isShowNavigation() && !isLogger())
                     {
@@ -4235,6 +4257,9 @@ public class Navigator
                         context.mainFrame.panelAlertsMenu.setVisible(true);
                         context.mainFrame.panelToolbar.setVisible(false);
                     }
+
+                    if (!isLogger())
+                        setHintTrackingVisibility();
 
                     context.mainFrame.setVisible(true); // <------------------------------------------
 
@@ -4494,6 +4519,37 @@ public class Navigator
         listenField.setText(listen);
         return true;
     }
+
+    private void setHintTrackingVisibility()
+    {
+        if (context.mainFrame.menuItemShowNavigation.isSelected() || !context.cfg.isHintTrackingEnabled())
+        {
+            context.mainFrame.buttonHintTrackingMenu.setVisible(false);
+            context.mainFrame.buttonHintTrackingToolbar.setVisible(false);
+        }
+        else
+        {
+            if (!context.cfg.isHintTrackingEnabled())
+            {
+                context.mainFrame.buttonHintTrackingMenu.setVisible(false);
+                context.mainFrame.buttonHintTrackingToolbar.setVisible(false);
+            }
+            else
+            {
+                if (context.preferences.isShowToolbar())
+                {
+                    context.mainFrame.buttonHintTrackingMenu.setVisible(false);
+                    context.mainFrame.buttonHintTrackingToolbar.setVisible(true);
+                }
+                else
+                {
+                    context.mainFrame.buttonHintTrackingMenu.setVisible(true);
+                    context.mainFrame.buttonHintTrackingToolbar.setVisible(false);
+                }
+            }
+        }
+        context.browser.toggleHintTracking(context.browser.isHintTrackingButtonEnabled()); //context.cfg.isHintTrackingEnabled());
+     }
 
     /**
      * Set the visibility of the Quit & Stop Remove(s) menu option

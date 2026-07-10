@@ -143,6 +143,19 @@ new FormModel {
 							"maximumSize": new java.awt.Dimension( 14, 26 )
 							"cursor": #Cursor0
 						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "buttonHintTrackingToolbar"
+							"text": new FormMessage( null, "Navigator.buttonHintTrackingToolbar.text" )
+							"mnemonic": new FormMessage( null, "Navigator.buttonHintTrackingToolbar.mnemonic" )
+							"focusable": false
+							"preferredSize": new java.awt.Dimension( 124, 24 )
+							"minimumSize": new java.awt.Dimension( 124, 24 )
+							"maximumSize": new java.awt.Dimension( 124, 24 )
+							"icon": &SwingIcon3 new com.jformdesigner.model.SwingIcon( 0, "/hint-green.png" )
+							"actionCommand": "hints"
+							"toolTipText": new FormMessage( null, "Navigator.buttonHintTrackingToolbar.toolTipText" )
+							"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
+						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "labelUserToolbar"
 							"toolTipText": new FormMessage( null, "Navigator.labelUserToolbar.toolTipText" )
@@ -288,7 +301,7 @@ new FormModel {
 											"preferredSize": new java.awt.Dimension( 124, 30 )
 											"minimumSize": new java.awt.Dimension( 124, 30 )
 											"maximumSize": new java.awt.Dimension( 124, 30 )
-											"icon": new com.jformdesigner.model.SwingIcon( 0, "/hint-green.png" )
+											"icon": #SwingIcon3
 											"actionCommand": "hints"
 											"toolTipText": new FormMessage( null, "Navigator.buttonHintTracking.toolTipText" )
 										}, new FormLayoutConstraints( class java.lang.String ) {
@@ -2400,9 +2413,24 @@ new FormModel {
 						"maximumSize": new java.awt.Dimension( 14, 21 )
 						"cursor": #Cursor0
 					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "buttonHintTrackingMenu"
+						"text": new FormMessage( null, "Navigator.buttonHintTrackingMenu.text" )
+						"mnemonic": new FormMessage( null, "Navigator.buttonHintTrackingMenu.mnemonic" )
+						"focusable": false
+						"preferredSize": new java.awt.Dimension( 124, 19 )
+						"minimumSize": new java.awt.Dimension( 124, 19 )
+						"maximumSize": new java.awt.Dimension( 124, 19 )
+						"icon": #SwingIcon3
+						"actionCommand": "hints"
+						"toolTipText": new FormMessage( null, "Navigator.buttonHintTrackingMenu.toolTipText" )
+						"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
+					} )
 					add( new FormComponent( "javax.swing.JLabel" ) {
 						name: "labelUserMenu"
 						"toolTipText": new FormMessage( null, "Navigator.labelUserToolbar.toolTipText" )
+						"verticalTextPosition": 3
+						"verticalAlignment": 3
 					} )
 				} )
 			}

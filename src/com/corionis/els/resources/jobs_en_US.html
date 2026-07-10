@@ -45,7 +45,20 @@ This allows a Tool to be reused with different Jobs.</p>
 <p>&nbsp;</p>
 
 <p>Jobs execute defined Tasks in the sequence specified. A Task is a defined Tool with
-starting Origin(s) as arguments to the Tool.</p>
+starting Task Origin(s) as arguments to the Tool.</p>
+
+<p>&nbsp;</p>
+
+<p>Each Task is executed in the defined order. The Job waits for each Task to complete
+before executing the next Task <b>except</b> a Hint Server task that will start the
+Hint Server then proceed with the next Task. A Hint Server Force Quit tool may be used
+to stop a running Hint Server.</p>
+
+<p>&nbsp;</p>
+
+<p>For Subscriber listener tools in a Job <b>be sure</b> to disable the "Keep going" option for
+the Subscriber Listener <i>and</i> Publish tools so the Subscriber Listener exits at the end of
+a backup operation and the next task in the Job is executed.</p>
 
 <h3>Tasks</h3>
 <p>The Add button for Tasks displays a list of Tools that have been previously created.
@@ -74,7 +87,7 @@ The options provided depend on the type of Task being defined.</p>
 
 <p>&nbsp;</p>
 
-<p>The type of connection must be defined. Hint Servers only listen on the Listen address. If that value is not
+<p>The type of connection must be defined. Hint Servers only listen on the Listen address. If the Listen value is not
 defined for that Library the Host value is used. Because there can be only one Hint Tracker/Server
 there is no Custom option as provided for remote Subscribers.</p>
 

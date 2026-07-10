@@ -16,6 +16,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.net.SocketException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -312,8 +313,7 @@ public class Job extends AbstractTool
                 }
                 else // regular task
                 {
-                    // publisher key (only) is used to indicate cached last task
-                    if (previousTask != null) // TODO && currentTask.isToolCachedOrigins(context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
+                    if (previousTask != null)
                         currentTask.setPreviousTask(previousTask);
 
                     // run it
@@ -331,12 +331,23 @@ public class Job extends AbstractTool
 
             for (Task task : previousTasks)
             {
-                // tasks make new Subscriber connections
-                if (task.localContext.clientStty != null && task.localContext.clientStty.isConnected())
+                try
                 {
-                    task.localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
-                    task.localContext.clientStty.disconnect();
-                    task.localContext.clientSftp.stopClient();
+                    // tasks make new Subscriber connections - disconnect
+                    if (task.localContext.clientStty != null && task.localContext.clientStty.isConnected())
+                    {
+                        task.localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
+                        task.localContext.clientStty.disconnect();
+                    }
+
+                    if (task.localContext.clientSftp != null)
+                    {
+                        task.localContext.clientSftp.stopClient();
+                    }
+                }
+                catch (SocketException e)
+                {
+                    logger.info("Subscriber already stopped");
                 }
 
                 // tasks use any existing connection; do not disconnect any original connection, i.e. in Navigator

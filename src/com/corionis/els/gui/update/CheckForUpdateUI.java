@@ -65,7 +65,9 @@ public class CheckForUpdateUI extends JDialog
         }
         else
         {
+            helpDialog.setVisible(true);
             helpDialog.toFront();
+            helpDialog.requestFocus();
             helpDialog.buttonFocus();
         }
     }

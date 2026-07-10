@@ -858,7 +858,7 @@ public class Process
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (opt != JOptionPane.YES_OPTION)
                 {
-                    logger.info(context.cfg.gs("Process.user.chose.to.no.send.emails"));
+                    logger.info(context.cfg.gs("Process.user.chose.to.not.send.emails"));
                     return;
                 }
             }

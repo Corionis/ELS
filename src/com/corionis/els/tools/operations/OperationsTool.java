@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 
 public class OperationsTool extends AbstractTool
@@ -20,7 +21,7 @@ public class OperationsTool extends AbstractTool
     // @formatter:off
 
     // Elements match card names in lowercase
-    // Jobs PubSub handling and Origins always disabled for Operations
+    // Job Origins always disabled for Operations
     //  * Publisher & Subscriber
     //     + Publisher
     //     + Listener
@@ -113,8 +114,8 @@ public class OperationsTool extends AbstractTool
         tool.setOptIpWhitelist(getOptIpWhitelist());
         tool.setOptKeys(getOptKeys());
         tool.setOptKeysOnly(getOptKeysOnly());
-//        tool.setOptLibrary(getOptLibrary().clone());
-//        tool.setOptExclude(getOptExclude().clone());
+        tool.setOptLibrary(Arrays.copyOf(getOptLibrary(), getOptLibrary().length));
+        tool.setOptExclude(Arrays.copyOf(getOptExclude(), getOptExclude().length));
         tool.setOptMismatches(getOptMismatches());
         tool.setOptNavigator(isOptNavigator());
         tool.setOptIgnored(isOptIgnored());

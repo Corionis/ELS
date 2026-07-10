@@ -75,8 +75,6 @@
   <li>Local or Remote publish : Back-up based on the Task Origins.</li>
   <li>Subscriber listener : The subscribe-side for remote publish.</li>
   <li>Hint status server : Track manual changes between remote back-up systems.</li>
-  <li>Publisher terminal : Manual terminal for a remote publisher listener.</li>
-  <li>Publisher listener : The publisher-side for a publisher terminal.</li>
   <li>Subscriber terminal : Manual terminal for a remote subscriber listener.</li>
   <li>Hint server force quit : Force a remote Hint Status Server to quit.</li>
   <li>Subscriber force quit : Force a remote subscriber listener to quit.</li>
@@ -138,7 +136,12 @@ appear depends on the selected mode.</p>
   <li id="opts">Keep going<br/>
     -g | --listener-keep-going : For a Publisher the "keep going" option skips sending the quit command to
     the subscriber when the backup operation is complete. For a subscriber it skips ending with a fault on an
-    unexpected disconnect (EOL) and ignores quit commands. To stop a subscriber in this mode use the
+    unexpected disconnect (EOL) and ignores quit commands.
+    <br/>
+    <br/>NOTE: Do not enable this option if the Operation is to be used along with other Job Tasks that
+    follow it because it will not stop and the next Task will not be executed.
+    <br/>
+    <br/>To stop a Subscriber Listener in this mode use the
     -G | --listener-quit option.</li>
 
   <li id="opts">Mismatches<br/>

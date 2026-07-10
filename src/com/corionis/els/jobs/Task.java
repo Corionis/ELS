@@ -108,9 +108,7 @@ public class Task implements Comparable, Serializable
         task.currentTool = this.currentTool;
         task.dryRun = this.dryRun;
         task.previousTask = this.previousTask;
-//        task.publisherRepo = this.publisherRepo;
         task.remoteType = this.remoteType;
-//        task.subscriberRepo = this.subscriberRepo;
         return task;
     }
 
@@ -529,6 +527,8 @@ public class Task implements Comparable, Serializable
         if (logger == null)
             logger = LogManager.getLogger("applog");
 
+        context.taskDone = false;
+
         if (currentTool == null)
             currentTool = getTool();
 
@@ -669,24 +669,15 @@ public class Task implements Comparable, Serializable
                 directory = localContext.cfg.getWorkingDirectory();
             localContext.cfg.setWorkingDirectorySubscriber(directory);
 
+            // set the task for a Subscriber Listener so it does not exit in Connection.run()
+            if (currentTool.getInternalName().equalsIgnoreCase("Operations") &&
+                    ((OperationsTool) currentTool).isToolSubscriber())
+            {
+                localContext.task = this;
+            }
+
             // run it
             currentTool.processTool(this);
-
-/*
-            // disconnect
-            if (isHintsRemote() && localContext.hintsStty != null)
-            {
-                localContext.hintsStty.send("bye", "Sending bye command to remote Hint Server");
-                localContext.hintsStty.disconnect();
-            }
-
-            if (isSubscriberRemote() && localContext.clientStty != null)
-            {
-                localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
-                localContext.clientStty.disconnect();
-                localContext.clientSftp.stopClient();
-            }
-*/
 
             if (currentTool.isRequestStop())
                 return false;
@@ -695,6 +686,26 @@ public class Task implements Comparable, Serializable
         }
         else
             throw new MungeException(localContext.cfg.gs("Task.tool.not.found") + getInternalName() + ": " + getConfigName());
+
+        // wait for listener task to stop - to sequence the job
+        if (currentTool.getInternalName().equalsIgnoreCase("Operations") &&
+                ((OperationsTool) currentTool).isToolSubscriber())
+        {
+            logger.info(context.cfg.gs("Task.waiting.for.subscriber.listener.to.exit"));
+            while (!localContext.taskDone)
+            {
+                try
+                {
+                    Thread.sleep(100);
+                }
+                catch (InterruptedException e)
+                {
+                }
+            }
+        }
+
+        context.task = null;
+        context.taskDone = false;
 
         return true;
     }

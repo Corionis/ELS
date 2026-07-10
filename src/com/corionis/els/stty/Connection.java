@@ -101,7 +101,7 @@ public class Connection extends Thread
             {
                 try
                 {
-                    logger.info(context.cfg.gs("Stty.shutdown.via.stty"));
+                    logger.info(context.cfg.gs("Stty.disconnect.via.stty") + status);
 
                     if ((status == 1 && !service.context.cfg.isKeepGoing()) || status == 2)
                     {
@@ -110,10 +110,14 @@ public class Connection extends Thread
                         if (service.context.main.context.fault)
                             logger.error(context.cfg.gs("Main.exiting.with.error.code"));
 
-                        service.context.main.shutdown();
+                        service.context.main.shutdown(); // stop services
 
-                        if (!context.cfg.isGui() && context.navigator == null)
-                            System.exit(0);
+                        // for a Subscriber Listener job task stop the wait loop in Task.process()
+                        if (context.task != null)
+                            context.taskDone = true;
+                        else
+                            if (!context.cfg.isGui() && context.navigator == null)
+                                System.exit(0);
                     }
                 }
                 catch (Exception e)

@@ -261,6 +261,7 @@ public class Configuration
             String lfn = getLogFileName();
             setLogFilePath("");
 
+// ISSUE This does not work in Windows; log file path is empty
             // if relative path prepend with working directory
             if (!lfn.matches("^[a-zA-Z]:.*") &&
                     !lfn.startsWith("/") &&
@@ -558,7 +559,7 @@ public class Configuration
         {
             if (pr.getLastSubscriberOpenFile().length() > 0 && pr.isLastSubscriberIsOpen())
             {
-                if (!pr.getLastOverrideSubscriber().isEmpty())
+                if (!pr.getLastOverrideSubscriber().isEmpty() && pr.isLastSubscriberIsRemote())
                     sb.append(" " + (glo ? "--override-host" : "-O ") + overrideSubscriberHost);
                 sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
                         Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");

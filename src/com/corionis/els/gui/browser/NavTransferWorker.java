@@ -102,12 +102,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             batchSize = batch.batchSize;
             targetIsPublisher = targetTree.getName().toLowerCase().endsWith("one");
 
-//            if (batchSize > 512000)
-            {
-                context.progress.display();
-            }
-//            else
-//                localContext.progress = null;
+            context.progress.display();
 
             // iterate the selected source row's user object
             for (NavTreeUserObject sourceTuo : transferData)
