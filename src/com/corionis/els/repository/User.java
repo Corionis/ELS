@@ -148,19 +148,20 @@ public class User
             return true;
 
         // System tabs - if available
+        String objName = "";
         Object object = context.browser.lastComponent;
         if (object instanceof JTree)
         {
             JTree sourceTree = (JTree) object;
-            name = sourceTree.getName();
+            objName = sourceTree.getName();
         }
         else if (object instanceof JTable)
         {
             JTable sourceTable = (JTable) object;
-            name = sourceTable.getName();
+            objName = sourceTable.getName();
         }
-        if (name.toLowerCase().contains("system"))
-            return true;
+        if (objName.toLowerCase().contains("system"))
+            return true; // if the System tab is visible it is writable
 
         // Collections tabs
         boolean may = false;

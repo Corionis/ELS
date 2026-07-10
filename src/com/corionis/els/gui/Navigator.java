@@ -200,7 +200,8 @@ public class Navigator
         }
         else
         {
-            setHintTrackingVisibility();
+            context.mainFrame.labelAlertHintsMenu.setVisible(false);
+            context.mainFrame.labelAlertHintsToolbar.setVisible(false);
         }
         return count;
     }
@@ -337,9 +338,10 @@ public class Navigator
         User user = null;
         if (context.preferences.isUsersEnabled())
         {
-            user = context.publisherUser;
             if (context.subscriberUser != null)
                 user = context.subscriberUser;
+            else if (context.publisherUser != null)
+                user = context.publisherUser;
             String name = "";
             String remote = "";
             if (user != null)
@@ -2730,32 +2732,40 @@ public class Navigator
             context.mainFrame.menuItemShowNavigation.setSelected(false);
 
         // --- Show Toolbar
-        context.mainFrame.menuItemShowToolbar.addActionListener(new AbstractAction()
+        if (!Utils.isOsMac())
         {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
+            context.mainFrame.menuItemShowToolbar.addActionListener(new AbstractAction()
             {
-                context.preferences.setShowToolbar(context.mainFrame.menuItemShowToolbar.isSelected());
-                if (context.mainFrame.menuItemShowToolbar.isSelected())
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
                 {
-                    context.preferences.setShowToolbar(true);
-                    context.mainFrame.panelAlertsMenu.setVisible(false);
-                    context.mainFrame.panelToolbar.setVisible(true);
+                    context.preferences.setShowToolbar(context.mainFrame.menuItemShowToolbar.isSelected());
+                    if (context.mainFrame.menuItemShowToolbar.isSelected())
+                    {
+                        context.preferences.setShowToolbar(true);
+                        context.mainFrame.panelAlertsMenu.setVisible(false);
+                        context.mainFrame.panelToolbar.setVisible(true);
+                    }
+                    else
+                    {
+                        context.preferences.setShowToolbar(false);
+                        context.mainFrame.panelAlertsMenu.setVisible(true);
+                        context.mainFrame.panelToolbar.setVisible(false);
+                    }
+                    setHintTrackingVisibility();
                 }
-                else
-                {
-                    context.preferences.setShowToolbar(false);
-                    context.mainFrame.panelAlertsMenu.setVisible(true);
-                    context.mainFrame.panelToolbar.setVisible(false);
-                }
-                setHintTrackingVisibility();
-            }
-        });
-        // set initial state of Show Toolbar checkbox
-        if (context.preferences.isShowToolbar())
-            context.mainFrame.menuItemShowToolbar.setSelected(true);
+            });
+            // set initial state of Show Toolbar checkbox
+            if (context.preferences.isShowToolbar())
+                context.mainFrame.menuItemShowToolbar.setSelected(true);
+            else
+                context.mainFrame.menuItemShowToolbar.setSelected(false);
+        }
         else
-            context.mainFrame.menuItemShowToolbar.setSelected(false);
+        {
+            // cannot hide because Hints and Update indicators cannot go into top menu
+            context.mainFrame.menuItemShowToolbar.setVisible(false);
+        }
 
         // --- Word Wrap Log
         ActionListener wordWrapAction = new AbstractAction()

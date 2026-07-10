@@ -114,8 +114,10 @@ public class OperationsTool extends AbstractTool
         tool.setOptIpWhitelist(getOptIpWhitelist());
         tool.setOptKeys(getOptKeys());
         tool.setOptKeysOnly(getOptKeysOnly());
-        tool.setOptLibrary(Arrays.copyOf(getOptLibrary(), getOptLibrary().length));
-        tool.setOptExclude(Arrays.copyOf(getOptExclude(), getOptExclude().length));
+        if (getOptLibrary() != null)
+            tool.setOptLibrary(Arrays.copyOf(getOptLibrary(), getOptLibrary().length));
+        if (getOptExclude() != null)
+            tool.setOptExclude(Arrays.copyOf(getOptExclude(), getOptExclude().length));
         tool.setOptMismatches(getOptMismatches());
         tool.setOptNavigator(isOptNavigator());
         tool.setOptIgnored(isOptIgnored());
