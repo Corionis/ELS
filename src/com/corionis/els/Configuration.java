@@ -253,45 +253,39 @@ public class Configuration
     public void configureLoggerPath() throws Exception
     {
         // setup the absolute path for the log file before configuring logging
-        if (getLogFileName() != null && getLogFileName().length() > 0)
+        if (getLogFileName() == null || getLogFileName().isEmpty())
+            setLogFileName("output/ELS-Navigator.log");
+
+        String prefix = "";
+        String relative = "";
+
+        String lfn = getLogFileName();
+        setLogFilePath("");
+
+        // if relative path prepend with working directory
+        if (!lfn.matches("^[a-zA-Z]:.*") &&
+                !lfn.startsWith("/") &&
+                !lfn.startsWith("\\"))
         {
-            String prefix = "";
-            String relative = "";
+            prefix = getWorkingDirectory() + System.getProperty("file.separator");
 
-            String lfn = getLogFileName();
-            setLogFilePath("");
-
-// ISSUE This does not work in Windows; log file path is empty
-            // if relative path prepend with working directory
-            if (!lfn.matches("^[a-zA-Z]:.*") &&
-                    !lfn.startsWith("/") &&
-                    !lfn.startsWith("\\"))
+            String separator = "";
+            if (lfn.contains("\\"))
             {
-                prefix = getWorkingDirectory() + System.getProperty("file.separator");
-
-                String separator = "";
-                if (lfn.contains("\\"))
-                {
-                    separator = "\\";
-                }
-                else if (lfn.contains("/"))
-                {
-                    separator = "/";
-                }
-                int i = (separator.length() > 0 ? lfn.lastIndexOf(separator) : -1);
-                if (i >= 0)
-                {
-                    relative = lfn.substring(0, i + 1);
-                    setLogFilePath(relative);
-                }
+                separator = "\\";
             }
-            setLogFileFullPath(prefix + lfn);
+            else if (lfn.contains("/"))
+            {
+                separator = "/";
+            }
+            int i = (separator.length() > 0 ? lfn.lastIndexOf(separator) : -1);
+            if (i >= 0)
+            {
+                relative = lfn.substring(0, i + 1);
+                setLogFilePath(relative);
+            }
         }
-        else
-        {
-            setLogFileName("ELS-Navigator.log");
-            setLogFileFullPath(this.workingDirectory + System.getProperty("file.separator") + "output/ELS-Navigator.log");
-        }
+        setLogFileFullPath(prefix + lfn);
     }
 
     /**

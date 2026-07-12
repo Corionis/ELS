@@ -2732,7 +2732,7 @@ public class Navigator
             context.mainFrame.menuItemShowNavigation.setSelected(false);
 
         // --- Show Toolbar
-        if (!Utils.isOsMac())
+        if (!Utils.isOsMac() && !Utils.isOsWindows())
         {
             context.mainFrame.menuItemShowToolbar.addActionListener(new AbstractAction()
             {

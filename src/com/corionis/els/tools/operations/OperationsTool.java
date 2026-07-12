@@ -150,7 +150,7 @@ public class OperationsTool extends AbstractTool
             sb.append(" " + (glo ? "--dry-run" : "-D"));
 
         // --- non-munging actions
-        if (isOptNavigator() != context.cfg.isNavigator())
+        if (isOptNavigator()) // != context.cfg.isNavigator())
             sb.append(" " + (glo ? "--navigator" : "-n"));
         if (isOptForceQuit() || operation == Operations.StatusServerQuit)
             sb.append(" " + (glo ? "--force-quit" : "-Q"));

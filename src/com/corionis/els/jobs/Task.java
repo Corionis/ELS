@@ -243,7 +243,7 @@ public class Task implements Comparable, Serializable
                             throw new MungeException(localContext.cfg.gs("Z.publisher.login.failed"));
                     }
 
-                    if (localContext.cfg.isGui())
+                    if (localContext.cfg.isGui() && localContext.mainFrame != null && localContext.mainFrame.isVisible())
                         localContext.navigator.displayConnection();
                     break;
                 }
@@ -350,7 +350,7 @@ public class Task implements Comparable, Serializable
                         }
                     }
 
-                    if (localContext.cfg.isGui())
+                    if (localContext.cfg.isGui() && localContext.mainFrame != null && localContext.mainFrame.isVisible())
                         localContext.navigator.displayConnection();
                     break;
                 }
