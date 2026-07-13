@@ -30,7 +30,7 @@ public class Startup extends JFrame
         setPreferredSize(new Dimension(400, 114));
         setMinimumSize(new Dimension(400, 114));
         setMaximumSize(new Dimension(400, 114));
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== panelTopSpacer ========
@@ -77,6 +77,7 @@ public class Startup extends JFrame
             startupTextField.setHorizontalAlignment(SwingConstants.CENTER);
             startupTextField.setBorder(null);
             startupTextField.setMargin(new Insets(2, 0, 18, 0));
+            startupTextField.setFocusable(false);
             panelLogText.add(startupTextField);
         }
         contentPane.add(panelLogText, BorderLayout.SOUTH);

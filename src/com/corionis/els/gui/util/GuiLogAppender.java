@@ -194,7 +194,8 @@ public class GuiLogAppender extends AbstractAppender
             }
         }
 
-        msg = msg.substring(30); // remove leading tag and date/time
+        msg = msg.replaceAll("\\n", ""); // remove newlines
+        msg = msg.substring(30).trim(); // remove leading tag and date/time and any leading spaces
         startup.startupTextField.setText(msg);
         redraw();
     }

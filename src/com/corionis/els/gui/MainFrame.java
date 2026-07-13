@@ -29,7 +29,7 @@ import java.awt.event.*;
  *  - GitHub project: https://github.com/JFormDesigner/FlatLaf <br/>
  * <br/>
  * Uses free components from FormDev: <br/>
- *  - FlatLaf, https://www.formdev.com/flatlaf/ <br/>
+ *  - FlatLaf: https://www.formdev.com/flatlaf/ <br/>
  *  - FlatLaf Themes: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes <br/>
  *  - FlatLaf Extras: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-extras <br/>
  * <br/>

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.0.3.0.246" Java: "17.0.6" encoding: "UTF-8"
+JFDML JFormDesigner: "8.3" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -66,6 +66,7 @@ new FormModel {
 					"horizontalAlignment": 0
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"margin": new java.awt.Insets( 2, 0, 18, 0 )
+					"focusable": false
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "South"
