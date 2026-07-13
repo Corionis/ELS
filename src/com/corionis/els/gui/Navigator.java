@@ -2274,12 +2274,14 @@ public class Navigator
             {
                 if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
+                    boolean isTree = false;
                     boolean tooMany = false;
                     JTree tree = null;
                     NavTreeUserObject tuo = null;
                     Object object = context.browser.lastComponent;
                     if (object instanceof JTree)
                     {
+                        isTree = true;
                         tree = (JTree) object;
                     }
                     else if (object instanceof JTable)
@@ -2340,6 +2342,14 @@ public class Navigator
                         String reply = "";
                         if (path.length() > 0)
                         {
+                            if (isTree && Utils.isOsMac()) // a hack for MacOS lost focus bug
+                            {
+                                Object[] opts = {context.cfg.gs("Z.ok")};
+                                String message = context.cfg.gs("Navigator.for.macos.only.enter.a.new.directory.name");
+                                JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.getNavigatorName(),
+                                        JOptionPane.PLAIN_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, opts, opts[0]);
+                            }
+
                             path = Utils.getFullPathLocal(path);
                             reply = JOptionPane.showInputDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.New.folder.for") + path + ": ",

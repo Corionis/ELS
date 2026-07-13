@@ -116,3 +116,4 @@ hs_err_pid*
 /mock/reset-test.bat
 /mock/800-Nighly-Publish-Both.sh
 /mock/800-Nightly-Backup.bat
+/mock/800-Nightly-Backup.sh
