@@ -1375,7 +1375,7 @@ public class MainFrame extends JFrame
                 buttonHintTrackingMenu.setMaximumSize(new Dimension(124, 19));
                 buttonHintTrackingMenu.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
                 buttonHintTrackingMenu.setActionCommand("hints");
-                buttonHintTrackingMenu.setToolTipText(context.cfg.gs("Navigator.buttonHintTrackingMenu.toolTipText"));
+                buttonHintTrackingMenu.setToolTipText(context.cfg.gs("Navigator.buttonHint.disabled.tooltip"));
                 buttonHintTrackingMenu.setFont(buttonHintTrackingMenu.getFont().deriveFont(buttonHintTrackingMenu.getFont().getSize() - 2f));
                 panelAlertsMenu.add(buttonHintTrackingMenu);
 
@@ -1515,7 +1515,7 @@ public class MainFrame extends JFrame
                     buttonHintTrackingToolbar.setMaximumSize(new Dimension(124, 24));
                     buttonHintTrackingToolbar.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
                     buttonHintTrackingToolbar.setActionCommand("hints");
-                    buttonHintTrackingToolbar.setToolTipText(context.cfg.gs("Navigator.buttonHintTrackingToolbar.toolTipText"));
+                    buttonHintTrackingToolbar.setToolTipText(context.cfg.gs("Navigator.buttonHint.disabled.tooltip"));
                     buttonHintTrackingToolbar.setFont(buttonHintTrackingToolbar.getFont().deriveFont(buttonHintTrackingToolbar.getFont().getSize() - 2f));
                     panelAlertsToolbar.add(buttonHintTrackingToolbar);
 
@@ -1668,7 +1668,7 @@ public class MainFrame extends JFrame
                                     buttonHintTracking.setMaximumSize(new Dimension(124, 30));
                                     buttonHintTracking.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
                                     buttonHintTracking.setActionCommand("hints");
-                                    buttonHintTracking.setToolTipText(context.cfg.gs("Navigator.buttonHintTracking.toolTipText"));
+                                    buttonHintTracking.setToolTipText(context.cfg.gs("Navigator.buttonHint.disabled.tooltip"));
                                     panelHintTracking.add(buttonHintTracking, BorderLayout.CENTER);
 
                                     //---- hSpacer2 ----
