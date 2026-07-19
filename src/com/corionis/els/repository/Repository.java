@@ -969,7 +969,7 @@ public class Repository implements Comparable
             String msg = MessageFormat.format(context.cfg.gs("Repository.exception.while.reading.library"), type) + " " + filename;
             if (context.main.isStartupActive())
             {
-                logger.error(msg);
+                logger.error(msg + "\n" + Utils.getStackTrace(ioe));
                 int opt = JOptionPane.showConfirmDialog(context.guiLogAppender.getStartup(),
                         msg + "Continue?",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);

@@ -312,6 +312,7 @@ public class ClientStty
                 out.flush();
                 out.close();
                 in.close();
+                context.bannerCommands = "";
             }
         }
         catch (Exception e)

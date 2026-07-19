@@ -67,6 +67,7 @@ new FormModel {
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"margin": new java.awt.Insets( 2, 0, 18, 0 )
 					"focusable": false
+					"caretColor": new java.awt.Color( 60, 63, 65, 255 )
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "South"

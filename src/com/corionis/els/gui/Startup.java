@@ -78,6 +78,7 @@ public class Startup extends JFrame
             startupTextField.setBorder(null);
             startupTextField.setMargin(new Insets(2, 0, 18, 0));
             startupTextField.setFocusable(false);
+            startupTextField.setCaretColor(new Color(0x3c3f41));
             panelLogText.add(startupTextField);
         }
         contentPane.add(panelLogText, BorderLayout.SOUTH);

@@ -325,10 +325,13 @@ public class Navigator
         logger.info(context.cfg.gs("Main.disconnecting.stty"));
         context.preferences.setLastSubscriberIsOpen(false);
         quitByeRemotes(true, false);
-        NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
-        root.loadTable();
-        root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
-        root.loadTable();
+        if (clear)
+        {
+            NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
+            root.loadTable();
+            root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
+            root.loadTable();
+        }
         setQuitTerminateVisibility();
     }
 
