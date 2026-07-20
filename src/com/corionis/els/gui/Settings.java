@@ -306,11 +306,9 @@ public class Settings extends JDialog
         defaultDryrunCheckBox.setSelected(context.preferences.isDefaultDryrun());
         if (context.preferences.getDefaultEmailServer().length() > 0)
             comboBoxEmailServer.setSelectedItem(context.preferences.getDefaultEmailServer());
-        usersCheckBox.setSelected(context.preferences.isUsersEnabled());
         generateLongOptionsCheckBox.setSelected(context.preferences.isGenerateLongOptions());
         preserveFileTimestampsCheckBox.setSelected(context.preferences.isPreserveFileTimes());
-
-        if (context.publisherUser.isAdmin())
+        if (context.publisherUser.isAdmin() || !context.preferences.isUsersEnabled())
             showDevOptionscheckBox.setSelected(context.preferences.isShowDevOptions());
         else
         {
@@ -318,8 +316,9 @@ public class Settings extends JDialog
             labelShowDev.setVisible(false);
             showDevOptionscheckBox.setVisible(false);
         }
-
         showGettingStartedCheckBox.setSelected(context.preferences.isShowGettingStarted());
+        usersCheckBox.setSelected(context.preferences.isUsersEnabled());
+        uselastPubSubCheckBox.setSelected(context.preferences.isUseLastPublisherSubscriber());
         macosLauncherCheckBox.setSelected(context.preferences.isMacosLauncher());
 
         // appearance
@@ -376,7 +375,6 @@ public class Settings extends JDialog
         tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.right"));
         tabPlacementComboBox.setSelectedIndex(context.preferences.getTabPlacementIndex());
         tooltipLargeTableCheckBox.setSelected(context.preferences.isTooltipsLargeTables());
-        uselastPubSubCheckBox.setSelected(context.preferences.isUseLastPublisherSubscriber());
 
         if (!Utils.isOsMac())
         {
@@ -412,12 +410,12 @@ public class Settings extends JDialog
         else
             sel = "";
         context.preferences.setDefaultEmailServer(sel);
-        context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
-        context.preferences.setUsersEnabled(usersCheckBox.isSelected());
         context.preferences.setGenerateLongOptions(generateLongOptionsCheckBox.isSelected());
         context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
         context.preferences.setShowDevOptions(showDevOptionscheckBox.isSelected());
         context.preferences.setShowGettingStarted(showGettingStartedCheckBox.isSelected());
+        context.preferences.setUsersEnabled(usersCheckBox.isSelected());
+        context.preferences.setUseLastPublisherSubscriber(uselastPubSubCheckBox.isSelected());
         context.preferences.setMacosLauncher(macosLauncherCheckBox.isSelected());
 
         // appearance
@@ -460,7 +458,6 @@ public class Settings extends JDialog
         context.preferences.setSortReverse(sortReverseCheckBox.isSelected());
         context.preferences.setTabPlacement(tabPlacementComboBox.getSelectedIndex());
         context.preferences.setTooltipsLargeTables(tooltipLargeTableCheckBox.isSelected());
-        context.preferences.setUseLastPublisherSubscriber(uselastPubSubCheckBox.isSelected());
 
         context.mainFrame.labelStatusMiddle.setText("<html><body>&nbsp;</body></html>");
         return true;

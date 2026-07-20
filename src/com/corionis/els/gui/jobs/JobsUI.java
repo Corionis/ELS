@@ -2116,7 +2116,6 @@ public class JobsUI extends AbstractToolDialog
                     job.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
             logger.info(msg);
             context.mainFrame.labelStatusMiddle.setText(msg);
-            context.main.stopVerbiage();
         }
 
         context.navigator.setWorkerRunning(false);

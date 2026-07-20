@@ -274,7 +274,7 @@ public class Task implements Comparable, Serializable
                         {
                             if (previousTask != null && previousTask.localContext.clientStty != null && previousTask.localContext.clientStty.isConnected())
                             {
-                                previousTask.localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
+                                previousTask.localContext.clientStty.send("bye", "Sending bye command to Remote Subscriber");
                                 previousTask.localContext.clientStty.disconnect();
                                 previousTask.localContext.clientSftp.stopClient();
                                 previousTask.localContext.clientStty = null;
@@ -383,7 +383,7 @@ public class Task implements Comparable, Serializable
                         {
                             if (previousTask != null && previousTask.localContext.hintsStty != null && previousTask.localContext.hintsStty.isConnected())
                             {
-                                previousTask.localContext.hintsStty.send("bye", "Sending bye command to remote Hint Server");
+                                previousTask.localContext.hintsStty.send("bye", "Sending bye command to Remote Hint Server");
                                 previousTask.localContext.hintsStty.disconnect();
                                 previousTask.localContext.hintsStty = null;
                             }

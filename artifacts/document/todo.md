@@ -3,6 +3,7 @@
 
 ## Bugs
 
+ * Switching Users Enabled bug not resetting Menu or User options
  * Test Library, New on all platforms
 
 ## Work

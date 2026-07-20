@@ -904,13 +904,13 @@ public class RenamerUI extends AbstractToolDialog
                 // disconnect last remotes
                 if (workerTask.isSubscriberRemote() && workerTask.localContext.clientStty != null && workerTask.localContext.clientStty.isConnected())
                 {
-                    workerTask.localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
+                    workerTask.localContext.clientStty.send("bye", "Sending bye command to Remote Subscriber");
                     workerTask.localContext.clientStty.disconnect();
                     workerTask.localContext.clientSftp.stopClient();
                 }
                 //if (workerTask.localContext.hintsStty != null && workerTask.localContext.hintsStty.isConnected())
                 //{
-                //    workerTask.localContext.hintsStty.send("bye", "Sending bye command to remote Hints");
+                //    workerTask.localContext.hintsStty.send("bye", "Sending bye command to Remote Hint Server");
                 //    workerTask.localContext.hintsStty.disconnect();
                 //}
             }

@@ -336,7 +336,7 @@ public class Job extends AbstractTool
                     // tasks make new Subscriber connections - disconnect
                     if (task.localContext.clientStty != null && task.localContext.clientStty.isConnected())
                     {
-                        task.localContext.clientStty.send("bye", "Sending bye command to remote Subscriber");
+                        task.localContext.clientStty.send("bye", "Sending bye command to Remote Subscriber");
                         task.localContext.clientStty.disconnect();
                     }
 
@@ -355,7 +355,7 @@ public class Job extends AbstractTool
                 {
                     if (context.hintsStty == null)
                     {
-                        task.localContext.hintsStty.send("bye", "Sending bye command to remote Hints");
+                        task.localContext.hintsStty.send("bye", "Sending bye command to Remote Hint Server");
                         task.localContext.hintsStty.disconnect();
                     }
                 }

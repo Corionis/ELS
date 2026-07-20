@@ -369,10 +369,20 @@ public class Navigator
                 text = "";
             }
         }
-        context.mainFrame.labelUserMenu.setText(text);
-        context.mainFrame.labelUserMenu.repaint();
-        context.mainFrame.labelUserToolbar.setText(text);
-        context.mainFrame.labelUserToolbar.repaint();
+        if (!text.isEmpty())
+        {
+            context.mainFrame.labelUserMenu.setVisible(true);
+            context.mainFrame.labelUserMenu.setText(text);
+            context.mainFrame.labelUserMenu.repaint();
+            context.mainFrame.labelUserToolbar.setVisible(true);
+            context.mainFrame.labelUserToolbar.setText(text);
+            context.mainFrame.labelUserToolbar.repaint();
+        }
+        else
+        {
+            context.mainFrame.labelUserMenu.setVisible(false);
+            context.mainFrame.labelUserToolbar.setVisible(false);
+        }
     }
 
     /**
@@ -3912,9 +3922,9 @@ public class Navigator
             {
                 String msg = java.text.MessageFormat.format(context.cfg.gs(context.fault ? "Job.failed.job" : "Job.completed.job"),
                         job.getConfigName() + (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : ""));
-                logger.info(msg);
+                if (!context.cfg.isLoggerView())
+                    logger.info(msg);
                 context.mainFrame.labelStatusMiddle.setText(msg);
-                context.main.stopVerbiage();
                 setWorkerRunning(false);
             }
         }
@@ -3953,7 +3963,7 @@ public class Navigator
                             String resp;
                             try
                             {
-                                resp = context.clientStty.roundTrip("fault", "Sending fault to remote", 1000);
+                                resp = context.clientStty.roundTrip("fault", "Sending fault to Remote", 1000);
                             }
                             catch (Exception e)
                             {
@@ -3961,9 +3971,9 @@ public class Navigator
                             }
                         }
                         else if (quitRemoteSubscriber)
-                            context.clientStty.send("quit", "Sending quit command to remote subscriber");
+                            context.clientStty.send("quit", "Sending quit command to Remote subscriber");
                         else
-                            context.clientStty.send("bye", "Sending bye command to remote subscriber");
+                            context.clientStty.send("bye", "Sending bye command to Remote subscriber");
                     }
                 }
 
@@ -3988,16 +3998,15 @@ public class Navigator
                 closure = true;
                 logger.info(context.cfg.gs("Main.disconnecting.status.server"));
                 if (quitRemoteHintStatusServer)
-                    context.hintsStty.send("quit", "Sending quit command to remote Hint Status Server");
+                    context.hintsStty.send("quit", "Sending quit command to Remote Hint Status Server");
                 else
-                    context.hintsStty.send("bye", "Sending bye command to remote Hint Status Server");
+                    context.hintsStty.send("bye", "Sending bye command to Remote Hint Status Server");
 
                 context.hintsStty.disconnect();
                 context.hintsStty = null;
             }
             catch (Exception e)
             {
-                //context.fault = true;
                 logger.error(Utils.getStackTrace(e));
             }
         }
