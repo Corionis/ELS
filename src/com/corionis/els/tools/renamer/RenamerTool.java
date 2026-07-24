@@ -413,6 +413,9 @@ public class RenamerTool extends AbstractTool
     public void processTool(Task task) throws Exception
     {
         reset();
+
+        logger.info(context.cfg.gs("Z.launching") + getDisplayName() + ", " + getConfigName());
+        logger.info("+------------------------------------------");
         isDryRun = task.dryRun;
 
         // this tool only uses one repository

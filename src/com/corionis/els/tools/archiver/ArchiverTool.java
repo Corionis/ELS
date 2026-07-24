@@ -202,6 +202,9 @@ public class ArchiverTool extends AbstractTool
             if (archiveName.length() > 0)
                 archiveName += " ";
             archiveName += zdt.format(DateTimeFormatter.ofPattern(context.preferences.getDateFormat()));
+            archiveName = archiveName.replace(":", "_");
+            archiveName = archiveName.replace("/", "_");
+            archiveName = archiveName.replace("\\", "_");
         }
 
         if (archiveName.length() > 0)
@@ -298,8 +301,9 @@ public class ArchiverTool extends AbstractTool
     {
         reset();
 
-        String msg = context.cfg.gs("Z.executing") + getDisplayName() + " " + getConfigName();
+        String msg = context.cfg.gs("Z.launching") + getDisplayName() + " " + getConfigName();
         logger.info(msg);
+        logger.info("+------------------------------------------");
 
         if (pubRepo == null)
             pubRepo = context.publisherRepo;

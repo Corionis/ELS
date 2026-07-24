@@ -176,6 +176,9 @@ public class CleanupTool extends AbstractTool
     {
         reset();
 
+        logger.info(context.cfg.gs("Z.launching") + getDisplayName() + ", " + getConfigName());
+        logger.info("+------------------------------------------");
+
         if (pubRepo == null)
             pubRepo = context.publisherRepo;
         if (pubRepo == null)
